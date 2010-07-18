@@ -1,0 +1,121 @@
+@CHARSET "UTF-8";
+
+body {
+	margin: 0 auto;
+	padding: 0;
+	font-family: "Lucida Grande", verdana, arial, helvetica, sans-serif;
+	color: #333;
+	background-color: #e5e5e5;
+	text-align: center;
+}
+
+.installdiv{
+	margin:10px auto;
+	width: 600px;
+	padding: 10px;
+	text-align:center;	
+	background:none repeat scroll 0 0 #FFFFFF;
+	border:1px solid #B0C2CC;
+	display:block;
+	height:480px;
+}
+
+h1.BlockHeader {
+	background-color:#CC0000;
+	border-bottom:1px solid #CC0000;
+	color:#FFFFFF;
+	font-size:15px;
+	font-weight:bold;
+	margin:0;
+	padding:1px 1px 1px 5px;
+	text-align:center;
+}
+
+.button{
+	padding:3px 2px;
+	border:1px solid #666666;
+	font-weight:bold;
+	background:url("../images/bg_button.gif") repeat-x scroll center top #EFEFEF;
+	color:#000000;
+	cursor:pointer;
+	font-family:"Lucida Grande",Verdana,Helvetica,Arial,sans-serif;
+	font-size:0.85em;
+	width:auto !important;
+	text-align: center;
+}
+
+.formtab{
+	font-size: 12px;
+	margin: 10 10 18px 10px;	
+}
+
+.formtab th.header{
+	font-size: 16px;
+	text-align: left;
+	padding: 5px 5px 0px 5px;
+}
+
+.formtab th.headersuccess{
+	font-size: 16px;
+	text-align: left;
+	padding: 5px 5px 0px 5px;
+	color: green;
+}
+
+.formtab td.error{
+	font-size: 11px;
+	text-align: left;
+	color: red;
+	border: none;
+}
+
+.formtab th{
+	font-size: 11px;
+	text-align: left;
+	padding: 5px;
+	width: 45%;
+}
+
+.formtab td{
+	font-size: 11px;	
+	border-left:1px solid #B0C2CC;
+	padding: 5px;
+	font-weight: bold;
+}
+
+.formtab td.actrow{
+	text-align: center;
+}
+
+.formtab td.green{
+	color: green;
+}
+
+.formtab td.red{
+	color:red;
+}
+
+.note {
+	color: blue;
+	font-weight: normal;
+	font-size: 12px;
+	padding: 0px;
+	margin: 0px;
+}
+
+td.warning{
+	color:red;
+	font-weight: bold;
+	border: none;
+	font-size: 14px;
+}
+
+.list{
+	font-weight: normal;
+	font-size: 13px;
+}
+
+.list li {
+	padding: 5px 0px;
+	margin: 0px;
+}

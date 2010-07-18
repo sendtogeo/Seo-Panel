@@ -1,0 +1,98 @@
+*******************************************
+Seo Control Panel - Seo Panel Version 2.0.2 
+*******************************************
+
+------------------------------------------
+Installation: Simple 5 minute installation
+------------------------------------------
+
+	1. Download and Unzip the package
+   
+   	2. Upload all the files contained in this folder (retaining the directory structure) to a web accessible directory on your server or hosting account.
+   	
+	3. Change the permissions on "config/sp-config.php" to be writable by all (666 or -rw-rw-rw- within your FTP Client)
+	
+	4. Change the permissions on the "tmp" directory to be writable by all (777 or -rwxrwxrwx within your FTP Client)
+
+	5. Using your web browser visit the location you placed Seo Panel with the addition of "install/index.php" or pointing directly to "install/", e.g. http://www.yourdomain.com/seopanel/install/
+
+	6. Follow the steps and fill out all the requested information.
+
+	7. Change the permissions on "config/sp-config.php" to be writable only by yourself (644 or -rw-r--r-- within your FTP Client)   
+   
+   	8. Please use following login details to access Admin Interface.
+   
+   		Admin Section:
+   		
+   			Username: spadmin
+   			Password: spadmin
+   		
+   	Note: 
+   		Please change password of administrator by visiting 'Profile' link on right top of the seo panel to prevent from security threats.
+   		Remove "install" directory of seo panel
+
+
+
+--------------------------------------------
+Steps to Upgrade Seo Panel to Latest Version
+--------------------------------------------
+
+	Note: Before upgrade please take the backup of your current seo panel database and code 
+
+	1. Change the current seo panel directory name or move it to another place, e.g seopanel to seopanel_bak
+	
+	2. Download and Unzip the new version
+   
+   	3. Upload all the files contained in this folder (retaining the directory structure) to a web accessible directory on your server or hosting account.
+
+	4. Copy the contents of sample config file "config/sp-config-sample.php" to "config/sp-config.php" or remove "config/sp-config.php" and rename "config/sp-config-sample.php" to "config/sp-config.php"
+   	
+   	5. Open up "config/sp-config.php" with a text editor like Notepad or similar editor.
+           Then modify the following sections with your server and database settings of previous version of seo panel.
+
+		# The web path or url to access seo panel through browser.
+		define('SP_WEBPATH', 'http://localhost/seopanel');
+
+		# DB settings - You can get this info from your web hosting provider.
+		# The name of the database for seo panel
+		define('DB_NAME', 'seopanel');
+		
+		# DB database username
+		define('DB_USER', 'root');
+		
+		# DB database password
+		define('DB_PASSWORD', '');
+		
+		# DB hostname
+		define('DB_HOST', 'localhost');
+
+
+   	6. Save the contents of file "config/sp-config.php".
+   
+   	7. Change the permissions on the tmp directory to be writable by all (777 or -rwxrwxrwx within your FTP Client)
+   
+   	8. Using your web browser visit the location you placed Seo Panel with the addition of "install/upgrade.php", 
+      	   e.g. http://www.yourdomain.com/seopanel/install/upgrade.php
+   
+   	9. Follow the steps and fill out all the requested information.   
+
+
+Installation Reference Link: http://www.seopanel.in/install/
+  		
+If you have any issues while installation, Please use following resources to fix it or contact seo panel team. 
+
+---------------------------
+Online Seo Panel Resources:
+---------------------------
+
+a) Seo Panel Help Guide: http://help.seopanel.in/
+
+b) Seo Panel Forum: http://forum.seopanel.in/
+
+b) Seo Panel Support: http://www.seopanel.in/support/
+
+d) Seo Panel Contact: http://www.seopanel.in/contact/
+
+-------------------------------------------
+Developed By Geo Varghese (www.seopanel.in)
+-------------------------------------------

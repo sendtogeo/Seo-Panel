@@ -1,0 +1,312 @@
+<?php
+
+/***************************************************************************
+ *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	   *
+ *   sendtogeo@gmail.com   												   *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ ***************************************************************************/
+
+# class defines all seo plugins controller functions
+class SeoPluginsController extends Controller{
+	var $layout = 'ajax';
+	
+	# function to manage seo plugins
+	function manageSeoPlugins($info, $method='get') {
+		$pluginInfo = $this->__getSeoPluginInfo($info['pid']);
+
+		$pluginDirName = $pluginInfo['name'];
+		define('PLUGIN_PATH', SP_PLUGINPATH."/".$pluginDirName);
+		define('PLUGIN_VIEWPATH', PLUGIN_PATH."/views");		
+		define('PLUGIN_ID', $info['pid']);
+		define('PLUGIN_WEBPATH', SP_WEBPATH."/".SP_PLUGINDIR."/".$pluginDirName);
+		define('PLUGIN_IMGPATH', PLUGIN_WEBPATH."/images");
+		define('PLUGIN_CSSPATH', PLUGIN_WEBPATH."/css");
+		define('PLUGIN_JSPATH', PLUGIN_WEBPATH."/js");
+		
+		$this->loadAllPluginCss();
+		$this->loadAllPluginJs();		
+		
+		if(file_exists(PLUGIN_PATH."/".SP_PLUGINCONF)){
+			include_once(PLUGIN_PATH."/".SP_PLUGINCONF);
+		}
+		include_once(PLUGIN_PATH."/".$pluginDirName.".ctrl.php");
+		$pluginControler = New $pluginDirName();
+		$action = empty($info['action']) ? "index" : $info['action'];
+		$data = ($method=='get') ? $_GET : $_POST; 
+		$pluginControler->$action($data);
+	}
+
+	# func to load plugin css files
+	function loadAllPluginCss() {
+		if(file_exists(PLUGIN_PATH."/css")){
+			if ($handle = opendir(PLUGIN_PATH."/css")) {
+				while (false !== ($file = readdir($handle))) {
+					if ( ($file != ".") && ($file != "..") &&  preg_match('/\.css$/i', $file) ) {
+						print '<script>loadJsCssFile("'.PLUGIN_CSSPATH."/".$file.'", "css")</script>';
+					}
+				}
+			}
+		}
+	}
+	
+	# func to load plugin js files
+	function loadAllPluginJs() {
+		if(file_exists(PLUGIN_PATH."/js")){
+			if ($handle = opendir(PLUGIN_PATH."/js")) {
+				while (false !== ($file = readdir($handle))) {
+					if ( ($file != ".") && ($file != "..") &&  preg_match('/\.js$/i', $file) ) {
+						print '<script>loadJsCssFile("'.PLUGIN_JSPATH."/".$file.'", "js")</script>';
+					}
+				}
+			}
+		}
+	}
+	
+	# index function
+	function showSeoPlugins($info=''){
+		$this->layout = "default";
+		$sql = "select * from seoplugins where status=1 and installed=1 order by id";
+		$menuList = $this->db->select($sql);
+		if(count($menuList) <= 0){
+			$this->set('msg', 'No Active Seo Plugins Found!');
+			$this->render('common/notfound');
+			exit;
+		}
+		
+		# to get sub menus under a plugin main menu
+		foreach($menuList as $i => $menuInfo){
+			Session::setSession('plugin_id', $menuInfo['id']);
+			$pluginDirName = $menuInfo['name'];
+			$menuFile = SP_PLUGINPATH."/".$pluginDirName."/views/".SP_PLUGINMENUFILE;
+			if(file_exists($menuFile)){
+				$menuList[$i]['menu'] = View::fetchFile($menuFile);
+			}else{				
+				$menuList[$i]['menu'] = "<ul id='subui'>
+											<li><a href='javascript:void(0);' onclick=\"".pluginMenu('action=index')."\">{$menuInfo['name']}</a></li>
+										</ul>";
+			}
+		}
+		
+		$this->set('menuList', $menuList);
+		$menuSelected = empty($info['menu_selected']) ? $menuList[0]['id'] : $info['menu_selected'];
+		$this->set('menuSelected', $menuSelected);
+		
+		$this->render('seoplugins/showseoplugins');
+	}
+
+	# func to get all seo tools
+	function __getAllSeoPlugins(){
+		$sql = "select * from seoplugins order by id";
+		$seoPluginList = $this->db->select($sql);
+		return $seoPluginList;
+	}
+
+	# func to list seo tools
+	function listSeoPlugins($msg='', $error=false){		
+		
+		if(empty($msg)) $this->__updateAllSeoPlugins();		
+		
+		$this->set('sectionHead', 'Seo Plugins Manager');
+		$userId = isLoggedIn();
+
+		$this->set('msg', $msg);
+		$this->set('error', $error);
+		
+		$seoPluginList = $this->__getAllSeoPlugins();
+		$this->set('list', $seoPluginList);
+		$this->render('seoplugins/listseoplugins');
+	}
+
+	#function to change status of seo plugins
+	function changeStatus($seoPluginId, $status){
+		$sql = "update seoplugins set status=$status where id=$seoPluginId";
+		$this->db->query($sql);
+	}
+	
+	#function to change installed status of seo plugins
+	function __changeInstallStatus($seoPluginId, $status){
+		$sql = "update seoplugins set installed=$status where id=$seoPluginId";
+		$this->db->query($sql);
+	}
+	
+	# func to get seo plugin info
+	function __getSeoPluginInfo($val, $col='id') {
+		$sql = "select * from seoplugins where $col='$val'";
+		$seoPluginInfo = $this->db->select($sql, true);
+		return $seoPluginInfo;
+	}
+	
+	# func to edit seo plugin
+	function editSeoPlugin($info, $error=false){		
+		$this->set('sectionHead', 'Edit Seo Plugin');
+		if($error){
+			$this->set('post', $info);
+		}else{
+			$this->set('post', $this->__getSeoPluginInfo($info['pid']));
+		}
+		
+		$this->render('seoplugins/editseoplugin');
+	}
+	
+	# func to list seo plugin info
+	function listPluginInfo($pluginId){		
+		$this->set('sectionHead', 'Seo Plugin Details');
+		$this->set('pluginInfo', $this->__getSeoPluginInfo($pluginId));		
+		
+		$this->render('seoplugins/listplugininfo');
+	}
+	
+	function updateSeoPlugin($listInfo){
+		$this->set('post', $listInfo);
+		$errMsg['plugin_name'] = formatErrorMsg($this->validate->checkBlank($listInfo['plugin_name']));
+		if(!$this->validate->flagErr){
+			$sql = "update seoplugins set
+						label='".addslashes($listInfo['plugin_name'])."'
+						where id={$listInfo['id']}";
+			$this->db->query($sql);
+			$this->listSeoPlugins();
+		}else{
+			$this->set('errMsg', $errMsg);
+			$this->editSeoPlugin($listInfo, true);
+		}
+	}
+	
+	function updatePluginInfo($pluginId, $pluginInfo){
+		$sql = "update seoplugins set
+					label='".addslashes($pluginInfo['label'])."',
+					author='".addslashes($pluginInfo['author'])."',
+					description='".addslashes($pluginInfo['description'])."',
+					version='{$pluginInfo['version']}',
+					website='{$pluginInfo['website']}'
+					where id=$pluginId";
+		$this->db->query($sql);
+	}
+	
+	# func to upgrade seo plugin
+	function upgradeSeoPlugin($pluginId){
+		$pluginInfo = $this->__getSeoPluginInfo($pluginId);
+		
+		if(file_exists(SP_PLUGINPATH."/".$pluginInfo['name'])){
+			$pluginDBFile = SP_PLUGINPATH."/".$pluginInfo['name']."/".SP_PLUGINUPGRADEFILE;  
+			if(file_exists($pluginDBFile)){
+				$this->db->debugMode = false;
+				$this->db->importDatabaseFile($pluginDBFile, false);
+			}
+	
+			# parse plugin info
+			$pluginInfo = $this->parsePluginInfoFile($pluginInfo['name']);
+			$this->updatePluginInfo($pluginId, $pluginInfo);		
+			
+			$this->__changeInstallStatus($pluginId, 1);
+			$this->listSeoPlugins("Plugin <b>{$pluginInfo['label']}</b> upgraded successfully!");
+		}else{
+			$this->__changeInstallStatus($pluginId, 0);
+			$this->listSeoPlugins("Plugin <b>{$pluginInfo['label']}</b> upgrade failed!", true);
+		}
+	}
+	
+	# func to re install the seo plugin
+	function reInstallSeoPlugin($pluginId){
+		$pluginInfo = $this->__getSeoPluginInfo($pluginId);
+		
+		if(file_exists(SP_PLUGINPATH."/".$pluginInfo['name'])){
+			$pluginDBFile = SP_PLUGINPATH."/".$pluginInfo['name']."/".SP_PLUGINDBFILE;  
+			if(file_exists($pluginDBFile)){
+				$this->db->debugMode = false;
+				$this->db->importDatabaseFile($pluginDBFile, false);
+			}
+	
+			# parse plugin info
+			$pluginInfo = $this->parsePluginInfoFile($pluginInfo['name']);
+			$this->updatePluginInfo($pluginId, $pluginInfo);
+			
+			$this->__changeInstallStatus($pluginId, 1);
+			$this->listSeoPlugins("Plugin <b>{$pluginInfo['label']}</b> re-installed successfully!");
+		}else{
+			$this->__changeInstallStatus($pluginId, 0);
+			$this->listSeoPlugins("Plugin <b>{$pluginInfo['label']}</b> re-installation failed!", true);
+		}		
+	}
+
+	# to check whether the directory is plugin
+	function isPluginDirectory($file){
+		if ( ($file != ".") && ($file != "..") && ($file != ".svn") &&  is_dir(SP_PLUGINPATH."/".$file) ) {
+			if(!preg_match('/^\./', $file)){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	# func to update seo plugins in db
+	function __updateAllSeoPlugins(){
+		$sql = "update seoplugins set installed=0";
+		$this->db->query($sql);
+		
+		if ($handle = opendir(SP_PLUGINPATH)) {
+			while (false !== ($file = readdir($handle))) {
+				if ( $this->isPluginDirectory($file) ) {
+					$pluginName = $file;
+					$seoPluginInfo = $this->__getSeoPluginInfo($pluginName, 'name');
+					if(empty($seoPluginInfo['id'])){
+						
+						# parse plugin info
+						$pluginInfo = $this->parsePluginInfoFile($file);						
+						
+						$sql = "insert into seoplugins(label,name,author,description,version,website,status,installed) 
+								values('".addslashes($pluginInfo['label'])."','$pluginName','".addslashes($pluginInfo['author'])."','".addslashes($pluginInfo['description'])."','{$pluginInfo['version']}','{$pluginInfo['website']}',0,1)";
+						$this->db->query($sql);
+						
+						$pluginDBFile = SP_PLUGINPATH."/".$file."/".SP_PLUGINDBFILE;  
+						if(file_exists($pluginDBFile)){
+							
+							$this->db->debugMode = false;
+							$this->db->importDatabaseFile($pluginDBFile, false);
+						}						
+						
+					}else{
+						$this->__changeInstallStatus($seoPluginInfo['id'], 1);
+					}
+				}
+			}
+			closedir($handle);
+		}
+	}
+	
+	# func to parse plugin info file
+	function parsePluginInfoFile($file) {
+		$pluginInfo = array();
+		$pluginInfoFile = SP_PLUGINPATH."/".$file."/".SP_PLUGININFOFILE;
+		if(file_exists($pluginInfoFile)){
+			$xml =& new XMLParser;
+    		$pInfo = $xml->parse($pluginInfoFile);
+    		if(!empty($pInfo[0]['child'])){
+    			foreach($pInfo[0]['child'] as $info){
+    				$infoCol = strtolower($info['name']);
+    				$pluginInfo[$infoCol] = $info['content'];
+    			}
+    		}			
+		}		
+		
+		$pluginInfo['label'] = empty($pluginInfo['label']) ? $file : $pluginInfo['label'];
+		$pluginInfo['version'] = empty($pluginInfo['version']) ? '1.0.0' : $pluginInfo['version'];
+		$pluginInfo['author'] = empty($pluginInfo['author']) ? 'Seo Panel': $pluginInfo['author'];
+		$pluginInfo['website'] = empty($pluginInfo['website']) ? SP_PLUGINSITE : $pluginInfo['website'];		
+		return $pluginInfo;		 
+	}
+}
+?>
