@@ -1,6 +1,5 @@
 <?php
 
-
 /***************************************************************************
  *   Copyright (C) 2009-2011 by Geo Varghese(www.seofreetools.net)  	   *
  *   sendtogeo@gmail.com   												   *
@@ -99,9 +98,9 @@ class CronController extends Controller {
 		
 		$userCtrler = New UserController();
 		$userList = $userCtrler->__getAllUsers();
-		$websiteCtrler = New WebsiteController();
 		foreach($userList as $userInfo){
 			
+			$websiteCtrler = New WebsiteController();
 			$websiteList = $websiteCtrler->__getAllWebsites($userInfo['id']);
 			foreach($websiteList as $websiteInfo){
 				
@@ -233,7 +232,9 @@ class CronController extends Controller {
 						$remove = ($i == 0) ? true : false;						
 						$matchInfo['se_id'] = $sengineId;						
 						$matchInfo['keyword_id'] = $keywordInfo['id'];
-						$reportController->saveMatchedKeywordInfo($matchInfo, $remove);
+						
+						$repCtrler = New ReportController();
+						$repCtrler->saveMatchedKeywordInfo($matchInfo, $remove);
 					}
 					$this->debugMsg("Successfully crawled keyword <b>{$keywordInfo['name']}</b> results from ".$reportController->seList[$sengineId]['domain'].".....<br>\n");
 				}else{

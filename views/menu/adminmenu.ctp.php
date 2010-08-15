@@ -31,5 +31,6 @@ switch($this->menu){
 <li><a class="<?=$seoToolsClass?>" href="<?=SP_WEBPATH?>/seo-tools.php">Seo Tools</a></li>
 <li><a class="<?=$seoPluginsClass?>" href="<?=SP_WEBPATH?>/seo-plugins.php?sec=show">Seo Plugins</a></li>
 <li><a class="<?=$supportClass?>" href="<?=SP_WEBPATH?>/support.php">Support</a></li>
+<li><a href="<?=SP_DONATE_LINK?>" target="_blank">Donate</a></li>
 
 <li style="float: right; margin-right: 30px;"><a class="<?=$adminClass?>" href="<?=SP_WEBPATH?>/admin-panel.php">Admin Panel</a>

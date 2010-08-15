@@ -26,6 +26,7 @@
 <li><a class="" href="<?=SP_WEBPATH?>/seo-tools.php">Seo Tools</a></li>
 <li><a class="" href="<?=SP_WEBPATH?>/seo-plugins.php">Seo Plugins</a></li>
 <li><a class="<?=$supportClass?>" href="<?=SP_WEBPATH?>/support.php">Support</a></li>
+<li><a href="<?=SP_DONATE_LINK?>" target="_blank">Donate</a></li>
 
 <li style="float: right; margin-right: 30px;"><a class="<?=$loginClass?>" href="<?=SP_WEBPATH?>/login.php">My Account</a></li>
 <?php if(!isLoggedIn() && SP_USER_REGISTRATION){?>

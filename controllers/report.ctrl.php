@@ -442,7 +442,12 @@ class ReportController extends Controller {
 				$seStart += $this->seList[$seInfoId]['no_of_results_page'];
 				sleep(SP_CRAWL_DELAY);
 			}
-						
+
+			# to check whether utf8 conversion needed
+			if(!empty($this->seList[$seInfoId]['encoding'])){
+				$pageContent = mb_convert_encoding($pageContent, "UTF-8", $this->seList[$seInfoId]['encoding']);
+			}
+			
 			$crawlStatus = 0;
 			if(empty($result['error'])){				
 				if(preg_match_all($this->seList[$seInfoId]['regex'], $pageContent, $matches)){
@@ -475,7 +480,8 @@ class ReportController extends Controller {
 					echo "<p class='note' style='text-align:left;'>Error occured while crawling $seUrl ".formatErrorMsg($result['errmsg']."<br>\n")."</p>";
 				}
 			}			
-			$crawlResult[$seInfoId]['status'] = $crawlStatus;
+			$crawlResult[$seInfoId]['status'] = $crawlStatus;			
+			sleep(SP_CRAWL_DELAY);
 		}
 		return  $crawlResult;
 	}
