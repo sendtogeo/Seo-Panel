@@ -61,6 +61,7 @@ class BacklinkController extends Controller{
 				if(preg_match('/about ([0-9\,]+) results/si', $v, $r)){					
 				}elseif(preg_match('/<div id=resultStats>([0-9\,]+) results/si', $v, $r)){					
 				}elseif(preg_match('/([0-9\,]+) results/si', $v, $r)){					
+				}elseif(preg_match('/about <b>([0-9\,]+)<\/b> linking/si', $v, $r)){					
 				}
 				return ($r[1]) ? str_replace(',', '', $r[1]) : 0;
 				break;
