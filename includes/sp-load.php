@@ -21,6 +21,11 @@
  ***************************************************************************/
 
 $abspath = getcwd();
+$abspath = preg_replace('/\/includes$/', '', $abspath);
+if (!file_exists($abspath."/config/sp-config.php")) {
+   $abspath = dirname ( realpath ( __FILE__ ) );
+   $abspath = preg_replace('/\/includes$/', '', $abspath);
+}
 define( 'SP_ABSPATH', $abspath );
 
 
