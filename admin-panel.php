@@ -21,7 +21,7 @@
  ***************************************************************************/
 
 include_once("includes/sp-load.php");
-isLoggedIn();
+checkLoggedIn();
 include_once(SP_CTRLPATH."/adminpanel.ctrl.php");
 $controller = New AdminPanelController();
 $controller->view->menu = 'adminpanel';
