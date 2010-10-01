@@ -243,7 +243,9 @@ function getCurrentUrl() {
 function isValidReferer($referer) {
 	
 	if(stristr($referer, SP_WEBPATH)) {
-		return $referer;
+		if (!stristr($referer, 'install')) {
+			return $referer;
+		}		
 	}
 	return '';
 }
