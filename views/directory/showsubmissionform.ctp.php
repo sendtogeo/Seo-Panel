@@ -11,6 +11,9 @@
 <input type="hidden" name="sec" value="submitsite"/>
 <input type="hidden" name="website_id" value="<?=$websiteId?>"/>
 <input type="hidden" name="dir_id" value="<?=$dirInfo['id']?>"/>
+<?php if(!empty($phpsessid)){?>
+    <input type="hidden" name="phpsessid" value="<?=$phpsessid?>">
+<?php }?>
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
 	<tr class="listHead">
 		<td class="left" style="width: 30%"><?=$spTextTools['directory-submission']?></td>
@@ -26,9 +29,6 @@
 			<td class="td_right_col">
 				<?php if(!empty($imageHash)){?>
 					<input type="hidden" name="<?=$dirInfo['imagehash_col']?>" value="<?=$imageHash?>">
-				<?php }?>
-				<?php if(!empty($phpsessid)){?>
-					<input type="hidden" name="phpsessid" value="<?=$phpsessid?>">
 				<?php }?>
 				<input type="text" name="<?=$dirInfo['cptcha_col']?>" value="" id='captcha'>
 				<p><img src='<?=$captchaUrl?>'></p>
