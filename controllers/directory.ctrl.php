@@ -57,7 +57,7 @@ class DirectoryController extends Controller{
 		}
 		
 		# check whether the sitemap directory is writable
- 		if(SP_HOTLINKING && !is_writable(SP_TMPPATH ."/".$this->sitemapDir)){
+ 		if(!is_writable(SP_TMPPATH ."/".$this->sitemapDir)){
  			showErrorMsg("Directory '<b>".SP_TMPPATH."</b>' is not <b>writable</b>. Please change its <b>permission</b> !");
  		}
 		
@@ -257,7 +257,7 @@ class DirectoryController extends Controller{
 				}
 
 				# to get stored image path if hot linking is prevented
-				if(SP_HOTLINKING) $captchaUrl = $this->__getCreatedCaptchaUrl($captchaUrl, $dirInfo['submit_url'], $phpsessid);
+				$captchaUrl = $this->__getCreatedCaptchaUrl($captchaUrl, $dirInfo['submit_url'], $phpsessid);
 			}
 			$this->set('captchaUrl', $captchaUrl);			
 		}else{

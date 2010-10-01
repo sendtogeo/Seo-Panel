@@ -1193,3 +1193,8 @@ INSERT INTO `texts` (`id`, `lang_code`, `category`, `label`, `content`, `changed
 (1049, 'en', 'settings', 'seopanel_title', 'Seo Panel: World''s first open source seo control panel for managing multiple web sites', '2010-09-30 00:46:04'),
 (1050, 'en', 'settings', 'seopanel_description', 'A complete free control panel for managing search engine optimization of your websites. It containing lots of hot seo tools to increase and track the performace your websites. Its an open source software and also you can develop your own seo plugins for seo panel.', '2010-09-30 00:46:04');
 
+--
+-- to enable image saving for captcha
+--
+UPDATE `settings` SET `set_val` = '1' WHERE `settings`.`id` =7;
+

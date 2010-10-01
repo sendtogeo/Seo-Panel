@@ -815,7 +815,7 @@ INSERT INTO `settings` (`id`, `set_label`, `set_name`, `set_val`, `set_type`) VA
 (4, 'Number of entries per page', 'SP_PAGINGNO', '10', 'small'),
 (5, 'Delay between each spider crawl(seconds)', 'SP_CRAWL_DELAY', '2', 'small'),
 (6, 'Allow user to generate reports', 'SP_USER_GEN_REPORT', '0', 'bool'),
-(7, 'Image hotlink protection enabled', 'SP_HOTLINKING', '0', 'bool'),
+(7, 'Image hotlink protection enabled', 'SP_HOTLINKING', '1', 'bool'),
 (8, 'User registration interface', 'SP_USER_REGISTRATION', '1', 'bool'),
 (9, 'Enable Proxy', 'SP_ENABLE_PROXY', '0', 'bool'),
 (10, 'Default Language', 'SP_DEFAULTLANG', 'en', 'small');
