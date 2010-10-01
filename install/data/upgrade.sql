@@ -36,6 +36,7 @@ ALTER TABLE `searchengines` ADD `encoding` VARCHAR( 32 ) CHARACTER SET utf8 COLL
 -- Table structure for table `languages`
 --
 
+DROP TABLE IF EXISTS `languages`;
 CREATE TABLE IF NOT EXISTS `languages` (
   `lang_code` varchar(8) CHARACTER SET latin1 NOT NULL,
   `lang_name` varchar(24) COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -43,6 +44,7 @@ CREATE TABLE IF NOT EXISTS `languages` (
   `translated` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`lang_code`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 
 --
 -- Dumping data for table `languages`
