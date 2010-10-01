@@ -272,7 +272,7 @@ class Install {
 			include_once SP_INSTALL_DIR.'/../libs/spider.class.php';
 			$installUpdateUrl = "http://www.seopanel.in/installupdate.php?url=".urlencode($info['web_path'])."&ip=".$_SERVER['SERVER_ADDR']."&email=".urlencode($info['email']);
 			$spider = New Spider();
-			$spider->getContent($installUpdateUrl);
+			$spider->getContent($installUpdateUrl, false);
 		}		
 		?>		
 		<form method="post" action="<?php echo $info['web_path']."/login.php"; ?>">
