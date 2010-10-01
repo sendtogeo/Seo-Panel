@@ -1,6 +1,6 @@
 <?php echo showSectionHead($spTextTools['Skipped Directories']); ?>
 <form id='search_form'>
-<table width="48%" border="0" cellspacing="0" cellpadding="0" class="search">
+<table width="60%" border="0" cellspacing="0" cellpadding="0" class="search">
 	<tr>
 		<th><?=$spText['common']['Website']?>: </th>
 		<td>

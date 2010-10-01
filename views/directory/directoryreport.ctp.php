@@ -1,6 +1,6 @@
 <?php echo showSectionHead($spTextDir['Directory Submission Reports']); ?>
 <form id='search_form'>
-<table width="68%" border="0" cellspacing="0" cellpadding="0" class="search">
+<table width="80%" border="0" cellspacing="0" cellpadding="0" class="search">
 	<tr>
 		<th><?=$spText['common']['Website']?>: </th>
 		<td>
