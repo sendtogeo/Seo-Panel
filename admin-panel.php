@@ -29,6 +29,8 @@ $controller->view->menu = 'adminpanel';
 $controller->set('spTitle', 'Seo Panel: User control panel for manage settings');
 $controller->set('spDescription', 'User control panel for manage settings');
 $controller->set('spKeywords', 'Seo Panel settings,User control panel,manage seo panel settings');
+$controller->spTextPanel = $controller->getLanguageTexts('panel', $_SESSION['lang_code']);
+$controller->set('spTextPanel', $controller->spTextPanel);
 
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	

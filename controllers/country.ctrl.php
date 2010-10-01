@@ -29,5 +29,12 @@ class CountryController extends Controller{
 		$langList = $this->db->select($sql);
 		return $langList;
 	}
+	
+	# func to get country info
+	function __getCountryInfo( $countryCode){
+		$sql = "select * from country where country_code='$countryCode'";
+		$countryInfo = $this->db->select($sql, true);
+		return $countryInfo;
+	}
 }
 ?>

@@ -21,9 +21,18 @@
  ***************************************************************************/
 
 include_once("includes/sp-load.php");
-checkAdminLoggedIn();
+
+if( $_GET['sec'] == 'aboutus'){
+	isLoggedIn();
+}else{
+	checkAdminLoggedIn();
+}
+
 include_once(SP_CTRLPATH."/settings.ctrl.php");
 $controller = New SettingsController();
+$controller->set('spTextPanel', $controller->getLanguageTexts('panel', $_SESSION['lang_code']));
+$controller->spTextSettings = $controller->getLanguageTexts('settings', $_SESSION['lang_code']);
+$controller->set('spTextSettings', $controller->spTextSettings);
 
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	
@@ -36,6 +45,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	
 }else{
 	switch($_GET['sec']){
+		
+		case "aboutus":
+			$controller->showAboutUs();
+			break;
 
 		default:
 			$controller->showSystemSettings();

@@ -1,6 +1,6 @@
 <select name="website_id" id="website_id" style="width:150px;" onchange="<?=$onChange?>">
 	<?php if($websiteNull){ ?>
-		<option value="">-- Select --</option>
+		<option value="">-- <?=$spText['common']['Select']?> --</option>
 	<?php } ?>
 	<?php foreach($websiteList as $websiteInfo){?>
 		<?php if($websiteInfo['id'] == $websiteId){?>

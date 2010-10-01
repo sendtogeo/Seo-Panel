@@ -24,6 +24,9 @@ include_once("includes/sp-load.php");
 checkAdminLoggedIn();
 include_once(SP_CTRLPATH."/seoplugins.ctrl.php");
 $controller = New SeoPluginsController();
+$controller->set('spTextPanel', $controller->getLanguageTexts('panel', $_SESSION['lang_code']));
+$controller->spTextPlugin = $controller->getLanguageTexts('plugin', $_SESSION['lang_code']);
+$controller->set('spTextPlugin', $controller->spTextPlugin);
 
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	

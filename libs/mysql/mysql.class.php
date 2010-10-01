@@ -32,7 +32,7 @@ class Mysql extends Database{
 	# constructor
 	function Mysql($dbServer, $dbUser, $dbPassword, $dbName, $debug){
 		$this->setDebugMode($debug);
-		$this->connectionId = @mysql_connect($dbServer, $dbUser, $dbPassword, true);
+		$this->connectionId = @mysql_pconnect($dbServer, $dbUser, $dbPassword, true);
 		if (!$this->connectionId){
 			$this->showError();			
 			showErrorMsg("<p style='color:red'>Database connection failed!<br>Please check your database settings!</p>");

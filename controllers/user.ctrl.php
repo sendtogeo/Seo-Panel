@@ -24,7 +24,13 @@
 class UserController extends Controller{	
 	
 	# index function
-	function index(){
+	function index($info=''){
+		
+		if(!isset($info['referer'])) {
+			$info['referer'] = isValidReferer($_SERVER['HTTP_REFERER']);
+			$this->set('post', $info);
+		}
+				
 		$this->render('common/login');
 	}
 	
@@ -34,7 +40,7 @@ class UserController extends Controller{
 		$errMsg['userName'] = formatErrorMsg($this->validate->checkBlank($_POST['userName']));
 		$errMsg['password'] = formatErrorMsg($this->validate->checkBlank($_POST['password']));
 		if(!$this->validate->flagErr){
-			$sql = "select u.*,ut.user_type from users u,usertypes ut where u.utype_id=ut.id and u.username='".$this->db->escapeMysqlString($_POST['userName'])."'";
+			$sql = "select u.*,ut.user_type from users u,usertypes ut where u.utype_id=ut.id and u.username='".addslashes($_POST['userName'])."'";
 			$userInfo = $this->db->select($sql, true);
 			if(!empty($userInfo['id'])){
 				if($userInfo['password'] == md5($_POST['password'])){
@@ -42,15 +48,20 @@ class UserController extends Controller{
 						$uInfo['userId'] = $userInfo['id'];
 						$uInfo['userType'] = $userInfo['user_type']; 
 						Session::setSession('userInfo', $uInfo);
-						redirectUrl(SP_WEBPATH."/");
+						Session::setSession('lang_code', $userInfo['lang_code']);
+						if ($referer = isValidReferer($_POST['referer'])) {
+							redirectUrl($referer);
+						} else {
+							redirectUrl(SP_WEBPATH."/");	
+						}						
 					}else{
-						$errMsg['userName'] = formatErrorMsg("User inactive");
+						$errMsg['userName'] = formatErrorMsg($_SESSION['text']['login']["User inactive"]);
 					}
 				}else{
-					$errMsg['password'] = formatErrorMsg("Password incorrect");
+					$errMsg['password'] = formatErrorMsg($_SESSION['text']['login']["Password incorrect"]);
 				}
 			}else{
-				$errMsg['userName'] = formatErrorMsg("Login incorrect");
+				$errMsg['userName'] = formatErrorMsg($_SESSION['text']['login']["Login incorrect"]);
 			}
 		}
 		$this->set('errMsg', $errMsg);
@@ -80,16 +91,16 @@ class UserController extends Controller{
 					$sql = "insert into users
 							(utype_id,username,password,first_name,last_name,email,created,status) 
 							values
-							(2,'{$userInfo['userName']}','".md5($userInfo['password'])."',
-							'".addslashes($userInfo['firstName'])."','".addslashes($userInfo['lastName'])."','{$userInfo['email']}',UNIX_TIMESTAMP(),1)";
+							(2,'".addslashes($userInfo['userName'])."','".md5($userInfo['password'])."',
+							'".addslashes($userInfo['firstName'])."','".addslashes($userInfo['lastName'])."','".addslashes($userInfo['email'])."',UNIX_TIMESTAMP(),1)";
 					$this->db->query($sql);					
 					$this->render('common/registerconfirm');
 					exit;
 				}else{
-					$errMsg['email'] = formatErrorMsg('Email already exist!');
+					$errMsg['email'] = formatErrorMsg($_SESSION['text']['login']['emailexist']);
 				}
 			}else{
-				$errMsg['userName'] = formatErrorMsg('Username already exist!');
+				$errMsg['userName'] = formatErrorMsg($_SESSION['text']['login']['usernameexist']);
 			}
 		}
 		$this->set('errMsg', $errMsg);
@@ -104,7 +115,7 @@ class UserController extends Controller{
 	
 	# func to show users
 	function listUsers($layout='default'){
-		$this->set('sectionHead', 'User Manager');		
+		
 		$sql = "select * from users where utype_id=2 order by username";
 		
 		# pagination setup		
@@ -123,6 +134,8 @@ class UserController extends Controller{
 	
 	# func to change status
 	function __changeStatus($userId, $status){
+		
+		$userId = intval($userId);
 		$sql = "update users set status=$status where id=$userId";
 		$this->db->query($sql);
 		
@@ -138,6 +151,8 @@ class UserController extends Controller{
 	
 	# func to change status
 	function __deleteUser($userId){
+		
+		$userId = intval($userId);
 		$sql = "delete from users where id=$userId";
 		$this->db->query($sql);
 		
@@ -150,7 +165,7 @@ class UserController extends Controller{
 	}
 	
 	function newUser(){		
-		$this->set('sectionHead', 'New User');				
+		
 		$this->render('user/new', 'ajax');
 	}
 	
@@ -161,12 +176,15 @@ class UserController extends Controller{
 	}
 	
 	function __checkEmail($email){
-		$sql = "select id from users where email='$email'";
+		
+		$sql = "select id from users where email='".addslashes($email)."'";
 		$userInfo = $this->db->select($sql, true);
 		return empty($userInfo['id']) ? false :  $userInfo['id'];
 	}
 	
 	function __getUserInfo($userId){
+		
+		$userId = intval($userId);
 		$sql = "select * from users where id=$userId";
 		$userInfo = $this->db->select($sql, true);
 		return empty($userInfo['id']) ? false :  $userInfo;
@@ -192,15 +210,15 @@ class UserController extends Controller{
 			if (!$this->__checkUserName($userInfo['userName'])) {
 				if (!$this->__checkEmail($userInfo['email'])) {
 					$sql = "insert into users(utype_id,username,password,first_name,last_name,email,created,status) 
-							values(2,'{$userInfo['userName']}','".md5($userInfo['password'])."','{$userInfo['firstName']}','{$userInfo['lastName']}','{$userInfo['email']}',UNIX_TIMESTAMP(),1)";
+							values(2,'".addslashes($userInfo['userName'])."','".md5($userInfo['password'])."','".addslashes($userInfo['firstName'])."','".addslashes($userInfo['lastName'])."','".addslashes($userInfo['email'])."',UNIX_TIMESTAMP(),1)";
 					$this->db->query($sql);
 					$this->listUsers('ajax');
 					exit;
 				}else{
-					$errMsg['email'] = formatErrorMsg('Email already exist!');
+					$errMsg['email'] = formatErrorMsg($_SESSION['text']['login']['emailexist']);
 				}
 			}else{
-				$errMsg['userName'] = formatErrorMsg('Username already exist!');
+				$errMsg['userName'] = formatErrorMsg($_SESSION['text']['login']['usernameexist']);
 			}
 		}
 		$this->set('errMsg', $errMsg);
@@ -208,7 +226,7 @@ class UserController extends Controller{
 	}
 	
 	function editUser($userId, $userInfo=''){		
-		$this->set('sectionHead', 'Edit User');
+		
 		if(!empty($userId)){
 			if(empty($userInfo)){
 				$userInfo = $this->__getUserInfo($userId);
@@ -228,6 +246,8 @@ class UserController extends Controller{
 	}
 	
 	function updateUser($userInfo){
+		
+		$userInfo['id'] = intval($userInfo['id']);
 		$this->set('post', $userInfo);
 		$errMsg['userName'] = formatErrorMsg($this->validate->checkUname($userInfo['userName']));
 		if(!empty($userInfo['password'])){
@@ -241,25 +261,25 @@ class UserController extends Controller{
 			
 			if($userInfo['userName'] != $userInfo['oldName']){
 				if ($this->__checkUserName($userInfo['userName'])) {
-					$errMsg['userName'] = formatErrorMsg('Username already exist!');
+					$errMsg['userName'] = formatErrorMsg($_SESSION['text']['login']['usernameexist']);
 					$this->validate->flagErr = true;
 				}
 			}
 			
 			if($userInfo['email'] != $userInfo['oldEmail']){
 				if ($this->__checkEmail($userInfo['email'])) {
-					$errMsg['email'] = formatErrorMsg('Email already exist!');
+					$errMsg['email'] = formatErrorMsg($_SESSION['text']['login']['emailexist']);
 					$this->validate->flagErr = true;
 				}
 			}
 			
 			if (!$this->validate->flagErr) {
 				$sql = "update users set
-						username = '{$userInfo['userName']}',
-						first_name = '{$userInfo['firstName']}',
-						last_name = '{$userInfo['lastName']}',
+						username = '".addslashes($userInfo['userName'])."',
+						first_name = '".addslashes($userInfo['firstName'])."',
+						last_name = '".addslashes($userInfo['lastName'])."',
 						$passStr
-						email = '{$userInfo['email']}'
+						email = '".addslashes($userInfo['email'])."'
 						where id={$userInfo['id']}";
 				$this->db->query($sql);
 				$this->listUsers('ajax');
@@ -272,7 +292,6 @@ class UserController extends Controller{
 	
 	function showMyProfile($userInfo=''){
 		$userId = isLoggedIn();		
-		$this->set('sectionHead', 'Edit My profile');
 		if(!empty($userId)){
 			if(empty($userInfo)){
 				$userInfo = $this->__getUserInfo($userId);
@@ -292,6 +311,8 @@ class UserController extends Controller{
 	}
 	
 	function updateMyProfile($userInfo){
+		
+		$userId = isLoggedIn();	
 		$this->set('post', $userInfo);
 		$errMsg['userName'] = formatErrorMsg($this->validate->checkUname($userInfo['userName']));
 		if(!empty($userInfo['password'])){
@@ -305,28 +326,28 @@ class UserController extends Controller{
 			
 			if($userInfo['userName'] != $userInfo['oldName']){
 				if ($this->__checkUserName($userInfo['userName'])) {
-					$errMsg['userName'] = formatErrorMsg('Username already exist!');
+					$errMsg['userName'] = formatErrorMsg($_SESSION['text']['login']['usernameexist']);
 					$this->validate->flagErr = true;
 				}
 			}
 			
 			if($userInfo['email'] != $userInfo['oldEmail']){
 				if ($this->__checkEmail($userInfo['email'])) {
-					$errMsg['email'] = formatErrorMsg('Email already exist!');
+					$errMsg['email'] = formatErrorMsg($_SESSION['text']['login']['emailexist']);
 					$this->validate->flagErr = true;
 				}
 			}
 			
 			if (!$this->validate->flagErr) {
 				$sql = "update users set
-						username = '{$userInfo['userName']}',
-						first_name = '{$userInfo['firstName']}',
-						last_name = '{$userInfo['lastName']}',
+						username = '".addslashes($userInfo['userName'])."',
+						first_name = '".addslashes($userInfo['firstName'])."',
+						last_name = '".addslashes($userInfo['lastName'])."',
 						$passStr
-						email = '{$userInfo['email']}'
-						where id={$userInfo['id']}";
+						email = '".addslashes($userInfo['email'])."'
+						where id=$userId";
 				$this->db->query($sql);
-				$this->set('msg', 'Saved My Profile Details!');
+				$this->set('msg', $this->spTextUser['Saved My Profile Details']);
 				$this->showMyProfile();
 				exit;
 			}

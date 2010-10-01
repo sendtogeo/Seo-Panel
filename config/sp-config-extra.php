@@ -39,6 +39,9 @@ define('SP_PLUGINMENUFILE', 'menu.ctp.php');
 # seo panel is demo system or not
 define('SP_DEMO', 0);
 
+# seo panel language testing mode
+define('SP_LANGTESTING', 0);
+
 # seo panel plugin info xml file
 define('SP_PLUGININFOFILE', 'plugin.xml');
 
@@ -74,5 +77,8 @@ define('SP_DEMO_LINK', 'http://www.seopanel.in/demo/');
 
 # The seo panel news page
 define('SP_NEWS_PAGE', 'http://www.seopanel.in/news.php');
+
+# The seo panel sponsors
+define('SP_SPONSOR_PAGE', 'http://www.seopanel.in/sponsors.php');
 
 ?>

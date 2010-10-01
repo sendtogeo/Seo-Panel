@@ -35,7 +35,7 @@ class SeoToolsController extends Controller{
 		
 		$menuList = $this->db->select($sql);
 		if(count($menuList) <= 0){
-			$this->set('msg', 'No Active Seo Tools Found!');
+			$this->set('msg', $_SESSION['text']['common']['noactivetools']);
 			$this->render('common/notfound');
 			exit;
 		}
@@ -91,9 +91,8 @@ class SeoToolsController extends Controller{
 	
 	# func to list seo tools
 	function listSeoTools(){
-		$this->set('sectionHead', 'Seo Tools Manager');
-		$userId = isLoggedIn();
 		
+		$userId = isLoggedIn();
 		$seoToolList = $this->__getAllSeoTools();
 		$this->set('list', $seoToolList);
 		$this->render('seotools/listseotools');	
@@ -101,6 +100,8 @@ class SeoToolsController extends Controller{
 	
 	#function to change status of seo tools
 	function changeStatus($seoToolId, $status, $col='status'){
+		
+		$seoToolId = intval($seoToolId);
 		$sql = "update seotools set $col=$status where id=$seoToolId";
 		$this->db->query($sql);
 	}

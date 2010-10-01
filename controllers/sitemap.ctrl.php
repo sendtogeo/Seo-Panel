@@ -42,9 +42,8 @@ class SitemapController extends Controller{
 	
 	# func to show sitemap generator interface
 	function showSitemapGenerator() {
-		$this->set('sectionHead', 'Sitemap Generator');
-		$userId = isLoggedIn();
 		
+		$userId = isLoggedIn();		
 		$websiteController = New WebsiteController();
 		$websiteList = $websiteController->__getAllWebsites($userId, true);
 		$this->set('websiteList', $websiteList);
@@ -56,6 +55,8 @@ class SitemapController extends Controller{
 	
 	# func to generate sitemap
  	function generateSitemapFile($sitemapInfo){
+ 		
+ 		$sitemapInfo['website_id'] = intval($sitemapInfo['website_id']);
  		if(!empty($sitemapInfo['website_id'])){	
 
  			# check whether the sitemap directory is writable
@@ -99,7 +100,7 @@ class SitemapController extends Controller{
  			$this->urlList = $urlList;
  		}		
  		
- 		print("<p class=\"note noteleft\">Found <a>".count($this->urlList)."</a> Sitemap Urls</p>"); 		
+ 		print("<p class=\"note noteleft\">".$_SESSION['text']['common']['Found']." <a>".count($this->urlList)."</a> Sitemap Urls</p>"); 		
  		$function = $this->smType ."SitemapFile";
  		$this->deleteSitemapFiles();
  		$this->$function(array_keys($this->urlList));
@@ -212,7 +213,7 @@ class SitemapController extends Controller{
 		        if ( ($file != ".") && ($file != "..") ) {
 		        	if(preg_match("/".$this->section."_sitemap\d+\.".$this->smType."/", $file, $matches)){
 		        		echo "<p class=\"note noteleft\">
-		        				Download sitemap file from: 
+		        				".$this->spTextSitemap['Download sitemap file from'].": 
 		        				<a href='".SP_WEBPATH."/download.php?filesec=sitemap&filetype=$this->smType&file=".urlencode($matches[0])."' target='_blank'>$file</a>
 		        			</p>";
 		        	}
@@ -223,11 +224,11 @@ class SitemapController extends Controller{
 	}
 	
 	function deleteSitemapFiles(){
-		if ($handle = opendir(SP_TMPPATH ."/sitemap/")) {
+		if ($handle = opendir(SP_TMPPATH ."/".$this->sitemapDir)) {
 		    while (false !== ($file = readdir($handle))) {
 		        if ( ($file != ".") && ($file != "..") ) {
 		        	if(preg_match("/".$this->section."_sitemap\d+\.".$this->smType."/", $file, $matches)){
-		        		unlink(SP_TMPPATH ."/sitemap/".$file);
+		        		unlink(SP_TMPPATH ."/".$this->sitemapDir."/$file");
 		        	}
 		        }
 		    }

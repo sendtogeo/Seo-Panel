@@ -1,8 +1,8 @@
-<?php echo showSectionHead($sectionHead); ?>
+<?php echo showSectionHead($spText['common']['Generate Backlinks Reports']); ?>
 <form id='search_form'>
 <table width="400px" border="0" cellspacing="0" cellpadding="0" class="search">
 	<tr>
-		<th>Website: </th>
+		<th><?=$spText['common']['Website']?>: </th>
 		<td>
 			<select name="website_id" style='width:170px;' id="website_id">
 				<option value="">-- Select --</option>
@@ -15,11 +15,11 @@
 				<?php }?>
 			</select>
 		</td>
-		<td><a href="javascript:void(0);" onclick="scriptDoLoadPost('backlinks.php', 'search_form', 'subcontent', '&sec=generate')"><img alt="" src="<?=SP_IMGPATH?>/proceed.gif"></a></td>		
+		<td><a href="javascript:void(0);" onclick="scriptDoLoadPost('backlinks.php', 'search_form', 'subcontent', '&sec=generate')" class="actionbut"><?=$spText['button']['Proceed']?></a></td>		
 	</tr>
 </table>
 </form>
 
 <div id='subcontent'>
-	<p class='note'>Click on <b>Proceed</b> to generate backlinks reports</p>
+	<p class='note'><?=$spTextTools['clickgeneratereports']?></p>
 </div>

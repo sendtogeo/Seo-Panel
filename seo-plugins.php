@@ -44,7 +44,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	switch($_GET['sec']){
 
 		case "show":
-			$controller->showSeoPlugins();
+			$controller->showSeoPlugins($_GET);
 			break;
 			
 		default:

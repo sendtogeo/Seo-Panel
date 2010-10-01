@@ -28,6 +28,11 @@ include_once(SP_CTRLPATH."/searchengine.ctrl.php");
 include_once(SP_CTRLPATH."/report.ctrl.php");
 $controller = New ReportController();
 $controller->view->menu = 'seotools';
+$controller->spTextTools = $controller->getLanguageTexts('seotools', $_SESSION['lang_code']);
+$controller->set('spTextTools', $controller->spTextTools);
+$controller->spTextKeyword = $controller->getLanguageTexts('keyword', $_SESSION['lang_code']);
+$controller->set('spTextKeyword', $controller->spTextKeyword);
+
 $controller->layout = 'ajax';
 
 if($_SERVER['REQUEST_METHOD'] == 'POST'){

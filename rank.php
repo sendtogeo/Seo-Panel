@@ -26,6 +26,9 @@ include_once(SP_CTRLPATH."/rank.ctrl.php");
 $controller = New RankController();
 $controller->view->menu = 'seotools';
 $controller->layout = 'ajax';
+$controller->set('spTextTools', $controller->getLanguageTexts('seotools', $_SESSION['lang_code']));
+$controller->spTextRank = $controller->getLanguageTexts('rank', $_SESSION['lang_code']);
+$controller->set('spTextRank', $controller->spTextRank);
 
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	

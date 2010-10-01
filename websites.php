@@ -27,7 +27,10 @@ include_once(SP_CTRLPATH."/keyword.ctrl.php");
 $controller = New WebsiteController();
 $controller->view->menu = 'seotools';
 $controller->layout = 'ajax';
-$controller->set('sectionHead', 'Websites');
+$controller->spTextPanel = $controller->getLanguageTexts('panel', $_SESSION['lang_code']);
+$controller->set('spTextPanel', $controller->spTextPanel);
+$controller->spTextWeb = $controller->getLanguageTexts('website', $_SESSION['lang_code']);
+$controller->set('spTextWeb', $controller->spTextWeb);
 
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
 

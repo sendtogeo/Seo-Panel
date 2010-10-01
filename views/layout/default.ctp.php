@@ -23,6 +23,7 @@
 <script language="Javascript" src="<?=SP_JSPATH?>/wz_tooltip.js"></script>
 <script>
 var spdemo = <?=SP_DEMO?>;
+var wantproceed = '<?=$spText['label']['wantproceed']?>';
 </script>
 <div id="Header"><?php include_once(SP_VIEWPATH."/menu/topmenu.ctp.php");?>
 

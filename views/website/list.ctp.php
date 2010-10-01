@@ -1,11 +1,11 @@
-<?php echo showSectionHead($sectionHead); ?>
+<?php echo showSectionHead($spTextPanel['Website Manager']); ?>
 <?php if(!empty($isAdmin)){ ?>
 	<table width="50%" border="0" cellspacing="0" cellpadding="0" class="search">
 		<tr>
-			<th>User: </th>
+			<th><?=$spText['common']['User']?>: </th>
 			<td>
 				<select name="userid" id="userid" onchange="doLoad('userid', 'websites.php', 'content')">
-					<option value="">-- Select --</option>
+					<option value="">-- <?=$spText['common']['Select']?> --</option>
 					<?php foreach($userList as $userInfo){?>
 						<?php if($userInfo['id'] == $userId){?>
 							<option value="<?=$userInfo['id']?>" selected><?=$userInfo['username']?></option>
@@ -21,14 +21,14 @@
 <?=$pagingDiv?>
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
 	<tr class="listHead">
-		<td class="left">ID</td>		
-		<td>Website</td>
+		<td class="left"><?=$spText['common']['Id']?></td>		
+		<td><?=$spText['common']['Website']?></td>
 		<?php if(!empty($isAdmin)){ ?>		
-			<td>User</td>
+			<td><?=$spText['common']['User']?></td>
 		<?php } ?>
-		<td>Url</td>
-		<td>Status</td>
-		<td class="right">Action</td>
+		<td><?=$spText['common']['Url']?></td>
+		<td><?=$spText['common']['Status']?></td>
+		<td class="right"><?=$spText['common']['Action']?></td>
 	</tr>
 	<?php
 	$colCount = empty($isAdmin) ? 5 : 6; 
@@ -52,21 +52,21 @@
 				<?php if(!empty($isAdmin)){ ?>
 					<td class="td_br_right left"><?=$listInfo['username']?></td>
 				<?php } ?>
-				<td class="td_br_right left"><? echo wordwrap($listInfo['url'], 70, "<br>", true); ?></td>
-				<td class="td_br_right"><?php echo $listInfo['status'] ? "active" : "inactive";	?></td>
+				<td class="td_br_right left"><?php echo wordwrap($listInfo['url'], 70, "<br>", true); ?></td>
+				<td class="td_br_right"><?php echo $listInfo['status'] ? $spText['common']["Active"] : $spText['common']["Inactive"];	?></td>
 				<td class="<?=$rightBotClass?>" width="100px">
 					<?php
 						if($listInfo['status']){
-							$statLabel = "Inactivate";
+							$statLabel = $spText['common']["Inactivate"];
 						}else{
-							$statLabel = "Activate";
+							$statLabel = $spText['common']["Activate"];
 						} 
 					?>
 					<select name="action" id="action<?=$listInfo['id']?>" onchange="doAction('websites.php', 'content', 'websiteId=<?=$listInfo['id']?>&pageno=<?=$pageNo?>&userid=<?=$userId?>', 'action<?=$listInfo['id']?>')">
-						<option value="select">-- Select --</option>
+						<option value="select">-- <?=$spText['common']['Select']?> --</option>
 						<option value="<?=$statLabel?>"><?=$statLabel?></option>
-						<option value="edit">Edit</option>
-						<option value="delete">Delete</option>
+						<option value="edit"><?=$spText['common']['Edit']?></option>
+						<option value="delete"><?=$spText['common']['Delete']?></option>
 					</select>
 				</td>
 			</tr>
@@ -84,8 +84,8 @@
 <table width="100%" cellspacing="0" cellpadding="0" border="0" class="actionSec">
 	<tr>
     	<td style="padding-top: 6px;">
-         	<a onclick="scriptDoLoad('websites.php', 'content', 'sec=new')" href="javascript:void(0);">
-         		<img width="55" height="21" border="0" alt="" src="<?=SP_IMGPATH?>/create.gif"/>
+         	<a onclick="scriptDoLoad('websites.php', 'content', 'sec=new')" href="javascript:void(0);" class="actionbut">
+         		<?=$spTextPanel['New Website']?>
          	</a>
     	</td>
 	</tr>

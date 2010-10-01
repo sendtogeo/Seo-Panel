@@ -26,6 +26,9 @@ include_once(SP_CTRLPATH."/sitemap.ctrl.php");
 $controller = New SitemapController();
 $controller->view->menu = 'seotools';
 $controller->layout = 'ajax';
+$controller->set('spTextTools', $controller->getLanguageTexts('seotools', $_SESSION['lang_code']));
+$controller->spTextSitemap = $controller->getLanguageTexts('sitemap', $_SESSION['lang_code']);
+$controller->set('spTextSitemap', $controller->spTextSitemap);
 
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	

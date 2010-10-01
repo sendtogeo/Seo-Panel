@@ -30,6 +30,7 @@ $controller->view->menu = 'seotools';
 $controller->set('spTitle', 'Seo Panel: Provides lots of hot seo tools to increase and track the performace your websites');
 $controller->set('spDescription', 'The major features of Seo Panel are Automatic Directory Submission,Keyword position checker,Sitemap Generator,Rank Checker,Backlinks Checker,Meta Tag Generator.');
 $controller->set('spKeywords', 'seo panel tools,Automatic Directory Submission,Keyword position checker,Sitemap Generator,Rank Checker,Backlinks Checker,Meta Tag Generator');
+$controller->set('spTextTools', $controller->getLanguageTexts('seotools', $_SESSION['lang_code']));
 
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	

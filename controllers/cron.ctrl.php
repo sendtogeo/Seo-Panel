@@ -45,9 +45,8 @@ class CronController extends Controller {
 	
 	# function to show report generation manager
 	function showReportGenerationManager(){
-		$this->set('sectionHead', 'Report Generation Manager');
-		$userId = isLoggedIn();
 		
+		$userId = isLoggedIn();
 		$websiteController = New WebsiteController();
 		$websiteList = $websiteController->__getAllWebsites($userId, true);
 		$this->set('websiteList', $websiteList);
@@ -57,13 +56,19 @@ class CronController extends Controller {
 		$this->set('repTools', $this->repTools);
 		
 		$this->render('report/reportgenerationmanager');
-	}	
+	}
+
+	# function to show cron command
+	function showCronCommand(){
+		
+		$this->render('report/croncommand');
+	}
 	
 	# common report generation function
 	function executeReportGenerationScript($info='') {
 		
 		if(count($info['repTools']) <= 0){
-			showErrorMsg('Please select atleast one Seo Tools!');
+			showErrorMsg($this->spTextKeyword['pleaseselecttool']."!");
 		}
 		
 		$websiteCtrler = New WebsiteController();
@@ -83,7 +88,7 @@ class CronController extends Controller {
 		}
 
 		if(count($allWebsiteList) <= 0){
-			showErrorMsg('No websites found!');
+			showErrorMsg($_SESSION['text']['common']['nowebsites']."!");
 		}
 		
 		$this->set('allWebsiteList', $allWebsiteList);
@@ -113,6 +118,7 @@ class CronController extends Controller {
 	# function to route the cronjobs to different methods
 	function routeCronJob($websiteId, $repTools='', $cron=false){		
 		
+		$websiteId = intval($websiteId);
 		if(empty($this->websiteInfo)){
 			$websiteCtrler = New WebsiteController();
 			$this->websiteInfo = $websiteCtrler->__getWebsiteInfo($websiteId);

@@ -28,49 +28,62 @@ class AdminPanelController extends Controller{
 		
 		$menuList[] = array(
 						'id' => 1,
-            			'name' => 'Website Manager',
+            			'name' => $this->spTextPanel['Website Manager'],
             			'url_section' => 'websites'						
 						);		
 		if(isAdmin()){
 			$menuList[] = array(
 						'id' => 2,
-            			'name' => 'User Manager',
+            			'name' => $this->spTextPanel['User Manager'],
             			'url_section' => 'users'						
 						);
 						
 			$menuList[] = array(
 						'id' => 3,
-            			'name' => 'Reports Manager',
+            			'name' => $this->spTextPanel['Reports Manager'],
             			'url_section' => 'report-manager'						
 						);			
 			
 			$menuList[] = array(
 						'id' => 4,
-            			'name' => 'Seo Tools Manager',
+            			'name' => $this->spTextPanel['Seo Tools Manager'],
             			'url_section' => 'seo-tools-manager'						
 						);
 			
 			$menuList[] = array(
 						'id' => 5,
-            			'name' => 'Seo Plugins Manager',
+            			'name' => $this->spTextPanel['Seo Plugins Manager'],
             			'url_section' => 'seo-plugin-manager'						
 						);
 						
 			$menuList[] = array(
 						'id' => 6,
-            			'name' => 'Directory Manager',
+            			'name' => $this->spTextPanel['Directory Manager'],
             			'url_section' => 'directory-manager'						
 						);
+						
+			$menuList[] = array(
+						'id' => 9,
+            			'name' => $this->spTextPanel['Proxy Manager'],
+            			'url_section' => 'proxy-manager'						
+						);
+						
 			$menuList[] = array(
 						'id' => 7,
-            			'name' => 'System Settings',
+            			'name' => $this->spTextPanel['System Settings'],
             			'url_section' => 'settings'						
 						);
 		}
+		
 		$menuList[] = array(
 						'id' => 8,
-            			'name' => 'My Profile',
+            			'name' => $this->spTextPanel['My Profile'],
             			'url_section' => 'my-profile'						
+						);
+		$menuList[] = array(
+						'id' => 10,
+            			'name' => $this->spTextPanel['About Us'],
+            			'url_section' => 'about-us'						
 						);
 		
 		$menuSelected = empty($info['menu_selected']) ? 'websites' : $info['menu_selected']; 

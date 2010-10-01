@@ -1,8 +1,8 @@
-<?php echo showSectionHead($sectionHead); ?>
+<?php echo showSectionHead($spTextKeyword['Detailed Keyword Position Reports']); ?>
 <form id='search_form'>
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="search">
 	<tr>
-		<th>Website: </th>
+		<th><?=$spText['common']['Website']?>: </th>
 		<td>
 			<select name="website_id" id="website_id" style='width:190px;' onchange="doLoad('website_id', 'keywords.php', 'keyword_area', 'sec=keywordbox')">
 				<?php foreach($websiteList as $websiteInfo){?>
@@ -14,24 +14,24 @@
 				<?php }?>
 			</select>
 		</td>
-		<th>Keyword: </th>
+		<th><?=$spText['common']['Keyword']?>: </th>
 		<td id="keyword_area" colspan='2'>
 			<?php echo $this->render('keyword/keywordselectbox', 'ajax'); ?>
 		</td>
 	</tr>
 	<tr>
-		<th>Period:</th>
+		<th><?=$spText['common']['Period']?>:</th>
 		<td>
 			<input type="text" style="width: 72px;margin-right:0px;" value="<?=$fromTime?>" name="from_time"/> 
 			<img align="bottom" onclick="displayDatePicker('from_time', false, 'ymd', '-');" src="<?=SP_IMGPATH?>/cal.gif"/> 
 			<input type="text" style="width: 72px;margin-right:0px;" value="<?=$toTime?>" name="to_time"/> 
 			<img align="bottom" onclick="displayDatePicker('to_time', false, 'ymd', '-');" src="images/cal.gif"/>
 		</td>		
-		<th>Search Engine: </th>
+		<th><?=$spText['common']['Search Engine']?>: </th>
 		<td>
 			<?php echo $this->render('searchengine/seselectbox', 'ajax'); ?>
 		</td>
-		<td colspan="2"><a href="javascript:void(0);" onclick="scriptDoLoadPost('reports.php', 'search_form', 'content')"><img alt="" src="<?=SP_IMGPATH?>/show_records.gif"></a></td>
+		<td colspan="2"><a href="javascript:void(0);" onclick="scriptDoLoadPost('reports.php', 'search_form', 'content')" class="actionbut"><?=$spText['button']['Show Records']?></a></td>
 	</tr>
 </table>
 </form>
@@ -39,7 +39,7 @@
 <?php
 	if(empty($keywordId)){
 		?>
-		<p class='note error'>No <b>Keywords</b> Found</p>
+		<p class='note error'><?=$spText['common']['No Keywords Found']?>!</p>
 		<?php
 		exit;
 	} 
@@ -51,9 +51,9 @@
 	<td width='33%'>
 	<table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
 	<tr class="listHead">
-		<td class="left">Date</td>
-		<td><?=$seInfo['domain']?> Results</td>
-		<td class="right">Rank</td>
+		<td class="left"><?=$spText['common']['Date']?></td>
+		<td><?=$seInfo['domain']?> <?=$spText['common']['Results']?></td>
+		<td class="right"><?=$spText['common']['Rank']?></td>
 	</tr>
 	<?php
 	$colCount = 3; 
@@ -89,7 +89,7 @@
 		?>
 		<tr class="blue_row">
 		    <td class="tab_left_bot_noborder">&nbsp;</td>
-		    <td class="td_bottom_border" colspan="1">No Records Found!</td>
+		    <td class="td_bottom_border" colspan="1"><?=$spText['common']['No Records Found']?>!</td>
 		    <td class="tab_right_bot">&nbsp;</td>
 		</tr>
 		<?		

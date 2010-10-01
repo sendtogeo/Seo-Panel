@@ -26,7 +26,6 @@ class BacklinkController extends Controller{
 	var $colList = array('google' => 'google', 'yahoo' => 'yahoo', 'msn' => 'msn', 'altavista' => 'altavista', 'alltheweb' => 'alltheweb');
 	
 	function showBacklink() {
-		$this->set('sectionHead', 'Quick Backlinks Checker');
 		
 		$this->render('backlink/showbacklink');
 	}
@@ -68,10 +67,10 @@ class BacklinkController extends Controller{
 				
 			#yahoo
 			case 'yahoo':
-				$url = 'http://search.yahoo.com/search?p=links%3A' . urlencode($this->url);
+				$url = "http://siteexplorer.search.yahoo.com/advsearch?p=".urlencode($this->url)."&bwm=i&bwmo=d&bwmf=s";
 				$v = $this->spider->getContent($url);
 				$v = empty($v['page']) ? '' :  $v['page'];
-				preg_match('/([0-9\,]+)<\/strong> results for/si', $v, $r);
+				preg_match('/Inlinks \((.+?)\)/si', $v, $r);
 				return ($r[1]) ? str_replace(',', '', $r[1]) : 0;
 				break;
 				
@@ -108,7 +107,6 @@ class BacklinkController extends Controller{
 	
 	# func to show genearte reports interface
 	function showGenerateReports($searchInfo = '') {
-		$this->set('sectionHead', 'Generate Backlinks Reports');
 				
 		$userId = isLoggedIn();
 		$websiteController = New WebsiteController();
@@ -121,7 +119,7 @@ class BacklinkController extends Controller{
 	# func to generate reports
 	function generateReports( $searchInfo='' ) {		
 		$userId = isLoggedIn();		
-		$websiteId = empty ($searchInfo['website_id']) ? '' : $searchInfo['website_id'];
+		$websiteId = empty ($searchInfo['website_id']) ? '' : intval($searchInfo['website_id']);
 		
 		$sql = "select id,url from websites where status=1";
 		if(!empty($userId) && !isAdmin()) $sql .= " and user_id=$userId";
@@ -130,7 +128,7 @@ class BacklinkController extends Controller{
 		$websiteList = $this->db->select($sql);		
 		
 		if(count($websiteList) <= 0){
-			echo "<p class='note'>No Websites found!!!</p>";
+			echo "<p class='note'>".$_SESSION['text']['common']['nowebsites']."!</p>";
 			exit;
 		}
 		
@@ -142,7 +140,7 @@ class BacklinkController extends Controller{
 			}
 			
 			$this->saveRankResults($websiteInfo, true);			
-			echo "<p class='note notesuccess'>Saved backlink results of <b>$websiteUrl</b>.....</p>";
+			echo "<p class='note notesuccess'>".$this->spTextBack['Saved backlink results of']." <b>$websiteUrl</b>.....</p>";
 		}	
 	}
 	
@@ -162,7 +160,7 @@ class BacklinkController extends Controller{
 	
 	# func to show reports
 	function showReports($searchInfo = '') {
-		$this->set('sectionHead', 'Backlinks Reports');
+		
 		$userId = isLoggedIn();
 		if (!empty ($searchInfo['from_time'])) {
 			$fromTime = strtotime($searchInfo['from_time'] . ' 00:00:00');
@@ -180,7 +178,7 @@ class BacklinkController extends Controller{
 		$websiteController = New WebsiteController();
 		$websiteList = $websiteController->__getAllWebsites($userId, true);
 		$this->set('websiteList', $websiteList);
-		$websiteId = empty ($searchInfo['website_id']) ? $websiteList[0]['id'] : $searchInfo['website_id'];
+		$websiteId = empty ($searchInfo['website_id']) ? $websiteList[0]['id'] : intval( $searchInfo['website_id']);
 		$this->set('websiteId', $websiteId);
 		
 		$conditions = empty ($websiteId) ? "" : " and s.website_id=$websiteId";		

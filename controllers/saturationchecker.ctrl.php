@@ -26,7 +26,6 @@ class SaturationCheckerController extends Controller{
 	var $colList = array('google' => 'google', 'yahoo' => 'yahoo', 'msn' => 'msn');
 	
 	function showSaturationChecker() {
-		$this->set('sectionHead', 'Quick Search Engine Saturation Checker');
 		
 		$this->render('saturationchecker/showsaturationchecker');
 	}
@@ -97,7 +96,6 @@ class SaturationCheckerController extends Controller{
 	
 	# func to show genearte reports interface
 	function showGenerateReports($searchInfo = '') {
-		$this->set('sectionHead', 'Generate Search Engine Saturation Reports');
 				
 		$userId = isLoggedIn();
 		$websiteController = New WebsiteController();
@@ -108,9 +106,10 @@ class SaturationCheckerController extends Controller{
 	}
 	
 	# func to generate reports
-	function generateReports( $searchInfo='' ) {		
+	function generateReports( $searchInfo='' ) {
+				
 		$userId = isLoggedIn();		
-		$websiteId = empty ($searchInfo['website_id']) ? '' : $searchInfo['website_id'];
+		$websiteId = empty ($searchInfo['website_id']) ? '' : intval($searchInfo['website_id']);
 		
 		$sql = "select id,url from websites where status=1";
 		if(!empty($userId) && !isAdmin()) $sql .= " and user_id=$userId";
@@ -119,7 +118,7 @@ class SaturationCheckerController extends Controller{
 		$websiteList = $this->db->select($sql);		
 		
 		if(count($websiteList) <= 0){
-			echo "<p class='note'>No Websites found!!!</p>";
+			echo "<p class='note'>".$_SESSION['text']['common']['nowebsites']."!</p>";
 			exit;
 		}
 		
@@ -131,7 +130,7 @@ class SaturationCheckerController extends Controller{
 			}
 			
 			$this->saveRankResults($websiteInfo, true);			
-			echo "<p class='note notesuccess'>Saved Search Engine Saturation results of <b>$websiteUrl</b>.....</p>";
+			echo "<p class='note notesuccess'>".$this->spTextSat['Saved Search Engine Saturation results of']." <b>$websiteUrl</b>.....</p>";
 		}	
 	}
 	
@@ -151,7 +150,7 @@ class SaturationCheckerController extends Controller{
 	
 	# func to show reports
 	function showReports($searchInfo = '') {
-		$this->set('sectionHead', 'Search Engine Saturation Reports');
+		
 		$userId = isLoggedIn();
 		if (!empty ($searchInfo['from_time'])) {
 			$fromTime = strtotime($searchInfo['from_time'] . ' 00:00:00');
@@ -169,7 +168,7 @@ class SaturationCheckerController extends Controller{
 		$websiteController = New WebsiteController();
 		$websiteList = $websiteController->__getAllWebsites($userId, true);
 		$this->set('websiteList', $websiteList);
-		$websiteId = empty ($searchInfo['website_id']) ? $websiteList[0]['id'] : $searchInfo['website_id'];
+		$websiteId = empty ($searchInfo['website_id']) ? $websiteList[0]['id'] : intval($searchInfo['website_id']);
 		$this->set('websiteId', $websiteId);
 		
 		$conditions = empty ($websiteId) ? "" : " and s.website_id=$websiteId";		

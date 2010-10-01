@@ -1,6 +1,6 @@
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
 	<tr class="listHead">
-		<td class="left">Url</td>
+		<td class="left"><?=$spText['common']['Url']?></td>
 		<td>Google</td>
 		<td>Yahoo</td>
 		<td>MSN</td>

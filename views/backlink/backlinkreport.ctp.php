@@ -1,8 +1,8 @@
-<?php echo showSectionHead($sectionHead); ?>
+<?php echo showSectionHead($spTextTools['Generate Backlinks Reports']); ?>
 <form id='search_form'>
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="search">
 	<tr>
-		<th>Website: </th>
+		<th><?=$spText['common']['Website']?>: </th>
 		<td>
 			<select name="website_id" id="website_id" style='width:190px;' onchange="scriptDoLoadPost('backlinks.php', 'search_form', 'content', '&sec=reports')">
 				<?php foreach($websiteList as $websiteInfo){?>
@@ -14,14 +14,14 @@
 				<?php }?>
 			</select>
 		</td>
-		<th>Period:</th>
+		<th><?=$spText['common']['Period']?>:</th>
 		<td>
 			<input type="text" style="width: 72px;margin-right:0px;" value="<?=$fromTime?>" name="from_time"/> 
 			<img align="bottom" onclick="displayDatePicker('from_time', false, 'ymd', '-');" src="<?=SP_IMGPATH?>/cal.gif"/> 
 			<input type="text" style="width: 72px;margin-right:0px;" value="<?=$toTime?>" name="to_time"/> 
 			<img align="bottom" onclick="displayDatePicker('to_time', false, 'ymd', '-');" src="images/cal.gif"/>
 		</td>
-		<td colspan="2"><a href="javascript:void(0);" onclick="scriptDoLoadPost('backlinks.php', 'search_form', 'content', '&sec=reports')"><img alt="" src="<?=SP_IMGPATH?>/show_records.gif"></a></td>
+		<td colspan="2"><a href="javascript:void(0);" onclick="scriptDoLoadPost('backlinks.php', 'search_form', 'content', '&sec=reports')" class="actionbut"><?=$spText['button']['Show Records']?></a></td>
 	</tr>
 </table>
 </form>
@@ -29,7 +29,7 @@
 <?php
 	if(empty($websiteId)){
 		?>
-		<p class='note error'>No reports found!!</p>
+		<p class='note error'><?=$spText['common']['No Records Found']?>!</p>
 		<?php
 		exit;
 	} 
@@ -41,7 +41,7 @@
 	<td width='33%'>
 	<table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
 	<tr class="listHead">
-		<td class="left">Date</td>
+		<td class="left"><?=$spText['common']['Date']?></td>
 		<td>Google</td>
 		<td>Yahoo</td>
 		<td>MSN</td>

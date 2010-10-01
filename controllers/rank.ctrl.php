@@ -25,7 +25,6 @@ class RankController extends Controller{
 
 	# func to show quick rank checker
 	function showQuickRankChecker() {
-		$this->set('sectionHead', 'Quick Rank Checker');
 		
 		$this->render('rank/showquickrank');
 	}
@@ -159,8 +158,7 @@ class RankController extends Controller{
 	
 	# func to show genearte reports interface
 	function showGenerateReports($searchInfo = '') {
-		$this->set('sectionHead', 'Generate Google and Alexa Rank Reports');
-				
+		
 		$userId = isLoggedIn();
 		$websiteController = New WebsiteController();
 		$websiteList = $websiteController->__getAllWebsites($userId, true);
@@ -170,9 +168,10 @@ class RankController extends Controller{
 	}
 	
 	# func to generate reports
-	function generateReports( $searchInfo='' ) {		
+	function generateReports( $searchInfo='' ) {
+				
 		$userId = isLoggedIn();		
-		$websiteId = empty ($searchInfo['website_id']) ? '' : $searchInfo['website_id'];
+		$websiteId = empty ($searchInfo['website_id']) ? '' : intval($searchInfo['website_id']);
 		
 		$sql = "select id,url from websites where status=1";
 		if(!empty($userId) && !isAdmin()) $sql .= " and user_id=$userId";
@@ -181,7 +180,7 @@ class RankController extends Controller{
 		$websiteList = $this->db->select($sql);		
 		
 		if(count($websiteList) <= 0){
-			echo "<p class='note'>No Websites found!!!</p>";
+			echo "<p class='note'>".$_SESSION['text']['common']['nowebsites']."!</p>";
 			exit;
 		}
 		
@@ -192,7 +191,7 @@ class RankController extends Controller{
 			$websiteInfo['alexaRank'] = $this->__getAlexaRank($websiteUrl);
 			
 			$this->saveRankResults($websiteInfo, true);			
-			echo "<p class='note notesuccess'>Saved rank results of <b>$websiteUrl</b>.....</p>";
+			echo "<p class='note notesuccess'>".$this->spTextRank['Saved rank results of']." <b>$websiteUrl</b>.....</p>";
 		}	
 	}
 	
@@ -212,7 +211,7 @@ class RankController extends Controller{
 	
 	# func to show reports
 	function showReports($searchInfo = '') {
-		$this->set('sectionHead', 'Google and Alexa Rank Reports');
+		
 		$userId = isLoggedIn();
 		if (!empty ($searchInfo['from_time'])) {
 			$fromTime = strtotime($searchInfo['from_time'] . ' 00:00:00');
@@ -230,7 +229,7 @@ class RankController extends Controller{
 		$websiteController = New WebsiteController();
 		$websiteList = $websiteController->__getAllWebsites($userId, true);
 		$this->set('websiteList', $websiteList);
-		$websiteId = empty ($searchInfo['website_id']) ? $websiteList[0]['id'] : $searchInfo['website_id'];
+		$websiteId = empty ($searchInfo['website_id']) ? $websiteList[0]['id'] : intval($searchInfo['website_id']);
 		$this->set('websiteId', $websiteId);
 		
 		$conditions = empty ($websiteId) ? "" : " and s.website_id=$websiteId";		

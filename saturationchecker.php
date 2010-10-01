@@ -26,6 +26,9 @@ include_once(SP_CTRLPATH."/saturationchecker.ctrl.php");
 $controller = New SaturationCheckerController();
 $controller->view->menu = 'seotools';
 $controller->layout = 'ajax';
+$controller->set('spTextTools', $controller->getLanguageTexts('seotools', $_SESSION['lang_code']));
+$controller->spTextSat = $controller->getLanguageTexts('saturation', $_SESSION['lang_code']);
+$controller->set('spTextSat', $controller->spTextSat);
 
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	

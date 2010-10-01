@@ -53,7 +53,8 @@ function showDiv($divId) {
 
 
 # func to show no results
-function showNoRecordsList($colspan, $msg='No Records Found!') {
+function showNoRecordsList($colspan, $msg='') {
+	$msg = empty($msg) ? $_SESSION['text']['common']['No Records Found']."!" : $msg;
 	$data['colspan'] = $colspan;
 	$data['msg'] = $msg;
 	return View::fetchViewFile('common/norecords', $data);
@@ -84,6 +85,7 @@ function checkLoggedIn() {
 	$userInfo = Session::readSession('userInfo');
 	if(empty($userInfo['userId'])){
 		redirectUrlByScript(SP_WEBPATH."/login.php");
+		exit;
 	}
 }
 
@@ -92,6 +94,7 @@ function checkAdminLoggedIn() {
 	$userInfo = Session::readSession('userInfo');
 	if(empty($userInfo['userType']) || ($userInfo['userType'] != 'admin') ) {
 		redirectUrlByScript(SP_WEBPATH."/login.php");
+		exit;
 	}
 }
 
@@ -119,7 +122,11 @@ function confirmScriptAJAXLink($file,$area,$trigger='OnClick'){
 }
 
 function scriptAJAXLinkHref($file, $area, $args='', $linkText='Click', $class='', $trigger='OnClick'){
-	$link = ' '.$trigger.'="scriptDoLoad('."'$file', '$area', '$args')".'"';
+	if ($file == 'demo') {
+		$link = ' '.$trigger.'="alertDemoMsg()"';
+	} else {
+		$link = ' '.$trigger.'="scriptDoLoad('."'$file', '$area', '$args')".'"';		
+	}
 	$link = "<a href='javascript:void(0);'class='$class' $link>$linkText</a>";
 	return $link;
 }
@@ -217,6 +224,44 @@ function removeNewLines($value) {
 	$value = preg_replace('/[\r\n]*/', '', $value);
 	$value = preg_replace('/[\r\n]+/', '', $value);
 	return $value;
+}
+
+# func to get current url
+function getCurrentUrl() {
+	$reqUrl = $_SERVER['REQUEST_URI'];
+	$protocol = empty($_SERVER['HTTPS']) ? "http://" : "https://";
+	$port = empty($_SERVER['SERVER_PORT']) ?  "" : (int) $_SERVER['SERVER_PORT'];
+	$host =  strtolower($_SERVER['HTTP_HOST']);
+	if(!empty($port) && ($port <> 443) && ($port <> 80)){
+		if(strpos($host, ':') === false){ $host .= ':' . $port; }
+	}
+	$webPath = $protocol.$host.$reqUrl;
+	return $webPath;
+}
+
+# function to check whether refferer is from same site
+function isValidReferer($referer) {
+	
+	if(stristr($referer, SP_WEBPATH)) {
+		return $referer;
+	}
+	return '';
+}
+
+# func to create export content
+function createExportContent($list) {
+	return '"'.implode('","',$list)."\"\r\n"; 
+}
+
+# func to export data to csv file
+function exportToCsv($fileName, $content) {
+	
+	$fileName = $fileName."_".date("Y-m-d",time());
+	header("Content-type: application/vnd.ms-excel");
+	header("Content-disposition: csv" . date("Y-m-d") . ".csv");
+	header( "Content-disposition: filename=".$fileName.".csv");
+	print $content;
+	exit; 
 }
 
 ?>

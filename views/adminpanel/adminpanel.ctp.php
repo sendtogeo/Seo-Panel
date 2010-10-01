@@ -4,9 +4,9 @@
 <table width="100%" border="0" cellspacing="0px" cellpadding="0">
 	<tr>
 		<td valign="top" class="leftmenu">
-		<div>
-		<?php include_once(SP_VIEWPATH."/adminpanel/adminleftmenu.ctp.php");?>
-		</div>
+			<div class="selectmenu">
+				<?php include_once(SP_VIEWPATH."/adminpanel/adminleftmenu.ctp.php");?>
+			</div>
 		</td>
 		<td width="8px">&nbsp;</td>
 		<td id="content" height="340px" valign="top">

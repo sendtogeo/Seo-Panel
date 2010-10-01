@@ -1,10 +1,10 @@
-<?php echo showSectionHead($sectionHead); ?>
-<?php if(!empty($saved)) showSuccessMsg('System settings saved successfully!', false); ?>
+<?php echo showSectionHead($spTextPanel['System Settings']); ?>
+<?php if(!empty($saved)) showSuccessMsg($spTextSettings['syssettingssaved'], false); ?>
 <form id="updateSettings">
 <input type="hidden" value="update" name="sec">
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
 	<tr class="listHead">
-		<td class="left" width='30%'>System Settings</td>
+		<td class="left" width='30%'><?=$spTextPanel['System Settings']?></td>
 		<td class="right">&nbsp;</td>
 	</tr>
 	<?php 
@@ -37,16 +37,29 @@
 		}
 		?>
 		<tr class="<?=$class?>">
-			<td class="td_left_col"><?=$listInfo['set_label']?>:</td>
+			<td class="td_left_col"><?=$spTextSettings[$listInfo['set_name']]?>:</td>
 			<td class="td_right_col">
 				<?php if($listInfo['set_type'] != 'text'){?>
 					<?php if($listInfo['set_type'] == 'bool'){?>
 						<select  name="<?=$listInfo['set_name']?>">
-							<option value="1" <?=$selectYes?>>Yes</option>
-							<option value="0" <?=$selectNo?>>No</option>
+							<option value="1" <?=$selectYes?>><?=$spText['common']['Yes']?></option>
+							<option value="0" <?=$selectNo?>><?=$spText['common']['No']?></option>
 						</select>
 					<?php }else{?>
-						<input type="text" name="<?=$listInfo['set_name']?>" value="<?=stripslashes($listInfo['set_val'])?>" style='width:<?=$width?>px'>
+						<?php if($listInfo['set_name'] == 'SP_DEFAULTLANG') {?>
+							<select name="<?=$listInfo['set_name']?>">
+								<?php
+								foreach ($langList as $langInfo) {
+									$selected = ($langInfo['lang_code'] == $listInfo['set_val']) ? "selected" : "";
+									?>			
+									<option value="<?=$langInfo['lang_code']?>" <?=$selected?>><?=$langInfo['lang_name']?></option>
+									<?php
+								}
+								?>
+							</select>
+						<?php } else {?>
+							<input type="text" name="<?=$listInfo['set_name']?>" value="<?=stripslashes($listInfo['set_val'])?>" style='width:<?=$width?>px'>
+						<?php }?>
 					<?php }?>
 				<?php }else{?>
 					<textarea name="<?=$listInfo['set_name']?>" style='width:<?=$width?>px'><?=stripslashes($listInfo['set_val'])?></textarea>
@@ -68,11 +81,12 @@
 <table width="100%" cellspacing="0" cellpadding="0" border="0" class="actionSec">
 	<tr>
     	<td style="padding-top: 6px;text-align:right;">
-    		<a onclick="scriptDoLoad('settings.php', 'content', 'layout=ajax')" href="javascript:void(0);">
-         		<img border="0" alt="" src="<?=SP_IMGPATH?>/cancel.gif"/>
-         	</a>
-         	<a onclick="confirmSubmit('settings.php', 'updateSettings', 'content')" href="javascript:void(0);">
-         		<img border="0" alt="" src="<?=SP_IMGPATH?>/proceed.gif"/>
+    		<a onclick="scriptDoLoad('settings.php', 'content', 'layout=ajax')" href="javascript:void(0);" class="actionbut">
+         		<?=$spText['button']['Cancel']?>
+         	</a>&nbsp;
+         	<?php $actFun = SP_DEMO ? "alertDemoMsg()" : "confirmSubmit('settings.php', 'updateSettings', 'content')"; ?>
+         	<a onclick="<?=$actFun?>" href="javascript:void(0);" class="actionbut">
+         		<?=$spText['button']['Proceed']?>
          	</a>
     	</td>
 	</tr>

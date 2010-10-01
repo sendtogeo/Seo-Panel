@@ -1,7 +1,7 @@
 <?php
 
 /***************************************************************************
- *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	   *
+ *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	           *
  *   sendtogeo@gmail.com   												   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -25,6 +25,7 @@ class View extends Seopanel{
 
 	function render($viewFile, $layout='default', $printContent=true){
 		
+		$spText = $_SESSION['text'];
 		if(count($this->data) > 0){
 			foreach ($this->data as $varName => $varValue){
 				$$varName = $varValue;
@@ -43,11 +44,19 @@ class View extends Seopanel{
 				return $viewContent;
 			}
 		}else{
+			
+			$langCtrler = New LanguageController();
+			$langList = $langCtrler->__getAllLanguages(" where translated=1");
+			$userLang = empty($_SESSION['lang_code']) ? SP_DEFAULTLANG : $_SESSION['lang_code'];
+			$redirectUrl = $langCtrler->getRedirectUrl();			
+			
 			include_once(SP_VIEWPATH."/layout/".$layout.".ctp.php");
 		}
 	}
 
 	function getViewContent($viewFile){
+		
+		$spText = $_SESSION['text'];
 		if(count($this->data) > 0){
 			foreach ($this->data as $varName => $varValue){
 				$$varName = $varValue;
@@ -63,6 +72,8 @@ class View extends Seopanel{
 
 	#func to fetch the ctp file content
 	function fetchViewFile($viewFile, $data=array()) {
+		
+		$spText = $_SESSION['text'];
 		if(count($data) > 0){
 			foreach ($data as $varName => $varValue){
 				$$varName = $varValue;
@@ -78,6 +89,8 @@ class View extends Seopanel{
 	
 	# plugin render functions
 	function pluginRender($viewFile, $layout='default', $printContent=true){
+		
+		$spText = $_SESSION['text'];
 		$viewContent = $this->getPluginViewContent($viewFile);
 		ob_start();
 		if($layout == 'ajax'){
@@ -92,6 +105,8 @@ class View extends Seopanel{
 	}
 
 	function getPluginViewContent($viewFile){
+		
+		$spText = $_SESSION['text'];
 		if(count($this->data) > 0){
 			foreach ($this->data as $varName => $varValue){
 				$$varName = $varValue;
@@ -107,6 +122,8 @@ class View extends Seopanel{
 	
 	#func to fetch the ctp file 
 	function fetchFile($viewFile, $data=array()) {
+		
+		$spText = $_SESSION['text'];
 		if(count($data) > 0){
 			foreach ($data as $varName => $varValue){
 				$$varName = $varValue;

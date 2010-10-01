@@ -35,7 +35,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET'){
 			break;
 
 		default:
-			$controller->index();
+			$controller->index($_GET);
 			break;
 	}
 }

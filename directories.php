@@ -26,6 +26,10 @@ include_once(SP_CTRLPATH."/directory.ctrl.php");
 $controller = New DirectoryController();
 $controller->view->menu = 'seotools';
 $controller->layout = 'ajax';
+$controller->set('spTextTools', $controller->getLanguageTexts('seotools', $_SESSION['lang_code']));
+$controller->set('spTextPanel', $controller->getLanguageTexts('panel', $_SESSION['lang_code']));
+$controller->spTextDir = $controller->getLanguageTexts('directory', $_SESSION['lang_code']);
+$controller->set('spTextDir', $controller->spTextDir);
 
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	
@@ -52,10 +56,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			break;
 			
 		case "directorymgr":			
+			checkAdminLoggedIn();			
 			$controller->showDirectoryManager($_POST);
 			break;
 			
-		case "startdircheck":			
+		case "startdircheck":
+			checkAdminLoggedIn();			
 			$controller->startDirectoryCheckStatus($_POST);
 			break;
 		
@@ -111,7 +117,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$controller->showFeaturedSubmission();
 			break;
 			
-		case "directorymgr":			
+		case "directorymgr":
+			checkAdminLoggedIn();			
 			$controller->showDirectoryManager($_GET);
 			break;
 			
@@ -119,15 +126,19 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$controller->changeStatusDirectory($_GET['dir_id'], $_GET['status'], true);
 			break;
 			
-		case "showcheckdir":			
+		case "showcheckdir":
+			checkAdminLoggedIn();			
 			$controller->showCheckDirectory();
 			break;
 			
-		case "startdircheck":			
+		case "startdircheck":
+			checkAdminLoggedIn();			
 			$controller->startDirectoryCheckStatus($_GET);
 			break;
 			
-		case "checkdir":			
+		case "checkdir":
+			checkAdminLoggedIn();
+			$controller->checkPR = empty($_GET['checkpr']) ? 0 : 1; 			
 			$controller->checkDirectoryStatus($_GET['dir_id'], $_GET['nodebug']);
 			break;
 			

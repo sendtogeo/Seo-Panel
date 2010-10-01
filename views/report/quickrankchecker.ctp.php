@@ -1,38 +1,38 @@
-<?php echo showSectionHead($sectionHead); ?>
+<?php echo showSectionHead($spTextKeyword['Quick Keyword Position Checker']); ?>
 <form id='search_form'>
 <table width="60%" border="0" cellspacing="0" cellpadding="0" class="search">
 	<tr>				
-		<th>Search Engine: </th>
+		<th><?=$spText['common']['Search Engine']?>: </th>
 		<td>
 			<?php echo $this->render('searchengine/seselectbox', 'ajax'); ?>
 		</td>
 	</tr>
 	<tr>
-		<th>Language: </th>		
+		<th><?=$spText['common']['lang']?>: </th>		
 		<td>
 			<?php echo $this->render('language/languageselectbox', 'ajax'); ?>
 		</td>
 	</tr>	
 	<tr>
-		<th>Country: </th>		
+		<th><?=$spText['common']['Country']?>: </th>		
 		<td>
 			<?php echo $this->render('country/countryselectbox', 'ajax'); ?>
 		</td>
 	</tr>
 	<tr>
-		<th>Website: </th>
+		<th><?=$spText['common']['Website']?>: </th>
 		<td>
 			<input type="text" style="width: <?=$seStyle?>px;" value="" name="url"/>
 		</td>
 	</tr>
 	<tr>
-		<th>Keyword: </th>		
+		<th><?=$spText['common']['Keyword']?>: </th>		
 		<td>
 			<input type="text" style="width: <?=$seStyle?>px;" value="" name="name"/>
 		</td>
 	</tr>	
 	<tr>
-		<th>Show All results: </th>		
+		<th><?=$spTextKeyword['Show All results']?>: </th>		
 		<td>
 			<input type="checkbox" value="1" name="show_all"/>
 		</td>
@@ -40,11 +40,11 @@
 	<tr>
 		<th>&nbsp;</th>
 		<td style="padding-left: 9px;">
-			<a href="javascript:void(0);" onclick="scriptDoLoadPost('reports.php', 'search_form', 'subcontent', '&sec=kwchecker')"><img alt="" src="<?=SP_IMGPATH?>/proceed.gif"></a>
+			<a href="javascript:void(0);" onclick="scriptDoLoadPost('reports.php', 'search_form', 'subcontent', '&sec=kwchecker')" class="actionbut"><?=$spText['button']['Proceed']?></a>
 		</td>
 	</tr>
 </table>
 </form>
 <div id='subcontent'>
-	<p class='note'>Click on <b>Proceed</b> to generate reports</p>
+	<p class='note'><?=$spTextTools['clickgeneratereports']?></p>
 </div>

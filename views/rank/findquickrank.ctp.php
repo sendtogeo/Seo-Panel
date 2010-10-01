@@ -1,9 +1,9 @@
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
 	<tr class="listHead">
-		<td class="left">No</td>
-		<td>Url</td>		
-		<td>Google Pagerank</td>
-		<td class="right">Alexa rank</td>
+		<td class="left"><?=$spText['common']['Id']?></td>
+		<td><?=$spText['common']['Url']?></td>		
+		<td><?=$spText['common']['Google Pagerank']?></td>
+		<td class="right"><?=$spText['common']['Alexa Rank']?></td>
 	</tr>
 	<?php
 	$colCount = 4; 

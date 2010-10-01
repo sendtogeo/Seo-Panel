@@ -112,7 +112,11 @@ function showLoadingIcon(scriptPos,noLoading){
 
 function confirmLoad(scriptUrl, scriptPos, scriptArgs) {
 
-	var agree = confirm("Do you really want to proceed? ");
+	if (chkObject('wantproceed')) {
+		wantproceed = "Do you really want to proceed?";
+	}
+	
+	var agree = confirm(wantproceed);
 	if (agree)
 		return scriptDoLoad(scriptUrl, scriptPos, scriptArgs);
 	else
@@ -121,7 +125,10 @@ function confirmLoad(scriptUrl, scriptPos, scriptArgs) {
 
 function confirmSubmit(scriptUrl, scriptForm, scriptPos) {
 
-	var agree = confirm("Do you really want to proceed? ");
+	if (chkObject('wantproceed')) {
+		wantproceed = "Do you really want to proceed?";
+	}
+	var agree = confirm(wantproceed);
 	if (agree)
 		return scriptDoLoadPost(scriptUrl, scriptForm, scriptPos);
 	else
@@ -157,6 +164,11 @@ function doLoad(argVal, scriptUrl, scriptPos, scriptArgs) {
 	actVal = document.getElementById(argVal).value;
 	scriptArgs += "&"+ argVal +"=" + actVal;
 	scriptDoLoad(scriptUrl, scriptPos, scriptArgs);
+}
+
+function doLoadUrl(argVal, scriptUrl) {
+	actVal = document.getElementById(argVal).value;
+	window.location = scriptUrl += "&"+ argVal +"=" + actVal;
 }
 
 /* func to show hide menu */

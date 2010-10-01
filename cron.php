@@ -27,6 +27,10 @@ if(!empty($_SERVER['REQUEST_METHOD'])){
 	checkAdminLoggedIn();
 	include_once(SP_CTRLPATH."/cron.ctrl.php");
 	$controller = New CronController();
+	$controller->set('spTextTools', $controller->getLanguageTexts('seotools', $_SESSION['lang_code']));
+	$controller->set('spTextPanel', $controller->getLanguageTexts('panel', $_SESSION['lang_code']));
+	$controller->spTextKeyword = $controller->getLanguageTexts('keyword', $_SESSION['lang_code']);
+	$controller->set('spTextKeyword', $controller->spTextKeyword);
 	
 	if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		
@@ -42,6 +46,10 @@ if(!empty($_SERVER['REQUEST_METHOD'])){
 			
 			case "generate":
 				$controller->routeCronJob($_GET['website_id'], $_GET['repTools']);
+				break;
+			
+			case "croncommand":
+				$controller->showCronCommand();
 				break;				
 	
 			default:

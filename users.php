@@ -32,6 +32,10 @@ include_once(SP_CTRLPATH."/keyword.ctrl.php");
 $controller = New UserController();
 $controller->view->menu = 'users';
 $controller->layout = 'ajax';
+$controller->spTextPanel = $controller->getLanguageTexts('panel', $_SESSION['lang_code']);
+$controller->set('spTextPanel', $controller->spTextPanel);
+$controller->spTextUser = $controller->getLanguageTexts('user', $_SESSION['lang_code']);
+$controller->set('spTextUser', $controller->spTextUser);
 
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	

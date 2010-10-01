@@ -13,16 +13,16 @@
 <input type="hidden" name="dir_id" value="<?=$dirInfo['id']?>"/>
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
 	<tr class="listHead">
-		<td class="left">Directory</td>
+		<td class="left" style="width: 30%"><?=$spTextTools['directory-submission']?></td>
 		<td class="right"><?=$dirInfo['domain']?></td>
 	</tr>		
 	<tr class="white_row">
-		<td class="td_left_col">Category:</td>
+		<td class="td_left_col"><?=$spText['common']['Category']?>:</td>
 		<td class="td_right_col"><?=$categorySel?></td>
 	</tr>
 	<? if(!empty($captchaUrl)){ ?>
 		<tr class="white_row">
-			<td class="td_left_col">Enter the code shown:</td>
+			<td class="td_left_col"><?=$spTextDir['Enter the code shown']?>:</td>
 			<td class="td_right_col">
 				<?php if(!empty($imageHash)){?>
 					<input type="hidden" name="<?=$dirInfo['imagehash_col']?>" value="<?=$imageHash?>">
@@ -47,17 +47,17 @@
 <table width="100%" cellspacing="0" cellpadding="0" border="0" class="actionSec">
 	<tr>
     	<td style="padding-top: 6px;text-align:right;">
-    		<a onclick="scriptDoLoad('directories.php', 'content')" href="javascript:void(0);">
-         		<img border="0" alt="" src="<?=SP_IMGPATH?>/cancel_black.gif"/>
-         	</a>
-         	<a onclick="scriptDoLoad('directories.php?sec=skip&website_id=<?=$websiteId?>&dir_id=<?=$dirInfo['id']?>', 'subcontent')" href="javascript:void(0);">
-         		<img border="0" alt="" src="<?=SP_IMGPATH?>/skip.gif"/>
-         	</a>
-         	<a onclick="scriptDoLoad('directories.php?sec=reload&website_id=<?=$websiteId?>&dir_id=<?=$dirInfo['id']?>', 'subcontent')" href="javascript:void(0);">
-         		<img border="0" alt="" src="<?=SP_IMGPATH?>/reload.gif"/>
-         	</a>
-         	<a onclick="checkSubmitInfo('directories.php', 'submissionForm', 'subcontent', '<?=$dirInfo['category_col']?>')" href="javascript:void(0);">
-         		<img border="0" alt="" src="<?=SP_IMGPATH?>/submit.gif"/>
+    		<a onclick="scriptDoLoad('directories.php', 'content')" href="javascript:void(0);" class="actionbut">
+         		<?=$spText['button']['Cancel']?>
+         	</a>&nbsp;
+         	<a onclick="scriptDoLoad('directories.php?sec=skip&website_id=<?=$websiteId?>&dir_id=<?=$dirInfo['id']?>', 'subcontent')" href="javascript:void(0);" class="actionbut">
+         		<?=$spText['button']['Skip']?>
+         	</a>&nbsp;
+         	<a onclick="scriptDoLoad('directories.php?sec=reload&website_id=<?=$websiteId?>&dir_id=<?=$dirInfo['id']?>', 'subcontent')" href="javascript:void(0);" class="actionbut">
+         		<?=$spText['button']['Reload']?>
+         	</a>&nbsp;
+         	<a onclick="checkSubmitInfo('directories.php', 'submissionForm', 'subcontent', '<?=$dirInfo['category_col']?>')" href="javascript:void(0);" class="actionbut">
+         		<?=$spText['button']['Submit']?>
          	</a>
     	</td>
 	</tr>

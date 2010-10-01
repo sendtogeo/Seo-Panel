@@ -1,7 +1,7 @@
 <?php
 
 /***************************************************************************
- *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	   *
+ *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	           *
  *   sendtogeo@gmail.com   												   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -26,14 +26,17 @@ class SettingsController extends Controller{
 	var $layout = 'ajax';
 	
 	function showSystemSettings() {
-		$this->set('sectionHead', 'System Settings');
 		
 		$this->set('list', $this->__getAllSettings());
+		
+		$langCtrler = New LanguageController();
+		$langList = $langCtrler->__getAllLanguages(" where translated=1");
+		$this->set('langList', $langList);
+		
 		$this->render('settings/showsettings');
 	}
 	
 	function updateSystemSettings($postInfo) {
-		$this->set('sectionHead', 'System Settings');
 		
 		$setList = $this->__getAllSettings();
 		foreach($setList as $setInfo){
@@ -56,9 +59,32 @@ class SettingsController extends Controller{
 			$this->db->query($sql);
 		}
 		
-		$this->set('list', $this->__getAllSettings());
 		$this->set('saved', 1);
-		$this->render('settings/showsettings');
+		$this->showSystemSettings();
+	}
+	
+	# func to show about us of seo panel
+	function showAboutUs() {
+		
+		$sql = "select t.*,l.lang_name from translators t,languages l where t.lang_code=l.lang_code";
+		$transList = $this->db->select($sql); 
+		$this->set('transList', $transList);
+		
+		$this->set('sponsors', $this->getSponsors());		
+		$this->render('settings/aboutus');
+	}
+	
+	# function to get sponsors
+	function getSponsors() {		
+		
+		if(empty($_COOKIE['sponsors'])){
+			$ret = $this->spider->getContent(SP_SPONSOR_PAGE . "?lang=". $_SESSION['lang_code']);			
+			setcookie("sponsors", $ret['page'], time()+ (60*60*24));
+		} else {
+			$ret['page'] = $_COOKIE['sponsors'];
+		}
+		
+		return $ret['page'];
 	}
 	
 }

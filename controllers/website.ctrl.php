@@ -25,9 +25,8 @@ class WebsiteController extends Controller{
 
 	# func to show websites
 	function listWebsites($info=''){		
-		$this->set('sectionHead', 'Websites Manager');
-		$userId = isLoggedIn();
 		
+		$userId = isLoggedIn();
 		if(isAdmin()){
 			$sql = "select w.*,u.username from websites w,users u where u.id=w.user_id";
 			$sql .= empty($info['userid']) ? "" : " and w.user_id=".$info['userid']; 
@@ -90,6 +89,8 @@ class WebsiteController extends Controller{
 
 	# func to change status
 	function __changeStatus($websiteId, $status){
+		
+		$websiteId = intval($websiteId);
 		$sql = "update websites set status=$status where id=$websiteId";
 		$this->db->query($sql);
 		
@@ -99,6 +100,8 @@ class WebsiteController extends Controller{
 
 	# func to change status
 	function __deleteWebsite($websiteId){
+		
+		$websiteId = intval($websiteId);
 		$sql = "delete from websites where id=$websiteId";
 		$this->db->query($sql);
 		
@@ -112,10 +115,10 @@ class WebsiteController extends Controller{
 	}
 
 	function newWebsite($info=''){
-		$this->set('sectionHead', 'New Website');
+		
 		$userId = isLoggedIn();
 		if(!empty($info['check']) && !$this->__getCountAllWebsites($userId)){
-			$this->set('msg', 'Please create a website before start to using seo tools and seo plugins.<br>Please <a href="javascript:void(0);" onclick="scriptDoLoad(\'websites.php\', \'content\')">activate</a> your website if you already created one.');
+			$this->set('msg', $this->spTextWeb['plscrtwebsite'].'<br>Please <a href="javascript:void(0);" onclick="scriptDoLoad(\'websites.php\', \'content\')">'.strtolower($_SESSION['text']['common']['Activate']).'</a> '.$this->spTextWeb['yourwebalreday']);
 		}
 		
 		# get all users
@@ -131,25 +134,32 @@ class WebsiteController extends Controller{
 	}
 
 	function __checkName($name, $userId){
-		$sql = "select id from websites where name='$name' and user_id=$userId";
+		
+		$sql = "select id from websites where name='".addslashes($name)."' and user_id=$userId";
 		$listInfo = $this->db->select($sql, true);
 		return empty($listInfo['id']) ? false :  $listInfo['id'];
 	}
 
 	function createWebsite($listInfo){
-		$userId = empty($listInfo['userid']) ? isLoggedIn() : $listInfo['userid'];
+		
+		if (isAdmin()) {
+			$userId = empty($listInfo['userid']) ? isLoggedIn() : $listInfo['userid'];	
+		} else {
+			$userId = isLoggedIn();
+		}
+		
 		$this->set('post', $listInfo);
 		$errMsg['name'] = formatErrorMsg($this->validate->checkBlank($listInfo['name']));
 		$errMsg['url'] = formatErrorMsg($this->validate->checkBlank($listInfo['url']));
 		if(!$this->validate->flagErr){
 			if (!$this->__checkName($listInfo['name'], $userId)) {
 				$sql = "insert into websites(name,url,title,description,keywords,user_id,status)
-							values('{$listInfo['name']}','{$listInfo['url']}','".addslashes($listInfo['title'])."','".addslashes($listInfo['description'])."','".addslashes($listInfo['keywords'])."',$userId,1)";
+							values('".addslashes($listInfo['name'])."','{$listInfo['url']}','".addslashes($listInfo['title'])."','".addslashes($listInfo['description'])."','".addslashes($listInfo['keywords'])."',$userId,1)";
 				$this->db->query($sql);
 				$this->listWebsites();
 				exit;
 			}else{
-				$errMsg['name'] = formatErrorMsg('Website already exist!');
+				$errMsg['name'] = formatErrorMsg($this->spTextWeb['Website already exist']);
 			}
 		}
 		$this->set('errMsg', $errMsg);
@@ -163,7 +173,8 @@ class WebsiteController extends Controller{
 	}
 
 	function editWebsite($websiteId, $listInfo=''){		
-		$this->set('sectionHead', 'Edit Website');
+		
+		$websiteId = intval($websiteId);
 		if(!empty($websiteId)){
 			if(empty($listInfo)){
 				$listInfo = $this->__getWebsiteInfo($websiteId);
@@ -189,7 +200,14 @@ class WebsiteController extends Controller{
 	}
 
 	function updateWebsite($listInfo){
-		$userId = empty($listInfo['user_id']) ? isLoggedIn() : $listInfo['user_id'];
+		
+		if (isAdmin()) {
+			$userId = empty($listInfo['user_id']) ? isLoggedIn() : $listInfo['user_id'];	
+		} else {
+			$userId = isLoggedIn();
+		}
+		
+		$listInfo['id'] = intval($listInfo['id']);
 		$this->set('post', $listInfo);
 		$errMsg['name'] = formatErrorMsg($this->validate->checkBlank($listInfo['name']));
 		$errMsg['url'] = formatErrorMsg($this->validate->checkBlank($listInfo['url']));
@@ -197,7 +215,7 @@ class WebsiteController extends Controller{
 
 			if($listInfo['name'] != $listInfo['oldName']){
 				if ($this->__checkName($listInfo['name'], $userId)) {
-					$errMsg['name'] = formatErrorMsg('Website already exist!');
+					$errMsg['name'] = formatErrorMsg($this->spTextWeb['Website already exist']);
 					$this->validate->flagErr = true;
 				}
 			}

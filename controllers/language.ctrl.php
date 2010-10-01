@@ -1,7 +1,7 @@
 <?php
 
 /***************************************************************************
- *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	   *
+ *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	           *
  *   sendtogeo@gmail.com   												   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -24,10 +24,30 @@
 class LanguageController extends Controller{
 	
 	# func to get all Languages
-	function __getAllLanguages(){
-		$sql = "select * from languages order by lang_name";
+	function __getAllLanguages($where=''){
+		$sql = "select * from languages";
+		if (!empty($where)) $sql .= $where;
+		$sql .= " order by lang_name";
 		$langList = $this->db->select($sql);
 		return $langList;
+	}
+
+	# fun to create resdirect url
+	function getRedirectUrl() {
+		$currUrl = getCurrentUrl();
+		if (!stristr($currUrl, '?')) {
+			$currUrl .= "?";
+		}
+		
+		$currUrl = preg_replace('/&lang_code=\w{2}$|&lang_code=\w{2}&/i', '', $currUrl, 1, $count);
+		return $currUrl;
+	}
+	
+	# func to get language info
+	function __getLanguageInfo($langCode) {
+		$sql = "select * from languages where lang_code='$langCode'";
+		$langInfo = $this->db->select($sql, true);
+		return $langInfo;
 	}
 }
 ?>

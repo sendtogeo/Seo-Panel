@@ -1,27 +1,27 @@
-<?php echo showSectionHead($sectionHead); ?>
+<?php echo showSectionHead($spTextPlugin['Seo Plugin Details']); ?>
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
 	<tr class="listHead">
-		<td class="left" width='20%'><?php echo $pluginInfo['label']?></td>
+		<td class="left" width='30%'><?php echo $pluginInfo['label']?></td>
 		<td class="right">&nbsp;</td>
 	</tr>
 	<tr class="white_row">
-		<td class="td_left_col bold">Plugin Name:</td>
+		<td class="td_left_col bold"><?=$spTextPlugin['Plugin Name']?>:</td>
 		<td class="td_right_col"><?php echo $pluginInfo['label']?></td>
 	</tr>
 	<tr class="blue_row">
-		<td class="td_left_col bold">Version:</td>
+		<td class="td_left_col bold"><?=$spText['label']['Version']?>:</td>
 		<td class="td_right_col"><?php echo $pluginInfo['version']?></td>
 	</tr>
 	<tr class="white_row">
-		<td class="td_left_col bold">Author:</td>
+		<td class="td_left_col bold"><?=$spText['label']['Author']?>:</td>
 		<td class="td_right_col"><?php echo $pluginInfo['author']?></td>
 	</tr>
 	<tr class="blue_row">
-		<td class="td_left_col bold">Website:</td>
+		<td class="td_left_col bold"><?=$spText['common']['Website']?>:</td>
 		<td class="td_right_col"><a href="<?php echo $pluginInfo['website']?>" target="_blank"><?php echo $pluginInfo['website']?></a></td>
 	</tr>	
 	<tr class="white_row">
-		<td class="td_left_col bold">Description:</td>
+		<td class="td_left_col bold"><?=$spText['label']['Description']?>:</td>
 		<td class="td_right_col"><?php echo $pluginInfo['description']?></td>
 	</tr>		
 	<tr class="blue_row">

@@ -70,13 +70,24 @@ class ReportController extends Controller {
 	# func to show keyword report summary
 	function showKeywordReportSummary($searchInfo = '') {
 		
-		$this->set('sectionHead', 'Keyword Position Summary');
 		$userId = isLoggedIn();
+		$exportVersion = false;
+		switch($searchInfo['doc_type']){
+						
+			case "export":
+				$exportVersion = true;
+				$exportContent = "";
+				break;
+			
+			case "print":
+				$this->set('printVersion', true);
+				break;
+		}
 		
 		$websiteController = New WebsiteController();
 		$websiteList = $websiteController->__getAllWebsitesWithActiveKeywords($userId, true);
 		$this->set('websiteList', $websiteList);
-		$websiteId = empty ($searchInfo['website_id']) ? $websiteList[0]['id'] : $searchInfo['website_id'];
+		$websiteId = isset($searchInfo['website_id']) ? $searchInfo['website_id'] : $websiteList[0]['id'];
 		$this->set('websiteId', $websiteId);
 		
 		$seController = New SearchEngineController();
@@ -91,14 +102,33 @@ class ReportController extends Controller {
 			$keywordList[] = $keywordInfo;
 		}		
 
-		$this->set('list', $keywordList);
-		$this->render('report/reportsummary');
+		if ($exportVersion) {
+			$spText = $_SESSION['text'];
+			$exportContent .= createExportContent( array('', $this->spTextTools['Keyword Position Summary'], ''));
+			$exportContent .= createExportContent( array());
+			$headList = array($spText['common']['Website'], $spText['common']['Keyword']);
+			foreach ($this->seLIst as $seInfo) $headList[] = $seInfo['domain'];
+			$exportContent .= createExportContent( $headList);
+			foreach ($keywordList as $listInfo) {
+				$positionInfo = $listInfo['position_info'];
+				$valueList = array($listInfo['weburl'], $listInfo['name']);
+				foreach ($this->seLIst as $index => $seInfo){
+					$rank = empty($positionInfo[$seInfo['id']]['rank']) ? '-' : $positionInfo[$seInfo['id']]['rank'];
+					$rankDiff = empty($positionInfo[$seInfo['id']]['rank_diff']) ? '' : $positionInfo[$seInfo['id']]['rank_diff'];
+					$valueList[] = $rank. strip_tags($rankDiff);
+				}
+				$exportContent .= createExportContent( $valueList);
+			}
+			exportToCsv('keyword_report_summary', $exportContent);
+		} else {
+			$this->set('list', $keywordList);
+			$this->render('report/reportsummary');	
+		}		
 	}
 	
 	# func to show reports
 	function showReports($searchInfo = '') {
 		
-		$this->set('sectionHead', 'Detailed Keyword Position Reports');
 		$userId = isLoggedIn();
 		if (!empty ($searchInfo['from_time'])) {
 			$fromTime = strtotime($searchInfo['from_time'] . ' 00:00:00');
@@ -115,6 +145,8 @@ class ReportController extends Controller {
 		
 		$keywordController = New KeywordController();
 		if(!empty($searchInfo['keyword_id']) && !empty($searchInfo['rep'])){
+			
+			$searchInfo['keyword_id'] = intval($searchInfo['keyword_id']);
 			$keywordInfo = $keywordController->__getKeywordInfo($searchInfo['keyword_id']);
 			$searchInfo['website_id'] = $keywordInfo['website_id'];
 		}
@@ -122,7 +154,7 @@ class ReportController extends Controller {
 		$websiteController = New WebsiteController();
 		$websiteList = $websiteController->__getAllWebsitesWithActiveKeywords($userId, true);
 		$this->set('websiteList', $websiteList);
-		$websiteId = empty ($searchInfo['website_id']) ? $websiteList[0]['id'] : $searchInfo['website_id'];
+		$websiteId = empty ($searchInfo['website_id']) ? $websiteList[0]['id'] : intval($searchInfo['website_id']);
 		$this->set('websiteId', $websiteId);
 
 		$keywordList = $keywordController->__getAllKeywords($userId, $websiteId, true);
@@ -133,7 +165,7 @@ class ReportController extends Controller {
 		$seController = New SearchEngineController();
 		$seList = $seController->__getAllSearchEngines();
 		$this->set('seList', $seList);
-		$seId = empty ($searchInfo['se_id']) ? $seList[0]['id'] : $searchInfo['se_id'];
+		$seId = empty ($searchInfo['se_id']) ? $seList[0]['id'] : intval($searchInfo['se_id']);
 		$this->set('seId', $seId);
 		$this->set('seInfo', $seController->__getsearchEngineInfo($seId));
 
@@ -183,10 +215,11 @@ class ReportController extends Controller {
 
 	# func to show reports in a time
 	function showTimeReport($searchInfo = '') {
+		
 		$fromTime = $searchInfo['time'];
 		$toTime = $fromTime + (3600 * 24);
-		$keywordId = $searchInfo['keyId'];
-		$seId = $searchInfo['seId'];
+		$keywordId = intval($searchInfo['keyId']);
+		$seId = intval($searchInfo['seId']);
 		$seController = New SearchEngineController();
 		$this->set('seInfo', $seController->__getsearchEngineInfo($seId));
 
@@ -205,7 +238,6 @@ class ReportController extends Controller {
 	# func to show graphical reports
 	function showGraphicalReports($searchInfo = '') {		
 		
-		$this->set('sectionHead', 'Graphical Keyword Position Reports');
 		$userId = isLoggedIn();
 		if (!empty ($searchInfo['from_time'])) {
 			$fromTime = strtotime($searchInfo['from_time'] . ' 00:00:00');
@@ -223,19 +255,19 @@ class ReportController extends Controller {
 		$websiteController = New WebsiteController();
 		$websiteList = $websiteController->__getAllWebsitesWithActiveKeywords($userId, true);
 		$this->set('websiteList', $websiteList);
-		$websiteId = empty ($searchInfo['website_id']) ? $websiteList[0]['id'] : $searchInfo['website_id'];
+		$websiteId = empty ($searchInfo['website_id']) ? $websiteList[0]['id'] : intval($searchInfo['website_id']);
 		$this->set('websiteId', $websiteId);
 
 		$keywordController = New KeywordController();
 		$keywordList = $keywordController->__getAllKeywords($userId, $websiteId, true);
 		$this->set('keywordList', $keywordList);
-		$keywordId = empty ($searchInfo['keyword_id']) ? $keywordList[0]['id'] : $searchInfo['keyword_id'];
+		$keywordId = empty ($searchInfo['keyword_id']) ? $keywordList[0]['id'] : intval($searchInfo['keyword_id']);
 		$this->set('keywordId', $keywordId);
 
 		$seController = New SearchEngineController();
 		$seList = $seController->__getAllSearchEngines();
 		$this->set('seList', $seList);
-		$seId = empty ($searchInfo['se_id']) ? '' : $searchInfo['se_id'];
+		$seId = empty ($searchInfo['se_id']) ? '' : intval($searchInfo['se_id']);
 		$this->set('seId', $seId);
 		$this->set('seNull', true);		
 		$this->set('graphUrl', "graphical-reports.php?sec=graph&fromTime=$fromTime&toTime=$toTime&keywordId=$keywordId&seId=$seId");
@@ -246,12 +278,12 @@ class ReportController extends Controller {
 	# function to show graph
 	function showGraph($searchInfo = '') {
 		
-		$conditions = empty ($searchInfo['keywordId']) ? "" : " and s.keyword_id=".$searchInfo['keywordId'];
-		$conditions .= empty ($searchInfo['seId']) ? "" : " and s.searchengine_id=".$searchInfo['seId'];
+		$conditions = empty ($searchInfo['keywordId']) ? "" : " and s.keyword_id=".intval($searchInfo['keywordId']);
+		$conditions .= empty ($searchInfo['seId']) ? "" : " and s.searchengine_id=".intval($searchInfo['seId']);
 		$sql = "select s.*,se.domain 
 					from searchresults s,searchengines se  
 					where s.searchengine_id=se.id 
-					and time>= {$searchInfo['fromTime']} and time<{$searchInfo['toTime']} $conditions  
+					and time>= ".intval($searchInfo['fromTime'])." and time<".intval($searchInfo['toTime'])." $conditions  
 					order by s.time";
 		$repList = $this->db->select($sql);		
 		$reportList = array ();
@@ -300,8 +332,8 @@ class ReportController extends Controller {
 		$dataSet->AddPoint(array_keys($dataList), "Serie$serieCount");
 		$dataSet->SetAbsciseLabelSerie("Serie$serieCount");
 		
-		$dataSet->SetXAxisName("Date");		
-		$dataSet->SetYAxisName("Rank");
+		$dataSet->SetXAxisName($_SESSION['text']['common']["Date"]);		
+		$dataSet->SetYAxisName($_SESSION['text']['common']["Rank"]);
 		$dataSet->SetXAxisFormat("date");		
 
 		# Initialise the graph
@@ -333,7 +365,7 @@ class ReportController extends Controller {
 		$chart->setFontProperties("fonts/tahoma.ttf", 8);
 		$chart->drawLegend(90, 35, $dataSet->GetDataDescription(), 255, 255, 255);
 		$chart->setFontProperties("fonts/tahoma.ttf", 10);
-		$chart->drawTitle(60, 22, "Keyword Position Report", 50, 50, 50, 585);
+		$chart->drawTitle(60, 22, $this->spTextKeyword["Keyword Position Report"], 50, 50, 50, 585);
 		$chart->stroke();
 	}
 	
@@ -368,9 +400,9 @@ class ReportController extends Controller {
 	# func to generate reports
 	function generateReports( $searchInfo='' ) {		
 		$userId = isLoggedIn();
-		$keywordId = empty ($searchInfo['keyword_id']) ? '' : $searchInfo['keyword_id'];
-		$websiteId = empty ($searchInfo['website_id']) ? '' : $searchInfo['website_id'];
-		$seId = empty ($searchInfo['se_id']) ? '' : $searchInfo['se_id'];
+		$keywordId = empty ($searchInfo['keyword_id']) ? '' : intval($searchInfo['keyword_id']);
+		$websiteId = empty ($searchInfo['website_id']) ? '' : intval($searchInfo['website_id']);
+		$seId = empty ($searchInfo['se_id']) ? '' : intval($searchInfo['se_id']);
 		
 		$seController = New SearchEngineController();
 		$this->seList = $seController->__getAllCrawlFormatedSearchEngines();
@@ -383,7 +415,7 @@ class ReportController extends Controller {
 		$keywordList = $this->db->select($sql);		
 		
 		if(count($keywordList) <= 0){
-			echo "<p class='note error'>No <b>Keywords</b> Found</p>";
+			echo "<p class='note error'>".$_SESSION['text']['common']['No Keywords Found']."</p>";
 			exit;
 		}
 		
@@ -399,13 +431,13 @@ class ReportController extends Controller {
 						$matchInfo['keyword_id'] = $keywordInfo['id'];
 						$this->saveMatchedKeywordInfo($matchInfo, $remove);
 					}
-					echo "<p class='note notesuccess'>Successfully crawled keyword <b>{$keywordInfo['name']}</b> results from <b>".$this->seList[$sengineId]['domain']."</b>.....</p>";
+					echo "<p class='note notesuccess'>".$this->spTextKeyword['Successfully crawled keyword']." <b>{$keywordInfo['name']}</b> ".$this->spTextKeyword['results from']." <b>".$this->seList[$sengineId]['domain']."</b>.....</p>";
 				}else{
-					echo "<p class='note notefailed'>Crawling keyword <b>{$keywordInfo['name']}</b> results from <b>".$this->seList[$sengineId]['domain']."</b> failed......</p>";
+					echo "<p class='note notefailed'>".$this->spTextKeyword['Crawling keyword']." <b>{$keywordInfo['name']}</b> ".$this->spTextKeyword['results from']." <b>".$this->seList[$sengineId]['domain']."</b> ".$_SESSION['text']['common']['failed']."......</p>";
 				}
 			}
 			if(empty($this->seFound)){
-				echo "<p class='note notefailed'>Keyword <b>{$keywordInfo['name']}</b> not assigned to required search engines........</p>";
+				echo "<p class='note notefailed'>".$_SESSION['text']['common']['Keyword']." <b>{$keywordInfo['name']}</b> ".$this->spTextKeyword['not assigned to required search engines']."........</p>";
 			}
 			sleep(SP_CRAWL_DELAY);
 		}	
@@ -422,7 +454,7 @@ class ReportController extends Controller {
 		foreach($seList as $seInfoId){
 			if(!empty($seId) && ($seInfoId != $seId)) continue;
 			$this->seFound = 1;
-			$searchUrl = str_replace('[--keyword--]', urlencode($keywordInfo['name']), $this->seList[$seInfoId]['url']);
+			$searchUrl = str_replace('[--keyword--]', urlencode(stripslashes($keywordInfo['name'])), $this->seList[$seInfoId]['url']);
 			$searchUrl = str_replace('[--lang--]', $keywordInfo['lang_code'], $searchUrl);
 			$searchUrl = str_replace('[--country--]', $keywordInfo['country_code'], $searchUrl);
 			$seUrl = str_replace('[--start--]', $this->seList[$seInfoId]['start'], $searchUrl);
@@ -518,7 +550,6 @@ class ReportController extends Controller {
 	# func to check keyword rank
 	function quickRankChecker() {
 		
-		$this->set('sectionHead', 'Quick Keyword Position Checker');
 		$seController = New SearchEngineController();
 		$seList = $seController->__getAllSearchEngines();
 		$this->set('seList', $seList);

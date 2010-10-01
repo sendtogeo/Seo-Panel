@@ -1,18 +1,18 @@
-<?php echo showSectionHead($sectionHead); ?>
+<?php echo showSectionHead($spTextTools['Skipped Directories']); ?>
 <form id='search_form'>
 <table width="48%" border="0" cellspacing="0" cellpadding="0" class="search">
 	<tr>
-		<th>Website: </th>
+		<th><?=$spText['common']['Website']?>: </th>
 		<td>
 			<?php echo $this->render('website/websiteselectbox', 'ajax'); ?>
 		</td>
-		<td colspan="2"><a href="javascript:void(0);" onclick="scriptDoLoadPost('directories.php', 'search_form', 'content', '&sec=skipped')"><img alt="" src="<?=SP_IMGPATH?>/show_records.gif"></a></td>
+		<td colspan="2"><a href="javascript:void(0);" onclick="scriptDoLoadPost('directories.php', 'search_form', 'content', '&sec=skipped')" class="actionbut"><?=$spText['button']['Show Records']?></a></td>
 	</tr>
 </table>
 </form>
 
 <?php
-	if(empty($websiteId)){ showErrorMsg('No Websites Found!');} 
+	if(empty($websiteId)){ showErrorMsg($spText['common']['nowebsites'].'!');} 
 ?>
 
 <div id='subcontent'>
@@ -22,12 +22,13 @@
 	<td width='33%'>
 	<table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
 	<tr class="listHead">
-		<td class="left">Id</td>
-		<td>Directory</td>
-		<td class="right">Action</td>
+		<td class="left"><?=$spText['common']['Id']?></td>
+		<td><?=$spText['common']['Directory']?></td>
+		<td>PR</td>
+		<td class="right"><?=$spText['common']['Action']?></td>
 	</tr>
 	<?php
-	$colCount = 3; 
+	$colCount = 4; 
 	if(count($list) > 0){
 		$catCount = count($list);
 		$i = 0;
@@ -41,12 +42,13 @@
                 $leftBotClass = "td_left_border td_br_right";
                 $rightBotClass = "td_br_right";
             }            
-            $includeLink = "<a href='javascript:void(0);' onclick=\"scriptDoLoad('directories.php', 'content', 'sec=unskip&id={$listInfo['id']}&pageno=$pageNo&website_id=$websiteId')\">Undo</a>";
+            $includeLink = "<a href='javascript:void(0);' onclick=\"scriptDoLoad('directories.php', 'content', 'sec=unskip&id={$listInfo['id']}&pageno=$pageNo&website_id=$websiteId')\">".$spTextDir['Add back to directory list']."</a>";
             
 			?>
 			<tr class="<?=$class?>">
 				<td class="<?=$leftBotClass?>"><?=$listInfo['id']?></td>
 				<td class='td_br_right'  style='text-align:left;padding-left:10px;'><?=$listInfo['domain']?></td>
+				<td class='td_br_right'><?=$listInfo['google_pagerank']?></td>
 				<td class="<?=$rightBotClass?>"><?=$includeLink?></td>
 			</tr>
 			<?php

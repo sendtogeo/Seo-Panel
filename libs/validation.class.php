@@ -46,7 +46,7 @@ class Validation{
 
 	function checkBlank($entry){
 		if(strlen($entry) == 0){
-			$msg = "Entry cannot be blank";
+			$msg = $_SESSION['text']['common']['Entry cannot be blank'];
 			$this->flagErr = true;
 		}
 		return $msg;
@@ -55,7 +55,7 @@ class Validation{
 	function checkAlpha($entry){
 		$entry = stripslashes(trim($entry));
 		if(!preg_match($this->Filters['alpha'],$entry)){
-			$msg = "Invalid characters";
+			$msg = $_SESSION['text']['common']['Invalid characters'];
 			$this->flagErr = true;
 		}
 		return $msg;
@@ -64,15 +64,15 @@ class Validation{
 	function checkUname($user_name){
 		$user_name = stripslashes(trim($user_name));
 		if(count($this->getUniqueChars($user_name)) <= 2){
-			$msg = "The entry entered doesn't seem to be  valid";
+			$msg = $_SESSION['text']['common']['entrynotvalid'];
 			$this->flagErr = true;
 		}
 		if(!preg_match($this->Filters['uname'],$user_name)){
-			$msg = "Invalid characters";
+			$msg = $_SESSION['text']['common']['Invalid characters'];
 			$this->flagErr = true;
 		}
 		if(strlen($user_name) == 0){
-			$msg = "Entry cannot be blank";
+			$msg = $_SESSION['text']['common']['Entry cannot be blank'];
 			$this->flagErr = true;
 		}
 		return $msg;
@@ -81,15 +81,15 @@ class Validation{
 	function checkName($entry){
 		$entry = stripslashes(trim($entry));
 		if(!preg_match($this->Filters['name'],$entry)){
-			$msg = "Invalid characters";
+			$msg = $_SESSION['text']['common']['Invalid characters'];
 			$this->flagErr = true;
 		}
 		if(!preg_match($this->Filters['startName'],$entry{0})){
-			$msg = "Invalid value";
+			$msg = $_SESSION['text']['common']['Invalid value'];
 			$this->flagErr = true;
 		}
 		if(strlen($entry) == 0){
-			$msg = "Entry cannot be blank";
+			$msg = $_SESSION['text']['common']['Entry cannot be blank'];
 			$this->flagErr = true;
 		}		
 		return $msg;
@@ -98,15 +98,16 @@ class Validation{
 	function checkLastName($entry){
 		$entry = stripslashes(trim($entry));
 		if(!preg_match($this->Filters['name'],$entry)){
-			$msg = "Invalid characters";
+			$msg = $_SESSION['text']['common']['Invalid characters'];
 			$this->flagErr = true;
 		}
 		if(!preg_match($this->Filters['startName'],$entry{0})){
-			$msg = "Invalid value";
+			exit;
+			$msg = $_SESSION['text']['common']['Invalid value'];
 			$this->flagErr = true;
 		}
 		if(strlen($entry) == 0){
-			$msg = "Entry cannot be blank";
+			$msg = $_SESSION['text']['common']['Entry cannot be blank'];
 			$this->flagErr = true;
 		}		
 		return $msg;
@@ -115,10 +116,10 @@ class Validation{
 	function checkEmail($entry){
 		$entry = stripslashes(trim($entry));
 		if(!preg_match($this->Filters['email'],$entry)){
-			$msg = "Invalid email address entered";
+			$msg = $_SESSION['text']['common']["Invalid email address entered"];
 			$this->flagErr = true;
 		}elseif(strlen($entry) == 0){
-			$msg = "Entry cannot be blank";
+			$msg = $_SESSION['text']['common']['Entry cannot be blank'];
 			$this->flagErr = true;
 		}
 		return $msg;
@@ -126,11 +127,11 @@ class Validation{
 
 	function checkPasswords($pass1, $pass2){
 		if(strlen($pass1) < 6 || strlen($pass1) > 32){
-			$msg = "The password string should have a length between 6 and 32";
+			$msg = $_SESSION['text']['common']['password632'];
 			$this->flagErr = true;
 		}
 		if($pass1!= $pass2){
-			$msg = "The passwords do not match";
+			$msg = $_SESSION['text']['common']['passwordnotmatch'];
 			$this->flagErr = true;
 		}		
 		return $msg;
@@ -143,15 +144,15 @@ class Validation{
 			$this->flagErr = true;
 		}
 		if(!preg_match($this->Filters['nameGen'],$entry)){
-			$msg = "Invalid characters";
+			$msg = $_SESSION['text']['common']['Invalid characters'];
 			$this->flagErr = true;
 		}
 		if(!preg_match($this->Filters['startGenName'],$entry{0})){
-			$msg = "Invalid value";
+			$msg = $_SESSION['text']['common']['Invalid value'];
 			$this->flagErr = true;
 		}
 		if(strlen($entry) == 0){
-			$msg = "Entry cannot be blank";
+			$msg = $_SESSION['text']['common']['Entry cannot be blank'];
 			$this->flagErr = true;
 		}
 		if(strval(floatval($entry)) == $entry){
@@ -159,7 +160,7 @@ class Validation{
 			$this->flagErr = true;
 		}
 		if(!preg_match($this->Filters['alpha'],$entry)){
-			$msg = "Invalid characters";
+			$msg = $_SESSION['text']['common']['Invalid characters'];
 			$this->flagErr = true;
 		}		
 		return $msg;
@@ -171,15 +172,15 @@ class Validation{
 			$this->flagErr = true;
 		}
 		if(!preg_match($this->Filters['phone'],$entry)){
-			$msg = "Invalid characters";
+			$msg = $_SESSION['text']['common']['Invalid characters'];
 			$this->flagErr = true;
 		}
 		if(!preg_match($this->Filters['startPhone'],$entry{0})){
-			$msg = "Invalid value";
+			$msg = $_SESSION['text']['common']['Invalid value'];
 			$this->flagErr = true;
 		}
 		if(strlen($entry) == 0){
-			$msg = "Entry cannot be blank";
+			$msg = $_SESSION['text']['common']['Entry cannot be blank'];
 			$this->flagErr = true;
 		}		
 		return $msg;
@@ -188,11 +189,11 @@ class Validation{
 	function checkZip($entry){
 		$entry = stripslashes(trim($entry));
 		if(!preg_match($this->Filters['number'],$entry)){
-			$msg = "Invalid characters";
+			$msg = $_SESSION['text']['common']['Invalid characters'];
 			$this->flagErr = true;
 		}
 		if(strlen($entry) == 0){
-			$msg = "Entry cannot be blank";
+			$msg = $_SESSION['text']['common']['Entry cannot be blank'];
 			$this->flagErr = true;
 		}		
 		return $msg;
@@ -201,11 +202,11 @@ class Validation{
 	function checkNumber($entry){
 		$entry = stripslashes(trim($entry));
 		if(!preg_match($this->Filters['floatnumber'],$entry)){
-			$msg = "Invalid characters";
+			$msg = $_SESSION['text']['common']['Invalid characters'];
 			$this->flagErr = true;
 		}
 		if(strlen($entry) == 0){
-			$msg = "Entry cannot be blank";
+			$msg = $_SESSION['text']['common']['Entry cannot be blank'];
 			$this->flagErr = true;
 		}		
 		return $msg;
@@ -229,7 +230,7 @@ class Validation{
 	function checkCaptcha($code) {
 		$msg = '';
 		if(!PhpCaptcha::Validate($_POST['code'])){
-			$msg = "Invalid code entered";
+			$msg = $_SESSION['text']['common']["Invalid code entered"];
 			$this->flagErr = true;
 		}		
 		return $msg;

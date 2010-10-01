@@ -3,8 +3,8 @@
 	<td width='33%'>
 	<table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
 	<tr class="listHead">
-		<td class="left">Rank</td>
-		<td class="right" colspan="2">Details</td>
+		<td class="left"><?=$spText['common']['Rank']?></td>
+		<td class="right" colspan="2"><?=$spText['common']['Details']?></td>
 	</tr>
 	<?php
 	$colCount = 2; 
@@ -38,7 +38,7 @@
 		?>				
 		<tr class="blue_row">
 			<td class="tab_left_bot_noborder"></td>
-			<td class="tab_right_bot" colspan="2" style="text-align: left;">No Records Found!!</td>
+			<td class="tab_right_bot" colspan="2" style="text-align: left;"><?=$spText['common']['No Records Found']?>!</td>
 		</tr>
 		<?		
 	} 

@@ -29,7 +29,11 @@ include_once(SP_CTRLPATH."/searchengine.ctrl.php");
 $controller = New KeywordController();
 $controller->view->menu = 'seotools';
 $controller->layout = 'ajax';
-$controller->set('sectionHead', 'Keywords');
+$controller->set('spTextTools', $controller->getLanguageTexts('seotools', $_SESSION['lang_code']));
+$controller->spTextKeyword = $controller->getLanguageTexts('keyword', $_SESSION['lang_code']);
+$controller->set('spTextKeyword', $controller->spTextKeyword);
+
+
 $userId = isLoggedIn();
 
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
@@ -41,6 +45,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			
 		case "update":
 			$controller->updateKeyword($_POST);
+			break;
+			
+		case "import":
+			$controller->createImportedKeywords($_POST);
 			break;
 	}
 
@@ -73,6 +81,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		case "new":
 			$controller->set('post', $_GET);
 			$controller->newKeyword();
+			break;		
+		
+		case "import":
+			$controller->set('post', $_GET);
+			$controller->importKeywords();
 			break;
 			
 		case "keywordbox":

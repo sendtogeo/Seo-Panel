@@ -82,7 +82,7 @@ class SeoPluginsController extends Controller{
 		$sql = "select * from seoplugins where status=1 and installed=1 order by id";
 		$menuList = $this->db->select($sql);
 		if(count($menuList) <= 0){
-			$this->set('msg', 'No Active Seo Plugins Found!');
+			$this->set('msg', $_SESSION['text']['label']['noactiveplugins']);
 			$this->render('common/notfound');
 			exit;
 		}
@@ -119,10 +119,7 @@ class SeoPluginsController extends Controller{
 	function listSeoPlugins($msg='', $error=false){		
 		
 		if(empty($msg)) $this->__updateAllSeoPlugins();		
-		
-		$this->set('sectionHead', 'Seo Plugins Manager');
 		$userId = isLoggedIn();
-
 		$this->set('msg', $msg);
 		$this->set('error', $error);
 		
@@ -133,12 +130,16 @@ class SeoPluginsController extends Controller{
 
 	#function to change status of seo plugins
 	function changeStatus($seoPluginId, $status){
+		
+		$seoPluginId = intval($seoPluginId);
 		$sql = "update seoplugins set status=$status where id=$seoPluginId";
 		$this->db->query($sql);
 	}
 	
 	#function to change installed status of seo plugins
 	function __changeInstallStatus($seoPluginId, $status){
+		
+		$seoPluginId = intval($seoPluginId);
 		$sql = "update seoplugins set installed=$status where id=$seoPluginId";
 		$this->db->query($sql);
 	}
@@ -152,10 +153,11 @@ class SeoPluginsController extends Controller{
 	
 	# func to edit seo plugin
 	function editSeoPlugin($info, $error=false){		
-		$this->set('sectionHead', 'Edit Seo Plugin');
+		
 		if($error){
 			$this->set('post', $info);
 		}else{
+			$info['pid'] = intval($info['pid']);
 			$this->set('post', $this->__getSeoPluginInfo($info['pid']));
 		}
 		
@@ -164,13 +166,14 @@ class SeoPluginsController extends Controller{
 	
 	# func to list seo plugin info
 	function listPluginInfo($pluginId){		
-		$this->set('sectionHead', 'Seo Plugin Details');
-		$this->set('pluginInfo', $this->__getSeoPluginInfo($pluginId));		
 		
+		$this->set('pluginInfo', $this->__getSeoPluginInfo($pluginId));		
 		$this->render('seoplugins/listplugininfo');
 	}
 	
 	function updateSeoPlugin($listInfo){
+		
+		$listInfo['id'] = intval($listInfo['id']);
 		$this->set('post', $listInfo);
 		$errMsg['plugin_name'] = formatErrorMsg($this->validate->checkBlank($listInfo['plugin_name']));
 		if(!$this->validate->flagErr){
@@ -186,6 +189,8 @@ class SeoPluginsController extends Controller{
 	}
 	
 	function updatePluginInfo($pluginId, $pluginInfo){
+		
+		$pluginId = intval($pluginId);
 		$sql = "update seoplugins set
 					label='".addslashes($pluginInfo['label'])."',
 					author='".addslashes($pluginInfo['author'])."',
@@ -292,7 +297,7 @@ class SeoPluginsController extends Controller{
 		$pluginInfo = array();
 		$pluginInfoFile = SP_PLUGINPATH."/".$file."/".SP_PLUGININFOFILE;
 		if(file_exists($pluginInfoFile)){
-			$xml =& new XMLParser;
+			$xml = new XMLParser;
     		$pInfo = $xml->parse($pluginInfoFile);
     		if(!empty($pInfo[0]['child'])){
     			foreach($pInfo[0]['child'] as $info){

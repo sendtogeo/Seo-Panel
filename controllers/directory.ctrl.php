@@ -24,16 +24,22 @@
 class DirectoryController extends Controller{
 	var $noTitles = 5; 			  # no of titles and description for submission
 	var $capchaFile = "captcha";  # captcha file name
+	var $checkPR = 0;
 	
-	function showSubmissionPage(  ) {
+	function showSubmissionPage( ) {
 		
-		$this->set('sectionHead', 'Semi Automatic Directory Submission Tool');
 		$userId = isLoggedIn();
 		$this->session->setSession('no_captcha', false);
+		$this->session->setSession('dirsub_pr', '');
+		$this->session->setSession('dirsub_lang', '');
 		
 		$websiteController = New WebsiteController();
 		$this->set('websiteList', $websiteController->__getAllWebsites($userId, true));
 		$this->set('websiteNull', true);
+		
+		$langCtrler = New LanguageController();
+		$langList = $langCtrler->__getAllLanguages();
+		$this->set('langList', $langList);
 		
 		$this->render('directory/showsubmission');
 	}
@@ -47,7 +53,7 @@ class DirectoryController extends Controller{
 	function showWebsiteSubmissionPage($submitInfo, $error=false) {
 		
 		if(empty($submitInfo['website_id'])) {
-			showErrorMsg("Please select a website to proceed!");
+			showErrorMsg($this->spTextDir['Please select a website to proceed']."!");
 		}
 		
 		# check whether the sitemap directory is writable
@@ -64,12 +70,15 @@ class DirectoryController extends Controller{
 		}
 		$this->set('websiteInfo', $websiteInfo);		
 		$this->session->setSession('no_captcha', empty($submitInfo['no_captcha']) ? 0 : 1);
+		$this->session->setSession('dirsub_pr', $submitInfo['google_pagerank']);
+		$this->session->setSession('dirsub_lang', $submitInfo['lang_code']);
 		$this->set('noTitles', $this->noTitles);		
 		$this->render('directory/showsitesubmission');
 	}
 	
 	function saveSubmissiondata( $submitInfo ) {
 		
+		$submitInfo['website_id']= intval($submitInfo['website_id']);
 		if(empty($submitInfo['website_id'])) {
 			showErrorMsg("Please select a website to proceed!");
 		}
@@ -96,7 +105,7 @@ class DirectoryController extends Controller{
 			if(!stristr($submitInfo['url'], 'http://')) $submitInfo['url'] = "http://".$submitInfo['url']; 
 		
 			$sql = "update websites set " .
-					"url='{$submitInfo['url']}'," .
+					"url='".addslashes($submitInfo['url'])."'," .
 					"owner_name='".addslashes($submitInfo['owner_name'])."'," .
 					"owner_email='".addslashes($submitInfo['owner_email'])."'," .
 					"category='".addslashes($submitInfo['category'])."'," .
@@ -166,6 +175,8 @@ class DirectoryController extends Controller{
 		
 		$sql = "select * from directories where working=1";
 		if(!empty($_SESSION['no_captcha'])) $sql .= " and is_captcha=0";
+		if(!empty($_SESSION['dirsub_pr'])) $sql .= " and google_pagerank={$_SESSION['dirsub_pr']}";
+		if(!empty($_SESSION['dirsub_lang'])) $sql .= " and lang_code='{$_SESSION['dirsub_lang']}'";
 		if(!empty($dirId)) $sql .= " and id=$dirId";
 		if(count($dirList) > 0) $sql .= " and id not in (".implode(',', $dirList).")";
 		$sql .= " order by id";
@@ -174,7 +185,7 @@ class DirectoryController extends Controller{
 		
 		# directory list is empty
 		if(empty($dirInfo['id'])) {
-			showErrorMsg("No <b>Active</b> directories Found. Please <a href='".SP_CONTACT_LINK."' target='_blank'>Contact</a> <b>Seo Panel Team</b> to get more <b>directories</b>.");
+			showErrorMsg($this->spTextDir['nodirnote'].". Please <a href='".SP_CONTACT_LINK."' target='_blank'>Contact</a> <b>Seo Panel Team</b> to get more <b>directories</b>.");
 		}
 		
 		$websiteController = New WebsiteController();
@@ -251,7 +262,7 @@ class DirectoryController extends Controller{
 			$this->set('captchaUrl', $captchaUrl);			
 		}else{
 			$this->set('error', 1);
-			$this->set('msg', 'The submission category not found in submission page. Please click on "Reload" or "Skip"');
+			$this->set('msg', $this->spTextDir['nocatnote']);
 		}
 		
 		$this->render('directory/showsubmissionform');				
@@ -281,7 +292,9 @@ class DirectoryController extends Controller{
 	
 	# submitting site directory
 	function submitSite( $submitInfo ) {
-				
+
+		$submitInfo['dir_id'] = intval($submitInfo['dir_id']);
+		$submitInfo['website_id'] = intval($submitInfo['website_id']);
 		$dirInfo = $this->__getDirectoryInfo($submitInfo['dir_id']);
 		
 		$websiteController = New WebsiteController();
@@ -312,13 +325,14 @@ class DirectoryController extends Controller{
 			$this->set('error', 1);
 			$this->set('msg', $ret['errmsg']);
 		}else{
-			$page = $ret['page'];		
+			$page = $ret['page'];
+			// if(SP_DEBUG) $this->logSubmissionResult($page, $submitInfo['dir_id'], $submitInfo['website_id']);		
 			if(preg_match('/<td.*?class="msg".*?>(.*?)<\/td>/is', $page, $matches)){
 				$this->set('msg', $matches[1]);
 				$status = 1;
 			}else{
 				$status = 0;
-				$this->set('msg', "Didn't get success message, Please check your mail to find the confirm message");
+				$this->set('msg', $this->spTextDir['nosuccessnote']);
 			}
 			
 			$sql = "select id from dirsubmitinfo where website_id={$submitInfo['website_id']} and directory_id={$submitInfo['dir_id']}";
@@ -341,6 +355,8 @@ class DirectoryController extends Controller{
 	# to skip submission
 	function skipSubmission( $info ) {
 		
+		$info['website_id'] = intval($info['website_id']);
+		$info['dir_id'] = intval($info['dir_id']);
 		$sql = "Insert into skipdirectories(website_id,directory_id) values({$info['website_id']}, {$info['dir_id']})";
 		$this->db->query($sql);		
 		$this->startSubmission($info['website_id']);
@@ -349,6 +365,7 @@ class DirectoryController extends Controller{
 	# to unskip submission
 	function unSkipSubmission( $skipId ) {
 		
+		$skipId = intval($skipId);
 		$sql = "delete from skipdirectories where id=$skipId";
 		$this->db->query($sql);
 	}
@@ -356,6 +373,7 @@ class DirectoryController extends Controller{
 	# to get all skipped directories
 	function __getAllSkippedDir($websiteId){
 		
+		$websiteId = intval($websiteId);
 		$dirList = array();
 		$sql = "select directory_id from skipdirectories where website_id=$websiteId";
 		$list = $this->db->select($sql);
@@ -370,18 +388,17 @@ class DirectoryController extends Controller{
 	
 	# func to show Skipped Directories
 	function showSkippedDirectories($searchInfo=''){
-		$this->set('sectionHead', 'Skipped Directories');
-		$userId = isLoggedIn();
 		
+		$userId = isLoggedIn();
 		$websiteController = New WebsiteController();
 		$websiteList = $websiteController->__getAllWebsites($userId, true);
 		$this->set('websiteList', $websiteList);
-		$websiteId = empty ($searchInfo['website_id']) ? $websiteList[0]['id'] : $searchInfo['website_id'];
+		$websiteId = empty ($searchInfo['website_id']) ? $websiteList[0]['id'] : intval($searchInfo['website_id']);
 		$this->set('websiteId', $websiteId);
 		$this->set('onChange', "scriptDoLoadPost('directories.php', 'search_form', 'content', '&sec=skipped')");		
 		
 		$conditions = empty ($websiteId) ? "" : " and ds.website_id=$websiteId";		
-		$sql = "select ds.* ,d.domain
+		$sql = "select ds.* ,d.domain,d.google_pagerank
 								from skipdirectories ds,directories d 
 								where ds.directory_id=d.id 
 								$conditions  
@@ -405,19 +422,18 @@ class DirectoryController extends Controller{
 	
 	# func to show submision reports
 	function showSubmissionReports($searchInfo=''){
-		$this->set('sectionHead', 'Directory Submission Reports');
-		$userId = isLoggedIn();
 		
+		$userId = isLoggedIn();		
 		$websiteController = New WebsiteController();
 		$websiteList = $websiteController->__getAllWebsites($userId, true);
 		$this->set('websiteList', $websiteList);
-		$websiteId = empty ($searchInfo['website_id']) ? $websiteList[0]['id'] : $searchInfo['website_id'];
+		$websiteId = empty ($searchInfo['website_id']) ? $websiteList[0]['id'] : intval($searchInfo['website_id']);
 		$this->set('websiteId', $websiteId);
 		$this->set('onChange', "scriptDoLoadPost('directories.php', 'search_form', 'content', '&sec=reports')");		
 		
 		$conditions = empty ($websiteId) ? "" : " and ds.website_id=$websiteId";
 		$conditions .= empty ($searchInfo['active']) ? "" : " and ds.active=".($searchInfo['active']=='pending' ? 0 : 1);		
-		$sql = "select ds.* ,d.domain
+		$sql = "select ds.* ,d.domain,d.google_pagerank
 								from dirsubmitinfo ds,directories d 
 								where ds.directory_id=d.id 
 								$conditions  
@@ -439,12 +455,16 @@ class DirectoryController extends Controller{
 	}
 	
 	function changeConfirmStatus($dirInfo){
+		
+		$dirInfo['id'] = intval($dirInfo['id']);
 		$status = ($dirInfo['confirm']=='Yes') ? 0 : 1;
 		$sql = "Update dirsubmitinfo set status=$status where id=".$dirInfo['id'];
 		$this->db->query($sql);
 	}
 	
 	function showConfirmStatus($id){
+		
+		$id = intval($id);
 		$sql = "select status from dirsubmitinfo where id=".$id;		
 		$statusInfo = $this->db->select($sql, true);
 		
@@ -455,7 +475,9 @@ class DirectoryController extends Controller{
         print $confirmLink;
 	}
 	
-	function checkSubmissionStatus($dirInfo){		
+	function checkSubmissionStatus($dirInfo){
+
+		$dirInfo['id'] = intval($dirInfo['id']);
 		$sql = "select ds.* ,d.domain,d.search_script,w.url
 					from dirsubmitinfo ds,directories d,websites w 
 					where ds.directory_id=d.id and ds.website_id=w.id 
@@ -480,22 +502,24 @@ class DirectoryController extends Controller{
 	}
 	
 	function updateSubmissionStatus($dirId, $status){
+		
+		$dirId = intval($dirId);
 		$sql = "Update dirsubmitinfo set active=$status where id=".$dirId;
 		$this->db->query($sql);
 	}
 	
 	function showSubmissionStatus($id){
+		
+		$id = intval($id);
 		$sql = "select active from dirsubmitinfo where id=".$id;		
 		$statusInfo = $this->db->select($sql, true);
         
-        print empty($statusInfo['active']) ? "Pending" : "Approved";
+        print empty($statusInfo['active']) ? $this->spTextDir["Pending"] : $this->spTextDir["Approved"];
 	}
 	
 	function checkSubmissionReports( $searchInfo ) {
 		
-		$this->set('sectionHead', 'Check Directory Submission Status');
-		$userId = isLoggedIn();
-		
+		$userId = isLoggedIn();		
 		$websiteController = New WebsiteController();
 		$this->set('websiteList', $websiteController->__getAllWebsites($userId, true));
 		$this->set('websiteNull', true);
@@ -505,6 +529,8 @@ class DirectoryController extends Controller{
 	}
 	
 	function generateSubmissionReports( $searchInfo ){
+		
+		$searchInfo['website_id'] = intval($searchInfo['website_id']);
 		if(empty($searchInfo['website_id'])) {
 			echo "<script>scriptDoLoad('directories.php', 'content', 'sec=checksub');</script>";
 			return;
@@ -521,6 +547,8 @@ class DirectoryController extends Controller{
 	}
 	
 	function deleteSubmissionReports($dirSubId){
+		
+		$dirSubId = intval($dirSubId);
 		$sql = "delete from dirsubmitinfo where id=$dirSubId";
 		$this->db->query($sql);
 		
@@ -528,7 +556,6 @@ class DirectoryController extends Controller{
 	}
 	
 	function showFeaturedSubmission() {
-		$this->set('sectionHead', 'Featured Submission');
 		
 		$this->render('directory/featuredsubmission');
 	}
@@ -550,6 +577,7 @@ class DirectoryController extends Controller{
 	# func to get dir info
 	function getDirectoryInfo($dirId) {
 		
+		$dirId = intval($dirId);
 		$sql = "SELECT * FROM directories where id=$dirId";		
 		$dirInfo = $this->db->select($sql, true);		
 		return $dirInfo;
@@ -557,13 +585,14 @@ class DirectoryController extends Controller{
 	
 	# func to show directory manager
 	function showDirectoryManager($info=''){		
-		$this->set('sectionHead', 'Directory Manager');
 		
 		$info['stscheck'] = isset($info['stscheck']) ? $info['stscheck'] : 1;
 		$capcheck = isset($info['capcheck']) ? (($info['capcheck'] == 'yes') ? 1 : 0 ) : "";  
-		$sql = "SELECT * FROM directories where working={$info['stscheck']}";		
+		$sql = "SELECT *,l.lang_name FROM directories d,languages l where d.lang_code=l.lang_code and working={$info['stscheck']}";		
 		if(!empty($info['dir_name'])) $sql .= " and domain like '%{$info['dir_name']}%'";
 		if($info['capcheck'] != '') $sql .= " and is_captcha=$capcheck";
+		if(!empty($info['google_pagerank'])) $sql .= " and google_pagerank={$info['google_pagerank']}";
+		if(!empty($info['lang_code'])) $sql .= " and d.lang_code='{$info['lang_code']}'";
 		$sql .= " order by id";		
 		
 		# pagination setup		
@@ -575,13 +604,17 @@ class DirectoryController extends Controller{
 		$sql .= " limit ".$this->paging->start .",". $this->paging->per_page;
 		
 		$statusList = array(
-			'Active' => 1,
-			'Inactive' => 0,
+			$_SESSION['text']['common']['Active'] => 1,
+			$_SESSION['text']['common']['Inactive'] => 0,
 		);
 		$captchaList = array(
-			'Yes' => 'yes',
-			'No' => 'no',
+			$_SESSION['text']['common']['Yes'] => 'yes',
+			$_SESSION['text']['common']['No'] => 'no',
 		);
+		
+		$langCtrler = New LanguageController();
+		$langList = $langCtrler->__getAllLanguages();
+		$this->set('langList', $langList);
 		
 		$this->set('statusList', $statusList);
 		$this->set('captchaList', $captchaList);				
@@ -594,6 +627,8 @@ class DirectoryController extends Controller{
 	
 	# func to change status of directory
 	function changeStatusDirectory($dirId, $status, $printLink=false){
+		
+		$dirId = intval($dirId);
 		$sql = "update directories set working=$status where id=$dirId";
 		$this->db->query($sql);
 		
@@ -604,7 +639,6 @@ class DirectoryController extends Controller{
 	
 	# func to show directory check interface
 	function showCheckDirectory() {		
-		$this->set('sectionHead', 'Check Directory Status');
 		
 		$this->render('directory/showcheckdir');
 	}
@@ -626,32 +660,49 @@ class DirectoryController extends Controller{
 	}
 	
 	# func to check directories active or not 
-	function checkDirectoryStatus($dirId, $nodebug=0) {		
+	function checkDirectoryStatus($dirId, $nodebug=0) {
+
+		$dirId = intval($dirId);
 		$dirInfo = $this->getDirectoryInfo($dirId);
 		$active = 0;
 		$captcha = 0;
 		$spider = new Spider(); 
 		$ret = $spider->getContent(addHttpToUrl($dirInfo['submit_url']));
-			
+		$prUpdate = '';
+		
 		if(empty($ret['error']) && !empty($ret['page'])) {								
 			$page = $ret['page'];
 						
 			$matches = $this->isCategoryExists($page, $dirInfo['category_col']);			
 			$active = empty($matches[0]) ? 0 : 1;
 			
-			$captcha = stristr($page, $dirInfo['captcha_script']) ? 1 : 0;				
+			$captcha = stristr($page, $dirInfo['captcha_script']) ? 1 : 0;
+			
+			if ($this->checkPR) {				
+				include_once(SP_CTRLPATH."/rank.ctrl.php");
+				$rankCtrler = New RankController();
+				$pagerank = $rankCtrler->__getGooglePageRank($dirInfo['domain']);
+				$prUpdate = ",google_pagerank=$pagerank";	
+			}
 		}
 		
-		$sql = "update directories set working=$active,is_captcha=$captcha where id=$dirId";
+		$sql = "update directories set working=$active,is_captcha=$captcha,checked=1 $prUpdate where id=$dirId";
 		$this->db->query($sql);
 		
 		if($nodebug){			
-			$captchaLabel = $captcha ? "Yes" : "No";
+			$captchaLabel = $captcha ? $_SESSION['text']['common']['Yes'] : $_SESSION['text']['common']['No'];
 			?>
 			<script type="text/javascript">
 				document.getElementById('captcha_<?=$dirId?>').innerHTML = '<?=$captchaLabel?>';
 			</script>
 			<?php
+			if ($this->checkPR) {
+				?>
+				<script type="text/javascript">
+					document.getElementById('pr_<?=$dirId?>').innerHTML = '<?=$pagerank?>';
+				</script>
+				<?php
+			}
 			echo $this->getStatusLink($dirId, $active);
 		}else{
 			echo "<p class='note notesuccess'>Saved status of directory <b>{$dirInfo['domain']}</b>.....</p>";
@@ -661,13 +712,17 @@ class DirectoryController extends Controller{
 	# func to get status link
 	function getStatusLink($dirId, $status){
 		if($status){
-			$statLabel = "active";
+			$statLabel = "Active";
 			$statVal = 0;
 		}else{
-			$statLabel = "inactive";
+			$statLabel = "Inactive";
 			$statVal = 1;
 		}
-		$statusLink = scriptAJAXLinkHref('directories.php', 'status_'.$dirId, "sec=dirstatus&dir_id=$dirId&status=$statVal", $statLabel);
+		if (SP_DEMO) {
+			$statusLink = scriptAJAXLinkHref('demo', "", "", $_SESSION['text']['common'][$statLabel]);
+		} else {			
+			$statusLink = scriptAJAXLinkHref('directories.php', 'status_'.$dirId, "sec=dirstatus&dir_id=$dirId&status=$statVal", $_SESSION['text']['common'][$statLabel]);
+		}
 		
 		return $statusLink;
 	}
@@ -679,6 +734,16 @@ class DirectoryController extends Controller{
 		
 		$countInfo = $this->db->select($sql, true);
 		return empty($countInfo['count']) ? 0 : $countInfo['count']; 
+	}
+	
+	# function to log submission data
+	function logSubmissionResult($content, $dirId, $websiteId) {
+		
+		$filename = SP_TMPPATH."/subres_web".$websiteId."_dir".$dirId.".html";
+		$fp = fopen($filename, 'w');
+		fwrite($fp, $content);
+		fclose($fp);
+		
 	}
 }
 ?>

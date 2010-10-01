@@ -3,10 +3,10 @@
 	<td width='33%'>
 	<table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
 	<tr class="listHead">
-		<td class="left" width='340px'>Directory</td>
-		<td>Date</td>
-		<td>Confirmation</td>
-		<td class="right">Status</td>
+		<td class="left" width='340px'><?=$spText['common']['Directory']?></td>
+		<td><?=$spText['common']['Date']?></td>
+		<td><?=$spTextDir['Confirmation']?></td>
+		<td class="right"><?=$spText['common']['Status']?></td>
 	</tr>
 	<?php
 	$colCount = 4; 
@@ -23,7 +23,7 @@
                 $leftBotClass = "td_left_border td_br_right";
                 $rightBotClass = "td_br_right";
             }
-            $confirm = empty($listInfo['status']) ? "No" : "Yes";
+            $confirm = empty($listInfo['status']) ? $spText['common']["No"] : $spText['common']["Yes"];
             $statusId = "status_".$listInfo['id'];
             $checkStatusLink = "<script>scriptDoLoad('directories.php', '$statusId', 'sec=checkstatus&id={$listInfo['id']}');</script>";
 			?>

@@ -1,7 +1,7 @@
 <?php
 
 /***************************************************************************
- *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	   *
+ *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	           *
  *   sendtogeo@gmail.com   												   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -24,12 +24,24 @@
 class IndexController extends Controller{
 	
 	# index function
-	function index(){
+	function index($searchInfo=''){		
+		
+		$spTextHome = $this->getLanguageTexts('home', $_SESSION['lang_code']);
+		$this->set('spTextHome', $spTextHome);
 		if(isLoggedIn()){
 			$userId = isLoggedIn();
-			/*$userCtrler = New UserController();
-			$userInfo = $userCtrler->__getUserInfo($userId);
-			$this->set('userInfo', $userInfo);*/
+			$exportVersion = false;
+			switch($searchInfo['doc_type']){
+							
+				case "export":
+					$exportVersion = true;
+					$exportContent = "";
+					break;
+				
+				case "print":
+					$this->set('printVersion', true);
+					break;
+			}
 			
 			$websiteCtrler = New WebsiteController();
 			$list = $websiteCtrler->__getAllWebsites($userId, true);
@@ -56,7 +68,9 @@ class IndexController extends Controller{
 				$report = $report[0];
 				$listInfo['google']['backlinks'] = empty($report['google']) ? "-" : $report['google']." ".$report['rank_diff_google'];
 				$listInfo['yahoo']['backlinks'] = empty($report['yahoo']) ? "-" : $report['yahoo']." ".$report['rank_diff_yahoo'];
-				$listInfo['msn']['backlinks'] = empty($report['msn']) ? "-" : $report['msn']." ".$report['rank_diff_msn'];
+				$listInfo['msn']['backlinks'] = empty($report['msn']) ? "-" : $report['msn']." ".$report['rank_diff_msn'];				
+				$listInfo['altavista']['backlinks'] = empty($report['altavista']) ? "-" : $report['altavista']." ".$report['rank_diff_altavista'];
+				$listInfo['alltheweb']['backlinks'] = empty($report['alltheweb']) ? "-" : $report['alltheweb']." ".$report['rank_diff_alltheweb'];
 				
 				# rank reports
 				$report = $saturationCtrler->__getWebsiteSaturationReport($listInfo['id']);
@@ -68,10 +82,56 @@ class IndexController extends Controller{
 				$listInfo['dirsub']['total'] = $dirCtrler->__getTotalSubmitInfo($listInfo['id']);
 				$listInfo['dirsub']['active'] = $dirCtrler->__getTotalSubmitInfo($listInfo['id'], true);
 				$websiteList[] = $listInfo;
+			}
+
+			if ($exportVersion) {
+				$exportContent .= createExportContent( array());
+				$exportContent .= createExportContent( array());
+				$exportContent .= createExportContent( array('', $spTextHome['Website Statistics'], ''));
+				$exportContent .= createExportContent( array());
+				$headList = array(
+					'Id',
+					'Website',
+					'Google Pagerank',
+					'Alexa Rank',
+					'Google Backlinks',
+					'Yahoo Backlinks',
+					'MSN Backlinks',
+					'Altavista Backlinks',
+					'Alltheweb Backlinks',
+					'Google Indexed',
+					'Yahoo Indexed',
+					'MSN Indexed',
+					'Total Submission',
+					'Active Submission',
+				);
+				$exportContent .= createExportContent( $headList);
+				foreach ($websiteList as $websiteInfo) {
+					$valueList = array(
+						$websiteInfo['id'],
+						$websiteInfo['url'],
+						strip_tags($websiteInfo['googlerank']),
+						strip_tags($websiteInfo['alexarank']),
+						strip_tags($websiteInfo['google']['backlinks']),
+						strip_tags($websiteInfo['yahoo']['backlinks']),
+						strip_tags($websiteInfo['msn']['backlinks']),
+						strip_tags($websiteInfo['altavista']['backlinks']),
+						strip_tags($websiteInfo['alltheweb']['backlinks']),
+						strip_tags($websiteInfo['google']['indexed']),
+						strip_tags($websiteInfo['yahoo']['indexed']),					
+						strip_tags($websiteInfo['msn']['indexed']),
+						$websiteInfo['dirsub']['total'],					
+						$websiteInfo['dirsub']['active'],
+					);
+					$exportContent .= createExportContent( $valueList);
+				}
+				exportToCsv('website_statistics', $exportContent);
+			} else {			
+				$this->set('websiteList', $websiteList);
+				$layout = ($searchInfo['doc_type'] == "print") ? "ajax" : "";
+				$this->render('user/userhome', $layout);
 			}			
-			$this->set('websiteList', $websiteList);
 			
-			$this->render('user/userhome');
 		}else{
 			$this->render('home');
 		}
@@ -84,6 +144,7 @@ class IndexController extends Controller{
 	
 	# function to show support page
 	function showSupport() {
+		$this->set('spTextSupport', $this->getLanguageTexts('support', $_SESSION['lang_code']));
 		$this->render('support');
 	}
 	
@@ -93,12 +154,14 @@ class IndexController extends Controller{
 			
 			default:
 				if(empty($_COOKIE['default_news'])){
-					$ret = $this->spider->getContent(SP_NEWS_PAGE);
+					$ret = $this->spider->getContent(SP_NEWS_PAGE . "?lang=". $_SESSION['lang_code']);
 					setcookie("default_news", $ret['page'], time()+ (60*60*24));
+				} else {
+					$ret['page'] = $_COOKIE['default_news'];
 				}
 				
-				if(!empty($_COOKIE['default_news'])){				
-					$this->set('newsContent', stripslashes($_COOKIE['default_news']));
+				if(!empty($ret['page'])){				
+					$this->set('newsContent', stripslashes($ret['page']));
 					$this->render('common/topnewsbox', 'ajax');
 				}
 		}

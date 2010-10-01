@@ -31,13 +31,17 @@ if(empty($_SERVER['REQUEST_METHOD'])){
 	$dirCtrler = New DirectoryController();
 		
 	$searchInfo = array(
-		// 'working' => 1,  //to check active directories
-		'working' => 0,		//to check inactive directories
+		//'working' => 1,   # to check active directories
+		//'working' => 0,	# to check inactive directories
+		'checked' => 0,   # to check unchecked directories
 	);	
 	$dirList = $dirCtrler->getAllDirectories($searchInfo);
 	
+	$dirCtrler->checkPR = 1; // check pagerank of directory or not
 	foreach($dirList as $dirInfo){
 		$dirCtrler->checkDirectoryStatus($dirInfo['id']);
+		echo "sleep for ".SP_CRAWL_DELAY. " seconds";
+		sleep(SP_CRAWL_DELAY);
 	}
 }else{
 	showErrorMsg("<p style='color:red'>You don't have permission to access this page!</p>");	

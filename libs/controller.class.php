@@ -1,7 +1,7 @@
 <?php
 
 /***************************************************************************
- *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	   *
+ *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	           *
  *   sendtogeo@gmail.com   												   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -29,6 +29,7 @@ class Controller extends Seopanel{
 	var $spider;
 	var $paging;
 	var $layout = 'default';
+	var $sessionCats = array('common','login','button','label');
 
 	function Controller(){
 		# create database object
@@ -51,6 +52,32 @@ class Controller extends Seopanel{
 		
 		# to define all system variables
 		$this->defineAllSystemSettings();
+
+		# to define all system variables
+		$force = false;
+		if (!empty($_GET['lang_code'])) {
+			$this->assignLangCode(trim($_GET['lang_code']));
+			$_GET['lang_code'] = '';
+			$force = true;
+		}
+		
+		# func to assign texts to session
+		$_SESSION['lang_code'] = empty($_SESSION['lang_code']) ? SP_DEFAULTLANG : $_SESSION['lang_code'];
+		$this->assignTextsToSession($_SESSION['lang_code'], $force);
+	}
+	
+	# func to assign lang code
+	function assignLangCode($langCode) {
+		
+		$sql = "select count(*) count from languages where lang_code='$langCode' and translated=1";
+		$info = $this->db->select($sql, true);
+		$langCode = empty($info['count']) ? 'en' : $langCode; 
+		
+		$_SESSION['lang_code'] = $langCode;
+		if ($userId = isLoggedIn()) {
+			$sql = "update users set lang_code='$langCode' where id=$userId";
+			$res = $this->db->query($sql);
+		}
 	}
 	
 	# func to get all system settings
@@ -88,10 +115,27 @@ class Controller extends Seopanel{
 		if(empty($layout) || ($layout == 'default')){
 			if(!empty($this->layout)){
 				$layout = $this->layout;
-			}
+			}			
+			if ($layout == 'default') $this->set('translatorInfo', $this->getTranslatorInfo());
 		}
 		$this->view->data = $this->data;
 		$this->view->render($viewFile, $layout);
+	}
+	
+	# function to get translator info
+	function getTranslatorInfo() {
+		$translatorInfo = '';
+		if ($_SESSION['lang_code'] != 'en') {
+			$sql = "select t.*,lang_show from translators t,languages l where l.lang_code=t.lang_code and t.lang_code='{$_SESSION['lang_code']}'";
+			$info = $this->db->select($sql, true);
+			if (!empty($info)) {
+				$translatorInfo .= "<div style='margin-top: 6px;'>";
+				$translatorInfo .= $info['lang_show']." ". $_SESSION['text']['label']['translation by']. " ". $info['trans_name'] . " | ";
+				$translatorInfo .= "<a href='{$info['trans_website']}' target='_blank' style='font-size:12px;'>{$info['trans_company']}</a>";
+				$translatorInfo .= "</div>";
+			}
+		}
+		return $translatorInfo;
 	}
 	
 	# plugin render function
@@ -103,6 +147,69 @@ class Controller extends Seopanel{
 		}
 		$this->view->data = $this->data;
 		$this->view->pluginRender($viewFile, $layout);
+	}
+		
+	# func to getting language texts
+	function getLanguageTexts($category, $langCode='en') {
+		$langTexts = array();
+		
+		$sql = "select label,content from texts where category='$category' and lang_code='$langCode' and content!='' order by label";
+		$textList = $this->db->select($sql);
+		foreach ($textList as $listInfo) {
+			$langTexts[$listInfo['label']] = stripslashes($listInfo['content']);
+		}
+
+		# if langauge is not english
+		if ($langCode != 'en') {
+			$defaultTexts = $this->getLanguageTexts($category, 'en');
+			foreach ($defaultTexts as $label => $content) {
+				if (empty($langTexts[$label])) {
+					$langTexts[$label] = $content;
+				}
+			} 
+		}
+		
+		return $langTexts;
+	}
+
+	# func to assign language to session
+	function assignTextsToSession($langCode='en', $force=false) {
+		if (SP_LANGTESTING || empty($_SESSION['text']) || $force ) {
+			$_SESSION['text'] = array();
+			foreach ($this->sessionCats as $category) {
+				$_SESSION['text'][$category] = $this->getLanguageTexts($category, $langCode);
+			}	
+		}
+	}
+	
+	# destructor
+	function __destruct() {
+		$this->db->close();	
+	}	
+
+	# function to check whether user is keyword owner or not
+	function checkUserIsObjectOwner($objId, $objName='website') {
+		
+		if (!isAdmin()) {
+			$userId = isLoggedIn();
+			switch ($objName) {
+				
+				case "keyword":
+					$sql = "select k.id from keywords k,websites w where k.website_id=w.id and w.user_id=$userId and k.id='$objId'";
+					break;
+					
+				case "website":
+					$sql = "select id from websites where id='$objId' and user_id=$userId";
+					break;
+					
+			}	
+			
+			$info = $this->db->select($sql, true);
+			if (empty($info['id'])) {
+				showErrorMsg("You are not allowed to access this page!");
+			} 
+		}
+			
 	}
 
 }

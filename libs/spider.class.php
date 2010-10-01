@@ -1,7 +1,7 @@
 <?php
 
 /***************************************************************************
- *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	   *
+ *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	           *
  *   sendtogeo@gmail.com   												   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -19,6 +19,8 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
+
+include_once(SP_CTRLPATH."/proxy.ctrl.php");
 
 class Spider{
 
@@ -105,7 +107,7 @@ class Spider{
 	function getContent( $url )	{
 		curl_setopt( $this -> _CURL_RESOURCE , CURLOPT_URL , $url );
 		curl_setopt( $this -> _CURL_RESOURCE , CURLOPT_FAILONERROR , $this -> _CURLOPT_FAILONERROR );
-		#curl_setopt( $this -> _CURL_RESOURCE , CURLOPT_FOLLOWLOCATION , $this -> _CURLOPT_FOLLOWLOCATION );
+		@curl_setopt( $this -> _CURL_RESOURCE , CURLOPT_FOLLOWLOCATION , $this -> _CURLOPT_FOLLOWLOCATION );
 		curl_setopt( $this -> _CURL_RESOURCE , CURLOPT_RETURNTRANSFER , $this -> _CURLOPT_RETURNTRANSFER );
 		curl_setopt( $this -> _CURL_RESOURCE , CURLOPT_TIMEOUT , $this -> _CURLOPT_TIMEOUT );
 		curl_setopt( $this -> _CURL_RESOURCE , CURLOPT_COOKIEJAR , $this -> _CURLOPT_COOKIEJAR );
@@ -129,6 +131,18 @@ class Spider{
 		if( strlen( $this -> _CURLOPT_USERPWD ) > 2 ) {
 			curl_setopt( $this -> _CURL_RESOURCE , CURLOPT_USERPWD, $this -> _CURLOPT_USERPWD );
 		}
+		
+		// to use proxy if proxy enabled
+		if (SP_ENABLE_PROXY) {
+			$proxyCtrler = New ProxyController();
+			if ($proxyInfo = $proxyCtrler->getRandomProxy()) {
+				curl_setopt($this -> _CURL_RESOURCE, CURLOPT_PROXY, $proxyInfo['proxy'].":".$proxyInfo['port']);
+				curl_setopt($this -> _CURL_RESOURCE, CURLOPT_HTTPPROXYTUNNEL, 1);		
+				if (!empty($proxyInfo['proxy_auth'])) {
+					curl_setopt ($this -> _CURL_RESOURCE, CURLOPT_PROXYUSERPWD, $proxyInfo['proxy_username'].":".$proxyInfo['proxy_password']);
+				}
+			}
+		}
 			
 		$ret['page'] = curl_exec( $this -> _CURL_RESOURCE );
 		$ret['error'] = curl_errno( $this -> _CURL_RESOURCE );
@@ -144,6 +158,30 @@ class Spider{
 		} else {
 			return false;
 		}
+	}
+	
+	# func to check proxy 
+	function checkProxy($proxyInfo) {
+		
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_PROXY, $proxyInfo['proxy'].":".$proxyInfo['port']);
+		
+		curl_setopt($ch, CURLOPT_HTTPPROXYTUNNEL, 1);
+		curl_setopt($ch, CURLOPT_HEADER, $this->_CURLOPT_HEADER);
+		curl_setopt($ch, CURLOPT_USERAGENT, $this->_CURLOPT_USERAGENT);
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);		
+		
+		if (!empty($proxyInfo['proxy_auth'])) {
+			curl_setopt ($ch, CURLOPT_PROXYUSERPWD, $proxyInfo['proxy_username'].":".$proxyInfo['proxy_password']);
+		}
+				
+		curl_setopt($ch, CURLOPT_URL, "http://www.google.com/search?q=twitter");
+		$ret['page'] = curl_exec( $ch );
+		$ret['error'] = curl_errno( $ch );
+		$ret['errmsg'] = curl_error( $ch );
+		curl_close($ch);
+		return $ret;
 	}
 }
 ?>

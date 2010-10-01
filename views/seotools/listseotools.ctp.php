@@ -1,13 +1,13 @@
-<?php echo showSectionHead($sectionHead); ?>
+<?php echo showSectionHead($spTextPanel['Seo Tools Manager']); ?>
 <?=$pagingDiv?>
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
 	<tr class="listHead">
-		<td class="left">ID</td>
-		<td>Name</td>
-		<td>User Access</td>
-		<td>Reports</td>
-		<td>Cron</td>
-		<td class="right">Status</td>
+		<td class="left"><?=$spText['common']['Id']?></td>
+		<td><?=$spText['common']['Name']?></td>
+		<td><?=$spTextTools['User Access']?></td>
+		<td><?=$spText['common']['Reports']?></td>
+		<td><?=$spText['label']['Cron']?></td>
+		<td class="right"><?=$spText['common']['Status']?></td>
 	</tr>
 	<?php
 	$colCount = 6; 
@@ -24,20 +24,20 @@
             }
 		
 			if($listInfo['status']){
-				$statLabel = "Active";
+				$statLabel = $spText['common']["Active"];
 			}else{
-				$statLabel = "Inactive";
+				$statLabel = $spText['common']["Inactive"];
 			}
-            $activateLink = scriptAJAXLinkHref('seo-tools-manager.php', 'content', "sec=changestatus&seotool_id={$listInfo['id']}&status={$listInfo['status']}", $statLabel);
+            $activateLink = SP_DEMO ? scriptAJAXLinkHref('demo', '', "", $statLabel) : scriptAJAXLinkHref('seo-tools-manager.php', 'content', "sec=changestatus&seotool_id={$listInfo['id']}&status={$listInfo['status']}", $statLabel);
             
-            $statLabel = ($listInfo['reportgen']) ? "Active" : "Inactive"; 
-            $reportgenLink = scriptAJAXLinkHref('seo-tools-manager.php', 'content', "sec=changereportgen&seotool_id={$listInfo['id']}&status={$listInfo['reportgen']}", $statLabel);
+            $statLabel = ($listInfo['reportgen']) ? $spText['common']["Active"] : $spText['common']["Inactive"]; 
+            $reportgenLink = SP_DEMO ? scriptAJAXLinkHref('demo', '', "", $statLabel) : scriptAJAXLinkHref('seo-tools-manager.php', 'content', "sec=changereportgen&seotool_id={$listInfo['id']}&status={$listInfo['reportgen']}", $statLabel);
             
-            $statLabel = ($listInfo['cron']) ? "Active" : "Inactive"; 
-            $cronLink = scriptAJAXLinkHref('seo-tools-manager.php', 'content', "sec=changecron&seotool_id={$listInfo['id']}&status={$listInfo['cron']}", $statLabel);
+            $statLabel = ($listInfo['cron']) ? $spText['common']["Active"] : $spText['common']["Inactive"]; 
+            $cronLink = SP_DEMO ? scriptAJAXLinkHref('demo', '', "", $statLabel) : scriptAJAXLinkHref('seo-tools-manager.php', 'content', "sec=changecron&seotool_id={$listInfo['id']}&status={$listInfo['cron']}", $statLabel);
             
-            $accessLabel = ($listInfo['user_access']) ? "Yes" : "No"; 
-            $accessLink = scriptAJAXLinkHref('seo-tools-manager.php', 'content', "sec=changeaccess&seotool_id={$listInfo['id']}&user_access={$listInfo['user_access']}", $accessLabel);
+            $accessLabel = ($listInfo['user_access']) ? $spText['common']["Yes"] : $spText['common']["No"]; 
+            $accessLink = SP_DEMO ? scriptAJAXLinkHref('demo', '', "", $accessLabel) : scriptAJAXLinkHref('seo-tools-manager.php', 'content', "sec=changeaccess&seotool_id={$listInfo['id']}&user_access={$listInfo['user_access']}", $accessLabel);
             
 			?>
 			<tr class="<?=$class?>">
