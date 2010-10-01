@@ -85,12 +85,12 @@ class BacklinkController extends Controller{
 				
 			#altavista
 			case 'altavista':
-				$url = 'http://www.altavista.com/web/results?q=link%3A' . urlencode($this->url);
-				$v = $this->spider->getContent($url);
-				$v = empty($v['page']) ? '' :  $v['page'];
-				preg_match('/found ([0-9\,]+) results/si', $v, $r);
-				return ($r[1]) ? str_replace(',', '', $r[1]) : 0;
-				break;
+				$url = "http://siteexplorer.search.yahoo.com/advsearch?p=".urlencode($this->url)."&bwm=i&bwmf=u&bwms=p&fr=altavista";
+                $v = $this->spider->getContent($url);
+                $v = empty($v['page']) ? '' :  $v['page'];
+                preg_match('/Inlinks \((.+?)\)/si', $v, $r);
+                return ($r[1]) ? str_replace(',', '', $r[1]) : 0;
+                break;
 				
 			#alltheweb
 			case 'alltheweb':
