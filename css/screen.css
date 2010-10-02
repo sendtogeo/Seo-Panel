@@ -290,7 +290,6 @@ HEADER
 	text-align: left;
 	background: url('../images/logo.jpg') no-repeat 0px 0px;
 	height:35px;
-	font-family: fantasy;
 	font-style: normal;
 }
 
@@ -408,7 +407,7 @@ footer styles
 	height: 80px;
 	padding: 5px 0px 0px 0px;
 	font-size: 12px;
-	border-top: 1px solid #B0C2CC;
+	border-top: 1px solid #A4A4A4;
 	text-align: center;
 }
 
@@ -455,7 +454,7 @@ div.Left .col,div.Right .col,div.Center .col {
 	position: relative;
 	text-align: left;
 	min-height: 340px;
-	border: 1px solid #B0C2CC;
+	border: 1px solid #A4A4A4;
 }
 
 div.Left .SectionHeader,div.Full .SectionHeader {
