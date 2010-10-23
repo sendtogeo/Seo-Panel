@@ -22,7 +22,10 @@
 
 # class defines all seo plugins controller functions
 class SeoPluginsController extends Controller{
+	
 	var $layout = 'ajax';
+	var $info = array();
+	var $pluginText = "";
 	
 	# function to manage seo plugins
 	function manageSeoPlugins($info, $method='get') {
@@ -36,6 +39,9 @@ class SeoPluginsController extends Controller{
 		define('PLUGIN_IMGPATH', PLUGIN_WEBPATH."/images");
 		define('PLUGIN_CSSPATH', PLUGIN_WEBPATH."/css");
 		define('PLUGIN_JSPATH', PLUGIN_WEBPATH."/js");
+		define("PLUGIN_SCRIPT_URL", SP_WEBPATH."/seo-plugins.php?pid=".PLUGIN_ID);
+		
+		$this->info = empty($_GET) ? $_POST : $_GET;
 		
 		$this->loadAllPluginCss();
 		$this->loadAllPluginJs();		
@@ -313,5 +319,46 @@ class SeoPluginsController extends Controller{
 		$pluginInfo['website'] = empty($pluginInfo['website']) ? SP_PLUGINSITE : $pluginInfo['website'];		
 		return $pluginInfo;		 
 	}
+	
+	# function to create helpers for main controlller
+	function createHelper($helperName) {
+		
+		include_once(PLUGIN_PATH."/".strtolower($helperName).".ctrl.php");
+		$helperObj = New $helperName();
+		return $helperObj;
+	}
+	
+	# func to get plugin language texts
+	function getPluginLanguageTexts($category, $langCode='en', $table='') {
+		$langTexts = array();
+		
+		$sql = "select label,content from $table where category='$category' and lang_code='$langCode' and content!='' order by label";
+		$textList = $this->db->select($sql);
+		foreach ($textList as $listInfo) {
+			$langTexts[$listInfo['label']] = stripslashes($listInfo['content']);
+		}
+
+		# if langauge is not english
+		if ($langCode != 'en') {
+			$defaultTexts = $this->getPluginLanguageTexts($category, 'en', $table);
+			foreach ($defaultTexts as $label => $content) {
+				if (empty($langTexts[$label])) {
+					$langTexts[$label] = $content;
+				}
+			} 
+		}
+		
+		return $langTexts;
+	}
+	
+	# func to set language texts
+	function setPluginTextsForRender($category='', $table='') {
+				
+		if (empty($this->pluginText)) {
+			$this->pluginText = $this->getPluginLanguageTexts($category, $_SESSION['lang_code'], $table);
+			$this->set('pluginText', $this->pluginText);	
+		}		
+	}
+	
 }
 ?>
