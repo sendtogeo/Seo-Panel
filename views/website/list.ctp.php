@@ -57,14 +57,16 @@
 				<td class="<?=$rightBotClass?>" width="100px">
 					<?php
 						if($listInfo['status']){
+							$statVal = "Inactivate";
 							$statLabel = $spText['common']["Inactivate"];
 						}else{
+							$statVal = "Activate";
 							$statLabel = $spText['common']["Activate"];
 						} 
 					?>
 					<select name="action" id="action<?=$listInfo['id']?>" onchange="doAction('websites.php', 'content', 'websiteId=<?=$listInfo['id']?>&pageno=<?=$pageNo?>&userid=<?=$userId?>', 'action<?=$listInfo['id']?>')">
 						<option value="select">-- <?=$spText['common']['Select']?> --</option>
-						<option value="<?=$statLabel?>"><?=$statLabel?></option>
+						<option value="<?=$statVal?>"><?=$statLabel?></option>
 						<option value="edit"><?=$spText['common']['Edit']?></option>
 						<option value="delete"><?=$spText['common']['Delete']?></option>
 					</select>
