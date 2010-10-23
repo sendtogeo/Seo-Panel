@@ -8,7 +8,7 @@
 		<td valign="middle">
 			<p class="note" style="padding-top: 6px;font-size: 15px;width: 600px;">
 			<?php
-			$command = "* * * * * php ".SP_ABSPATH."/cron.php";
+			$command = "0 0 * * * php ".SP_ABSPATH."/cron.php";
 			highlight_string($command); 
 			?>
 			</p>
