@@ -52,8 +52,10 @@
 				<td class="<?=$rightBotClass?>" width="100px">
 					<?php
 						if($listInfo['status']){
+							$statVal = "Inactivate";
 							$statLabel = $spText['common']["Inactivate"];
 						}else{
+							$statVal = "Activate";
 							$statLabel = $spText['common']["Activate"];
 						} 
 					?>
@@ -62,7 +64,7 @@
 						<?if($listInfo['webstatus'] && $listInfo['status']){?>
 							<option value="reports"><?=$spText['common']['Reports']?></option>
 						<?php }?>
-						<option value="<?=$statLabel?>"><?=$statLabel?></option>
+						<option value="<?=$statVal?>"><?=$statLabel?></option>
 						<option value="edit"><?=$spText['common']['Edit']?></option>
 						<option value="delete"><?=$spText['common']['Delete']?></option>
 					</select>
