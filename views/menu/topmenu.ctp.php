@@ -20,7 +20,7 @@
 		?> 			
 			<a href="<?=SP_WEBPATH?>/login.php"><?=$spText['common']['signin']?></a>
 		<?php }else{ ?>
-			<a href="admin-panel.php?sec=myprofile">Profile</a> <span class="pipe">|</span>
+			<a href="admin-panel.php?sec=myprofile"><?=$spText['common']['Profile']?></a> <span class="pipe">|</span>
 			<a href="<?=SP_WEBPATH?>/login.php?sec=logout"><?=$spText['common']['Sign out']?></a>
 		<?php }?>
 	</span>
