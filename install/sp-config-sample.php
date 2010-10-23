@@ -40,7 +40,7 @@ define('DB_HOST', '[DB_HOST]');
 define('DB_ENGINE', '[DB_ENGINE]');
 
 # The version of seo panel installed
-define('SP_INSTALLED', '2.1.0');
+define('SP_INSTALLED', '2.1.1');
 
 # The DB debug mode
 define('SP_DEBUG', 0);
