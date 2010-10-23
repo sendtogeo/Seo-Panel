@@ -93,13 +93,13 @@ class BacklinkController extends Controller{
                 break;
 				
 			#alltheweb
-			case 'alltheweb':
-				$url = 'http://www.alltheweb.com/search?q=link%3A' . urlencode($this->url);
-				$v = $this->spider->getContent($url);
-				$v = empty($v['page']) ? '' :  $v['page'];
-				preg_match('/\<span class\="ofSoMany"\>([0-9\,]+)\<\/span\>/si', $v, $r);
-				return ($r[1]) ? str_replace(',', '', $r[1]) : 0;
-				break;
+			case 'alltheweb':				
+				$url = "http://siteexplorer.search.yahoo.com/advsearch?p=".urlencode($this->url)."&bwm=i&bwmf=u&bwms=p&fr=alltheweb";
+                $v = $this->spider->getContent($url);
+                $v = empty($v['page']) ? '' :  $v['page'];
+                preg_match('/Inlinks \((.+?)\)/si', $v, $r);
+                return ($r[1]) ? str_replace(',', '', $r[1]) : 0;
+                break;
 		}
 		
 		return 0;
