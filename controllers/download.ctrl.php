@@ -24,7 +24,7 @@
 class DownloadController extends Controller{
 	
 	function downloadFile($fileInfo){
-//		$fileName = urldecode($fileInfo['file']);
+
 		if ($fileName = $this->isValidFile($fileInfo['file'])) {
 			
 			$fileType = $fileInfo['filetype'];
@@ -54,7 +54,7 @@ class DownloadController extends Controller{
 	# function to check whether valid file
 	function isValidFile($fileName) {
 		$fileName = urldecode($fileName);
-		$fileName = str_replace('../', '', $fileName);
+		$fileName = str_replace(array('../', './', '..'), '', $fileName);
 		if (preg_match('/\.xml$|\.html$|\.txt$/i', $fileName)) {
 			return $fileName;
 		}		
