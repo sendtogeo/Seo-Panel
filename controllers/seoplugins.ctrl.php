@@ -41,8 +41,6 @@ class SeoPluginsController extends Controller{
 		define('PLUGIN_JSPATH', PLUGIN_WEBPATH."/js");
 		define("PLUGIN_SCRIPT_URL", SP_WEBPATH."/seo-plugins.php?pid=".PLUGIN_ID);
 		
-		$this->info = empty($_GET) ? $_POST : $_GET;
-		
 		$this->loadAllPluginCss();
 		$this->loadAllPluginJs();		
 		
