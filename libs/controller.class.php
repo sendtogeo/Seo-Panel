@@ -127,12 +127,15 @@ class Controller extends Seopanel{
 		$translatorInfo = '';
 		if ($_SESSION['lang_code'] != 'en') {
 			$sql = "select t.*,lang_show from translators t,languages l where l.lang_code=t.lang_code and t.lang_code='{$_SESSION['lang_code']}'";
-			$info = $this->db->select($sql, true);
-			if (!empty($info)) {
-				$translatorInfo .= "<div style='margin-top: 6px;'>";
-				$translatorInfo .= $info['lang_show']." ". $_SESSION['text']['label']['translation by']. " ". $info['trans_name'] . " | ";
-				$translatorInfo .= "<a href='{$info['trans_website']}' target='_blank' style='font-size:12px;'>{$info['trans_company']}</a>";
-				$translatorInfo .= "</div>";
+			$list = $this->db->select($sql);		
+			if (count($list) > 0) {				
+				$trname = $list[0]['lang_show']." ". $_SESSION['text']['label']['translation by']. " ";
+				$trlink = "";
+				foreach ($list as $i => $info) {
+					$trname .=  $i ? " and ".$info['trans_name'] : $info['trans_name'];
+					$trlink .= " | <a href='{$info['trans_website']}' target='_blank' style='font-size:12px;'>{$info['trans_company']}</a>";	
+				}			
+				$translatorInfo .= "<div style='margin-top: 6px;'>$trname $trlink</div>";
 			}
 		}
 		return $translatorInfo;
