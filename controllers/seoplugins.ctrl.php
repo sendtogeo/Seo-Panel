@@ -1,7 +1,7 @@
 <?php
 
 /***************************************************************************
- *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	   *
+ *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	           *
  *   sendtogeo@gmail.com   												   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -50,8 +50,15 @@ class SeoPluginsController extends Controller{
 		include_once(PLUGIN_PATH."/".$pluginDirName.".ctrl.php");
 		$pluginControler = New $pluginDirName();
 		$action = empty($info['action']) ? "index" : $info['action'];
-		$data = ($method=='get') ? $_GET : $_POST; 
+		$data = ($method=='get') ? $_GET : $_POST;
+
+		$pluginControler->initPlugin($data);
 		$pluginControler->$action($data);
+	}
+	
+	# function to init plugin before do action
+	function initPlugin($data) {
+		return;
 	}
 
 	# func to load plugin css files
