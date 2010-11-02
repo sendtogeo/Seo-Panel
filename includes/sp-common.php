@@ -211,6 +211,20 @@ function pluginPOSTMethod($formName, $area='content', $args=''){
 	return $request;
 }
 
+# function to create plugin ajax confirm get method
+function pluginConfirmGETMethod($args='', $area='content'){
+	$script = "seo-plugins.php?pid=".PLUGIN_ID;	
+	$request = "confirmLoad('$script', '$area', '$args')";
+	return $request;
+}
+
+# function to create plugin ajax confirm post method
+function pluginConfirmPOSTMethod($formName, $area='content', $args=''){
+	$args = "&pid=".PLUGIN_ID."&$args";
+	$request = "confirmSubmit('seo-plugins.php', '$formName', '$area', '$args')";
+	return $request;
+}
+
 # func to create plugin menu
 function pluginMenu($args='', $area='content') {
 	$pluginId = Session::readSession('plugin_id');
