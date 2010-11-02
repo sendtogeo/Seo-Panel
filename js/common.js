@@ -123,14 +123,15 @@ function confirmLoad(scriptUrl, scriptPos, scriptArgs) {
 		return false;
 }
 
-function confirmSubmit(scriptUrl, scriptForm, scriptPos) {
+function confirmSubmit(scriptUrl, scriptForm, scriptPos, scriptArgs) {
 
+	if(!scriptArgs){ var scriptArgs = ''; }
 	if (chkObject('wantproceed')) {
 		wantproceed = "Do you really want to proceed?";
 	}
 	var agree = confirm(wantproceed);
 	if (agree)
-		return scriptDoLoadPost(scriptUrl, scriptForm, scriptPos);
+		return scriptDoLoadPost(scriptUrl, scriptForm, scriptPos, scriptArgs);
 	else
 		return false;
 }
