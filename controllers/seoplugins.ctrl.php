@@ -41,9 +41,6 @@ class SeoPluginsController extends Controller{
 		define('PLUGIN_JSPATH', PLUGIN_WEBPATH."/js");
 		define("PLUGIN_SCRIPT_URL", SP_WEBPATH."/seo-plugins.php?pid=".PLUGIN_ID);
 		
-		$this->loadAllPluginCss();
-		$this->loadAllPluginJs();		
-		
 		if(file_exists(PLUGIN_PATH."/".SP_PLUGINCONF)){
 			include_once(PLUGIN_PATH."/".SP_PLUGINCONF);
 		}
@@ -51,6 +48,11 @@ class SeoPluginsController extends Controller{
 		$pluginControler = New $pluginDirName();
 		$action = empty($info['action']) ? "index" : $info['action'];
 		$data = ($method=='get') ? $_GET : $_POST;
+		
+		if (empty($data['doc_type']) || ($data['doc_type'] != 'export')) {
+			$this->loadAllPluginCss();
+			$this->loadAllPluginJs();
+		}
 
 		$pluginControler->initPlugin($data);
 		$pluginControler->$action($data);
