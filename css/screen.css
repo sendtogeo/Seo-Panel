@@ -246,6 +246,7 @@ STRUCTURE
 div#Wrapper {
 	padding: 0px;
 	margin: 0 auto;
+	clear: both;
 }
 
 .Container {
