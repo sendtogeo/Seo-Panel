@@ -32,7 +32,7 @@ class Spider{
 	var $_CURLOPT_TIMEOUT = 15;	
 	var $_CURLOPT_POST = true;
 	var $_CURLOPT_POSTFIELDS = null;
-	var $_CURLOPT_USERAGENT = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)";
+	var $_CURLOPT_USERAGENT = "Mozilla/5.0 (Windows; U; MSIE 9.0; WIndows NT 9.0; en-US))";
 	var $_CURLOPT_USERPWD = null;
 	var $_CURLOPT_COOKIEJAR = '';
 	var $_CURLOPT_COOKIEFILE = '';
