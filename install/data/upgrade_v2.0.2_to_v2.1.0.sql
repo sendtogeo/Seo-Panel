@@ -1,3 +1,166 @@
+--
+-- This section includes the database changes of Seo Panel version from 2.0.0 to 2.1.0
+--
+
+--
+-- To add proxy settings to settings table
+--
+
+INSERT INTO `settings` (`id`, `set_label`, `set_name`, `set_val`, `set_type`) VALUES
+(9, 'Enable Proxy', 'SP_ENABLE_PROXY', '0', 'bool');
+
+INSERT INTO `settings` (`id`, `set_label`, `set_name`, `set_val`, `set_type`) VALUES (NULL, 'Default Language', 'SP_DEFAULTLANG', 'en', 'small');
+
+--
+-- Table structure for table `proxylist`
+--
+
+CREATE TABLE IF NOT EXISTS `proxylist` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `proxy` varchar(32) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `port` int(8) DEFAULT NULL,
+  `proxy_auth` tinyint(1) NOT NULL DEFAULT '0',
+  `proxy_username` varchar(64) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `proxy_password` varchar(64) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
+
+--
+-- alter search engine table for storing non utf8 search engines
+--
+
+ALTER TABLE `searchengines` ADD `encoding` VARCHAR( 32 ) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL AFTER `description_index`;
+
+--
+-- Alter user table to add lang_code
+--
+ALTER TABLE `users` ADD `lang_code` VARCHAR( 8 ) NOT NULL DEFAULT 'en' AFTER `email`;
+
+--
+-- Table structure for table `translators`
+--
+
+CREATE TABLE IF NOT EXISTS `translators` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `lang_code` varchar(8) NOT NULL,
+  `trans_name` varchar(64) NOT NULL,
+  `trans_company` varchar(64) NOT NULL,
+  `trans_website` varchar(200) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `language_id` (`lang_code`)
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Dumping data for table `translators`
+--
+
+INSERT INTO `translators` (`id`, `lang_code`, `trans_name`, `trans_company`, `trans_website`) VALUES
+(1, 'de', 'Grauhut', 'ONLINE MARKETING', 'http://www.grauhut.com/'),
+(2, 'es', 'busca.com.co', 'Directorio web de enlaces', 'http://www.busca.com.co'),
+(3, 'fr', 'Erik De Zeeuw', 'ez-solutions.fr', 'http://www.ez-solutions.fr/');
+
+--
+-- Alter directroy table
+--
+ALTER TABLE `directories` ADD `google_pagerank` SMALLINT NOT NULL DEFAULT '0',
+ADD `alexa_rank` INT( 11 ) NOT NULL DEFAULT '-1',
+ADD `lang_code` VARCHAR( 8 ) NOT NULL DEFAULT 'en',
+ADD `checked` BOOL NOT NULL DEFAULT '0';
+
+ALTER TABLE `directories` ADD UNIQUE (
+`submit_url`
+);
+
+--
+-- to get 100 results for google in firefox
+--
+UPDATE `searchengines` SET `cookie_send` = 'PREF=ID=214f73e704da6702:SG=2' WHERE `searchengines`.`id` =1;
+
+--
+-- to enable image saving for captcha
+--
+UPDATE `settings` SET `set_val` = '1' WHERE `settings`.`id` =7;
+
+-- phpMyAdmin SQL Dump
+-- version 3.2.4
+-- http://www.phpmyadmin.net
+--
+-- Host: localhost
+-- Generation Time: Oct 02, 2010 at 04:36 AM
+-- Server version: 5.1.41
+-- PHP Version: 5.3.1
+
+SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+
+--
+-- Database: `sptest`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `languages`
+--
+
+DROP TABLE IF EXISTS `languages`;
+CREATE TABLE IF NOT EXISTS `languages` (
+  `lang_code` varchar(8) CHARACTER SET latin1 NOT NULL,
+  `lang_name` varchar(24) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `lang_show` varchar(32) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `translated` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`lang_code`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- Dumping data for table `languages`
+--
+
+INSERT INTO `languages` (`lang_code`, `lang_name`, `lang_show`, `translated`) VALUES
+('en', 'English', 'English', 1),
+('de', 'German', 'Deutsch', 1),
+('fr', 'French', 'Français', 1),
+('it', 'Italian', 'italiano', 0),
+('es', 'Spanish', 'español', 1),
+('pl', 'Polish', 'polski', 0),
+('ru', 'Russian', 'Русский язык', 0),
+('hi', 'Hindi', 'हिन्दी', 0),
+('ar', 'Arabic', 'العربية', 0),
+('pt', 'Portuguese', 'português', 0),
+('sv', 'Swedish', 'Svenska', 0),
+('no', 'Norwegian', 'Norsk', 0),
+('da', 'Danish', 'dansk', 0),
+('fi', 'Finnish', 'suomi', 0),
+('hu', 'Hungarian', 'magyar', 0),
+('nl', 'Dutch', 'Nederlands', 0),
+('sr', 'Serbian', 'српски', 0),
+('bg', 'Bulgarian', 'български', 0),
+('uk', 'Ukrainian', 'Українська', 0),
+('el', 'Greek', 'ελληνικά', 0),
+('he', 'Hebrew', 'עברית / עִבְרִית', 0),
+('ko', 'Korean', '한국어 [韓國語]', 0),
+('zh', 'Chinese', '中文', 0),
+('ja', 'Japanese', '日本語 ', 0),
+('tl', 'Tagalog', 'Tagalog', 0),
+('id', 'Indonesian', 'Bahasa Indonesia', 0),
+('fa', 'Farsi', NULL, 0),
+('th', 'Thai', 'ภาษาไทย', 0),
+('ro', 'Romanian', 'română', 0),
+('tr', 'Turkish', 'Türkçe', 0),
+('hr', 'Croatian', 'Hrvatski', 0),
+('mk', 'Macedonian', 'македонски', 0),
+('bs', 'Bosnian', 'Bosanski', 0),
+('sq', 'Albanian', 'shqip', 0),
+('sw', 'Swahili', 'Kiswahili', 0),
+('hy', 'Armenian', 'Հայերէն', 0),
+('cs', 'Czech', 'čeština', 0),
+('sk', 'Slovak', 'slovenčina', 0);
 -- phpMyAdmin SQL Dump
 -- version 3.2.4
 -- http://www.phpmyadmin.net
