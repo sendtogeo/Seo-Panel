@@ -487,6 +487,7 @@ class ReportController extends Controller {
 					$crawlResult[$seInfoId]['matched'] = array();
 					foreach($urlList as $i => $url){
 						$url = strip_tags($url);
+						if(!stristr($url, 'http://') && !stristr($url, 'https://')) continue;
 						if($this->showAll || stristr($url, $websiteUrl)){
 
 							if($this->showAll && stristr($url, $websiteUrl)){
