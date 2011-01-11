@@ -274,6 +274,18 @@ class ReportController extends Controller {
 		
 		$this->render('report/graphicalreport');
 	}
+	
+	# function to show an message in graph when no records exist
+	function showMessageAsImage($msg='', $width=700, $height=30, $red=233, $green=14, $blue=91) {	    
+		
+		$im = imagecreate($width, $height);		
+        $bgColor = imagecolorallocate($im, 245, 248, 250);
+        $textColor = imagecolorallocate($im, 233, 14, 91);
+        imagestring($im, 5, 260, 5,  $msg, $textColor);
+        imagepng($im);
+        imagedestroy($im);
+        exit;
+	}
 
 	# function to show graph
 	function showGraph($searchInfo = '') {
@@ -306,9 +318,16 @@ class ReportController extends Controller {
 		asort($seList);	
 		
 		$dataList = array();
+		$maxValue = 0;
 		foreach($reportList as $repInfo){
 			$seId = $repInfo['searchengine_id'];
 			$dataList[$repInfo['time']][$seId] = $repInfo['rank'];
+			$maxValue = ($repInfo['rank'] > $maxValue) ? $repInfo['rank'] : $maxValue;
+		}
+		
+		// check whether the records are available for drawing graph
+		if(empty($dataList) || empty($maxValue)) {
+		    $this->showMessageAsImage($_SESSION['text']['common']['No Records Found']."!");		    
 		}
 		
 		# Dataset definition
@@ -338,6 +357,7 @@ class ReportController extends Controller {
 
 		# Initialise the graph
 		$chart = new pChart(720, 520);
+		$chart->setFixedScale(0, $maxValue );		
 		$chart->setFontProperties("fonts/tahoma.ttf", 8);
 		$chart->setGraphArea(85, 30, 670, 425);
 		$chart->drawFilledRoundedRectangle(7, 7, 713, 513, 5, 240, 240, 240);
