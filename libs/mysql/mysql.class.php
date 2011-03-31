@@ -115,7 +115,6 @@ class Mysql extends Database{
 	# func to Close Mysql Connection
 	function close(){
 		$res = @mysql_close($this->connectionId);
-		$this->showError();
 		return $res;
 	}
 	
