@@ -463,6 +463,19 @@ class ReportController extends Controller {
 		}	
 	}
 	
+	# function to format pagecontent
+	function formatPageContent($seInfoId, $pageContent) {
+	    if (!empty($this->seList[$seInfoId]['from_pattern']) && $this->seList[$seInfoId]['to_pattern']) {
+	        $pattern = $this->seList[$seInfoId]['from_pattern']."(.*)".$this->seList[$seInfoId]['to_pattern'];
+	        if (preg_match("/$pattern/is", $pageContent, $matches)) {
+	            if (!empty($matches[1])) {
+	                $pageContent = $matches[1];
+	            }
+	        }
+	    }
+	    return $pageContent;	    
+	}
+	
 	# func to crawl keyword
 	function crawlKeyword( $keywordInfo, $seId='' ) {
 		$crawlResult = array();
@@ -485,13 +498,14 @@ class ReportController extends Controller {
 			}
 			
 			$result = $this->spider->getContent($seUrl);
-			$pageContent = $result['page'];
-			$seStart = $this->seList[$seInfoId]['start'] + $this->seList[$seInfoId]['no_of_results_page'];
+			$pageContent = $this->formatPageContent($seInfoId, $result['page']);
+			
+			$seStart = $this->seList[$seInfoId]['start'] + $this->seList[$seInfoId]['start_offset'];
 			while(empty($result['error']) && ($seStart < $this->seList[$seInfoId]['max_results']) ){
 				$seUrl = str_replace('[--start--]', $seStart, $searchUrl);
 				$result = $this->spider->getContent($seUrl);
-				$pageContent .= $result['page'];
-				$seStart += $this->seList[$seInfoId]['no_of_results_page'];
+				$pageContent .= $this->formatPageContent($seInfoId, $result['page']);
+				$seStart += $this->seList[$seInfoId]['start_offset'];
 				sleep(SP_CRAWL_DELAY);
 			}
 
@@ -501,13 +515,14 @@ class ReportController extends Controller {
 			}
 			
 			$crawlStatus = 0;
-			if(empty($result['error'])){				
+			if(empty($result['error'])){		
 				if(preg_match_all($this->seList[$seInfoId]['regex'], $pageContent, $matches)){
 					$urlList = $matches[$this->seList[$seInfoId]['url_index']];
 					$crawlResult[$seInfoId]['matched'] = array();
 					foreach($urlList as $i => $url){
 						$url = strip_tags($url);
-						//if(!stristr($url, 'http://') && !stristr($url, 'https://')) continue;
+						$url = str_replace(array('http%3a', 'https%3a'), array('http:', 'https:'), $url);
+						if(!preg_match('/^http:\/\/|^https:\/\//i', $url)) continue;
 						if($this->showAll || stristr($url, $websiteUrl)){
 
 							if($this->showAll && stristr($url, $websiteUrl)){

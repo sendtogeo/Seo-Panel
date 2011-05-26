@@ -5596,3 +5596,20 @@ CREATE TABLE IF NOT EXISTS `websites` (
 -- Dumping data for table `websites`
 --
 
+--
+-- To fix the issues with google parsing
+--
+ALTER TABLE `searchengines` ADD `from_pattern` VARCHAR( 64 ) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL AFTER `regex`;
+ALTER TABLE `searchengines` ADD `to_pattern` VARCHAR( 64 ) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL AFTER `from_pattern`;
+update searchengines set from_pattern='<div id="ires">',to_pattern='<\\/ol>' where  url LIKE '%google%';
+
+--
+-- To fix yahoo search engine url issue
+--
+update searchengines set regex='<li.*?<h3><a.*?\\*\\*(.*?)".*?>(.*?)<\\/a><\\/h3>.*?<div.*?>(.*?)<\\/div>.*?<\\/span>',url_index=1,title_index=2,description_index=3 where url LIKE '%yahoo%';
+
+--
+-- Changes for search engine like yandex 
+--
+ALTER TABLE searchengines ADD `start_offset` INT( 8 ) NOT NULL DEFAULT '0' AFTER `start`;
+UPDATE `searchengines` SET `start_offset` = `no_of_results_page`;
