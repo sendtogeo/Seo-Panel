@@ -15,7 +15,7 @@
 			</select>
 		</td>
 		<th><?=$spText['common']['Keyword']?>: </th>
-		<td id="keyword_area" colspan='2'>
+		<td id="keyword_area" colspan='3'>
 			<?php echo $this->render('keyword/keywordselectbox', 'ajax'); ?>
 		</td>
 	</tr>

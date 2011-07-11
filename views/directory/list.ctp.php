@@ -100,7 +100,7 @@
 			<tr class="<?=$class?>">
 				<td class="<?=$leftBotClass?>"><?=$listInfo['id']?></td>
 				
-				<td class="td_br_right left"><a target="_blank" href="<?=$listInfo['domain']?>"><?php echo str_replace('http://', '', $listInfo['domain']); ?></a></td>
+				<td class="td_br_right left"><a target="_blank" href="<?=$listInfo['submit_url']?>"><?php echo str_replace('http://', '', $listInfo['domain']); ?></a></td>
 				<td class="td_br_right" id="pr_<?=$listInfo['id']?>"><?=$listInfo['google_pagerank']?></td>
 				<td class="td_br_right" id="captcha_<?=$listInfo['id']?>"><?php echo $listInfo['is_captcha'] ? $spText['common']["Yes"] : $spText['common']["No"];	?></td>
 				<td class="td_br_right"><?=$listInfo['lang_name']?></td>

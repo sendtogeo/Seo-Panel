@@ -1,9 +1,15 @@
-<?php echo showSectionHead($spTextTools['Keywords Manager']); ?>
-<table width="50%" border="0" cellspacing="0" cellpadding="0" class="search">
+<?php
+echo showSectionHead($spTextTools['Keywords Manager']);
+$searchFun = "scriptDoLoadPost('keywords.php', 'listform', 'content')";
+?>
+<form name="listform" id="listform">
+<table width="80%" border="0" cellspacing="0" cellpadding="0" class="search">
 	<tr>
+		<th><?=$spText['common']['Keyword']?>: </th>
+		<td><input type="text" name="keyword" value="<?=$keyword?>" onblur="<?=$searchFun?>"></td>
 		<th><?=$spText['common']['Website']?>: </th>
 		<td>
-			<select name="website_id" id="website_id" onchange="doLoad('website_id', 'keywords.php', 'content')">
+			<select name="website_id" id="website_id" onchange="<?=$searchFun?>">
 				<option value="">-- <?=$spText['common']['Select']?> --</option>
 				<?php foreach($websiteList as $websiteInfo){?>
 					<?php if($websiteInfo['id'] == $websiteId){?>
@@ -14,12 +20,32 @@
 				<?php }?>
 			</select>
 		</td>
+		<th><?=$spText['common']['Status']?>: </th>
+		<td>
+			<select name="status" onchange="<?=$searchFun?>">
+				<option value="">-- <?=$spText['common']['Select']?> --</option>
+				<?php				
+				$inactCheck = $actCheck = "";
+				if ($statVal == 'active') {
+				    $actCheck = "selected";
+				} elseif($statVal == 'inactive') {
+				    $inactCheck = "selected";
+				}
+				?>
+				<option value="active" <?=$actCheck?> ><?=$spText['common']["Active"]?></option>
+				<option value="inactive" <?=$inactCheck?> ><?=$spText['common']["Inactive"]?></option>
+			</select>
+		</td>
+		<td>
+			<a href="javascript:void(0);" onclick="<?=$searchFun?>" class="actionbut"><?=$spText['button']['Show Records']?></a>
+		</td>
 	</tr>
 </table>
 <?=$pagingDiv?>
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
-	<tr class="listHead">
-		<td class="left"><?=$spText['common']['Id']?></td>
+	<tr class="listHead">		
+		<td class="leftid"><input type="checkbox" id="checkall" onclick="checkList('checkall')"></td>
+		<td><?=$spText['common']['Id']?></td>
 		<td><?=$spText['common']['Name']?></td>
 		<td><?=$spText['common']['Website']?></td>
 		<td><?=$spText['common']['lang']?></td>
@@ -28,7 +54,7 @@
 		<td class="right"><?=$spText['common']['Action']?></td>
 	</tr>
 	<?php
-	$colCount = 7; 
+	$colCount = 8; 
 	if(count($list) > 0){
 		$catCount = count($list);
 		foreach($list as $i => $listInfo){
@@ -43,7 +69,8 @@
             $keywordLink = scriptAJAXLinkHref('keywords.php', 'content', "sec=edit&keywordId={$listInfo['id']}", "{$listInfo['name']}")
 			?>
 			<tr class="<?=$class?>">
-				<td class="<?=$leftBotClass?>"><?=$listInfo['id']?></td>
+				<td class="<?=$leftBotClass?>"><input type="checkbox" name="ids[]" value="<?=$listInfo['id']?>"></td>
+				<td class="td_br_right"><?=$listInfo['id']?></td>
 				<td class="td_br_right left"><?=$keywordLink?></td>
 				<td class="td_br_right left"><?=$listInfo['website']?></td>
 				<td class="td_br_right"><? echo empty($listInfo['country_name']) ? $spText['common']["All"] : $listInfo['country_name']; ?></td>
@@ -81,16 +108,31 @@
 		<td class="right"></td>
 	</tr>
 </table>
+<?php
+if (SP_DEMO) {
+    $actFun = $inactFun = $delFun = "alertDemoMsg()";
+} else {
+    $actFun = "confirmSubmit('keywords.php', 'listform', 'content', '&sec=activateall&pageno=$pageNo')";
+    $inactFun = "confirmSubmit('keywords.php', 'listform', 'content', '&sec=inactivateall&pageno=$pageNo')";
+    $delFun = "confirmSubmit('keywords.php', 'listform', 'content', '&sec=deleteall&pageno=$pageNo')";
+}   
+?>
 <table width="100%" cellspacing="0" cellpadding="0" border="0" class="actionSec">
 	<tr>
     	<td style="padding-top: 6px;">
          	<a onclick="scriptDoLoad('keywords.php', 'content', 'sec=new&website_id=<?=$websiteId?>')" href="javascript:void(0);" class="actionbut">
          		<?=$spTextKeyword['New Keyword']?>
-         	</a>
-         	&nbsp;
-         	<a onclick="scriptDoLoad('keywords.php', 'content', 'sec=import&website_id=<?=$websiteId?>')" href="javascript:void(0);" class="actionbut">
-         		<?=$spTextKeyword['Import Keywords']?>
+         	</a>&nbsp;&nbsp;
+         	<a onclick="<?=$actFun?>" href="javascript:void(0);" class="actionbut">
+         		<?=$spText['common']["Activate"]?>
+         	</a>&nbsp;&nbsp;
+         	<a onclick="<?=$inactFun?>" href="javascript:void(0);" class="actionbut">
+         		<?=$spText['common']["Inactivate"]?>
+         	</a>&nbsp;&nbsp;
+         	<a onclick="<?=$delFun?>" href="javascript:void(0);" class="actionbut">
+         		<?=$spText['common']['Delete']?>
          	</a>
     	</td>
 	</tr>
 </table>
+</form>

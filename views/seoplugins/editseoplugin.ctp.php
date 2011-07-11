@@ -26,7 +26,8 @@
     		<a onclick="scriptDoLoad('seo-plugins-manager.php', 'content')" href="javascript:void(0);" class="actionbut">
          		<?=$spText['button']['Cancel']?>
          	</a>&nbsp;
-         	<a onclick="confirmSubmit('seo-plugins-manager.php', 'updateplugin', 'content')" href="javascript:void(0);" class="actionbut">
+         	<?php $actFun = SP_DEMO ? "alertDemoMsg()" : "confirmSubmit('seo-plugins-manager.php', 'updateplugin', 'content')"; ?>
+         	<a onclick="<?=$actFun?>" href="javascript:void(0);" class="actionbut">
          		<?=$spText['button']['Proceed']?>
          	</a>
     	</td>

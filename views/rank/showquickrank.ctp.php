@@ -10,7 +10,8 @@
 	<tr>
 		<th>&nbsp;</th>
 		<td style="padding-left: 9px;">
-			<a href="javascript:void(0);" onclick="scriptDoLoadPost('rank.php', 'search_form', 'subcontent', '&sec=quickrank')" class="actionbut"><?=$spText['button']['Proceed']?></a>
+			<?php $actFun = SP_DEMO ? "alertDemoMsg()" : "scriptDoLoadPost('rank.php', 'search_form', 'subcontent', '&sec=quickrank')"; ?>
+			<a href="javascript:void(0);" onclick="<?=$actFun?>" class="actionbut"><?=$spText['button']['Proceed']?></a>
 		</td>
 	</tr>
 </table>

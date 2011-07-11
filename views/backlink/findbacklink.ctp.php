@@ -3,12 +3,10 @@
 		<td class="left"><?=$spText['common']['Url']?></td>
 		<td>Google</td>
 		<td>Yahoo</td>
-		<td>MSN</td>
-		<td>Altavista</td>
-		<td class="right">Alltheweb</td>
+		<td class="right">Bing</td>
 	</tr>
 	<?php
-	$colCount = 6; 
+	$colCount = 4; 
 	if(count($list) > 0){
 		$catCount = count($list);
 		$i = 0;
@@ -36,19 +34,9 @@
 						scriptDoLoad('backlinks.php', 'yahoorank<?=$i?>', 'sec=backlink&engine=yahoo&url=<? echo urlencode($url); ?>');
 					</script>
 				</td>
-				<td class="td_br_right" width="<?=$tdWidth?>" id='msnrank<?=$i?>'>
+				<td class="<?=$rightBotClass?>" width="<?=$tdWidth?>" id='msnrank<?=$i?>'>
 					<script type="text/javascript">
 						scriptDoLoad('backlinks.php', 'msnrank<?=$i?>', 'sec=backlink&engine=msn&url=<? echo urlencode($url); ?>');
-					</script>
-				</td>
-				<td class="td_br_right" width="<?=$tdWidth?>" id='altarank<?=$i?>'>
-					<script type="text/javascript">
-						scriptDoLoad('backlinks.php', 'altarank<?=$i?>', 'sec=backlink&engine=altavista&url=<? echo urlencode($url); ?>');
-					</script>
-				</td>
-				<td class="<?=$rightBotClass?>" width="<?=$tdWidth?>" id='alwebrank<?=$i?>'>
-					<script type="text/javascript">
-						scriptDoLoad('backlinks.php', 'alwebrank<?=$i?>', 'sec=backlink&engine=alltheweb&url=<? echo urlencode($url); ?>');
 					</script>
 				</td>
 			</tr>

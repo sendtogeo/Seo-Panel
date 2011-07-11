@@ -9,15 +9,20 @@
 	<tr class="blue_row">
 		<td class="td_left_col"><?=$spText['common']['Website']?>:</td>
 		<td class="td_right_col">
-			<select name="website_id">
+			<select name="website_id" id="website_id" onchange="doLoad('website_id', 'websites.php', 'weburlarea', 'sec=updateurl')">
 				<?php foreach($websiteList as $websiteInfo){?>
-					<?php if($websiteInfo['id'] == $post['website_id']){?>
+					<?php if($websiteInfo['id'] == $post['website_id']){
+					    $websiteUrl = $websiteInfo['url'];
+					    ?>
 						<option value="<?=$websiteInfo['id']?>" selected><?=$websiteInfo['name']?></option>
 					<?php }else{?>
 						<option value="<?=$websiteInfo['id']?>"><?=$websiteInfo['name']?></option>
 					<?php }?>
 				<?php }?>
 			</select>
+			<span id="weburlarea"><input type="hidden" name="weburl" id="weburl" value="<?=$websiteUrl?>"></span>
+			<a style="text-decoration: none;" href="javascript:void(0);" onclick="crawlMetaData('websites.php?sec=crawlmeta&keyinput=keywords', 'crawlstats')">&#171&#171 <?=$spText['common']['Crawl Meta Data']?></a>
+			<div id="crawlstats" style="float: right;padding-right:100px;"></div>
 			<?=$errMsg['website_id']?>
 		</td>
 	</tr>		
@@ -49,9 +54,9 @@
 	<tr class="white_row">
 		<td class="td_left_col"><?=$spText['common']['Keywords']?>:</td>
 		<td class="td_right_col">
-			<textarea name="keywords" rows="10"><?=$post['keywords']?></textarea><?=$errMsg['keywords']?>
-			<p style="font-size: 12px;">Insert keywords separated with comma.</p>
-			<P>Eg: google seo tools,seo tools,seo</P>
+			<textarea name="keywords" rows="10" id="webkeywords"><?=$post['keywords']?></textarea><?=$errMsg['keywords']?>
+			<p style="font-size: 12px;"><?=$spTextKeyword['Insert keywords separated with comma']?></p>
+			<P><b>Eg:</b> google seo tools,seo tools,seo</P>
 		</td>
 	</tr>		
 	<tr class="blue_row">

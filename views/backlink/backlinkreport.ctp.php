@@ -44,12 +44,10 @@
 		<td class="left"><?=$spText['common']['Date']?></td>
 		<td>Google</td>
 		<td>Yahoo</td>
-		<td>MSN</td>
-		<td>Altavista</td>
-		<td class="right">Alltheweb</td>
+		<td class="right">Bing</td>
 	</tr>
 	<?php
-	$colCount = 6; 
+	$colCount = 4; 
 	if(count($list) > 0){
 		$catCount = count($list);
 		$i = 0;
@@ -68,9 +66,7 @@
 				<td class="<?=$leftBotClass?>"><?php echo date('Y-m-d', $listInfo['result_time']); ?></td>
 				<td class='td_br_right' style='text-align:left;padding-left:40px;'><b><?=$listInfo['google'].'</b> '. $listInfo['rank_diff_google']?></td>
 				<td class='td_br_right' style='text-align:left;padding-left:40px;'><b><?=$listInfo['yahoo'].'</b> '. $listInfo['rank_diff_yahoo']?></td>
-				<td class='td_br_right' style='text-align:left;padding-left:40px;'><b><?=$listInfo['msn'].'</b> '. $listInfo['rank_diff_msn']?></td>
-				<td class='td_br_right' style='text-align:left;padding-left:40px;'><b><?=$listInfo['altavista'].'</b> '. $listInfo['rank_diff_altavista']?></td>
-				<td class="<?=$rightBotClass?>" style='text-align:left;padding-left:40px;'><b><?=$listInfo['alltheweb'].'</b> '. $listInfo['rank_diff_alltheweb']?></td>
+				<td class='<?=$rightBotClass?>' style='text-align:left;padding-left:40px;'><b><?=$listInfo['msn'].'</b> '. $listInfo['rank_diff_msn']?></td>
 			</tr>
 			<?php
 			$i++;

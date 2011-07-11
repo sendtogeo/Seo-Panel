@@ -1,8 +1,10 @@
+<form name="listform" id="listform">
 <?php echo showSectionHead($spTextPanel['User Manager']); ?>
 <?=$pagingDiv?>
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
 	<tr class="listHead">
-		<td class="left"><?=$spText['common']['Id']?></td>
+		<td class="leftid"><input type="checkbox" id="checkall" onclick="checkList('checkall')"></td>
+		<td><?=$spText['common']['Id']?></td>
 		<td><?=$spText['login']['Username']?></td>
 		<td><?=$spText['common']['Name']?></td>
 		<td><?=$spText['login']['Email']?></td>
@@ -10,7 +12,7 @@
 		<td class="right"><?=$spText['common']['Action']?></td>
 	</tr>
 	<?php
-	$colCount = 6; 
+	$colCount = 7; 
 	if(count($userList) > 0){
 		$catCount = count($userList);
 		foreach($userList as $i => $userInfo){
@@ -24,8 +26,9 @@
             }
             $usernameLink = scriptAJAXLinkHref('users.php', 'content', "sec=edit&userId={$userInfo['id']}", "{$userInfo['username']}")
 			?>
-			<tr class="<?=$class?>">
-				<td class="<?=$leftBotClass?>"><?=$userInfo['id']?></td>
+			<tr class="<?=$class?>">				
+				<td class="<?=$leftBotClass?>"><input type="checkbox" name="ids[]" value="<?=$userInfo['id']?>"></td>
+				<td class="td_br_right"><?=$userInfo['id']?></td>
 				<td class="td_br_right left"><?=$usernameLink?></td>
 				<td class="td_br_right left"><?=$userInfo['first_name']." ".$userInfo['last_name']?></td>
 				<td class="td_br_right left"><?=$userInfo['email']?></td>
@@ -59,12 +62,31 @@
 		<td class="right"></td>
 	</tr>
 </table>
+<?php
+if (SP_DEMO) {
+    $actFun = $inactFun = $delFun = "alertDemoMsg()";
+} else {
+    $actFun = "confirmSubmit('users.php', 'listform', 'content', '&sec=activateall&pageno=$pageNo')";
+    $inactFun = "confirmSubmit('users.php', 'listform', 'content', '&sec=inactivateall&pageno=$pageNo')";
+    $delFun = "confirmSubmit('users.php', 'listform', 'content', '&sec=deleteall&pageno=$pageNo')";
+}   
+?>
 <table width="100%" cellspacing="0" cellpadding="0" border="0" class="actionSec">
 	<tr>
     	<td style="padding-top: 6px;">
          	<a onclick="scriptDoLoad('users.php', 'content', 'sec=new')" href="javascript:void(0);" class="actionbut">
          		<?=$spTextPanel['New User']?>
+         	</a>&nbsp;&nbsp;
+         	<a onclick="<?=$actFun?>" href="javascript:void(0);" class="actionbut">
+         		<?=$spText['common']["Activate"]?>
+         	</a>&nbsp;&nbsp;
+         	<a onclick="<?=$inactFun?>" href="javascript:void(0);" class="actionbut">
+         		<?=$spText['common']["Inactivate"]?>
+         	</a>&nbsp;&nbsp;
+         	<a onclick="<?=$delFun?>" href="javascript:void(0);" class="actionbut">
+         		<?=$spText['common']['Delete']?>
          	</a>
     	</td>
 	</tr>
 </table>
+</form>

@@ -1,29 +1,9 @@
-<?php if(!empty($printVersion)) {?>
-	<div style="background-color:white;padding:50px 10px;">
-	<?php echo showSectionHead($spTextTools['Keyword Position Summary']); ?>
-	<script type="text/javascript">
-	function loadJsCssFile(filename, filetype){
-		if (filetype=="js"){ //if filename is a external JavaScript file
-			var fileref=document.createElement('script')
-			fileref.setAttribute("type","text/javascript")
-			fileref.setAttribute("src", filename)
-		}else if (filetype=="css"){ //if filename is an external CSS file
-			var fileref=document.createElement("link")
-			fileref.setAttribute("rel", "stylesheet")
-			fileref.setAttribute("type", "text/css")
-			fileref.setAttribute("href", filename)
-		}
-		if (typeof fileref!="undefined")
-			document.getElementsByTagName("head")[0].appendChild(fileref)
-	}
-	window.print();
-	</script>
-	<?php 
-	print '<script>loadJsCssFile("'.SP_CSSPATH."/screen.css".'", "css")</script>';
-	$websiteId = '';
-	?>
-<?php } else {?>
-	<?php echo showSectionHead($spTextTools['Keyword Position Summary']); ?>
+<?php
+if(!empty($printVersion)) {
+    showPrintHeader($spTextTools['Keyword Position Summary']);
+} else {
+    echo showSectionHead($spTextTools['Keyword Position Summary']);
+    ?>
 	<form id='search_form'>
 	<table width="100%" border="0" cellspacing="0" cellpadding="0" class="search">
 		<tr>
@@ -104,27 +84,36 @@
                 $leftBotClass = "td_left_border td_br_right";
                 $rightBotClass = "td_br_right";
             }
-            $scriptLink = "keyword_id={$listInfo['id']}&rep=1";
-            $keywordLink = scriptAJAXLinkHref('reports.php', 'content', $scriptLink,  $listInfo['name']);           
+            $scriptLink = "website_id={$listInfo['website_id']}&keyword_id={$listInfo['id']}&rep=1";           
 			?>
 			<tr class="<?=$class?>">				
 				<?php if (empty($websiteId)) {?>
-					<td class="<?=$leftBotClass?>" width='250px;'><?php echo $listInfo['weburl']; ?></td>
-					<td class='td_br_right' width='250px;'><?php echo $keywordLink; ?></td>
+					<td class="<?=$leftBotClass?> left" width='250px;'><?php echo $listInfo['weburl']; ?></td>
+					<td class='td_br_right left'><?php echo $listInfo['name'] ?></td>
 				<?php } else { ?>
-					<td class="<?=$leftBotClass?>" width='100px;'><?php echo $keywordLink; ?></td>
+					<td class="<?=$leftBotClass?> left" width='100px;'><?php echo $listInfo['name']; ?></td>
 				<?php }?>				
 				<?php
 				foreach ($seList as $index => $seInfo){
-					$rank = empty($positionInfo[$seInfo['id']]['rank']) ? '-' : $positionInfo[$seInfo['id']]['rank'];
-					$rankDiff = empty($positionInfo[$seInfo['id']]['rank_diff']) ? '' : $positionInfo[$seInfo['id']]['rank_diff']; 
+				    $rank = empty($positionInfo[$seInfo['id']]['rank']) ? '-' : $positionInfo[$seInfo['id']]['rank'];
+					$rankDiff = empty($positionInfo[$seInfo['id']]['rank_diff']) ? '' : $positionInfo[$seInfo['id']]['rank_diff'];
+				    $rankPadding = "";
+				    if ($rank != '-') {
+				        $rankLink = scriptAJAXLinkHref('reports.php', 'content', $scriptLink."&se_id=".$seInfo['id'], $rank);
+				        $graphLink = scriptAJAXLinkHref('graphical-reports.php', 'content', $scriptLink."&se_id=".$seInfo['id'], '&nbsp;', 'graphicon');
+					    $rankPadding = empty($rankDiff) ? "" : "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+					    $rankLink = $rankPadding . $rankLink;
+				    } else {
+				        $rankDiff = $graphLink = "";
+				        $rankLink = $rank;
+				    }					
 					if( ($index+1) == $seCount){			
 						?>
-						<td class="<?=$rightBotClass?>" style='width:80px'><b><?php echo $rank.'</b> '. $rankDiff; ?></td>	
+						<td class="<?=$rightBotClass?>" style='width:100px' nowrap><?php echo "$rankLink $graphLink $rankDiff"; ?></td>	
 						<?php	
 					}else{
 						?>
-						<td class='td_br_right' style='width:80px'><b><?php echo $rank.'</b> '. $rankDiff; ?></td>
+						<td class='td_br_right' style='width:100px' nowrap><?php echo "$rankLink $graphLink $rankDiff"; ?></td>
 						<?php
 					}					
 				}
@@ -152,7 +141,3 @@
 	</tr>
 </table>
 </div>
-
-<?php if(!empty($printVersion)) {?>
-</div>
-<?php }?>

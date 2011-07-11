@@ -1,4 +1,5 @@
 <?php echo showSectionHead($spTextPlugin['Seo Plugin Details']); ?>
+<div>&nbsp;<a href="javascript:void(0)" onclick="scriptDoLoad('seo-plugins-manager.php?pageno=<?=$pageNo?>', 'content')" class="back">&#171&#171 Back</a></div>
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
 	<tr class="listHead">
 		<td class="left" width='30%'><?php echo $pluginInfo['label']?></td>

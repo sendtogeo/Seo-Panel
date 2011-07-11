@@ -1,10 +1,14 @@
-<?php echo showSectionHead($spTextTools['Google Sitemap Generator']); ?>
+<?php echo showSectionHead($spTextTools['sitemap-generator']); ?>
 <form id='search_form'>
 <table width="60%" border="0" cellspacing="0" cellpadding="0" class="search">
 	<tr>				
-		<th><?=$spText['common']['Website']?>: </th>
+		<th><?=$spText['label']['Project']?>: </th>
 		<td>
-			<?php echo $this->render('website/websiteselectbox', 'ajax'); ?>
+			<select id="project_id" name="project_id" style="width: 150px;">
+				<?php foreach($projectList as $list) {?>
+					<option value="<?=$list['id']?>"><?=$list['name']?></option>
+				<?php }?>
+			</select>
 		</td>
 	</tr>	
 	<tr>
@@ -43,25 +47,24 @@
 		</td>
 	</tr>		
 	<tr>
-		<th><?=$spTextSitemap['Exclude Url']?>: </th>
+		<th style="vertical-align: text-top;padding-top: 10px;"><?=$spTextSitemap['Exclude Url']?>: </th>
 		<td>
-			<input type="text" style="width: 250px;" value="" name="exclude_url"/>
+			<textarea name="exclude_url"><?=$post['exclude_url']?></textarea>
+			<p style="margin-top: 6px;"><?=$spTextSA['Insert links separated with comma']?>.</p>
+			<p><b>Note:</b> <?=$spTextSA['anylinkcontainexcludesitemap']?>.</p>
+			<p><b>Eg:</b> http://www.seopanel.in/plugin/l/, http://www.seopanel.in/plugin/d/</p>
 		</td>
 	</tr>
 	<tr>
 		<th>&nbsp;</th>
-		<td style="padding-left: 9px;">
-			<a href="javascript:void(0);" onclick="sitemapDoLoadPost('sitemap.php', 'search_form', 'subcontmed')" class="actionbut"><?=$spText['button']['Proceed']?></a>
+		<td style="padding-left: 9px;padding-top: 10px;">
+			<a href="javascript:void(0);" onclick="scriptDoLoadPost('sitemap.php', 'search_form', 'subcontent')" class="actionbut"><?=$spText['button']['Proceed']?></a>
 		</td>
 	</tr>
 </table>
 </form>
 
-<div id='logcontent'>	
+<br>
+<div id='subcontent'>
 	<p class='note' id='proceed'><?=$spTextSitemap['clickproceedsitemap']?>.</p>
-	<p class="note noteleft" id="message" style="display: none;">
-		<b><?=$spTextSitemap['processtaketime']?>!</b>
-	</p>
 </div>
-
-<div id='subcontmed'></div>

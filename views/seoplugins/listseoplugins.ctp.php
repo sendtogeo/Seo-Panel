@@ -33,18 +33,18 @@ if(!empty($msg)){
 			}else{
 				$statLabel = $spText['common']["Inactive"];
 			}
-            $activateLink = scriptAJAXLinkHref('seo-plugins-manager.php', 'content', "sec=changestatus&seoplugin_id={$listInfo['id']}&status={$listInfo['status']}", $statLabel);
+            $activateLink = SP_DEMO ? "alertDemoMsg()" : "scriptDoLoad('seo-plugins-manager.php', 'content', 'sec=changestatus&seoplugin_id={$listInfo['id']}&status={$listInfo['status']}&pageno=$pageNo')";
 			?>
 			<tr class="<?=$class?>">
 				<td class="<?=$leftBotClass?>">
-					<a href="javascript:void(0);" onclick="scriptDoLoad('seo-plugins-manager.php?sec=listinfo&pid=<?=$listInfo['id']?>', 'content')"><?=$listInfo['label']?> <?=$listInfo['version']?></a>
+					<a href="javascript:void(0);" onclick="scriptDoLoad('seo-plugins-manager.php?sec=listinfo&pid=<?=$listInfo['id']?>&pageno=<?=$pageNo?>', 'content')"><?=$listInfo['label']?> <?=$listInfo['version']?></a>
 				</td>				
 				<td class="td_br_right left"><?=$listInfo['author']?></td>
 				<td class="td_br_right left"><a href="<?=$listInfo['website']?>" target="_blank"><?=$listInfo['website']?></a></td>
-				<td class="td_br_right"><?=$activateLink?></td>
+				<td class="td_br_right"><a href="javascript:void(0)" onclick="<?=$activateLink?>"><?=$statLabel?></a></td>
 				<td class="td_br_right"><? echo $listInfo['installed'] ? "<font class='green'>Success</font>" : "<font class='red'>Failed</font>"; ?></td>
 				<td class="<?=$rightBotClass?>" width="100px">
-					<select name="action" id="action<?=$listInfo['id']?>" onchange="doAction('seo-plugins-manager.php', 'content', 'pid=<?=$listInfo['id']?>', 'action<?=$listInfo['id']?>')">
+					<select name="action" id="action<?=$listInfo['id']?>" onchange="doAction('seo-plugins-manager.php?pageno=<?=$pageNo?>', 'content', 'pid=<?=$listInfo['id']?>', 'action<?=$listInfo['id']?>')">
 						<option value="select">-- <?=$spText['common']['Select']?> --</option>
 						<option value="edit"><?=$spText['common']['Edit']?></option>
 						<option value="upgrade"><?=$spText['label']['Upgrade']?></option>

@@ -146,13 +146,16 @@ function doAction(scriptUrl, scriptPos, scriptArgs, actionDiv) {
 		case "checkstatus":
 		case "edit":
 		case "reports":
+		case "viewreports":
+		case "pagedetails":
 			scriptDoLoad(scriptUrl, scriptPos, scriptArgs);
 			break;
 	
 		default:
 			/* check whether the system is demo or not */
 			if(spdemo){
-				if((actVal == 'delete') || (actVal == 'Activate') || (actVal == 'Inactivate')){
+				if((actVal == 'delete') || (actVal == 'Activate') || (actVal == 'Inactivate') || (actVal == 'recheckreport') 
+					|| (actVal == 'checkscore') || (actVal == 'deletepage') || (actVal == 'upgrade') || (actVal == 'reinstall') ){
 					alertDemoMsg();
 				}
 			}
@@ -275,7 +278,7 @@ function hideNewsBox(scriptPos, cookieVar, cookieVal) {
 
 function alertDemoMsg(){
     if(spdemo){
-    	alert('Some features are disabled in the demo system due to security. Please download and install seo panel to enjoy full features.');
+    	alert('Some features are disabled in the demo system due to security threats. Please download and install seo panel to enjoy full features.');
     	exit;
     }
 }
@@ -288,4 +291,13 @@ function checkCaptcha(checkId, scriptUrl, scriptPos){
 	
 	scriptUrl = scriptUrl + "&no_captcha=" + noCaptcha;
 	scriptDoLoad(scriptUrl, scriptPos);
+}
+
+function checkList(checkId) {
+	checkall = document.getElementById(checkId).checked;
+	for (i = 0; i < document.listform.elements.length; i++){
+		if(document.listform.elements[i].type=="checkbox") {
+			document.listform.elements[i].checked = checkall ? true : false;
+		}
+	}
 }

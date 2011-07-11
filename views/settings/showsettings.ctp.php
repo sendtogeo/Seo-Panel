@@ -1,10 +1,14 @@
-<?php echo showSectionHead($spTextPanel['System Settings']); ?>
-<?php if(!empty($saved)) showSuccessMsg($spTextSettings['syssettingssaved'], false); ?>
+<?php 
+$headLabel = empty($headLabel) ? $spTextPanel['System Settings'] : $headLabel;
+echo showSectionHead($headLabel);
+if(!empty($saved)) showSuccessMsg($spTextSettings['syssettingssaved'], false); 
+?>
 <form id="updateSettings">
 <input type="hidden" value="update" name="sec">
+<input type="hidden" value="<?=$category?>" name="category">
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
 	<tr class="listHead">
-		<td class="left" width='30%'><?=$spTextPanel['System Settings']?></td>
+		<td class="left" width='30%'><?=$headLabel?></td>
 		<td class="right">&nbsp;</td>
 	</tr>
 	<?php 
@@ -81,7 +85,7 @@
 <table width="100%" cellspacing="0" cellpadding="0" border="0" class="actionSec">
 	<tr>
     	<td style="padding-top: 6px;text-align:right;">
-    		<a onclick="scriptDoLoad('settings.php', 'content', 'layout=ajax')" href="javascript:void(0);" class="actionbut">
+    		<a onclick="scriptDoLoad('settings.php?category=<?=$category?>', 'content', 'layout=ajax')" href="javascript:void(0);" class="actionbut">
          		<?=$spText['button']['Cancel']?>
          	</a>&nbsp;
          	<?php $actFun = SP_DEMO ? "alertDemoMsg()" : "confirmSubmit('settings.php', 'updateSettings', 'content')"; ?>

@@ -10,7 +10,8 @@
 	<tr>
 		<th>&nbsp;</th>
 		<td style="padding-left: 9px;">
-			<a href="javascript:void(0);" onclick="scriptDoLoadPost('saturationchecker.php', 'search_form', 'subcontent')" class="actionbut"><?=$spText['button']['Proceed']?></a>
+			<?php $actFun = SP_DEMO ? "alertDemoMsg()" : "scriptDoLoadPost('saturationchecker.php', 'search_form', 'subcontent')"; ?>
+			<a href="javascript:void(0);" onclick="<?=$actFun?>" class="actionbut"><?=$spText['button']['Proceed']?></a>
 		</td>
 	</tr>
 </table>

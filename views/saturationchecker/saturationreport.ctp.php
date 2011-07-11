@@ -44,7 +44,7 @@
 		<td class="left"><?=$spText['common']['Date']?></td>
 		<td>Google</td>
 		<td>Yahoo</td>
-		<td class="right">MSN</td>
+		<td class="right">Bing</td>
 	</tr>
 	<?php
 	$colCount = 4; 

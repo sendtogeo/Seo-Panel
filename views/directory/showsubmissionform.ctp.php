@@ -23,8 +23,16 @@
 		<td class="td_left_col"><?=$spText['common']['Category']?>:</td>
 		<td class="td_right_col"><?=$categorySel?></td>
 	</tr>
+	<? if(!empty($reciprocalUrl)){ ?>
+		<tr class="blue_row">
+			<td class="td_left_col"><?=$spTextDir['Reciprocal Link']?>:</td>
+			<td class="td_right_col">
+				<input type="text" name="reciprocal_url" value="<?=$reciprocalUrl?>" style="width: 300px;">
+			</td>
+		</tr>
+	<? } ?>	
 	<? if(!empty($captchaUrl)){ ?>
-		<tr class="white_row">
+		<tr class="blue_row">
 			<td class="td_left_col"><?=$spTextDir['Enter the code shown']?>:</td>
 			<td class="td_right_col">
 				<?php if(!empty($imageHash)){?>
@@ -35,7 +43,7 @@
 			</td>
 		</tr>
 	<? } ?>		
-	<tr class="blue_row">
+	<tr class="white_row">
 		<td class="tab_left_bot_noborder"></td>
 		<td class="tab_right_bot"></td>
 	</tr>

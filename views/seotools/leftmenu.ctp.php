@@ -35,13 +35,30 @@ foreach($menuList as $i => $menuInfo){
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('graphical-reports.php', 'content')"><?=$spTextTools['Graphical Position Reports']?></a></li>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('reports.php?sec=kwchecker', 'content')"><?=$spTextTools['Quick Position Checker']?></a></li>				
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('keywords.php', 'content')"><?=$spTextTools['Keywords Manager']?></a></li>
-	         	<?php if(SP_USER_GEN_REPORT || isAdmin()){ ?>
+	         	<li><a href="javascript:void(0);" onclick="scriptDoLoad('keywords.php', 'content', 'sec=import')"><?=$spTextKeyword['Import Keywords']?></a></li>
+			    <?php if(SP_USER_GEN_REPORT || isAdmin()){ ?>
 					<?php if(SP_DEMO){?>
 		         		<li><a href="javascript:void(0);" onclick="alertDemoMsg();"><?=$spTextTools['Generate Keyword Reports']?></a></li>
 		         	<?php }else{?>
 						<li><a href="javascript:void(0);" onclick="scriptDoLoad('generate-reports.php', 'content')"><?=$spTextTools['Generate Keyword Reports']?></a></li>
 		         	<?php }?>
 	         	<?php }?>
+			</ul>
+			<?php
+			break;
+			
+		case "site-auditor":
+			?>
+			<script type="text/javascript">scriptList[<?=$i?>] = 'siteauditor.php';</script>			
+			<ul id='subui'>
+				<li><a href="javascript:void(0);" onclick="scriptDoLoad('siteauditor.php', 'content')"><?=$spTextTools['Auditor Projects']?></a></li>
+				<li><a href="javascript:void(0);" onclick="scriptDoLoad('siteauditor.php?sec=viewreports', 'content')"><?=$spTextTools['Auditor Reports']?></a></li>
+				<li><a href="javascript:void(0);" onclick="scriptDoLoad('siteauditor.php?sec=importlinks', 'content')"><?=$spTextTools['Import Project Links']?></a></li>
+				<li><a href="javascript:void(0);" onclick="scriptDoLoad('sitemap.php', 'content')"><?=$spTextTools['sitemap-generator']?></a></li>
+			    <?php if (isAdmin()) {?>
+			    	<li><a href="javascript:void(0);" onclick="scriptDoLoad('siteauditor.php?sec=croncommand', 'content')"><?=$spTextPanel['Cron Command']?></a></li>
+					<li><a href="javascript:void(0);" onclick="scriptDoLoad('siteauditor.php?sec=showsettings', 'content')"><?=$spTextTools['Auditor Settings']?></a></li>
+				<?php }?>
 			</ul>
 			<?php
 			break;

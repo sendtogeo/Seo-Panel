@@ -40,7 +40,8 @@
 	<tr>
 		<th>&nbsp;</th>
 		<td style="padding-left: 9px;">
-			<a href="javascript:void(0);" onclick="scriptDoLoadPost('reports.php', 'search_form', 'subcontent', '&sec=kwchecker')" class="actionbut"><?=$spText['button']['Proceed']?></a>
+			<?php $actFun = SP_DEMO ? "alertDemoMsg()" : "scriptDoLoadPost('reports.php', 'search_form', 'subcontent', '&sec=kwchecker')"; ?>
+			<a href="javascript:void(0);" onclick="<?=$actFun?>" class="actionbut"><?=$spText['button']['Proceed']?></a>
 		</td>
 	</tr>
 </table>
