@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Jul 12, 2011 at 03:29 AM
+-- Generation Time: Jul 12, 2011 at 03:38 AM
 -- Server version: 5.1.41
 -- PHP Version: 5.3.1
 
@@ -966,7 +966,7 @@ INSERT INTO `settings` (`id`, `set_label`, `set_name`, `set_val`, `set_category`
 (2, 'Seo Panel Description', 'SP_DESCRIPTION', 'A complete free control panel for managing search engine optimization of your websites. It\ncontaining lots of hot seo tools to increase and track the performance your websites. Its an open\nsource software and also you can develop your own seo plugins for seo panel.', 'system', 'text', 1),
 (3, 'Seo Panel Keywords', 'SP_KEYWORDS', 'Seo Panel,seo control panel,search engine optimization panel,seo tools kit,keyword rank checker,google pagerank checker,alexa rank checker,sitemap generator,meta tag generator,back link checker,Website Submission tool', 'system', 'text', 1),
 (4, 'Number of entries per page', 'SP_PAGINGNO', '10', 'system', 'small', 1),
-(5, 'Delay between each spider crawl(seconds)', 'SP_CRAWL_DELAY', '2', 'system', 'small', 1),
+(5, 'Delay between each spider crawl(seconds)', 'SP_CRAWL_DELAY', '5', 'system', 'small', 1),
 (6, 'Allow user to generate reports', 'SP_USER_GEN_REPORT', '0', 'system', 'bool', 1),
 (7, 'Image hotlink protection enabled', 'SP_HOTLINKING', '1', 'system', 'bool', 0),
 (8, 'User registration interface', 'SP_USER_REGISTRATION', '1', 'system', 'bool', 1),
