@@ -102,13 +102,16 @@ class DirectoryController extends Controller{
 				return;
 			}
 		
-			if(!stristr($submitInfo['url'], 'http://')) $submitInfo['url'] = "http://".$submitInfo['url']; 
+			if(!stristr($submitInfo['url'], 'http://')) $submitInfo['url'] = "http://".$submitInfo['url'];
+			$recUrl = formatUrl($submitInfo['reciprocal_url']);
+			$submitInfo['reciprocal_url'] = empty($recUrl) ? "" : addHttpToUrl($submitInfo['reciprocal_url']);
 		
 			$sql = "update websites set " .
 					"url='".addslashes($submitInfo['url'])."'," .
 					"owner_name='".addslashes($submitInfo['owner_name'])."'," .
 					"owner_email='".addslashes($submitInfo['owner_email'])."'," .
 					"category='".addslashes($submitInfo['category'])."'," .
+			        "reciprocal_url='".addslashes($submitInfo['reciprocal_url'])."'," .
 					"title='".addslashes($submitInfo['title'])."'," .
 					"description='".addslashes($submitInfo['description'])."',";			
 			for($i=2;$i<=$this->noTitles;$i++){
@@ -259,7 +262,22 @@ class DirectoryController extends Controller{
 				# to get stored image path if hot linking is prevented
 				$captchaUrl = $this->__getCreatedCaptchaUrl($captchaUrl, $dirInfo['submit_url'], $phpsessid);
 			}
-			$this->set('captchaUrl', $captchaUrl);			
+			$this->set('captchaUrl', $captchaUrl);
+
+			// function check whether recriprocal directory
+			$scriptInfo = $this->getDirectoryScriptMetaInfo($dirInfo['script_type_id']);
+			$checkArg = $scriptInfo['link_type_col']."=".$scriptInfo['reciprocal'];
+			$reciprocalUrl = false;
+			if (stristr($dirInfo['extra_val'], $checkArg)) {			    
+                $reciprocalUrl =  $websiteInfo['reciprocal_url'];
+                if (empty($reciprocalUrl)) {
+                    if (preg_match("/&{$scriptInfo['reciprocal_col']}=(.*)/", $dirInfo['extra_val'], $matches)) { 
+                        if (!empty($matches[1])) $reciprocalUrl = $matches[1];     
+                    }
+                }
+			}
+			$this->set('reciprocalUrl', $reciprocalUrl);
+			
 		}else{
 			$this->set('error', 1);
 			$this->set('msg', $this->spTextDir['nocatnote']);
@@ -311,6 +329,13 @@ class DirectoryController extends Controller{
 		if(!empty($submitInfo[$dirInfo['imagehash_col']])){
 			$postData .= "&".$dirInfo['imagehash_col']."=".$submitInfo[$dirInfo['imagehash_col']];
 		}
+		
+		// check for reciprocal link
+		if (!empty($submitInfo['reciprocal_url'])) {
+		    $reciprocalUrl = addHttpToUrl($submitInfo['reciprocal_url']);
+		    $scriptInfo = $this->getDirectoryScriptMetaInfo($dirInfo['script_type_id']);
+		    $dirInfo['extra_val'] = preg_replace("/&{$scriptInfo['reciprocal_col']}=(.*)/", "&{$scriptInfo['reciprocal_col']}=$reciprocalUrl", $dirInfo['extra_val']);
+		}		
 		$postData .= "&".$dirInfo['extra_val'];
 		
 		$spider = new Spider(); 
@@ -744,6 +769,14 @@ class DirectoryController extends Controller{
 		fwrite($fp, $content);
 		fclose($fp);
 		
+	}
+	
+	# function to get directory script type meta info
+	function getDirectoryScriptMetaInfo($id) {
+	    $id = empty($id) ? 1 : $id;	    
+	    $sql = "SELECT * FROM di_directory_meta where id=$id";
+	    $scriptInfo = $this->db->select($sql, true); 
+	    return $scriptInfo;
 	}
 }
 ?>

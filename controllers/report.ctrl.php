@@ -95,7 +95,7 @@ class ReportController extends Controller {
 		$this->set('seList', $this->seLIst);
 		
 		$keywordController = New KeywordController();
-		$list = $keywordController->__getAllKeywords($userId, $websiteId, true);
+		$list = $keywordController->__getAllKeywords($userId, $websiteId, true, true);
 		foreach($list as $keywordInfo){
 			$positionInfo = $this->__getKeywordSearchReport($keywordInfo['id']);
 			$keywordInfo['position_info'] = $positionInfo;
@@ -351,13 +351,13 @@ class ReportController extends Controller {
 		$dataSet->AddPoint(array_keys($dataList), "Serie$serieCount");
 		$dataSet->SetAbsciseLabelSerie("Serie$serieCount");
 		
-		$dataSet->SetXAxisName($_SESSION['text']['common']["Date"]);		
-		$dataSet->SetYAxisName($_SESSION['text']['common']["Rank"]);
+		$dataSet->SetXAxisName("Date");		
+		$dataSet->SetYAxisName("Rank");
 		$dataSet->SetXAxisFormat("date");		
 
 		# Initialise the graph
 		$chart = new pChart(720, 520);
-		$chart->setFixedScale(0, $maxValue );		
+		$chart->setFixedScale($maxValue, 1);		
 		$chart->setFontProperties("fonts/tahoma.ttf", 8);
 		$chart->setGraphArea(85, 30, 670, 425);
 		$chart->drawFilledRoundedRectangle(7, 7, 713, 513, 5, 240, 240, 240);
@@ -385,7 +385,7 @@ class ReportController extends Controller {
 		$chart->setFontProperties("fonts/tahoma.ttf", 8);
 		$chart->drawLegend(90, 35, $dataSet->GetDataDescription(), 255, 255, 255);
 		$chart->setFontProperties("fonts/tahoma.ttf", 10);
-		$chart->drawTitle(60, 22, $this->spTextKeyword["Keyword Position Report"], 50, 50, 50, 585);
+		$chart->drawTitle(60, 22, "Keyword Position Report", 50, 50, 50, 585);
 		$chart->stroke();
 	}
 	
@@ -477,16 +477,24 @@ class ReportController extends Controller {
 	}
 	
 	# func to crawl keyword
-	function crawlKeyword( $keywordInfo, $seId='' ) {
+	function crawlKeyword( $keywordInfo, $seId='', $cron=false ) {
 		$crawlResult = array();
 		$websiteUrl = formatUrl($keywordInfo['url']);
 		if(empty($websiteUrl)) return $crawlResult;
 		if(empty($keywordInfo['name'])) return $crawlResult;	
 		
+		$time = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
 		$seList = explode(':', $keywordInfo['searchengines']);
 		foreach($seList as $seInfoId){
 			if(!empty($seId) && ($seInfoId != $seId)) continue;
+			
 			$this->seFound = 1;
+			
+			// if execution from cron check whether cron already executed
+			if ($cron) {
+			    if (SP_MULTIPLE_CRON_EXEC && $this->isCronExecuted($keywordInfo['id'], $seInfoId, $time)) continue;
+			}			
+			
 			$searchUrl = str_replace('[--keyword--]', urlencode(stripslashes($keywordInfo['name'])), $this->seList[$seInfoId]['url']);
 			$searchUrl = str_replace('[--lang--]', $keywordInfo['lang_code'], $searchUrl);
 			$searchUrl = str_replace('[--country--]', $keywordInfo['country_code'], $searchUrl);
@@ -515,14 +523,19 @@ class ReportController extends Controller {
 			}
 			
 			$crawlStatus = 0;
-			if(empty($result['error'])){		
-				if(preg_match_all($this->seList[$seInfoId]['regex'], $pageContent, $matches)){
+			if(empty($result['error'])){
+			    
+			    // to update cron that report executed for akeyword on a search engine
+			    if (SP_MULTIPLE_CRON_EXEC && $cron) $this->saveCronTrackInfo($keywordInfo['id'], $seInfoId, $time);		
+				
+			    if(preg_match_all($this->seList[$seInfoId]['regex'], $pageContent, $matches)){
 					$urlList = $matches[$this->seList[$seInfoId]['url_index']];
 					$crawlResult[$seInfoId]['matched'] = array();
+					$rank = 1;
 					foreach($urlList as $i => $url){
 						$url = strip_tags($url);
 						$url = str_replace(array('http%3a', 'https%3a'), array('http:', 'https:'), $url);
-						if(!preg_match('/^http:\/\/|^https:\/\//i', $url)) continue;
+						if(!preg_match('/^http:\/\/|^https:\/\//i', $url)) continue;						
 						if($this->showAll || stristr($url, $websiteUrl)){
 
 							if($this->showAll && stristr($url, $websiteUrl)){
@@ -533,9 +546,10 @@ class ReportController extends Controller {
 							$matchInfo['url'] = $url;
 							$matchInfo['title'] = strip_tags($matches[$this->seList[$seInfoId]['title_index']][$i]);
 							$matchInfo['description'] = strip_tags($matches[$this->seList[$seInfoId]['description_index']][$i]);
-							$matchInfo['rank'] = $i + 1;
+							$matchInfo['rank'] = $rank;
 							$crawlResult[$seInfoId]['matched'][] = $matchInfo;
-						}							
+						}
+						$rank++;							
 					}
 					$crawlStatus = 1;
 				}else{
@@ -624,6 +638,19 @@ class ReportController extends Controller {
 		$this->set('list', $resultList);
 		
 		$this->render('report/showquickrankchecker');
+	}
+	
+	#function to save keyword cron trcker for multiple execution of cron same day
+	function saveCronTrackInfo($keywordId, $seId, $time) {
+	    $sql = "Insert into keywordcrontracker(keyword_id,searchengine_id,time) values($keywordId,$seId,$time)";
+	    $this->db->query($sql);
+	}
+	
+	# function to check whether cron executed for a particular keyword and search engine
+	function isCronExecuted($keywordId, $seId, $time) {
+	    $sql = "select keyword_id from keywordcrontracker where keyword_id=$keywordId and searchengine_id=$seId and time=$time";
+        $info = $this->db->select($sql, true);
+	    return empty($info['keyword_id']) ? false : true;
 	}
 }
 ?>

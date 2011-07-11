@@ -32,6 +32,7 @@ class SeoToolsController extends Controller{
 		}else{
 			$sql = "select * from seotools where status=1 and user_access=1";			
 		}
+		$sql .= " order by id";
 		
 		$menuList = $this->db->select($sql);
 		if(count($menuList) <= 0){
@@ -41,15 +42,19 @@ class SeoToolsController extends Controller{
 		}
 		
 		$this->set('menuList', $menuList);
-		
+		$defaultArgs = empty($info['default_args']) ? "" : urldecode($info['default_args']);
 		switch($info['menu_sec']){
 			
 			case "sitemap-generator":
 				$defaultScript = "sitemap.php";
 				break;
 				
+		    case "site-auditor":
+				$defaultScript = "siteauditor.php";
+				break;
+				
 			case "rank-checker":
-				$defaultScript = "rank.php?sec=google";
+				$defaultScript = "rank.php";
 				break;
 				
 			case "backlink-checker":
@@ -58,6 +63,10 @@ class SeoToolsController extends Controller{
 				
 			case "directory-submission":
 				$defaultScript = "directories.php";
+				break;
+				
+			case "saturation-checker":
+				$defaultScript = "saturationchecker.php";
 				break;
 
 			default:

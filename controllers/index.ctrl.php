@@ -29,6 +29,7 @@ class IndexController extends Controller{
 		$spTextHome = $this->getLanguageTexts('home', $_SESSION['lang_code']);
 		$this->set('spTextHome', $spTextHome);
 		if(isLoggedIn()){
+		    isHavingWebsite();
 			$userId = isLoggedIn();
 			$exportVersion = false;
 			switch($searchInfo['doc_type']){
@@ -43,8 +44,30 @@ class IndexController extends Controller{
 					break;
 			}
 			
+			if (isAdmin()) {
+			    $userCtrler = New UserController();
+			    $userList = $userCtrler->__getAllUsersHavingWebsite();
+    			if (isset($_POST['user_id']) || isset($_GET['user_id']) ) {
+    			    $webUserId = intval($_POST['user_id']) ? intval($_POST['user_id']) : intval($_GET['user_id']);
+    			} else {
+    			    $webUserId = $userList[0]['id'];
+    			}			    
+			    $this->set('userList', $userList);
+
+			    // if print method called
+			    if ( ($searchInfo['doc_type'] == 'print') && !empty($webUserId)) {
+				    $userInfo = $userCtrler->__getUserInfo($webUserId);
+				    $this->set('userName', $userInfo['username']);
+			    }
+			    
+			} else {
+			    $webUserId = $userId;
+			}
+			$this->set('webUserId', $webUserId);			
+			
 			$websiteCtrler = New WebsiteController();
-			$list = $websiteCtrler->__getAllWebsites($userId, true);
+			$adminCheck = (isAdmin() && empty($webUserId)) ? true : false;
+			$list = $websiteCtrler->__getAllWebsites($webUserId, $adminCheck);
 			
 			include_once(SP_CTRLPATH."/saturationchecker.ctrl.php");
 			include_once(SP_CTRLPATH."/rank.ctrl.php");
@@ -68,9 +91,7 @@ class IndexController extends Controller{
 				$report = $report[0];
 				$listInfo['google']['backlinks'] = empty($report['google']) ? "-" : $report['google']." ".$report['rank_diff_google'];
 				$listInfo['yahoo']['backlinks'] = empty($report['yahoo']) ? "-" : $report['yahoo']." ".$report['rank_diff_yahoo'];
-				$listInfo['msn']['backlinks'] = empty($report['msn']) ? "-" : $report['msn']." ".$report['rank_diff_msn'];				
-				$listInfo['altavista']['backlinks'] = empty($report['altavista']) ? "-" : $report['altavista']." ".$report['rank_diff_altavista'];
-				$listInfo['alltheweb']['backlinks'] = empty($report['alltheweb']) ? "-" : $report['alltheweb']." ".$report['rank_diff_alltheweb'];
+				$listInfo['msn']['backlinks'] = empty($report['msn']) ? "-" : $report['msn']." ".$report['rank_diff_msn'];
 				
 				# rank reports
 				$report = $saturationCtrler->__getWebsiteSaturationReport($listInfo['id']);
@@ -83,27 +104,34 @@ class IndexController extends Controller{
 				$listInfo['dirsub']['active'] = $dirCtrler->__getTotalSubmitInfo($listInfo['id'], true);
 				$websiteList[] = $listInfo;
 			}
-
+			
+			// if export function called
 			if ($exportVersion) {
 				$exportContent .= createExportContent( array());
 				$exportContent .= createExportContent( array());
 				$exportContent .= createExportContent( array('', $spTextHome['Website Statistics'], ''));
+				
+				if ((isAdmin() && !empty($webUserId))) {				    
+				    $exportContent .= createExportContent( array());				    
+				    $exportContent .= createExportContent( array());
+				    $userInfo = $userCtrler->__getUserInfo($webUserId);
+				    $exportContent .= createExportContent( array($_SESSION['text']['common']['User'], $userInfo['username']));
+				}
+				
 				$exportContent .= createExportContent( array());
 				$headList = array(
-					'Id',
-					'Website',
+					$_SESSION['text']['common']['Id'],
+					$_SESSION['text']['common']['Website'],
 					'Google Pagerank',
 					'Alexa Rank',
-					'Google Backlinks',
-					'Yahoo Backlinks',
-					'MSN Backlinks',
-					'Altavista Backlinks',
-					'Alltheweb Backlinks',
-					'Google Indexed',
-					'Yahoo Indexed',
-					'MSN Indexed',
-					'Total Submission',
-					'Active Submission',
+					'Google '.$spTextHome['Backlinks'],
+					'Yahoo '.$spTextHome['Backlinks'],
+					'Bing '.$spTextHome['Backlinks'],
+					'Google '.$spTextHome['Indexed'],
+					'Yahoo '.$spTextHome['Indexed'],
+					'Bing '.$spTextHome['Indexed'],
+					$_SESSION['text']['common']['Total'].' Submission',
+					$_SESSION['text']['common']['Active'].' Submission',
 				);
 				$exportContent .= createExportContent( $headList);
 				foreach ($websiteList as $websiteInfo) {
@@ -115,8 +143,6 @@ class IndexController extends Controller{
 						strip_tags($websiteInfo['google']['backlinks']),
 						strip_tags($websiteInfo['yahoo']['backlinks']),
 						strip_tags($websiteInfo['msn']['backlinks']),
-						strip_tags($websiteInfo['altavista']['backlinks']),
-						strip_tags($websiteInfo['alltheweb']['backlinks']),
 						strip_tags($websiteInfo['google']['indexed']),
 						strip_tags($websiteInfo['yahoo']['indexed']),					
 						strip_tags($websiteInfo['msn']['indexed']),

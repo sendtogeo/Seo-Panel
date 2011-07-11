@@ -35,7 +35,8 @@ class UserController extends Controller{
 	}
 	
 	# login function
-	function login(){
+	function login(){	    
+	    
 		$this->set('post', $_POST);
 		$errMsg['userName'] = formatErrorMsg($this->validate->checkBlank($_POST['userName']));
 		$errMsg['password'] = formatErrorMsg($this->validate->checkBlank($_POST['password']));
@@ -45,10 +46,23 @@ class UserController extends Controller{
 			if(!empty($userInfo['id'])){
 				if($userInfo['password'] == md5($_POST['password'])){
 					if($userInfo['status'] == 1){
+					    
+    					// if login after first installation
+                	    if (!empty($_POST['lang_code']) && ($_POST['lang_code'] != 'en')) {
+                	        $sql = "UPDATE `settings` SET set_val='".addslashes($_POST['lang_code'])."' WHERE set_name='SP_DEFAULTLANG'";
+                	        $this->db->query($sql);
+                	        
+                	        $sql = "UPDATE users SET lang_code='".addslashes($_POST['lang_code'])."' WHERE id=1";
+                	        $this->db->query($sql);
+                	        
+                	        $userInfo['lang_code'] = $_POST['lang_code'];
+                	    }
+					    
 						$uInfo['userId'] = $userInfo['id'];
 						$uInfo['userType'] = $userInfo['user_type']; 
 						Session::setSession('userInfo', $uInfo);
 						Session::setSession('lang_code', $userInfo['lang_code']);
+                	    Session::setSession('text', '');
 						if ($referer = isValidReferer($_POST['referer'])) {
 							redirectUrl($referer);
 						} else {
@@ -109,12 +123,12 @@ class UserController extends Controller{
 	
 	# function for logout
 	function logout(){
-		Session::setSession('userInfo', "");
+	    Session::destroySession();
 		redirectUrl(SP_WEBPATH."/login.php");
 	}
 	
 	# func to show users
-	function listUsers($layout='default'){
+	function listUsers($info=''){
 		
 		$sql = "select * from users where utype_id=2 order by username";
 		
@@ -128,8 +142,8 @@ class UserController extends Controller{
 		
 		$userList = $this->db->select($sql);
 		$this->set('userList', $userList);
-		$this->set('pageNo', $_GET['pageno']);			
-		$this->render('user/list', $layout);
+		$this->set('pageNo', $info['pageno']);			
+		$this->render('user/list', 'ajax');
 	}
 	
 	# func to change status
@@ -195,6 +209,15 @@ class UserController extends Controller{
 		$sql = "select * from users where status=$active";
 		$sql .= $admin ? "" : " and utype_id!=1";
 		$sql .= " order by username"; 
+		$userList = $this->db->select($sql);
+		return $userList;
+	}
+	
+	#function to get all users having website	
+	function __getAllUsersHavingWebsite($active=1,$admin=true){
+		$sql = "select u.* from users u,websites w where w.user_id=u.id and u.status=$active and w.status=1";
+		$sql .= $admin ? "" : " and utype_id!=1";
+		$sql .= " group by u.id order by username"; 
 		$userList = $this->db->select($sql);
 		return $userList;
 	}

@@ -25,20 +25,23 @@ class SettingsController extends Controller{
 	
 	var $layout = 'ajax';
 	
-	function showSystemSettings() {
+	function showSystemSettings($category='system') {
 		
-		$this->set('list', $this->__getAllSettings());
+		$this->set('list', $this->__getAllSettings(true, 1, $category));
 		
-		$langCtrler = New LanguageController();
-		$langList = $langCtrler->__getAllLanguages(" where translated=1");
-		$this->set('langList', $langList);
+		if ($category == 'system') {		
+    		$langCtrler = New LanguageController();
+    		$langList = $langCtrler->__getAllLanguages(" where translated=1");
+    		$this->set('langList', $langList);
+		}
+		$this->set('category', $category);
 		
 		$this->render('settings/showsettings');
 	}
 	
 	function updateSystemSettings($postInfo) {
 		
-		$setList = $this->__getAllSettings();
+		$setList = $this->__getAllSettings(true, 1, $postInfo['category']);
 		foreach($setList as $setInfo){
 
 			switch($setInfo['set_name']){
@@ -50,9 +53,10 @@ class SettingsController extends Controller{
 				
 				case "SP_CRAWL_DELAY":
 				case "SP_USER_GEN_REPORT":
+				case "SA_CRAWL_DELAY_TIME":
+				case "SA_MAX_NO_PAGES":
 					$postInfo[$setInfo['set_name']] = intval($postInfo[$setInfo['set_name']]);
-					break;
-					
+					break;					
 			}
 			
 			$sql = "update settings set set_val='".addslashes($postInfo[$setInfo['set_name']])."' where set_name='{$setInfo['set_name']}'";
@@ -60,7 +64,7 @@ class SettingsController extends Controller{
 		}
 		
 		$this->set('saved', 1);
-		$this->showSystemSettings();
+		$this->showSystemSettings($postInfo['category']);
 	}
 	
 	# func to show about us of seo panel
@@ -85,6 +89,24 @@ class SettingsController extends Controller{
 		}
 		
 		return $ret['page'];
+	}
+	
+	# func to show version of seo panel
+	function showVersion() {		
+		$this->render('settings/version');
+	}
+	
+	# function to check version
+	function checkVersion() {
+	    $content = $this->spider->getContent(SP_VERSION_PAGE);
+	    $content['page'] = str_replace('Version:', '', $content['page']);
+	    $latestVersion = str_replace('.', '', $content['page']);
+	    $installVersion = str_replace('.', '', SP_INSTALLED);
+	    if ($latestVersion > $installVersion) {
+	        echo showErrorMsg($this->spTextSettings['versionnotuptodatemsg']."({$content['page']}) from <a href='".SP_DOWNLOAD_LINK."' target='_blank'>".SP_DOWNLOAD_LINK."</a>", false);
+	    } else {
+	        echo showSuccessMsg($this->spTextSettings["Your Seo Panel installation is up to date"], false);
+	    }
 	}
 	
 }

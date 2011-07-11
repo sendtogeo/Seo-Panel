@@ -136,7 +136,18 @@ class SeoPluginsController extends Controller{
 		$this->set('msg', $msg);
 		$this->set('error', $error);
 		
-		$seoPluginList = $this->__getAllSeoPlugins();
+		$sql = "select * from seoplugins order by id";
+		
+		# pagination setup		
+		$this->db->query($sql, true);
+		$this->paging->setDivClass('pagingdiv');
+		$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
+		$pagingDiv = $this->paging->printPages('seo-plugins-manager.php?');		
+		$this->set('pagingDiv', $pagingDiv);
+		$sql .= " limit ".$this->paging->start .",". $this->paging->per_page;
+		
+		$seoPluginList = $this->db->select($sql);
+		$this->set('pageNo', $_GET['pageno']);
 		$this->set('list', $seoPluginList);
 		$this->render('seoplugins/listseoplugins');
 	}
@@ -179,8 +190,8 @@ class SeoPluginsController extends Controller{
 	
 	# func to list seo plugin info
 	function listPluginInfo($pluginId){		
-		
-		$this->set('pluginInfo', $this->__getSeoPluginInfo($pluginId));		
+		$this->set('pluginInfo', $this->__getSeoPluginInfo($pluginId));	
+		$this->set('pageNo', $_GET['pageno']);	
 		$this->render('seoplugins/listplugininfo');
 	}
 	

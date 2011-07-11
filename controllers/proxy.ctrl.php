@@ -94,7 +94,7 @@ class ProxyController extends Controller{
 			if (!$this->__checkProxy($listInfo['proxy'], $listInfo['port'])) {
 				$proxyAuth = empty($listInfo['proxy_auth']) ? 0 : 1;
 				$sql = "insert into proxylist(proxy,port,proxy_auth,proxy_username,proxy_password,status)
-							values('{$listInfo['proxy']}','{$listInfo['port']}',$proxyAuth,'{$listInfo['proxy_username']}','{$listInfo['proxy_password']}',1)";
+							values('{$listInfo['proxy']}','{$listInfo['port']}',$proxyAuth,'{$listInfo['proxy_username']}','{$listInfo['proxy_password']}',0)";
 				$this->db->query($sql);
 				$this->listProxy();
 				exit;

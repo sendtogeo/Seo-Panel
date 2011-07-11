@@ -26,14 +26,41 @@ class KeywordController extends Controller{
 	# func to show keywords
 	function listKeywords($info=''){		
 		
-		$userId = isLoggedIn();
+	    $userId = isLoggedIn();
 		$websiteController = New WebsiteController();
 		
+		$urlParams = "";
 		$websiteId = empty($info['website_id']) ? "" : intval($info['website_id']);
 		$this->set('websiteList', $websiteController->__getAllWebsites($userId, true));
 		$this->set('websiteId', $websiteId);
-		$conditions = empty($websiteId) ? "" : " and k.website_id=$websiteId";
-		$sql = "select k.*,w.name website,w.status webstatus from keywords k,websites w where k.website_id=w.id";
+		if ($websiteId) {
+		     $conditions = " and k.website_id=$websiteId";
+		     $urlParams = "website_id=$websiteId";
+		} else {
+		    $conditions = "";   
+		}
+		
+		if (isset($info['status'])) {
+		    if (($info['status']== 'active') || ($info['status']== 'inactive')) {
+		        $statVal = ($info['status']=='active') ? 1 : 0;
+		        $conditions .= " and k.status=$statVal";
+		        $urlParams .= "&status=".$info['status'];
+		    }    
+		} else {
+		    $info['status'] = '';
+		}
+		$this->set('statVal', $info['status']);
+		
+		if (empty($info['keyword'])) {
+		    $info['keyword'] =  '';
+		} else {
+		    $info['keyword'] = urldecode($info['keyword']);
+		    $conditions .= " and k.name like '%".addslashes($info['keyword'])."%'";
+		    $urlParams .= "&keyword=".urlencode($info['keyword']);    
+		}		
+		$this->set('keyword', $info['keyword']);
+		
+		$sql = "select k.*,w.name website,w.status webstatus from keywords k,websites w where k.website_id=w.id and w.status=1";
 		$sql .= isAdmin() ? "" : " and w.user_id=$userId";
 		$sql .= " $conditions order by k.name";
 		
@@ -41,13 +68,13 @@ class KeywordController extends Controller{
 		$this->db->query($sql, true);
 		$this->paging->setDivClass('pagingdiv');
 		$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
-		$pagingDiv = $this->paging->printPages('keywords.php', '', 'scriptDoLoad', 'content', 'website_id='.$websiteId);		
+		$pagingDiv = $this->paging->printPages('keywords.php', '', 'scriptDoLoad', 'content', $urlParams);		
 		$this->set('pagingDiv', $pagingDiv);
 		$sql .= " limit ".$this->paging->start .",". $this->paging->per_page;
 		
 		# set keywords list
 		$keywordList = $this->db->select($sql);
-		$this->set('pageNo', $_GET['pageno']);
+		$this->set('pageNo', $info['pageno']);
 		$langCtrler = New LanguageController();
 		$countryCtrler = New CountryController();
 		foreach ($keywordList as $i => $keyInfo) {
@@ -117,7 +144,13 @@ class KeywordController extends Controller{
 		
 		$userId = isLoggedIn();
 		$websiteController = New WebsiteController();
-		$this->set('websiteList', $websiteController->__getAllWebsites($userId, true));
+		$websiteList = $websiteController->__getAllWebsites($userId, true);
+		$this->set('websiteList', $websiteList);
+		
+		if (empty($_POST['website_id'])) {
+		    $listInfo['website_id'] = $websiteList[0]['id'];
+		    $this->set('post', $listInfo);
+		}
 		
 		$langController = New LanguageController();
 		$this->set('langList', $langController->__getAllLanguages());
@@ -208,13 +241,13 @@ class KeywordController extends Controller{
 	}
 
 	# func to get all keywords
-	function __getAllKeywords($userId='', $websiteId='', $isAdminCheck=false){
+	function __getAllKeywords($userId='', $websiteId='', $isAdminCheck=false, $orderByWeb=false){
 		$sql = "select k.*,w.name website,w.url weburl from keywords k,websites w where k.website_id=w.id and k.status=1";		
 		if(!$isAdminCheck || !isAdmin() ){
 			if(!empty($userId)) $sql .= " and w.user_id=$userId";
 		}
 		if(!empty($websiteId)) $sql .= " and k.website_id=$websiteId";
-		$sql .= " order by k.name";
+		$sql .= $orderByWeb ? " order by w.id, k.name" : " order by k.name";
 		$keywordList = $this->db->select($sql);
 		return $keywordList;
 	}

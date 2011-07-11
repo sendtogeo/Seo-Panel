@@ -32,8 +32,12 @@ class RankController extends Controller{
 	function findQuickRank($searchInfo) {
 		$urlList = explode("\n", $searchInfo['website_urls']);
 		$list = array();
+		$i = 1;
 		foreach ($urlList as $url) {
 			if(!preg_match('/\w+/', $url)) continue;
+			if (SP_DEMO) {
+			    if ($i++ > 10) break;
+			}
 			if(!stristr($url, 'http://')) $url = "http://".$url;
 			$list[] = $url;
 		}
@@ -55,6 +59,7 @@ class RankController extends Controller{
 
 	function __getGooglePageRank ($url) {
 
+	    if (SP_DEMO && !empty($_SERVER['REQUEST_METHOD'])) return 0;	    
 		$url = "http://www.google.com/search?client=navclient-auto&ch=".$this->CheckHash($this->hashURL($url))."&features=Rank&q=info:".$url."&num=100&filter=0";
 		$ret = $this->spider->getContent($url);
 		if(!empty($ret['page'])){
@@ -89,6 +94,7 @@ class RankController extends Controller{
 
 	# alexa_rank
 	function __getAlexaRank ($url) {
+	    if (SP_DEMO && !empty($_SERVER['REQUEST_METHOD'])) return 0;
 		$url = 'http://data.alexa.com/data?cli=10&dat=snbamz&url=' . urlencode($url);
 		$ret = $this->spider->getContent($url);
 		if(!empty($ret['page'])){
@@ -207,6 +213,13 @@ class RankController extends Controller{
 		$sql = "insert into rankresults(website_id,google_pagerank,alexa_rank,result_time)
 				values({$matchInfo['id']},{$matchInfo['googlePagerank']},{$matchInfo['alexaRank']},$time)";
 		$this->db->query($sql);
+	}
+	
+	# function check whether reports already saved
+	function isReportsExists($websiteId, $time) {
+	    $sql = "select website_id from rankresults where website_id=$websiteId and result_time=$time";
+	    $info = $this->db->select($sql, true);
+	    return empty($info['website_id']) ? false : true;
 	}
 	
 	# func to show reports

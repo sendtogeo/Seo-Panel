@@ -23,7 +23,8 @@
 # class defines all backlink controller functions
 class BacklinkController extends Controller{
 	var $url;
-	var $colList = array('google' => 'google', 'yahoo' => 'yahoo', 'msn' => 'msn', 'altavista' => 'altavista', 'alltheweb' => 'alltheweb');
+	/*var $colList = array('google' => 'google', 'yahoo' => 'yahoo', 'msn' => 'msn', 'altavista' => 'altavista', 'alltheweb' => 'alltheweb');*/
+	var $colList = array('google' => 'google', 'yahoo' => 'yahoo', 'msn' => 'msn');
 	
 	function showBacklink() {
 		
@@ -33,8 +34,12 @@ class BacklinkController extends Controller{
 	function findBacklink($searchInfo) {
 		$urlList = explode("\n", $searchInfo['website_urls']);
 		$list = array();
+		$i = 1;
 		foreach ($urlList as $url) {
 			if(!preg_match('/\w+/', $url)) continue;
+			if (SP_DEMO) {
+			    if ($i++ > 10) break;
+			}
 			if(!stristr($url, 'http://')) $url = "http://".$url;
 			$list[] = $url;
 		}
@@ -49,7 +54,7 @@ class BacklinkController extends Controller{
 	}
 	
 	function __getBacklinks ($engine) {
-		
+		if (SP_DEMO && !empty($_SERVER['REQUEST_METHOD'])) return 0;
 		switch ($engine) {
 			
 			#google
@@ -57,9 +62,9 @@ class BacklinkController extends Controller{
 				$url = 'http://www.google.com/search?q=link%3A' . urlencode($this->url);			
 				$v = $this->spider->getContent($url);
 				$v = empty($v['page']) ? '' :  $v['page'];
-				if(preg_match('/about ([0-9\,]+) results/si', $v, $r)){					
-				}elseif(preg_match('/<div id=resultStats>([0-9\,]+) results/si', $v, $r)){					
-				}elseif(preg_match('/([0-9\,]+) results/si', $v, $r)){					
+				if(preg_match('/about ([0-9\,]+) result/si', $v, $r)){					
+				}elseif(preg_match('/<div id=resultStats>([0-9\,]+) result/si', $v, $r)){					
+				}elseif(preg_match('/([0-9\,]+) result/si', $v, $r)){					
 				}elseif(preg_match('/about <b>([0-9\,]+)<\/b> linking/si', $v, $r)){					
 				}
 				return ($r[1]) ? str_replace(',', '', $r[1]) : 0;
@@ -153,9 +158,16 @@ class BacklinkController extends Controller{
 			$this->db->query($sql);
 		}
 		
-		$sql = "insert into backlinkresults(website_id,google,yahoo,msn,altavista,alltheweb,result_time)
-				values({$matchInfo['id']},{$matchInfo['google']},{$matchInfo['yahoo']},{$matchInfo['msn']},{$matchInfo['altavista']},{$matchInfo['alltheweb']},$time)";
+		$sql = "insert into backlinkresults(website_id,google,yahoo,msn,result_time)
+				values({$matchInfo['id']},{$matchInfo['google']},{$matchInfo['yahoo']},{$matchInfo['msn']},$time)";
 		$this->db->query($sql);
+	}
+	
+	# function check whether reports already saved
+	function isReportsExists($websiteId, $time) {
+	    $sql = "select website_id from backlinkresults where website_id=$websiteId and result_time=$time";
+	    $info = $this->db->select($sql, true);
+	    return empty($info['website_id']) ? false : true;
 	}
 	
 	# func to show reports

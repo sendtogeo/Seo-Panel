@@ -44,20 +44,31 @@ class SitemapController extends Controller{
 	function showSitemapGenerator() {
 		
 		$userId = isLoggedIn();		
-		$websiteController = New WebsiteController();
-		$websiteList = $websiteController->__getAllWebsites($userId, true);
-		$this->set('websiteList', $websiteList);
-		$websiteId = empty ($searchInfo['website_id']) ? $websiteList[0]['id'] : $searchInfo['website_id'];
-		$this->set('websiteId', $websiteId);
-		
+		$saCtrler = $this->createController('SiteAuditor');
+	    $where = isAdmin() ? "" : " and w.user_id=$userId";
+	    $pList = $saCtrler->getAllProjects($where);
+	    $projectList = array();
+	    foreach($pList as $pInfo) {
+		    $pInfo['total_links'] = $saCtrler->getCountcrawledLinks($pInfo['id']);
+		    if ($pInfo['total_links'] > 0) {
+	            $projectList[] = $pInfo;
+		    }
+	    }
+	    
+	    if(empty($projectList)) {
+            $spTextSA = $this->getLanguageTexts('siteauditor', $_SESSION['lang_code']);
+	        showErrorMsg($spTextSA['No active projects found'].'!');
+        }
+	    
+	    $this->set('projectList', $projectList);
 		$this->render('sitemap/showsitemap');
 	}	
 	
 	# func to generate sitemap
  	function generateSitemapFile($sitemapInfo){
  		
- 		$sitemapInfo['website_id'] = intval($sitemapInfo['website_id']);
- 		if(!empty($sitemapInfo['website_id'])){	
+ 		$sitemapInfo['project_id'] = intval($sitemapInfo['project_id']);
+ 		if(!empty($sitemapInfo['project_id'])){	
 
  			# check whether the sitemap directory is writable
  			if(!is_writable(SP_TMPPATH ."/".$this->sitemapDir)){
@@ -65,21 +76,23 @@ class SitemapController extends Controller{
  				showErrorMsg("Directory '<b>".SP_TMPPATH ."/".$this->sitemapDir."</b>' is not <b>writable</b>. Please change its <b>permission</b> !");
  			}
  			
-			$websiteController = New WebsiteController();
-			$websiteInfo = $websiteController->__getWebsiteInfo($sitemapInfo['website_id']);
- 			$baseUrl = $websiteInfo['url'];
- 			$this->section = formatFileName($websiteInfo['name']);
-			
- 			if(!preg_match('/\/$/', $baseUrl)) $baseUrl = $baseUrl."/";
-			$this->baseUrl = $baseUrl;
-			$urlInfo = parse_url($this->baseUrl);
-			$this->hostName = str_replace('www.', '', $urlInfo['host']);
+	        $saCtrler = $this->createController('SiteAuditor');
+ 			$projectInfo = $saCtrler->__getProjectInfo($sitemapInfo['project_id']);
+ 			$this->section = formatFileName($projectInfo['name']);
+ 			
 			$this->smType = $sitemapInfo['sm_type'];
 			$this->excludeUrl = $sitemapInfo['exclude_url'];
 			if(!empty($sitemapInfo['freq'])) $this->changefreq = $sitemapInfo['freq'];
 			if(!empty($sitemapInfo['priority'])) $this->priority = $sitemapInfo['priority'];
-			
-			$this->createSitemap();
+			$auditorComp = $this->createComponent('AuditorComponent');
+			$pageList = $auditorComp->getAllreportPages(" and project_id=".$sitemapInfo['project_id']);
+			$urlList = array();
+			foreach ($pageList as $pageInfo) {
+			    $pageInfo['page_url'] = Spider::addTrailingSlash($pageInfo['page_url']); 
+			    if ($auditorComp->isExcludeLink($pageInfo['page_url'], trim($sitemapInfo['exclude_url']))) continue;
+			    $urlList[] = $pageInfo['page_url'];
+			}
+			$this->createSitemap($this->smType, $urlList);
  		}else{
  			hideDiv('message');
  			showErrorMsg("No Website Found!");
@@ -91,19 +104,12 @@ class SitemapController extends Controller{
  		
  		if(!empty($smType)){
  			$this->smType = $smType;
- 		} 		
+ 		}			
  		
- 		# func call to crawl urls from site
- 		if(empty($urlList)){
-			$this->getSitemapUrls();
- 		}else{
- 			$this->urlList = $urlList;
- 		}		
- 		
- 		print("<p class=\"note noteleft\">".$_SESSION['text']['common']['Found']." <a>".count($this->urlList)."</a> Sitemap Urls</p>"); 		
+ 		print("<p class=\"note noteleft\">".$_SESSION['text']['common']['Found']." <a>".count($urlList)."</a> Sitemap Urls</p>"); 		
  		$function = $this->smType ."SitemapFile";
  		$this->deleteSitemapFiles();
- 		$this->$function(array_keys($this->urlList));
+ 		$this->$function($urlList);
  		$this->showSitemapFiles();
  		
 	}
@@ -227,7 +233,7 @@ class SitemapController extends Controller{
 		if ($handle = opendir(SP_TMPPATH ."/".$this->sitemapDir)) {
 		    while (false !== ($file = readdir($handle))) {
 		        if ( ($file != ".") && ($file != "..") ) {
-		        	if(preg_match("/".$this->section."_sitemap\d+\.".$this->smType."/", $file, $matches)){
+		        	if(preg_match("/".preg_quote($this->section, '/')."_sitemap\d+\.".$this->smType."/", $file, $matches)){
 		        		unlink(SP_TMPPATH ."/".$this->sitemapDir."/$file");
 		        	}
 		        }

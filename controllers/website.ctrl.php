@@ -98,7 +98,7 @@ class WebsiteController extends Controller{
 		$this->db->query($sql);
 	}
 
-	# func to change status
+	# func to delete website
 	function __deleteWebsite($websiteId){
 		
 		$websiteId = intval($websiteId);
@@ -140,6 +140,13 @@ class WebsiteController extends Controller{
 		return empty($listInfo['id']) ? false :  $listInfo['id'];
 	}
 
+	function __checkWebsiteUrl($url, $websiteId=0){		
+		$sql = "select id from websites where url='".addslashes($url)."'";
+		$sql .= $websiteId ? " and id!=$websiteId" : "";
+		$listInfo = $this->db->select($sql, true);
+		return empty($listInfo['id']) ? false :  $listInfo['id'];
+	}
+
 	function createWebsite($listInfo){
 		
 		if (isAdmin()) {
@@ -153,11 +160,15 @@ class WebsiteController extends Controller{
 		$errMsg['url'] = formatErrorMsg($this->validate->checkBlank($listInfo['url']));
 		if(!$this->validate->flagErr){
 			if (!$this->__checkName($listInfo['name'], $userId)) {
-				$sql = "insert into websites(name,url,title,description,keywords,user_id,status)
-							values('".addslashes($listInfo['name'])."','{$listInfo['url']}','".addslashes($listInfo['title'])."','".addslashes($listInfo['description'])."','".addslashes($listInfo['keywords'])."',$userId,1)";
-				$this->db->query($sql);
-				$this->listWebsites();
-				exit;
+			    if (!$this->__checkWebsiteUrl($listInfo['url'])) {
+    				$sql = "insert into websites(name,url,title,description,keywords,user_id,status)
+    							values('".addslashes($listInfo['name'])."','{$listInfo['url']}','".addslashes($listInfo['title'])."','".addslashes($listInfo['description'])."','".addslashes($listInfo['keywords'])."',$userId,1)";
+    				$this->db->query($sql);
+    				$this->listWebsites();
+    				exit;
+			    } else {
+			        $errMsg['url'] = formatErrorMsg($this->spTextWeb['Website already exist']);
+			    }
 			}else{
 				$errMsg['name'] = formatErrorMsg($this->spTextWeb['Website already exist']);
 			}
@@ -219,6 +230,11 @@ class WebsiteController extends Controller{
 					$this->validate->flagErr = true;
 				}
 			}
+			
+			if ($this->__checkWebsiteUrl($listInfo['url'], $listInfo['id'])) {
+			    $errMsg['url'] = formatErrorMsg($this->spTextWeb['Website already exist']);
+				$this->validate->flagErr = true;
+			}
 
 			if (!$this->validate->flagErr) {
 				$sql = "update websites set
@@ -239,30 +255,46 @@ class WebsiteController extends Controller{
 	}
 	
 	# func to crawl meta data of a website
-	function crawlMetaData($websiteUrl) {
-		
-		if(!preg_match('/\w+/', $websiteUrl)) return;
-		if(!stristr($websiteUrl, 'http://')) $websiteUrl = "http://".$websiteUrl;
-		$ret = $this->spider->getContent($websiteUrl);
+	public static function crawlMetaData($websiteUrl, $keyInput='', $pageContent='', $returVal=false) {
+	    if (empty($pageContent)) {
+    		if(!preg_match('/\w+/', $websiteUrl)) return;
+    		if(!stristr($websiteUrl, 'http://')) $websiteUrl = "http://".$websiteUrl;
+    		$spider = New Spider();
+    		$ret = $spider->getContent($websiteUrl);
+	    } else {
+	        $ret['page'] = $pageContent;
+	        $metaInfo = array();
+	    }
 		if(!empty($ret['page'])){
 			
-			# meta title
-			preg_match('/<TITLE>(.*?)<\/TITLE>/si', $ret['page'], $matches);
-			if(!empty($matches[1])){
-				$this->addInputValue($matches[1], 'webtitle');
-			}
-			
-			# meta description
-			preg_match('/<META.*?name="description".*?content="(.*?)"/si', $ret['page'], $matches);		
-			if(empty($matches[1])){
-				preg_match("/<META.*?name='description'.*?content='(.*?)'/si", $ret['page'], $matches);			
-			}
-			if(empty($matches[1])){
-				preg_match('/<META content="(.*?)" name="description"/si', $ret['page'], $matches);					
-			}
-			if(!empty($matches[1])){
-				$this->addInputValue($matches[1], 'webdescription');
-			}
+		    if (empty($keyInput)) {
+		    
+    			# meta title
+    			preg_match('/<TITLE>(.*?)<\/TITLE>/si', $ret['page'], $matches);
+    			if(!empty($matches[1])){
+    			    if ($returVal) {
+    			        $metaInfo['page_title'] = $matches[1];
+    			    } else {
+    				    WebsiteController::addInputValue($matches[1], 'webtitle');
+    			    }
+    			}
+    			
+    			# meta description
+    			preg_match('/<META.*?name="description".*?content="(.*?)"/si', $ret['page'], $matches);		
+    			if(empty($matches[1])){
+    				preg_match("/<META.*?name='description'.*?content='(.*?)'/si", $ret['page'], $matches);			
+    			}
+    			if(empty($matches[1])){
+    				preg_match('/<META content="(.*?)" name="description"/si', $ret['page'], $matches);					
+    			}
+    			if(!empty($matches[1])){
+    			    if ($returVal) {
+    			        $metaInfo['page_description'] = $matches[1];
+    			    } else {
+    				    WebsiteController::addInputValue($matches[1], 'webdescription');
+    			    }
+    			}
+		    }
 			
 			# meta keywords
 			preg_match('/<META.*?name="keywords".*?content="(.*?)"/si', $ret['page'], $matches);		
@@ -272,13 +304,19 @@ class WebsiteController extends Controller{
 			if(empty($matches[1])){
 				preg_match('/<META content="(.*?)" name="keywords"/si', $ret['page'], $matches);			
 			}
+			
 			if(!empty($matches[1])){
-				$this->addInputValue($matches[1], 'webkeywords');
+    	        if ($returVal) {
+    			    $metaInfo['page_keywords'] = $matches[1];
+    			} else {
+				    WebsiteController::addInputValue($matches[1], 'webkeywords');
+    			}
 			}			
-		} 
+		}
+		return $metaInfo; 
 	}
 	
-	function addInputValue($value, $col) {
+	public static function addInputValue($value, $col) {
 
 		$value = removeNewLines($value);
 		?>

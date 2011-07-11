@@ -25,7 +25,8 @@ class CronController extends Controller {
 	var $cronList;			// the array includes all tools avialable for cron
 	var $repTools;			// the array includes all tools avialable for report generation
 	var $debug = true;		// to show debug message or not
-	var $layout = 'ajax';   // ajax layout or not 
+	var $layout = 'ajax';   // ajax layout or not
+	var $timeStamp;         // timestamp for storing reports 
 	
 	
 	# function to load all tools required for report generation 
@@ -164,6 +165,9 @@ class CronController extends Controller {
 		
 		$saturationCtrler = New SaturationCheckerController();
 		$websiteInfo = $this->websiteInfo;
+		
+		if (SP_MULTIPLE_CRON_EXEC && $saturationCtrler->isReportsExists($websiteInfo['id'], $this->timeStamp)) return;
+		
 		$saturationCtrler->url = $websiteUrl = addHttpToUrl($websiteInfo['url']);			
 		foreach ($saturationCtrler->colList as $col => $dbCol) {
 			$websiteInfo[$col] = $saturationCtrler->__getSaturationRank($col);
@@ -183,6 +187,9 @@ class CronController extends Controller {
 		
 		$backlinkCtrler = New BacklinkController();
 		$websiteInfo = $this->websiteInfo;
+		
+		if (SP_MULTIPLE_CRON_EXEC && $backlinkCtrler->isReportsExists($websiteInfo['id'], $this->timeStamp)) return;
+		
 		$backlinkCtrler->url = $websiteUrl = addHttpToUrl($websiteInfo['url']);			
 		foreach ($backlinkCtrler->colList as $col => $dbCol) {
 			$websiteInfo[$col] = $backlinkCtrler->__getBacklinks($col);
@@ -202,6 +209,9 @@ class CronController extends Controller {
 		
 		$rankCtrler = New RankController();
 		$websiteInfo = $this->websiteInfo;
+		
+		if (SP_MULTIPLE_CRON_EXEC && $rankCtrler->isReportsExists($websiteInfo['id'], $this->timeStamp)) return;
+		
 		$websiteUrl = addHttpToUrl($websiteInfo['url']);
 		$websiteInfo['googlePagerank'] = $rankCtrler->__getGooglePageRank($websiteUrl);
 		$websiteInfo['alexaRank'] = $rankCtrler->__getAlexaRank($websiteUrl);
@@ -231,9 +241,9 @@ class CronController extends Controller {
 		# loop through each keyword			
 		foreach ( $keywordList as $keywordInfo ) {
 			$reportController->seFound = 0;
-			$crawlResult = $reportController->crawlKeyword($keywordInfo);
+			$crawlResult = $reportController->crawlKeyword($keywordInfo, '', true);
 			foreach($crawlResult as $sengineId => $matchList){
-				if($matchList['status']){
+				if($matchList['status']){				    
 					foreach($matchList['matched'] as $i => $matchInfo){
 						$remove = ($i == 0) ? true : false;						
 						$matchInfo['se_id'] = $sengineId;						
