@@ -33,6 +33,7 @@ define("SP_UPGRADE_VERSION", '2.0.0');
 define("SP_INSTALL_DIR", getcwd());
 define("SP_CONFIG_FILE", "config/sp-config.php");
 define("SP_UPGRADE_DB_FILE", SP_INSTALL_DIR."/data/upgrade.sql");
+define("SP_UPGRADE_DB_LANG_FILE", SP_INSTALL_DIR."/data/textlang.sql");
 define("SP_INSTALL_CONFIG_FILE", SP_INSTALL_DIR."/../".SP_CONFIG_FILE);
 
 $install->showDefaultHeader();

@@ -267,23 +267,35 @@ class Install {
 		# write to config file
 		$this->writeConfigFile($info);
 		
+		# create API Key if not exists
+		$this->createSeoPanelAPIKey($db);		
 		
 		if(gethostbynamel('seopanel.in')){
 			include_once SP_INSTALL_DIR.'/../libs/spider.class.php';
+			include_once(SP_INSTALL_CONFIG_FILE);
 			$installUpdateUrl = "http://www.seopanel.in/installupdate.php?url=".urlencode($info['web_path'])."&ip=".$_SERVER['SERVER_ADDR']."&email=".urlencode($info['email']);
+			$installUpdateUrl .= "&version=".SP_INSTALLED;
 			$spider = New Spider();
 			$spider->getContent($installUpdateUrl, false);
-		}		
+		}
+		
+		// update email for admin
+		$sql = "update users set email='".addslashes($info['email'])."' where id=1";
+		$db->query($sql);
+		
+		// select languages list
+		$sql = "select * from languages where translated=1";
+		$langList = $db->select($sql);		
 		?>		
 		<form method="post" action="<?php echo $info['web_path']."/login.php"; ?>">
 		<h1 class="BlockHeader">Seo Panel Installation Success</h1>
 		<table width="100%" cellspacing="8px" cellpadding="0px" class="formtab">
 			<tr><th colspan="2" class="headersuccess">Seo Panel installed successfully!</th></tr>
 			<tr>
-				<td class="warning">Warning!</td>
+				<td class="warning" colspan="2">Warning!</td>
 			</tr>
 			<tr>
-				<td style="border: none;">
+				<td style="border: none;" colspan="2">
 					<ul class="list">
 						<li> Please change permission of config file <b><?php echo SP_CONFIG_FILE;?></b> to avoid security issues.</li>
 						<li>Please remove installation directory <b>install</b> to avoid security issues.</li>
@@ -291,16 +303,34 @@ class Install {
 				</td>
 			</tr>
 			<tr>
-				<td class="warning" style="color:black;">Admin Login</td>
+				<td class="warning" style="color:black;" colspan="2">Admin Login</td>
 			</tr>
 			<tr>
-				<td style="border: none;font-weight: normal;font-size: 13px;">
+				<td style="border-left: none;">Default Language:</td>
+				<td>
+					<select name="lang_code">
+            			<?php
+            			foreach ($langList as $langInfo) {
+            				$selected = ($langInfo['lang_code'] == 'en') ? "selected" : "";
+            				?>			
+            				<option value="<?=$langInfo['lang_code']?>" <?=$selected?>><?=$langInfo['lang_name']?></option>
+            				<?php
+            			}
+            			?>
+            		</select>
+				</td>
+			</tr>
+			<tr>
+				<td style="border: none;font-weight: normal;font-size: 13px;" colspan="2">
 					<b>Username:</b> <?php echo SP_ADMIN_USER?><br>
 					<b>Password:</b> <?php echo SP_ADMIN_PASS?><br><br>
 					<b>Note:</b> Please change password of admin after first login.
 				</td>
 			</tr>
-		</table>				
+		</table>
+		<input type="hidden" name="sec" value="login">
+		<input type="hidden" name="userName" value="spadmin">
+		<input type="hidden" name="password" value="spadmin">
 		<input type="submit" value="Proceed to admin login >>" name="submit" class="button">
 		</form>
 		<?php		
@@ -468,7 +498,13 @@ class Install {
 			$errMsg = "Error occured while importing data: ". $errMsg;
 			$this->checkUpgradeRequirements(true, $errMsg);
 			return;
-		}*/		
+		}*/
+
+		# importing text file
+		$errMsg = $db->importDatabaseFile(SP_UPGRADE_DB_LANG_FILE, false);
+		
+		# create API Key if not exists
+		$this->createSeoPanelAPIKey($db);
 		
 		?>
 		<form method="post" action="<?php echo SP_WEBPATH."/login.php"; ?>">
@@ -514,5 +550,21 @@ class Install {
 		</html>
 		<?php		
 	}
+	
+	# function to create seo panel API Key
+	function createSeoPanelAPIKey($db) {
+	    $sql = "Select set_val from settings where set_name='SP_API_KEY'";
+	    $apiInfo = $db->select($sql, true);
+
+	    if (empty($apiInfo['set_val'])) {
+	        $apiKey = rand(10000000, 100000000);
+	        $apiKey .= rand(10000000, 100000000);
+	        $apiKey .= rand(10000000, 100000000);
+	        $apiKey = md5($apiKey);
+	        
+	        $sql = "Insert into settings(set_label,set_name,set_val,set_type) values('Seo Panel API Key', 'SP_API_KEY', '$apiKey', 'large')";
+	        $apiInfo = $db->query($sql);
+	    }
+	}	    
 }
 ?>

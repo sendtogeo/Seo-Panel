@@ -51,6 +51,23 @@ class DB{
 		}
 		return $res;
 	}
+	
+    #func to execute a select query
+	function select($query, $fetchFirst = false){
+		$res = @mysql_query($query, $this->connectionId);
+		if (!$res){
+			return false;
+		}
+		$returnArr = array();
+		while ($row = mysql_fetch_assoc($res)){
+			$returnArr[] = $row;
+		}
+		mysql_free_result($res);
+		if ($fetchFirst){
+			return $returnArr[0];
+		}
+		return $returnArr;
+	}
 
 	# func to Display the Mysql error
 	function getError(){
