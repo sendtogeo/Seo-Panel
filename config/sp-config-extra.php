@@ -42,6 +42,9 @@ define('SP_DEMO', 0);
 # seo panel language testing mode
 define('SP_LANGTESTING', 0);
 
+# seo panel multiple cron execution possible same day
+define('SP_MULTIPLE_CRON_EXEC', 1);
+
 # seo panel plugin info xml file
 define('SP_PLUGININFOFILE', 'plugin.xml');
 
@@ -80,5 +83,8 @@ define('SP_NEWS_PAGE', 'http://www.seopanel.in/news.php');
 
 # The seo panel sponsors
 define('SP_SPONSOR_PAGE', 'http://www.seopanel.in/sponsors.php');
+
+# The seo panel version page
+define('SP_VERSION_PAGE', 'http://www.seopanel.in/getversion.php');
 
 ?>
