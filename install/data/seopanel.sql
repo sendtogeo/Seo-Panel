@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Jul 12, 2011 at 03:16 AM
+-- Generation Time: Jul 12, 2011 at 03:29 AM
 -- Server version: 5.1.41
 -- PHP Version: 5.3.1
 
@@ -18,6 +18,94 @@ SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 --
 -- Database: `seopanel`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `auditorpagelinks`
+--
+
+CREATE TABLE IF NOT EXISTS `auditorpagelinks` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `report_id` bigint(20) NOT NULL,
+  `link_url` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
+  `link_anchor` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
+  `link_title` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
+  `nofollow` tinyint(1) NOT NULL DEFAULT '0',
+  `extrenal` tinyint(1) NOT NULL DEFAULT '0',
+  `brocken` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `report_id` (`report_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+
+--
+-- Dumping data for table `auditorpagelinks`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `auditorprojects`
+--
+
+CREATE TABLE IF NOT EXISTS `auditorprojects` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `website_id` int(11) NOT NULL,
+  `max_links` int(11) NOT NULL DEFAULT '500',
+  `exclude_links` text COLLATE utf8_unicode_ci NOT NULL,
+  `check_pr` tinyint(1) NOT NULL DEFAULT '0',
+  `check_backlinks` tinyint(1) NOT NULL DEFAULT '0',
+  `check_indexed` tinyint(1) NOT NULL DEFAULT '0',
+  `store_links_in_page` tinyint(1) NOT NULL DEFAULT '0',
+  `check_brocken` tinyint(1) NOT NULL DEFAULT '0',
+  `score` float NOT NULL DEFAULT '0',
+  `cron` tinyint(1) NOT NULL DEFAULT '1',
+  `status` tinyint(1) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id`),
+  KEY `website_id` (`website_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+
+--
+-- Dumping data for table `auditorprojects`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `auditorreports`
+--
+
+CREATE TABLE IF NOT EXISTS `auditorreports` (
+  `id` bigint(24) NOT NULL AUTO_INCREMENT,
+  `project_id` int(11) NOT NULL,
+  `page_url` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
+  `page_title` varchar(180) COLLATE utf8_unicode_ci NOT NULL,
+  `page_description` text COLLATE utf8_unicode_ci NOT NULL,
+  `page_keywords` text COLLATE utf8_unicode_ci NOT NULL,
+  `pagerank` smallint(6) NOT NULL DEFAULT '0',
+  `google_backlinks` int(11) NOT NULL DEFAULT '0',
+  `yahoo_backlinks` int(11) NOT NULL DEFAULT '0',
+  `bing_backlinks` int(11) NOT NULL DEFAULT '0',
+  `google_indexed` int(11) NOT NULL DEFAULT '0',
+  `yahoo_indexed` int(11) NOT NULL DEFAULT '0',
+  `bing_indexed` int(11) NOT NULL DEFAULT '0',
+  `total_links` int(11) NOT NULL DEFAULT '0',
+  `external_links` int(11) NOT NULL DEFAULT '0',
+  `brocken` tinyint(1) NOT NULL DEFAULT '0',
+  `crawled` tinyint(1) NOT NULL DEFAULT '0',
+  `score` smallint(6) NOT NULL DEFAULT '0',
+  `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `project_id_2` (`project_id`,`page_url`),
+  KEY `project_id` (`project_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+
+--
+-- Dumping data for table `auditorreports`
+--
+
 
 -- --------------------------------------------------------
 
