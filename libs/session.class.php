@@ -40,6 +40,14 @@ class Session extends Seopanel{
 	# function read session
 	function readSession($varName) {
 		return $_SESSION[$varName];
-	}	
+	}
+
+	# fucntion to destroy session
+	function destroySession() {	    
+		Session::setSession('userInfo', "");
+		Session::setSession('lang_code', "");
+		Session::setSession('text', "");
+        session_destroy();	    
+	}
 }
 ?>

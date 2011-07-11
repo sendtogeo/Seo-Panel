@@ -50,18 +50,86 @@ class Spider{
 	}	
 	
 	# func to format urls
-	function formatUrl($url){
-		$scheme = "";
+	public static function formatUrl($url){	    
+	    $scheme = "";
 		if(stristr($url,'http://')){
 			$scheme = "http://";
 		}elseif(stristr($url,'https://')){
 			$scheme = "https://";			
 		}
-		$url = str_replace(array('http://','https://'), '',$url);
+		$url = str_replace(array('http://','https://', '"', '"'), '',$url);
 		$url = preg_replace('/\/{2,}/', '/', $url);
 		$url = preg_replace('/&{2,}/', '&', $url);
 		$url = preg_replace('/#{2,}/', '#', $url);
+		$url = Spider::removeTrailingSlash($url);
 		return $scheme.$url;
+	}
+	
+    # func to get backlink page info
+	function getPageInfo($url, $domainUrl, $returnUrls=false){
+	    
+		$ret = $this->getContent($url);
+		$pageInfo = array();
+		$checkUrl = formatUrl($domainUrl);
+		
+		if( !empty($ret['page'])){
+			$string = strtolower($ret['page']);
+			$string = str_replace(array("\n",'\n\r','\r\n','\r'), "", $string);			
+			$pageInfo = WebsiteController::crawlMetaData($url, '', $string, true);
+					
+			$pattern = "/<a(.*?)>(.*?)<\/a>/is";	
+			preg_match_all($pattern, $string, $matches, PREG_PATTERN_ORDER);
+			for($i=0;$i<count($matches[1]);$i++){
+				$href = $this->__getTagParam("href",$matches[1][$i]);
+				if ( !empty($href) || !empty($matches[2][$i])) {
+    				if( !preg_match( '/mailto:/', $href ) && !preg_match( '/javascript:|;/', $href ) ){
+    				    
+    				    $pageInfo['total_links'] += 1;
+    				    $external = 0;
+    				    if (stristr($href, 'http://') ||  stristr($href, 'https://')) {
+    					    if (!preg_match("/^".preg_quote($checkUrl, '/')."/", formatUrl($href))) {
+    					        $external = 1;
+    					        $pageInfo['external'] += 1;
+    					    }					        
+    				    } else {
+    				        $href = $domainUrl."/".$href;
+    				    }
+    				    
+    				    // if details of urls to be checked
+    				    if($returnUrls){
+    				        $linkInfo['link_url'] = $href;
+    						if(stristr($matches[2][$i], '<img')) {
+    							$linkInfo['link_anchor'] = $this->__getTagParam("alt", $matches[2][$i]);
+    						} else {
+    							$linkInfo['link_anchor'] = strip_tags($matches[2][$i]);
+    						}										
+    						$linkInfo['nofollow'] = stristr($matches[1][$i], 'nofollow') ? 1 : 0;
+    						$linkInfo['link_title'] = $this->__getTagParam("title", $matches[1][$i]);
+    						if ($external) {
+    						    $pageInfo['external_links'][] = $linkInfo;
+    						} else {
+    						    $pageInfo['site_links'][] = $linkInfo;
+    						}
+    				    }
+    				}
+				}
+			}			
+		}
+		return $pageInfo;
+	}
+	
+	# function to remove last trailing slash
+	public static function removeTrailingSlash($url) {		
+		$url = preg_replace('/\/$/', '', $url);
+		return $url;
+	}
+	
+    # function to remove last trailing slash
+	public static function addTrailingSlash($url) {		
+		if (!preg_match('/\/$/', $url)) {
+		    $url .= "/";
+		}
+		return $url;
 	}
 	
 	# func to get unique urls of a page
@@ -92,15 +160,15 @@ class Spider{
 	}
 
 	# function to get value of a parameter in a tag
-	function getTagParam($param, $tag){
-		preg_match_all("|$param\=\"(.*)\"|U",$tag,$matches, PREG_PATTERN_ORDER);
-		if(isset($matches[1][0])  && $matches[1][0] == ""){
-			preg_match_all("|$param\=(.*)|U",$tag,$matches, PREG_PATTERN_ORDER);
-		}
-		if( isset($matches[1][0]) &&  $matches[1][0]=="" ){
-			preg_match_all("|$param\=\'(.*)\'|U",$tag,$matches, PREG_PATTERN_ORDER);
-		}
-		if(isset($matches[1][0])) return $matches[1][0] ;
+    function __getTagParam($param, $tag){
+		preg_match('/'.$param.'="(.*?)"/is', $tag, $matches);
+		if(empty($matches[1])){
+			preg_match("/$param='(.*?)'/is", $tag, $matches);
+			if(empty($matches[1])){
+				preg_match("/$param=(.*?) /is", $tag, $matches);
+			}		
+		}				
+		if(isset($matches[1])) return trim($matches[1]) ;
 	}
 	
 	# get contents of a web page	
@@ -142,6 +210,8 @@ class Spider{
 				if (!empty($proxyInfo['proxy_auth'])) {
 					curl_setopt ($this -> _CURL_RESOURCE, CURLOPT_PROXYUSERPWD, $proxyInfo['proxy_username'].":".$proxyInfo['proxy_password']);
 				}
+			} else {
+			    showErrorMsg("No active proxies found!! Please check your proxy settings from Admin Panel.");
 			}
 		}
 			
@@ -184,6 +254,35 @@ class Spider{
 		$ret['errmsg'] = curl_error( $ch );
 		curl_close($ch);
 		return $ret;
+	}
+	
+	// function to get the header of url
+    public static function getHeader($url){
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+		curl_setopt($ch, CURLOPT_USERAGENT, SP_USER_AGENT);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+		curl_setopt($ch, CURLOPT_MAXREDIRS, 4);
+		
+		// Only calling the head
+		curl_setopt($ch, CURLOPT_HEADER, true); // header will be at output
+		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'HEAD'); // HTTP request is 'HEAD'
+		
+		$content = curl_exec ($ch);
+		curl_close ($ch);
+		return $content;
+	}
+	
+	// function to check whether link is brocke
+	public static function isLInkBrocken($url) {
+	    $header = Spider::getHeader($url);
+	    if (stristr($header, '404 Not Found')) {
+	        return true;
+	    } else {
+	        return false; 
+	    }
 	}
 }
 ?>

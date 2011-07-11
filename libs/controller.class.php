@@ -76,13 +76,15 @@ class Controller extends Seopanel{
 		$_SESSION['lang_code'] = $langCode;
 		if ($userId = isLoggedIn()) {
 			$sql = "update users set lang_code='$langCode' where id=$userId";
-			$res = $this->db->query($sql);
+			$res = $this->db->query($sql);			
+			Session::setSession('text', '');
 		}
 	}
 	
 	# func to get all system settings
-	function __getAllSettings() {
-		$sql = "select * from settings order by id";
+	function __getAllSettings($showCheck=false, $showVal=1, $category='system') {
+	    $condition = $showCheck ? " where `display`=$showVal and set_category='$category'" : "";
+		$sql = "select * from settings $condition order by id";
 		$settingsList = $this->db->select($sql);
 		return $settingsList;
 	}
@@ -213,6 +215,21 @@ class Controller extends Seopanel{
 			} 
 		}
 			
+	}
+
+	// to create component object
+	public static function createComponent($compName) {
+	    include_once(SP_CTRLPATH."/components/".strtolower($compName).".php");
+	    $componentObj = new $compName();
+	    return $componentObj;
+	}
+
+	// to create cotroller object
+	public static function createController($ctrlName) {
+	    include_once(SP_CTRLPATH."/".strtolower($ctrlName).".ctrl.php");
+	    $ctrlName .= "Controller"; 
+	    $controllerObj = new $ctrlName();
+	    return $controllerObj;
 	}
 
 }

@@ -21,9 +21,17 @@
  ***************************************************************************/
 
 # func to format error message
-function formatErrorMsg($msg, $class='error'){
+function formatErrorMsg($msg, $class='error', $star="*"){
 	if(!empty($msg)){
-		$msg = "<font class='$class'> * $msg</font>";
+		$msg = "<font class='$class'> $star $msg</font>";
+	}
+	return $msg;
+}
+
+# func to format success message
+function formatSuccessMsg($msg, $class='success'){
+	if(!empty($msg)){
+		$msg = "<font class='$class'>$msg</font>";
 	}
 	return $msg;
 }
@@ -53,10 +61,11 @@ function showDiv($divId) {
 
 
 # func to show no results
-function showNoRecordsList($colspan, $msg='') {
+function showNoRecordsList($colspan, $msg='', $plain=false) {
 	$msg = empty($msg) ? $_SESSION['text']['common']['No Records Found']."!" : $msg;
 	$data['colspan'] = $colspan;
 	$data['msg'] = $msg;
+	$data['plain'] = $plain;
 	return View::fetchViewFile('common/norecords', $data);
 }
 
@@ -165,14 +174,19 @@ function addHttpToUrl($url){
 }
 
 function formatFileName( $fileName ) {
-	$search = array(' ');
-	$replace = array('_');
+	$search = array(' ', '/', ':');
+	$replace = array('_', '', '');
 	$fileName = str_replace($search, $replace, $fileName);
 	return $fileName;
 }
 
 function showActionLog($msg, $area='subcontent'){
 	echo "<script type='text/javascript'>updateArea('$area', '$msg')</script>";
+}
+
+//function to update perticular area using javascript
+function updateJsLocation($area, $text) {
+    echo "<script type='text/javascript'>document.getElementById('$area').innerHTML = '$text';</script>";
 }
 
 function loadGif ($imgname){
@@ -280,4 +294,16 @@ function exportToCsv($fileName, $content) {
 	exit; 
 }
 
+# func to show printer hearder
+function showPrintHeader($headMsg='') {
+    ?>
+	<script language="Javascript" src="<?=SP_JSPATH?>/common.js"></script>
+	<script type="text/javascript">
+		window.print();
+		loadJsCssFile("<?=SP_CSSPATH?>/screen.css", "css");
+	</script>	
+    <style>BODY{background-color:white;padding:50px 10px;}</style>
+	<?php
+	if (!empty($headMsg)) echo showSectionHead($headMsg);
+}
 ?>
