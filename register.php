@@ -1,12 +1,13 @@
 <?php
 
 include_once("includes/sp-load.php");
-if(isLoggedIn()){
+include_once(SP_CTRLPATH."/user.ctrl.php");
+$controller = New UserController();
+
+if(isLoggedIn() || !SP_USER_REGISTRATION){
 	redirectUrl(SP_WEBPATH."/");
 }
 
-include_once(SP_CTRLPATH."/user.ctrl.php");
-$controller = New UserController();
 $controller->view->menu = 'register';
 
 $controller->set('spTitle', 'Seo Tools: User Registration');

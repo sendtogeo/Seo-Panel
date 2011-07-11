@@ -42,6 +42,33 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		case "update":
 			$controller->updateWebsite($_POST);
 			break;
+			
+		case "activateall":
+		    if (!empty($_POST['ids'])) {
+    		    foreach($_POST['ids'] as $id) {
+    		        $controller->__changeStatus($id, 1);
+    		    }
+		    }		    			
+			$controller->listWebsites($_POST);
+		    break;
+			
+		case "inactivateall":
+		    if (!empty($_POST['ids'])) {
+    		    foreach($_POST['ids'] as $id) {
+    		        $controller->__changeStatus($id, 0);
+    		    }
+		    }		    			
+			$controller->listWebsites($_POST);
+		    break;
+		    
+		case "deleteall":		    
+		    if (!empty($_POST['ids'])) {
+    		    foreach($_POST['ids'] as $id) {
+    		        $controller->__deleteWebsite($id);
+    		    }
+		    }		    			
+			$controller->listWebsites($_POST);
+		    break;
 	}
 
 }else{
@@ -71,8 +98,15 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			break;
 		
 		case "crawlmeta":
-			$controller->crawlMetaData(urldecode($_GET['url']));
-			break;			
+		    $keyInput = empty($_GET['keyinput']) ? "" : $_GET['keyinput']; 
+			$controller->crawlMetaData(urldecode($_GET['url']), $keyInput);
+			break;
+
+		case "updateurl":
+		    $websiteId = intval($_GET['website_id']);
+		    $websiteInfo = $controller->__getWebsiteInfo($websiteId);
+		    print '<input type="hidden" name="weburl" id="weburl" value="'.$websiteInfo['url'].'">';
+		    break;
 			
 		default:
 			$controller->listWebsites($_GET);

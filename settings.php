@@ -49,9 +49,18 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		case "aboutus":
 			$controller->showAboutUs();
 			break;
+		
+		case "version":
+			$controller->showVersion();
+			break;
+		
+		case "checkversion":
+			$controller->checkVersion();
+			break;
 
 		default:
-			$controller->showSystemSettings();
+		    $category = empty($_GET['category']) ? 'system' : $_GET['category']; 
+			$controller->showSystemSettings($category);
 			break;
 	}
 }

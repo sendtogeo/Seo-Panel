@@ -50,6 +50,37 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		case "import":
 			$controller->createImportedKeywords($_POST);
 			break;
+			
+		case "activateall":
+		    if (!empty($_POST['ids'])) {
+    		    foreach($_POST['ids'] as $id) {
+    		        $controller->__changeStatus($id, 1);
+    		    }
+		    }		    			
+			$controller->listKeywords($_POST);
+		    break;
+			
+		case "inactivateall":
+		    if (!empty($_POST['ids'])) {
+    		    foreach($_POST['ids'] as $id) {
+    		        $controller->__changeStatus($id, 0);
+    		    }
+		    }		    			
+			$controller->listKeywords($_POST);
+		    break;
+		    
+		case "deleteall":
+		    if (!empty($_POST['ids'])) {
+    		    foreach($_POST['ids'] as $id) {
+    		        $controller->__deleteKeyword($id);
+    		    }
+		    }		    			
+			$controller->listKeywords($_POST);
+		    break;	    
+
+		default:
+			$controller->listKeywords($_POST);
+			break;
 	}
 
 }else{

@@ -38,6 +38,14 @@ if($_SERVER['REQUEST_METHOD'] == 'GET'){
 			$controller->index($_GET);
 			break;
 	}
+}elseif($_SERVER['REQUEST_METHOD'] == 'POST'){
+
+	switch($_POST['sec']){
+	    
+	    default:
+			$controller->index($_POST);
+			break;
+	}
 }
 
 ?>

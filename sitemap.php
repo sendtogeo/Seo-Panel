@@ -29,6 +29,7 @@ $controller->layout = 'ajax';
 $controller->set('spTextTools', $controller->getLanguageTexts('seotools', $_SESSION['lang_code']));
 $controller->spTextSitemap = $controller->getLanguageTexts('sitemap', $_SESSION['lang_code']);
 $controller->set('spTextSitemap', $controller->spTextSitemap);
+$controller->set('spTextSA', $controller->getLanguageTexts('siteauditor', $_SESSION['lang_code']));
 
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	

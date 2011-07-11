@@ -51,6 +51,33 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		case "updatemyprofile":
 			$controller->updateMyProfile($_POST);
 			break;
+			
+		case "activateall":
+		    if (!empty($_POST['ids'])) {
+    		    foreach($_POST['ids'] as $id) {
+    		        $controller->__changeStatus($id, 1);
+    		    }
+		    }
+		    $controller->listUsers($_POST);
+		    break;
+			
+		case "inactivateall":
+		    if (!empty($_POST['ids'])) {
+    		    foreach($_POST['ids'] as $id) {
+    		        $controller->__changeStatus($id, 0);
+    		    }
+		    }
+		    $controller->listUsers($_POST);
+		    break;
+		    
+		case "deleteall":		    
+		    if (!empty($_POST['ids'])) {
+    		    foreach($_POST['ids'] as $id) {
+    		        $controller->__deleteUser($id);
+    		    }
+		    }
+		    $controller->listUsers($_POST);
+		    break;
 	}
 	
 }else{
@@ -58,17 +85,17 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		
 		case "Activate":
 			$controller->__changeStatus($_GET['userId'], 1);			
-			$controller->listUsers('ajax');
+			$controller->listUsers($_GET);
 			break;
 		
 		case "Inactivate":
 			$controller->__changeStatus($_GET['userId'], 0);
-			$controller->listUsers('ajax');
+			$controller->listUsers($_GET);
 			break;
 		
 		case "delete":
 			$controller->__deleteUser($_GET['userId']);
-			$controller->listUsers('ajax');
+			$controller->listUsers($_GET);
 			break;
 		
 		case "edit":
@@ -84,7 +111,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			break;
 
 		default:
-			$controller->listUsers($_GET['layout']);
+			$controller->listUsers($_GET);
 			break;
 	}
 }
