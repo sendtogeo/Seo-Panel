@@ -78,7 +78,7 @@ class SaturationCheckerController extends Controller{
 				
 			#yahoo
 			case 'yahoo':
-				$url = 'http://siteexplorer.search.yahoo.com/advsearch?p=' . formatUrl($this->url, false);
+				$url = 'http://siteexplorer.search.yahoo.com/advsearch?p=' . urldecode(formatUrl($this->url, false));
 				$v = $this->spider->getContent($url);
 				$v = empty($v['page']) ? '' :  $v['page'];
 				preg_match('/Pages \(([0-9\,]+)\)/si', $v, $r);
