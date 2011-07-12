@@ -112,6 +112,33 @@ class WebsiteController extends Controller{
 		foreach($keywordList as $keywordInfo){
 			$keywordCtrler->__deleteKeyword($keywordInfo['id']);
 		}
+		
+		# remove rank results
+		$sql = "delete from rankresults where website_id=$websiteId";
+		$this->db->query($sql);
+		
+		# remove backlink results
+		$sql = "delete from backlinkresults where website_id=$websiteId";
+		$this->db->query($sql);
+		
+		# remove saturation results
+		$sql = "delete from saturationresults where website_id=$websiteId";
+		$this->db->query($sql);
+		
+		# remove site auditor results		
+		$sql = "select id from auditorprojects where website_id=$websiteId";
+		$info = $this->db->select($sql, true);
+		if (!empty($info['id'])) {
+		    $auditorObj = $this->createController('SiteAuditor');
+		    $auditorObj->__deleteProject($info['id']);
+		}
+		
+		#remove directory results
+		$sql = "delete from dirsubmitinfo where website_id=$websiteId";
+		$this->db->query($sql);
+		$sql = "delete from skipdirectories where website_id=$websiteId";
+		$this->db->query($sql);
+		    
 	}
 
 	function newWebsite($info=''){
