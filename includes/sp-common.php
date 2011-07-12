@@ -158,10 +158,10 @@ function confirmPostAJAXLink($file, $form, $area, $trigger='OnClick'){
 	return $link;
 }
 
-function formatUrl( $url ) {
+function formatUrl( $url, $removeWWW=true ) {
 	$url = str_replace('http://', '', $url);
 	$url = str_replace('https://', '', $url);
-	$url = str_replace('www.', '', $url);
+	if ($removeWWW) $url = str_replace('www.', '', $url);
 	return $url;
 }
 
