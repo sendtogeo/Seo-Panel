@@ -96,7 +96,7 @@ class Spider{
     				    
     				    // if details of urls to be checked
     				    if($returnUrls){
-    				        $linkInfo['link_url'] = $href;
+    				        $linkInfo['link_url'] = preg_replace('/\/{2,}/', '/', $href);
     						if(stristr($matches[2][$i], '<img')) {
     							$linkInfo['link_anchor'] = $this->__getTagParam("alt", $matches[2][$i]);
     						} else {
