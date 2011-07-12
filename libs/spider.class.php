@@ -73,7 +73,7 @@ class Spider{
 		$checkUrl = formatUrl($domainUrl);
 		
 		if( !empty($ret['page'])){
-			$string = str_replace(array("\n",'\n\r','\r\n','\r'), "", strtolower($ret['page']));			
+			$string = str_replace(array("\n",'\n\r','\r\n','\r'), "", $ret['page']);			
 			$pageInfo = WebsiteController::crawlMetaData($url, '', $string, true);
 					
 			$pattern = "/<a(.*?)>(.*?)<\/a>/is";	
