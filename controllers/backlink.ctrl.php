@@ -72,7 +72,7 @@ class BacklinkController extends Controller{
 				
 			#yahoo
 			case 'yahoo':
-				$url = "http://siteexplorer.search.yahoo.com/advsearch?p=".formatUrl($this->url, false)."&bwm=i&bwmo=d&bwmf=s";
+				$url = "http://siteexplorer.search.yahoo.com/advsearch?p=".urldecode(formatUrl($this->url, false))."&bwm=i&bwmo=d&bwmf=s";
 				$v = $this->spider->getContent($url);
 				$v = empty($v['page']) ? '' :  $v['page'];
 				preg_match('/Inlinks \((.+?)\)/si', $v, $r);
