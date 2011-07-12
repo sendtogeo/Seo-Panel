@@ -169,7 +169,6 @@ function addHttpToUrl($url){
 	if(!stristr($url, 'http://') && !stristr($url, 'https://')){
 		$url = 'http://'.$url;
 	}
-	$url = strtolower($url);
 	return $url;
 }
 
