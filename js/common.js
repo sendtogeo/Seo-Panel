@@ -155,7 +155,7 @@ function doAction(scriptUrl, scriptPos, scriptArgs, actionDiv) {
 			/* check whether the system is demo or not */
 			if(spdemo){
 				if((actVal == 'delete') || (actVal == 'Activate') || (actVal == 'Inactivate') || (actVal == 'recheckreport') 
-					|| (actVal == 'checkscore') || (actVal == 'deletepage') || (actVal == 'upgrade') || (actVal == 'reinstall') ){
+					|| (actVal == 'showrunproject') || (actVal == 'checkscore') || (actVal == 'deletepage') || (actVal == 'upgrade') || (actVal == 'reinstall') ){
 					alertDemoMsg();
 				}
 			}
