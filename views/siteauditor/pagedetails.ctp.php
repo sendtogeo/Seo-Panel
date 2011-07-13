@@ -17,19 +17,19 @@ $backLink = "scriptDoLoadPost('siteauditor.php', 'search_form', 'subcontent', '&
         	</tr>
         	<tr>
         		<th class="leftcell"><?=$spText['label']['Title']?>:</th>
-        		<td style="text-align: left;"><?=$reportInfo['page_title']?></td>
+        		<td style="text-align: left;"><?=strip_tags($reportInfo['page_title'])?></td>
         		<th>Yahoo <?=$spTextHome['Backlinks']?>:</th>
         		<td><?=$reportInfo['yahoo_backlinks']?></td>
         	</tr>
         	<tr>
         		<th class="leftcell"><?=$spText['label']['Description']?>:</th>
-        		<td style="text-align: left;"><?=$reportInfo['page_description']?></td>
+        		<td style="text-align: left;"><?=strip_tags($reportInfo['page_description'])?></td>
         		<th>Bing <?=$spTextHome['Backlinks']?>:</th>
         		<td><?=$reportInfo['bing_backlinks']?></td>
         	</tr>
         	<tr>
         		<th class="leftcell"><?=$spText['label']['Keywords']?>:</th>
-        		<td style="text-align: left;"><?=$reportInfo['page_keywords']?></td>
+        		<td style="text-align: left;"><?=strip_tags($reportInfo['page_keywords'])?></td>
         		<th>Google <?=$spTextHome['Indexed']?>:</th>
         		<td><?=$reportInfo['google_indexed']?></td>
         	</tr>

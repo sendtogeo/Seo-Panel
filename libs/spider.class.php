@@ -68,7 +68,7 @@ class Spider{
     # func to get backlink page info
 	function getPageInfo($url, $domainUrl, $returnUrls=false){
 	    
-		$ret = $this->getContent($url);
+		$ret = $this->getContent(Spider::addTrailingSlash($url));
 		$pageInfo = array();
 		$checkUrl = formatUrl($domainUrl);
 		
@@ -96,7 +96,7 @@ class Spider{
     				    
     				    // if details of urls to be checked
     				    if($returnUrls){
-    				        $linkInfo['link_url'] = preg_replace('/\/{2,}/', '/', $href);
+    				        $linkInfo['link_url'] = $href;
     						if(stristr($matches[2][$i], '<img')) {
     							$linkInfo['link_anchor'] = $this->__getTagParam("alt", $matches[2][$i]);
     						} else {
