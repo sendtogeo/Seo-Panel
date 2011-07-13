@@ -3,7 +3,7 @@ echo showSectionHead($spTextTools['Keywords Manager']);
 $searchFun = "scriptDoLoadPost('keywords.php', 'listform', 'content')";
 ?>
 <form name="listform" id="listform">
-<table width="94%" border="0" cellspacing="0" cellpadding="0" class="search">
+<table width="100%" border="0" cellspacing="0" cellpadding="0" class="search">
 	<tr>
 		<th><?=$spText['common']['Keyword']?>: </th>
 		<td><input type="text" name="keyword" value="<?=$keyword?>" onblur="<?=$searchFun?>"></td>
