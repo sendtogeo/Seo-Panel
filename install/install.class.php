@@ -279,6 +279,9 @@ class Install {
 			$spider->getContent($installUpdateUrl, false);
 		}
 		
+		$db = New DB();
+		$db->connectDatabase($info['db_host'], $info['db_user'], $info['db_pass'], $info['db_name']);
+		
 		// update email for admin
 		$sql = "update users set email='".addslashes($info['email'])."' where id=1";
 		$db->query($sql);
