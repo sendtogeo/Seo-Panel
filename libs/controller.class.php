@@ -231,6 +231,14 @@ class Controller extends Seopanel{
 	    $controllerObj = new $ctrlName();
 	    return $controllerObj;
 	}
+	
+	// function to create mysql connect again
+	function checkDBConn($force=false) {
+		if($force || !is_object($this->db)){
+			$dbObj = New Database(DB_ENGINE);
+			$this->db = $dbObj->dbConnect();
+		}
+	}
 
 }
 ?>

@@ -571,7 +571,7 @@ class ReportController extends Controller {
 	# func to save the report
 	function saveMatchedKeywordInfo($matchInfo, $remove=false) {
 		$time = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
-		
+		$this->checkDBConn();
 		if($remove){
 			$sql = "select id from searchresults where keyword_id={$matchInfo['keyword_id']} and searchengine_id={$matchInfo['se_id']} and time=$time";
 			$recordList = $this->db->select($sql);
