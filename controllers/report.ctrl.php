@@ -510,11 +510,11 @@ class ReportController extends Controller {
 			
 			$seStart = $this->seList[$seInfoId]['start'] + $this->seList[$seInfoId]['start_offset'];
 			while(empty($result['error']) && ($seStart < $this->seList[$seInfoId]['max_results']) ){
+				sleep(SP_CRAWL_DELAY);
 				$seUrl = str_replace('[--start--]', $seStart, $searchUrl);
 				$result = $this->spider->getContent($seUrl);
 				$pageContent .= $this->formatPageContent($seInfoId, $result['page']);
 				$seStart += $this->seList[$seInfoId]['start_offset'];
-				sleep(SP_CRAWL_DELAY);
 			}
 
 			# to check whether utf8 conversion needed
