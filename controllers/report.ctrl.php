@@ -534,7 +534,7 @@ class ReportController extends Controller {
 					$rank = 1;
 					foreach($urlList as $i => $url){
 						$url = strip_tags($url);
-						$url = str_replace(array('http%3a', 'https%3a'), array('http:', 'https:'), $url);
+						$url = str_ireplace(array('http%3a', 'https%3a'), array('http:', 'https:'), $url);
 						if(!preg_match('/^http:\/\/|^https:\/\//i', $url)) continue;						
 						if($this->showAll || stristr($url, $websiteUrl)){
 
