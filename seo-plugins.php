@@ -26,6 +26,8 @@ isHavingWebsite();
 include_once(SP_CTRLPATH."/seoplugins.ctrl.php");
 $controller = New SeoPluginsController();
 $controller->view->menu = 'seoplugins';
+$controller->spTextPlugin = $controller->getLanguageTexts('plugin', $_SESSION['lang_code']);
+$controller->set('spTextPlugin', $controller->spTextPlugin);
 
 $controller->set('spTitle', 'Seo Panel: Provides latest seo plugins to increase and track the performace your websites');
 $controller->set('spDescription', 'Its an open source software and also you can develop your own seo plugins for seo panel. Download new seo plugins and install into your seo panel software and increase your site perfomance.');

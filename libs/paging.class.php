@@ -85,7 +85,7 @@ class Paging {
 			}
 		}
 		$tmp .= $page_line;
-		$tmp .= '</div>';
+		$tmp .= '</div><div style="clear:both;"></div>';
 		return $tmp;
 	}
 

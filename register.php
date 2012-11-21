@@ -25,10 +25,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	
 }else{
 	switch($_GET['sec']){
-		
-		case "confirm":
-			$controller->confirmUser($_GET['cfm']);
-			break;
 
 		default:
 			$controller->register();

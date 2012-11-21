@@ -69,7 +69,6 @@ class AuditorComponent extends Controller{
             if ($projectInfo['check_backlinks']) {
                 $backlinkCtrler = $this->createController('Backlink');
                 $backlinkCtrler->url = Spider::addTrailingSlash($reportUrl);
-                $reportInfo['yahoo_backlinks'] = $backlinkCtrler->__getBacklinks('yahoo');
                 $reportInfo['bing_backlinks'] = $backlinkCtrler->__getBacklinks('msn');
                 $reportInfo['google_backlinks'] = $backlinkCtrler->__getBacklinks('google');
             }
@@ -78,7 +77,6 @@ class AuditorComponent extends Controller{
             if ($projectInfo['check_indexed']) {
                 $saturationCtrler = $this->createController('SaturationChecker');
                 $saturationCtrler->url = Spider::addTrailingSlash($reportUrl);
-                $reportInfo['yahoo_indexed'] = $saturationCtrler->__getSaturationRank('yahoo');
                 $reportInfo['bing_indexed'] = $saturationCtrler->__getSaturationRank('msn');
                 $reportInfo['google_indexed'] = $saturationCtrler->__getSaturationRank('google');
             }
@@ -254,7 +252,7 @@ class AuditorComponent extends Controller{
         }
         
         // check backlinks
-        $seArr = array('google', 'yahoo', 'bing');
+        $seArr = array('google', 'bing');
         foreach ($seArr as $se) {
             $label = $se.'_backlinks';
             if ($reportInfo[$label] >= SA_BL_CHECK_LEVEL) {                

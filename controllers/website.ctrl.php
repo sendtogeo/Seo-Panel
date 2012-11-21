@@ -27,6 +27,7 @@ class WebsiteController extends Controller{
 	function listWebsites($info=''){		
 		
 		$userId = isLoggedIn();
+		$info['pageno'] = intval($info['pageno']);
 		if(isAdmin()){
 			$sql = "select w.*,u.username from websites w,users u where u.id=w.user_id";
 			$sql .= empty($info['userid']) ? "" : " and w.user_id=".$info['userid']; 
@@ -185,11 +186,12 @@ class WebsiteController extends Controller{
 		$this->set('post', $listInfo);
 		$errMsg['name'] = formatErrorMsg($this->validate->checkBlank($listInfo['name']));
 		$errMsg['url'] = formatErrorMsg($this->validate->checkBlank($listInfo['url']));
+		$listInfo['url'] = addHttpToUrl($listInfo['url']);
 		if(!$this->validate->flagErr){
 			if (!$this->__checkName($listInfo['name'], $userId)) {
 			    if (!$this->__checkWebsiteUrl($listInfo['url'])) {
     				$sql = "insert into websites(name,url,title,description,keywords,user_id,status)
-    							values('".addslashes($listInfo['name'])."','{$listInfo['url']}','".addslashes($listInfo['title'])."','".addslashes($listInfo['description'])."','".addslashes($listInfo['keywords'])."',$userId,1)";
+    							values('".addslashes($listInfo['name'])."','".addslashes($listInfo['url'])."','".addslashes($listInfo['title'])."','".addslashes($listInfo['description'])."','".addslashes($listInfo['keywords'])."',$userId,1)";
     				$this->db->query($sql);
     				$this->listWebsites();
     				exit;
@@ -249,6 +251,7 @@ class WebsiteController extends Controller{
 		$this->set('post', $listInfo);
 		$errMsg['name'] = formatErrorMsg($this->validate->checkBlank($listInfo['name']));
 		$errMsg['url'] = formatErrorMsg($this->validate->checkBlank($listInfo['url']));
+		$listInfo['url'] = addHttpToUrl($listInfo['url']);
 		if(!$this->validate->flagErr){
 
 			if($listInfo['name'] != $listInfo['oldName']){
@@ -265,8 +268,8 @@ class WebsiteController extends Controller{
 
 			if (!$this->validate->flagErr) {
 				$sql = "update websites set
-						name = '{$listInfo['name']}',
-						url = '{$listInfo['url']}',
+						name = '".addslashes($listInfo['name'])."',
+						url = '".addslashes($listInfo['url'])."',
 						user_id = $userId,
 						title = '".addslashes($listInfo['title'])."',
 						description = '".addslashes($listInfo['description'])."',
@@ -282,7 +285,7 @@ class WebsiteController extends Controller{
 	}
 	
 	# func to crawl meta data of a website
-	public static function crawlMetaData($websiteUrl, $keyInput='', $pageContent='', $returVal=false) {
+	public function crawlMetaData($websiteUrl, $keyInput='', $pageContent='', $returVal=false) {
 	    if (empty($pageContent)) {
     		if(!preg_match('/\w+/', $websiteUrl)) return;
     		if(!stristr($websiteUrl, 'http://')) $websiteUrl = "http://".$websiteUrl;
@@ -343,7 +346,7 @@ class WebsiteController extends Controller{
 		return $metaInfo; 
 	}
 	
-	public static function addInputValue($value, $col) {
+	public function addInputValue($value, $col) {
 
 		$value = removeNewLines($value);
 		?>

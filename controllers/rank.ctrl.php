@@ -34,6 +34,7 @@ class RankController extends Controller{
 		$list = array();
 		$i = 1;
 		foreach ($urlList as $url) {
+		    $url = sanitizeData($url);
 			if(!preg_match('/\w+/', $url)) continue;
 			if (SP_DEMO) {
 			    if ($i++ > 10) break;
@@ -60,7 +61,7 @@ class RankController extends Controller{
 	function __getGooglePageRank ($url) {
 
 	    if (SP_DEMO && !empty($_SERVER['REQUEST_METHOD'])) return 0;	    
-		$url = "http://www.google.com/search?client=navclient-auto&ch=".$this->CheckHash($this->hashURL($url))."&features=Rank&q=info:".$url."&num=100&filter=0";
+		$url = "http://toolbarqueries.google.com/tbr?client=navclient-auto&ch=".$this->CheckHash($this->hashURL($url))."&features=Rank&q=info:".$url."&num=100&filter=0";
 		$ret = $this->spider->getContent($url);
 		if(!empty($ret['page'])){
 			preg_match('/Rank_([0-9]+):([0-9]+):([0-9]+)/si', $ret['page'], $matches);
@@ -98,7 +99,7 @@ class RankController extends Controller{
 		$url = 'http://data.alexa.com/data?cli=10&dat=snbamz&url=' . urlencode($url);
 		$ret = $this->spider->getContent($url);
 		if(!empty($ret['page'])){
-			preg_match('/\<popularity url\="(.*?)" TEXT\="([0-9]+)"\/\>/si', $ret['page'], $matches);
+			preg_match('/\<popularity url\="(.*?)" TEXT\="([0-9]+)"/si', $ret['page'], $matches);
 			return ($matches[2]) ? $matches[2] : 0;
 		}
 		return 0;
@@ -298,14 +299,15 @@ class RankController extends Controller{
 	
 	
 	# func to show reports for a particular website
-	function __getWebsiteRankReport($websiteId, $limit=1) {
+	function __getWebsiteRankReport($websiteId, $fromTime, $toTime) {
 
 		$sql = "select s.* ,w.name
 				from rankresults s,websites w 
 				where s.website_id=w.id 
-				and s.website_id=$websiteId  
+				and s.website_id=$websiteId
+				and (result_time=$fromTime or result_time=$toTime)  
 				order by result_time DESC
-				Limit 0, ".($limit+1);
+				Limit 0, 2";
 		$reportList = $this->db->select($sql);
 		$reportList = array_reverse($reportList);
 		
@@ -348,7 +350,7 @@ class RankController extends Controller{
 			$i++;
 		}
 
-		$reportList = array_reverse(array_slice($reportList, count($reportList) - $limit));
+		$reportList = array_reverse(array_slice($reportList, count($reportList) - 1));
 		return $reportList;
 	}
 	

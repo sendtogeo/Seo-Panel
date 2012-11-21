@@ -23,8 +23,12 @@
 # class defines all backlink controller functions
 class BacklinkController extends Controller{
 	var $url;
-	/*var $colList = array('google' => 'google', 'yahoo' => 'yahoo', 'msn' => 'msn', 'altavista' => 'altavista', 'alltheweb' => 'alltheweb');*/
-	var $colList = array('google' => 'google', 'yahoo' => 'yahoo', 'msn' => 'msn');
+	var $colList = array('google' => 'google', 'alexa' => 'alexa', 'msn' => 'msn');
+	var $backUrlList = array(
+		'google' => 'http://www.google.com/search?hl=en&q=link%3A',
+		'alexa' => 'http://www.alexa.com/site/linksin/',
+		'msn' => 'http://www.bing.com/search?setmkt=en&q=link%3A',
+	);
 	
 	function showBacklink() {
 		
@@ -36,6 +40,7 @@ class BacklinkController extends Controller{
 		$list = array();
 		$i = 1;
 		foreach ($urlList as $url) {
+		    $url = sanitizeData($url);
 			if(!preg_match('/\w+/', $url)) continue;
 			if (SP_DEMO) {
 			    if ($i++ > 10) break;
@@ -50,7 +55,11 @@ class BacklinkController extends Controller{
 	
 	function printBacklink($backlinkInfo){
 		$this->url = $backlinkInfo['url'];
-		print $this->__getBacklinks($backlinkInfo['engine']);
+		$backlinkCount = $this->__getBacklinks($backlinkInfo['engine']);		
+		$websiteUrl = Spider::removeTrailingSlash(formatUrl($backlinkInfo['url']));
+		$websiteUrl = urldecode($websiteUrl);
+		$backlinkUrl = $this->backUrlList[$backlinkInfo['engine']] . $websiteUrl;
+		echo "<a href='$backlinkUrl' target='_blank'>$backlinkCount</a>";
 	}
 	
 	function __getBacklinks ($engine) {
@@ -59,7 +68,7 @@ class BacklinkController extends Controller{
 			
 			#google
 			case 'google':
-				$url = 'http://www.google.com/search?q=link%3A' . urlencode($this->url);			
+				$url = $this->backUrlList[$engine] . urlencode($this->url);			
 				$v = $this->spider->getContent($url);
 				$v = empty($v['page']) ? '' :  $v['page'];
 				if(preg_match('/about ([0-9\,]+) result/si', $v, $r)){					
@@ -70,41 +79,26 @@ class BacklinkController extends Controller{
 				return ($r[1]) ? str_replace(',', '', $r[1]) : 0;
 				break;
 				
-			#yahoo
-			case 'yahoo':
-				$url = "http://siteexplorer.search.yahoo.com/advsearch?p=".urldecode(formatUrl($this->url, false))."&bwm=i&bwmo=d&bwmf=s";
-				$v = $this->spider->getContent($url);
-				$v = empty($v['page']) ? '' :  $v['page'];
-				preg_match('/Inlinks \((.+?)\)/si', $v, $r);
-				return ($r[1]) ? str_replace(',', '', $r[1]) : 0;
-				break;
-				
 			#msn
 			case 'msn':
-				$url = 'http://www.bing.com/search?q=link%3A' . urlencode($this->url);
+			    $url = formatUrl($this->url, false);
+				$url = $this->backUrlList[$engine] . urlencode(addHttpToUrl($url));
 				$v = $this->spider->getContent($url);
-				$v = empty($v['page']) ? '' :  $v['page'];				
-				preg_match('/of ([0-9\,]+) results/si', $v, $r);
+				$v = empty($v['page']) ? '' :  $v['page'];
+		        if (preg_match('/([0-9\,]+) results/si', $v, $r)) {
+				} elseif (preg_match('/id="count".*?>.*?\(([0-9\,]+).*?\)/si', $v, $r)) {
+				}
 				return ($r[1]) ? str_replace(',', '', $r[1]) : 0;
 				break;
 				
-			#altavista
-			case 'altavista':
-				$url = "http://siteexplorer.search.yahoo.com/advsearch?p=".urlencode($this->url)."&bwm=i&bwmf=u&bwms=p&fr=altavista";
-                $v = $this->spider->getContent($url);
-                $v = empty($v['page']) ? '' :  $v['page'];
-                preg_match('/Inlinks \((.+?)\)/si', $v, $r);
-                return ($r[1]) ? str_replace(',', '', $r[1]) : 0;
-                break;
-				
-			#alltheweb
-			case 'alltheweb':				
-				$url = "http://siteexplorer.search.yahoo.com/advsearch?p=".urlencode($this->url)."&bwm=i&bwmf=u&bwms=p&fr=alltheweb";
-                $v = $this->spider->getContent($url);
-                $v = empty($v['page']) ? '' :  $v['page'];
-                preg_match('/Inlinks \((.+?)\)/si', $v, $r);
-                return ($r[1]) ? str_replace(',', '', $r[1]) : 0;
-                break;
+			# alexa
+			case 'alexa':
+				$url = 'http://data.alexa.com/data?cli=10&dat=snbamz&url=' . urlencode($this->url);
+				$v = $this->spider->getContent($url);
+				$v = empty($v['page']) ? '' :  $v['page'];
+				preg_match('/<LINKSIN NUM="(.*?)"/si', $v, $r);
+				return ($r[1]) ? intval($r[1]) : 0;
+				break;
 		}
 		
 		return 0;
@@ -158,8 +152,8 @@ class BacklinkController extends Controller{
 			$this->db->query($sql);
 		}
 		
-		$sql = "insert into backlinkresults(website_id,google,yahoo,msn,result_time)
-				values({$matchInfo['id']},{$matchInfo['google']},{$matchInfo['yahoo']},{$matchInfo['msn']},$time)";
+		$sql = "insert into backlinkresults(website_id,google,alexa,msn,result_time)
+				values({$matchInfo['id']},{$matchInfo['google']},{$matchInfo['alexa']},{$matchInfo['msn']},$time)";
 		$this->db->query($sql);
 	}
 	
@@ -231,21 +225,31 @@ class BacklinkController extends Controller{
 			
 			$i++;
 		}
+		
+		$websiteInfo = $websiteController->__getWebsiteInfo($websiteId);
+		$websiteUrl =  Spider::removeTrailingSlash(formatUrl($websiteInfo['url']));
+		$websiteUrl = urldecode($websiteUrl);
+		$this->set('directLinkList', array(
+		    'google' => $this->backUrlList['google'] . $websiteUrl,		    
+		    'msn' => $this->backUrlList['msn'] . $websiteUrl,
+		    'alexa' => $this->backUrlList['alexa'] . $websiteUrl,
+		));
 
 		$this->set('list', array_reverse($reportList, true));
 		$this->render('backlink/backlinkreport');
 	}
 	
 	# func to get backlink report for a website
-	function __getWebsitebacklinkReport($websiteId, $limit=1) {
+	function __getWebsitebacklinkReport($websiteId, $fromTime, $toTime) {
 		
 		$conditions = empty ($websiteId) ? "" : " and s.website_id=$websiteId";		
 		$sql = "select s.* ,w.name
 				from backlinkresults s,websites w 
 				where s.website_id=w.id 
-				and s.website_id=$websiteId   
+				and s.website_id=$websiteId
+				and (result_time=$fromTime or result_time=$toTime)    
 				order by result_time DESC
-				Limit 0, ".($limit+1);
+				Limit 0,2";
 		$reportList = $this->db->select($sql);
 		$reportList = array_reverse($reportList);
 		
@@ -280,7 +284,7 @@ class BacklinkController extends Controller{
 			$i++;
 		}
 
-		$reportList = array_reverse(array_slice($reportList, count($reportList) - $limit));
+		$reportList = array_reverse(array_slice($reportList, count($reportList) - 1));
 		return $reportList;
 	}
 	

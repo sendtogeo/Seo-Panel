@@ -34,10 +34,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
 	switch($_POST['sec']){
 		case "create":
+		    $_POST = sanitizeData($_POST, true, true);
 			$controller->createProxy($_POST);
 			break;
 			
 		case "update":
+		    $_POST = sanitizeData($_POST, true, true);
 			$controller->updateProxy($_POST);
 			break;
 	}

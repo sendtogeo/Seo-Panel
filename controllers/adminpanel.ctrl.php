@@ -37,13 +37,17 @@ class AdminPanelController extends Controller{
             			'name' => $this->spTextPanel['User Manager'],
             			'url_section' => 'users'						
 						);
-						
+		}
+
+		if (isLoggedIn()) {
 			$menuList[] = array(
 						'id' => 3,
             			'name' => $this->spTextPanel['Reports Manager'],
             			'url_section' => 'report-manager'						
-						);			
-			
+						);
+		}			
+
+		if (isAdmin()) {
 			$menuList[] = array(
 						'id' => 4,
             			'name' => $this->spTextPanel['Seo Tools Manager'],
@@ -55,42 +59,66 @@ class AdminPanelController extends Controller{
             			'name' => $this->spTextPanel['Seo Plugins Manager'],
             			'url_section' => 'seo-plugin-manager'						
 						);
-						
+			
 			$menuList[] = array(
 						'id' => 6,
+            			'name' => $this->spTextPanel['Themes Manager'],
+            			'url_section' => 'themes-manager'						
+						);
+						
+			$menuList[] = array(
+						'id' => 7,
             			'name' => $this->spTextPanel['Directory Manager'],
             			'url_section' => 'directory-manager'						
 						);
 						
 			$menuList[] = array(
-						'id' => 9,
+						'id' => 8,
             			'name' => $this->spTextPanel['Proxy Manager'],
             			'url_section' => 'proxy-manager'						
 						);
 						
 			$menuList[] = array(
-						'id' => 7,
+						'id' => 9,
+            			'name' => $this->spTextPanel['Search Engine Manager'],
+            			'url_section' => 'se-manager'						
+						);
+						
+			$menuList[] = array(
+						'id' => 10,
             			'name' => $this->spTextPanel['System Settings'],
             			'url_section' => 'settings'						
+						);
+		
+		    $menuList[] = array(
+						'id' => 11,
+            			'name' => $this->spTextPanel['My Profile'],
+            			'url_section' => 'my-profile'						
 						);
 		}
 		
 		$menuList[] = array(
-						'id' => 8,
-            			'name' => $this->spTextPanel['My Profile'],
-            			'url_section' => 'my-profile'						
-						);
-		$menuList[] = array(
-						'id' => 10,
+						'id' => 12,
             			'name' => $this->spTextPanel['About Us'],
             			'url_section' => 'about-us'						
 						);
 		
-		$menuSelected = empty($info['menu_selected']) ? 'websites' : $info['menu_selected']; 
+		$menuSelected = empty($info['menu_selected']) ? 'websites' : urldecode($info['menu_selected']); 
 		$this->set('menuList', $menuList);
 		$this->set('menuSelected', $menuSelected);
-		$startScript = empty($info['start_script']) ? "websites.php" : $info['start_script'];
-		$this->set('startFunction', "scriptDoLoad('$startScript', 'content')");
+		$startScript = empty($info['start_script']) ? "websites.php" : urldecode($info['start_script']);
+		if (!stristr($startScript, '.php')) {
+		    $startScript .= ".php";    
+		}
+		
+		$arguments = "";
+		foreach ($info as $key => $value) {
+		    if (!in_array($key, array('menu_selected', 'start_script'))) {
+		        $arguments .= "&$key=".urldecode($value);    
+		    }
+		}
+		
+		$this->set('startFunction', "scriptDoLoad('$startScript', 'content', '$arguments')");
 		
 		$this->render('adminpanel/adminpanel');
 	}

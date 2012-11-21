@@ -23,7 +23,11 @@
 # class defines all backlink controller functions
 class SaturationCheckerController extends Controller{
 	var $url;
-	var $colList = array('google' => 'google', 'yahoo' => 'yahoo', 'msn' => 'msn');
+	var $colList = array('google' => 'google', 'msn' => 'msn');
+	var $saturationUrlList = array(
+		'google' => 'http://www.google.com/search?hl=en&q=site%3A',
+		'msn' => 'http://www.bing.com/search?setmkt=en&q=site%3A',
+	);
 	
 	function showSaturationChecker() {
 		
@@ -35,6 +39,7 @@ class SaturationCheckerController extends Controller{
 		$list = array();
 		$i = 1;
 		foreach ($urlList as $url) {
+		    $url = sanitizeData($url);
 			if(!preg_match('/\w+/', $url)) continue;
 			if (SP_DEMO) {
 			    if ($i++ > 10) break;
@@ -49,7 +54,10 @@ class SaturationCheckerController extends Controller{
 	
 	function printSearchEngineSaturation($saturationInfo){
 		$this->url = $saturationInfo['url'];
-		print $this->__getSaturationRank($saturationInfo['engine']);
+		$saturationCount = $this->__getSaturationRank($saturationInfo['engine']);
+		$websiteUrl = urldecode($this->url);
+		$saturationUrl = $this->saturationUrlList[$saturationInfo['engine']] . $websiteUrl;
+		echo "<a href='$saturationUrl' target='_blank'>$saturationCount</a>";
 	}
 	
 	function __getSaturationRank ($engine) {
@@ -58,7 +66,7 @@ class SaturationCheckerController extends Controller{
 			
 			#google
 			case 'google':
-				$url = 'http://www.google.com/search?q=site%3A' . urlencode($this->url);			
+				$url = $this->saturationUrlList[$engine] . urlencode($this->url);			
 				$v = $this->spider->getContent($url);
 				$v = empty($v['page']) ? '' :  $v['page'];				
 				
@@ -76,21 +84,14 @@ class SaturationCheckerController extends Controller{
 				return $rank;
 				break;
 				
-			#yahoo
-			case 'yahoo':
-				$url = 'http://siteexplorer.search.yahoo.com/advsearch?p=' . urldecode(formatUrl($this->url, false));
-				$v = $this->spider->getContent($url);
-				$v = empty($v['page']) ? '' :  $v['page'];
-				preg_match('/Pages \(([0-9\,]+)\)/si', $v, $r);
-				return ($r[1]) ? str_replace(',', '', $r[1]) : 0;
-				break;
-				
 			#msn
 			case 'msn':
-				$url = 'http://www.bing.com/search?q=site%3A' . urlencode($this->url);
+				$url = $this->saturationUrlList[$engine] . urlencode(addHttpToUrl($this->url));
 				$v = $this->spider->getContent($url);
-				$v = empty($v['page']) ? '' :  $v['page'];				
-				preg_match('/of ([0-9\,]+) results/si', $v, $r);
+				$v = empty($v['page']) ? '' :  $v['page'];
+		        if (preg_match('/([0-9\,]+) results/si', $v, $r)) {
+				} elseif (preg_match('/id="count".*?>.*?\(([0-9\,]+).*?\)/si', $v, $r)) {
+				}
 				return ($r[1]) ? str_replace(',', '', $r[1]) : 0;
 				break;
 		}
@@ -147,8 +148,8 @@ class SaturationCheckerController extends Controller{
 			$this->db->query($sql);
 		}
 		
-		$sql = "insert into saturationresults(website_id,google,yahoo,msn,result_time)
-				values({$matchInfo['id']},{$matchInfo['google']},{$matchInfo['yahoo']},{$matchInfo['msn']},$time)";
+		$sql = "insert into saturationresults(website_id,google,msn,result_time)
+				values({$matchInfo['id']},{$matchInfo['google']},{$matchInfo['msn']},$time)";
 		$this->db->query($sql);
 	}
 	
@@ -220,20 +221,27 @@ class SaturationCheckerController extends Controller{
 			
 			$i++;
 		}
+		
+		$websiteInfo = $websiteController->__getWebsiteInfo($websiteId);
+		$websiteUrl = urldecode($websiteInfo['url']);
+		$this->set('directLinkList', array(
+		    'google' => $this->saturationUrlList['google'] . $websiteUrl,		    
+		    'msn' => $this->saturationUrlList['msn'] . $websiteUrl,
+		));
 
 		$this->set('list', array_reverse($reportList, true));
 		$this->render('saturationchecker/saturationreport');
 	}
 	
 	# func to get reports of saturation of a website
-	function __getWebsiteSaturationReport($websiteId, $limit=1) {
+	function __getWebsiteSaturationReport($websiteId, $fromTime, $toTime) {
 				
 		$sql = "select s.* ,w.name
-								from saturationresults s,websites w 
-								where s.website_id=w.id 
-								 and s.website_id=$websiteId  
-								order by result_time DESC
-								Limit 0, ".($limit+1);
+				from saturationresults s,websites w 
+				where s.website_id=w.id 
+				and s.website_id=$websiteId	and (result_time=$fromTime or result_time=$toTime)     
+				order by result_time DESC
+				Limit 0,2";
 		$reportList = $this->db->select($sql);
 		$reportList = array_reverse($reportList);
 		
@@ -268,7 +276,7 @@ class SaturationCheckerController extends Controller{
 			$i++;
 		}
 
-		$reportList = array_reverse(array_slice($reportList, count($reportList) - $limit));
+		$reportList = array_reverse(array_slice($reportList, count($reportList) - 1));
 		return $reportList;
 	}
 	

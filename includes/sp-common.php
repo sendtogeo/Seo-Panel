@@ -255,6 +255,15 @@ function removeNewLines($value) {
 
 # func to get current url
 function getCurrentUrl() {
+    
+    // to fix the issues with IIS
+    if (!isset($_SERVER['REQUEST_URI'])) {
+        $_SERVER['REQUEST_URI'] = substr($_SERVER['PHP_SELF'],1 );
+        if (isset($_SERVER['QUERY_STRING'])) {
+            $_SERVER['REQUEST_URI'].='?'.$_SERVER['QUERY_STRING'];
+        }
+    }
+    
 	$reqUrl = $_SERVER['REQUEST_URI'];
 	$protocol = empty($_SERVER['HTTPS']) ? "http://" : "https://";
 	$port = empty($_SERVER['SERVER_PORT']) ?  "" : (int) $_SERVER['SERVER_PORT'];
@@ -294,15 +303,115 @@ function exportToCsv($fileName, $content) {
 }
 
 # func to show printer hearder
-function showPrintHeader($headMsg='') {
+function showPrintHeader($headMsg='', $doPrint=true) {
     ?>
 	<script language="Javascript" src="<?=SP_JSPATH?>/common.js"></script>
 	<script type="text/javascript">
-		window.print();
+		<?php if ($doPrint) { ?>
+			window.print();
+		<?php }?>
 		loadJsCssFile("<?=SP_CSSPATH?>/screen.css", "css");
 	</script>	
     <style>BODY{background-color:white;padding:50px 10px;}</style>
 	<?php
 	if (!empty($headMsg)) echo showSectionHead($headMsg);
+}
+
+# func to show printer footer
+function showPrintFooter($spText) {
+    ?>
+    <div style="clear: both; margin-top: 10px;"><?php echo str_replace('[year]', date('Y'), $spText['common']['copyright'])?></div>
+	<?php
+}
+
+# func to debug the variables
+function debugVar($value) {
+    echo "<pre>";print_r($value);echo "</pre>";
+}
+
+# func to send mail
+function sendMail($from, $fromName, $to ,$subject,$content){
+	$mail = new PHPMailer();
+	
+	# check whether the mail send by smtp or not
+	if(SP_SMTP_MAIL){
+		$mail->IsSMTP();	
+		$mail->SMTPAuth = true;
+		$mail->Host = SP_SMTP_HOST;
+		$mail->Username = SP_SMTP_USERNAME;
+		$mail->Password = SP_SMTP_PASSWORD;
+	}
+
+	$mail->From = $from;
+	$mail->FromName = $fromName;
+	$mail->AddAddress($to, "");
+	$mail->WordWrap = 70;                              
+	$mail->IsHTML(true);
+
+	$mail->Subject = $subject;
+	$mail->Body = $content;
+	if(!$mail->Send()){
+		return 0;
+	}else{
+		return 1;
+	}
+}
+
+# func to sanitize data to prevent attacks
+function sanitizeData($data, $stripTags=true, $addSlashes=false) {
+    
+    if (is_array($data)) {
+        foreach ($data as $col => $val) {
+
+            if ( ($col == 'password') ||  ($col== 'confirmPassword') ) {
+                continue;
+            }
+            
+            if ($stripTags) {
+                $val = strip_tags($val);
+            } 
+            
+            if ($addSlashes) {
+                $val = addslashes($val);
+            }
+            
+            $data[$col] = $val;
+        }
+    } else {
+        if ($stripTags) {
+            $data = strip_tags($data);
+        } 
+        
+        if ($addSlashes) {
+            $data = addslashes($data);
+        }
+    }
+    return $data;
+}
+
+# func to get rounded tab top
+function getRoundTabTop(){
+	
+	$content = '
+		<b class="round_border">
+			<b class="round_border_layer3"></b>
+			<b class="round_border_layer2"></b>
+			<b class="round_border_layer1"></b>
+		</b>
+	';
+	return $content;
+}
+
+# func to get rounded tab bottom
+function getRoundTabBot(){
+	
+	$content = '
+		<b class="round_border">
+			<b class="round_border_layer1"></b>
+			<b class="round_border_layer2"></b>
+			<b class="round_border_layer3"></b>
+		</b>
+	';
+	return $content;
 }
 ?>

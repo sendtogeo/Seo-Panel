@@ -27,6 +27,7 @@ if(!empty($_SERVER['REQUEST_METHOD'])){
 	checkAdminLoggedIn();
 	include_once(SP_CTRLPATH."/cron.ctrl.php");
 	$controller = New CronController();
+	$controller->timeStamp = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
 	$controller->set('spTextTools', $controller->getLanguageTexts('seotools', $_SESSION['lang_code']));
 	$controller->set('spTextPanel', $controller->getLanguageTexts('panel', $_SESSION['lang_code']));
 	$controller->spTextKeyword = $controller->getLanguageTexts('keyword', $_SESSION['lang_code']);
@@ -63,6 +64,9 @@ if(!empty($_SERVER['REQUEST_METHOD'])){
 	# the section for generate reports using system cron job
 	include_once("includes/sp-load.php");
 	include_once(SP_CTRLPATH."/cron.ctrl.php");
+	include_once(SP_CTRLPATH."/report.ctrl.php");
+    include_once(SP_CTRLPATH."/searchengine.ctrl.php");
+    include_once(SP_CTRLPATH."/keyword.ctrl.php");
 	$controller = New CronController();
 	$controller->timeStamp = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
 	

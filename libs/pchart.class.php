@@ -110,7 +110,7 @@
    var $ErrorReporting = FALSE;
    var $ErrorInterface = "CLI";
    var $Errors         = NULL;
-   var $ErrorFontName  = "Fonts/pf_arma_five.ttf";
+   var $ErrorFontName  = "fonts/tahoma.ttf";
    var $ErrorFontSize  = 6;
 
    /* vars related to the graphing area */

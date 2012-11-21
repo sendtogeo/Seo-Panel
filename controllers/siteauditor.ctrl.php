@@ -23,8 +23,8 @@
 # class defines all site auditor controller functions
 class SiteAuditorController extends Controller{
     
-    Var $cron = false;                             // to identify whether it is executed through cron
-    var $seArr = array('google', 'yahoo', 'bing'); // the array contains search engines 
+    var $cron = false;                    // to identify whether it is executed through cron
+    var $seArr = array('google', 'bing'); // the array contains search engines 
     
 	function showAuditorProjects($info="") {
 	    
@@ -553,10 +553,8 @@ class SiteAuditorController extends Controller{
             'external_links' => $this->spTextSA["External Links"],
         	'total_links' => $this->spTextSA["Total Links"],
             'google_backlinks' => "Google {$spTextHome['Backlinks']}",
-            'yahoo_backlinks' => "Yahoo {$spTextHome['Backlinks']}",
             'bing_backlinks' => "Bing {$spTextHome['Backlinks']}",
             'google_indexed' => "Google {$spTextHome['Indexed']}",
-            'yahoo_indexed' => "Yahoo {$spTextHome['Indexed']}",
             'bing_indexed' => "Bing {$spTextHome['Indexed']}",
 		    'crawled' => $this->spTextSA['Crawled'],
 		    'brocken' => $_SESSION['text']['label']['Brocken'],
@@ -575,7 +573,7 @@ class SiteAuditorController extends Controller{
 			$exportContent .= createExportContent(array($_SESSION['text']['label']['Updated'], $projectInfo['last_updated']));
 			$exportContent .= createExportContent(array($_SESSION['text']['label']['Total Results'], $this->db->noRows));
 			$exportContent .= createExportContent(array());
-			$exportContent .= createExportContent(array($spText['common']['No'],$headArr['page_url'],$headArr['pagerank'],$headArr['google_backlinks'],$headArr['yahoo_backlinks'],$headArr['bing_backlinks'],$headArr['google_indexed'],$headArr['yahoo_indexed'],$headArr['bing_indexed'],$headArr['external_links'],$headArr['total_links'],$headArr['score'],$headArr['brocken'],$headArr['crawled'],$headArr['page_title'],$headArr['page_description'],$headArr['page_keywords'],$headArr['comments']));
+			$exportContent .= createExportContent(array($spText['common']['No'],$headArr['page_url'],$headArr['pagerank'],$headArr['google_backlinks'],$headArr['bing_backlinks'],$headArr['google_indexed'],$headArr['bing_indexed'],$headArr['external_links'],$headArr['total_links'],$headArr['score'],$headArr['brocken'],$headArr['crawled'],$headArr['page_title'],$headArr['page_description'],$headArr['page_keywords'],$headArr['comments']));
 			$auditorComp = $this->createComponent('AuditorComponent');
 			foreach($reportList as $i => $listInfo) {			    
 			    if ($listInfo['crawled']) {			        
@@ -586,7 +584,7 @@ class SiteAuditorController extends Controller{
 			    }			    
 			    $listInfo['crawled'] = $listInfo['crawled'] ? $spText['common']['Yes'] : $spText['common']['No'];
 			    $listInfo['brocken'] = $listInfo['brocken'] ? $spText['common']['Yes'] : $spText['common']['No'];
-				$exportContent .= createExportContent(array($i+1, $listInfo['page_url'],$listInfo['pagerank'],$listInfo['google_backlinks'],$listInfo['yahoo_backlinks'],$listInfo['bing_backlinks'],$listInfo['google_indexed'],$listInfo['yahoo_indexed'],$listInfo['bing_indexed'],$listInfo['external_links'],$listInfo['total_links'],$listInfo['score'],$listInfo['brocken'],$listInfo['crawled'],$listInfo['page_title'],$listInfo['page_description'],$listInfo['page_keywords'],$comments));
+				$exportContent .= createExportContent(array($i+1, $listInfo['page_url'],$listInfo['pagerank'],$listInfo['google_backlinks'],$listInfo['bing_backlinks'],$listInfo['google_indexed'],$listInfo['bing_indexed'],$listInfo['external_links'],$listInfo['total_links'],$listInfo['score'],$listInfo['brocken'],$listInfo['crawled'],$listInfo['page_title'],$listInfo['page_description'],$listInfo['page_keywords'],$comments));
 			}			
 			exportToCsv('siteauditor_report', $exportContent);
 		} else {					

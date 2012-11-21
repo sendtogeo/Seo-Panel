@@ -66,7 +66,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		case "deleteall":		    
 		    if (!empty($_POST['ids'])) {
     		    foreach($_POST['ids'] as $id) {
-    		        $controller->__deleteWebsite($id);
+    		        $controller->__deleteProject($id);
     		    }
 		    }		    			
 			$controller->showAuditorProjects($_POST);

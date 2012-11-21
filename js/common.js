@@ -52,7 +52,6 @@ function eraseCookie(name) {
 }
 
 /* site map request */
-var periodic;
 function sitemapDoLoadPost(scriptUrl, scriptForm, scriptPos, scriptArgs, noLoading) {
 	
 	hideDiv('proceed');
@@ -63,8 +62,7 @@ function sitemapDoLoadPost(scriptUrl, scriptForm, scriptPos, scriptArgs, noLoadi
 		method : 'post',
 		parameters : scriptArgs,
 		evalScripts : true,
-		onLoading: function(request){ showLoadingIcon(scriptPos, noLoading); },
-		onComplete : function(request){ periodic.stop();}
+		onLoading: function(request){ showLoadingIcon(scriptPos, noLoading); }
 	});	
 }
 
@@ -283,13 +281,13 @@ function alertDemoMsg(){
     }
 }
 
-function checkCaptcha(checkId, scriptUrl, scriptPos){
-	var noCaptcha = 0;
+function checkDirectoryFilter(checkId, scriptUrl, scriptPos){
+	var noFilter = 0;
 	if(document.getElementById(checkId).checked){
-		noCaptcha = 1;
+		noFilter = 1;
 	}
 	
-	scriptUrl = scriptUrl + "&no_captcha=" + noCaptcha;
+	scriptUrl = scriptUrl + "&" + checkId + "=" + noFilter;
 	scriptDoLoad(scriptUrl, scriptPos);
 }
 
@@ -299,5 +297,13 @@ function checkList(checkId) {
 		if(document.listform.elements[i].type=="checkbox") {
 			document.listform.elements[i].checked = checkall ? true : false;
 		}
+	}
+}
+
+function selectAllOptions(selectBoxId, selectAll) {
+	
+	selectBox = document.getElementById(selectBoxId);
+	for (var i = 0; i < selectBox.options.length; i++) { 
+		selectBox.options[i].selected = selectAll; 
 	}
 }

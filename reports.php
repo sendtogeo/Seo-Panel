@@ -32,6 +32,10 @@ $controller->spTextTools = $controller->getLanguageTexts('seotools', $_SESSION['
 $controller->set('spTextTools', $controller->spTextTools);
 $controller->spTextKeyword = $controller->getLanguageTexts('keyword', $_SESSION['lang_code']);
 $controller->set('spTextKeyword', $controller->spTextKeyword);
+$controller->spTextPanel = $controller->getLanguageTexts('panel', $_SESSION['lang_code']);
+$controller->set('spTextPanel', $controller->spTextPanel);
+$controller->spTextReport = $controller->getLanguageTexts('report', $_SESSION['lang_code']);
+$controller->set('spTextReport', $controller->spTextReport);
 
 $controller->layout = 'ajax';
 
@@ -45,6 +49,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		
 		case "reportsum":
 			$controller->showKeywordReportSummary($_POST);
+			break;
+
+		case "schedule":
+			$controller->saveReportSchedule($_POST);
 			break;	
 			
 		default:
@@ -65,8 +73,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			
 		case "reportsum":
 			$controller->showKeywordReportSummary($_GET);
-			break;			
-			
+			break;
+
+		case "schedule":
+			$controller->showReportsScheduler(false, $_GET);
+			break;
+						
 		default:
 			$controller->showReports($_GET);
 			break;

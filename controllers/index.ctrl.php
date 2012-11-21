@@ -77,27 +77,29 @@ class IndexController extends Controller{
 			$saturationCtrler = New SaturationCheckerController();			
 			$dirCtrler = New DirectoryController();
 			
+		    $fromTime = mktime(0, 0, 0, date('m'), date('d') - 1, date('Y'));
+		    $toTime = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
+			
 			$websiteList = array();
 			foreach($list as $listInfo){
 				
 				# rank reports
-				$report = $rankCtrler->__getWebsiteRankReport($listInfo['id']);
+				$report = $rankCtrler->__getWebsiteRankReport($listInfo['id'], $fromTime, $toTime);
 				$report = $report[0];
 				$listInfo['alexarank'] = empty($report['alexa_rank']) ? "-" : $report['alexa_rank']." ".$report['rank_diff_alexa'];
 				$listInfo['googlerank'] = empty($report['google_pagerank']) ? "-" : $report['google_pagerank']." ".$report['rank_diff_google'];
 				
 				# back links reports
-				$report = $backlinlCtrler->__getWebsitebacklinkReport($listInfo['id']);
+				$report = $backlinlCtrler->__getWebsitebacklinkReport($listInfo['id'], $fromTime, $toTime);
 				$report = $report[0];
 				$listInfo['google']['backlinks'] = empty($report['google']) ? "-" : $report['google']." ".$report['rank_diff_google'];
-				$listInfo['yahoo']['backlinks'] = empty($report['yahoo']) ? "-" : $report['yahoo']." ".$report['rank_diff_yahoo'];
+				$listInfo['alexa']['backlinks'] = empty($report['alexa']) ? "-" : $report['alexa']." ".$report['rank_diff_alexa'];
 				$listInfo['msn']['backlinks'] = empty($report['msn']) ? "-" : $report['msn']." ".$report['rank_diff_msn'];
 				
 				# rank reports
-				$report = $saturationCtrler->__getWebsiteSaturationReport($listInfo['id']);
+				$report = $saturationCtrler->__getWebsiteSaturationReport($listInfo['id'], $fromTime, $toTime);
 				$report = $report[0];				
 				$listInfo['google']['indexed'] = empty($report['google']) ? "-" : $report['google']." ".$report['rank_diff_google'];
-				$listInfo['yahoo']['indexed'] = empty($report['yahoo']) ? "-" : $report['yahoo']." ".$report['rank_diff_yahoo'];
 				$listInfo['msn']['indexed'] = empty($report['msn']) ? "-" : $report['msn']." ".$report['rank_diff_msn'];
 				
 				$listInfo['dirsub']['total'] = $dirCtrler->__getTotalSubmitInfo($listInfo['id']);
@@ -125,10 +127,9 @@ class IndexController extends Controller{
 					'Google Pagerank',
 					'Alexa Rank',
 					'Google '.$spTextHome['Backlinks'],
-					'Yahoo '.$spTextHome['Backlinks'],
+					'alexa '.$spTextHome['Backlinks'],
 					'Bing '.$spTextHome['Backlinks'],
 					'Google '.$spTextHome['Indexed'],
-					'Yahoo '.$spTextHome['Indexed'],
 					'Bing '.$spTextHome['Indexed'],
 					$_SESSION['text']['common']['Total'].' Submission',
 					$_SESSION['text']['common']['Active'].' Submission',
@@ -141,10 +142,9 @@ class IndexController extends Controller{
 						strip_tags($websiteInfo['googlerank']),
 						strip_tags($websiteInfo['alexarank']),
 						strip_tags($websiteInfo['google']['backlinks']),
-						strip_tags($websiteInfo['yahoo']['backlinks']),
+						strip_tags($websiteInfo['alexa']['backlinks']),
 						strip_tags($websiteInfo['msn']['backlinks']),
-						strip_tags($websiteInfo['google']['indexed']),
-						strip_tags($websiteInfo['yahoo']['indexed']),					
+						strip_tags($websiteInfo['google']['indexed']),					
 						strip_tags($websiteInfo['msn']['indexed']),
 						$websiteInfo['dirsub']['total'],					
 						$websiteInfo['dirsub']['active'],

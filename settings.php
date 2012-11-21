@@ -46,6 +46,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 }else{
 	switch($_GET['sec']){
 		
+		case "reportsettings":
+			$controller->showSystemSettings('report');
+			break;
+		
 		case "aboutus":
 			$controller->showAboutUs();
 			break;

@@ -21,7 +21,7 @@
  ***************************************************************************/
 
 # class defines all database functions
-class Database extends Seopanel{
+class Database{
 	
 	var $dbEngine;
 	

@@ -52,5 +52,53 @@ class SearchEngineController extends Controller{
 		}	
 		return $seList;
 	}
+	
+	# func to show search engines
+	function listSE($info=''){
+		
+		$sql = "select * from searchengines order by id";
+		
+		# pagination setup		
+		$this->db->query($sql, true);
+		$this->paging->setDivClass('pagingdiv');
+		$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
+		$pagingDiv = $this->paging->printPages('searchengine.php', '', 'scriptDoLoad', 'content', 'layout=ajax');		
+		$this->set('pagingDiv', $pagingDiv);
+		$sql .= " limit ".$this->paging->start .",". $this->paging->per_page;
+		
+		$seList = $this->db->select($sql);
+		$this->set('seList', $seList);
+		$this->set('pageNo', $info['pageno']);			
+		$this->render('searchengine/list', 'ajax');
+	}
+	
+	# func to change status of search engine
+	function __changeStatus($seId, $status){		
+		$seId = intval($seId);
+		$sql = "update searchengines set status=$status where id=$seId";
+		$this->db->query($sql);
+	}
+	
+	# func to delete search engine
+	function __deleteSearchEngine($seId){
+		$seId = intval($seId);
+		$sql = "delete from searchengines where id=$seId";
+		$this->db->query($sql);
+		
+		
+		$sql = "select id from searchresults where searchengine_id=$seId";
+		$recordList = $this->db->select($sql);
+		
+		if(count($recordList) > 0){
+			foreach($recordList as $recordInfo){
+				$sql = "delete from searchresultdetails where searchresult_id=".$recordInfo['id'];
+				$this->db->query($sql);
+			}
+			
+			$sql = "delete from searchresults where searchengine_id=$seId";
+			$this->db->query($sql);
+		}		
+		
+	}
 }
 ?>

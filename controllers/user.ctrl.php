@@ -37,6 +37,7 @@ class UserController extends Controller{
 	# login function
 	function login(){	    
 	    
+	    $_POST['userName'] = sanitizeData($_POST['userName']);
 		$this->set('post', $_POST);
 		$errMsg['userName'] = formatErrorMsg($this->validate->checkBlank($_POST['userName']));
 		$errMsg['password'] = formatErrorMsg($this->validate->checkBlank($_POST['password']));
@@ -89,6 +90,7 @@ class UserController extends Controller{
 	
 	# function to start registration
 	function startRegistration(){
+	    $_POST = sanitizeData($_POST);
 		$this->set('post', $_POST);
 		$userInfo = $_POST;
 		$errMsg['userName'] = formatErrorMsg($this->validate->checkUname($userInfo['userName']));
@@ -130,6 +132,7 @@ class UserController extends Controller{
 	# func to show users
 	function listUsers($info=''){
 		
+	    $info['pageno'] = intval($info['pageno']);
 		$sql = "select * from users where utype_id=2 order by username";
 		
 		# pagination setup		
@@ -204,6 +207,13 @@ class UserController extends Controller{
 		return empty($userInfo['id']) ? false :  $userInfo;
 	}
 	
+	# get admin user details
+	function __getAdminInfo(){
+		$sql = "select * from users where utype_id=1";
+		$userInfo = $this->db->select($sql, true);
+		return empty($userInfo['id']) ? false :  $userInfo;
+	}
+	
 	#function to get all users	
 	function __getAllUsers($active=1,$admin=true){
 		$sql = "select * from users where status=$active";
@@ -223,6 +233,7 @@ class UserController extends Controller{
 	}
 	
 	function createUser($userInfo){
+	    $userInfo = sanitizeData($userInfo);
 		$this->set('post', $userInfo);
 		$errMsg['userName'] = formatErrorMsg($this->validate->checkUname($userInfo['userName']));
 		$errMsg['password'] = formatErrorMsg($this->validate->checkPasswords($userInfo['password'], $userInfo['confirmPassword']));
@@ -269,7 +280,7 @@ class UserController extends Controller{
 	}
 	
 	function updateUser($userInfo){
-		
+	    $userInfo = sanitizeData($userInfo);
 		$userInfo['id'] = intval($userInfo['id']);
 		$this->set('post', $userInfo);
 		$errMsg['userName'] = formatErrorMsg($this->validate->checkUname($userInfo['userName']));
@@ -334,7 +345,7 @@ class UserController extends Controller{
 	}
 	
 	function updateMyProfile($userInfo){
-		
+		$userInfo = sanitizeData($userInfo);
 		$userId = isLoggedIn();	
 		$this->set('post', $userInfo);
 		$errMsg['userName'] = formatErrorMsg($this->validate->checkUname($userInfo['userName']));

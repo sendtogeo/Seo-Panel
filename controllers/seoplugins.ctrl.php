@@ -95,7 +95,10 @@ class SeoPluginsController extends Controller{
 		$sql = "select * from seoplugins where status=1 and installed=1 order by id";
 		$menuList = $this->db->select($sql);
 		if(count($menuList) <= 0){
-			$this->set('msg', $_SESSION['text']['label']['noactiveplugins']);
+		    $msg = $_SESSION['text']['label']['noactiveplugins'];
+		    $msgButton = '<a class="actionbut" href="'.SP_PLUGINSITE.'" target="_blank">'.$this->spTextPlugin['Download Seo Panel Plugins'].' &gt;&gt;</a>';
+			$this->set('msg', $msg);
+			$this->set('msgButton', $msgButton);
 			$this->render('common/notfound');
 			exit;
 		}
@@ -189,7 +192,8 @@ class SeoPluginsController extends Controller{
 	}
 	
 	# func to list seo plugin info
-	function listPluginInfo($pluginId){		
+	function listPluginInfo($pluginId){
+	    $pluginId = intval($pluginId);		
 		$this->set('pluginInfo', $this->__getSeoPluginInfo($pluginId));	
 		$this->set('pageNo', $_GET['pageno']);	
 		$this->render('seoplugins/listplugininfo');

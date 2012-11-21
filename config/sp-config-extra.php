@@ -48,6 +48,9 @@ define('SP_MULTIPLE_CRON_EXEC', 1);
 # seo panel plugin info xml file
 define('SP_PLUGININFOFILE', 'plugin.xml');
 
+# seo panel theme info xml file
+define('SP_THEMEINFOFILE', 'theme.xml');
+
 # seo panel plugin site info
 define('SP_PLUGINSITE', 'http://www.seopanel.in/plugins/');
 
@@ -56,6 +59,12 @@ define('SP_PLUGINUPGRADEFILE', 'upgrade.sql');
 
 # The seo panel pagination default
 define('SP_PAGINGNO_DEFAULT', 10);
+
+# prevent sql injection
+define('SP_PREVENT_SQL_INJECTION', true);
+
+# database persistent connection
+define('SP_DB_PERSISTENT_CONNECTION', false);
 
 # The seo panel help page
 define('SP_HELP_LINK', 'http://help.seopanel.in/');
@@ -86,5 +95,8 @@ define('SP_SPONSOR_PAGE', 'http://www.seopanel.in/sponsors.php');
 
 # The seo panel version page
 define('SP_VERSION_PAGE', 'http://www.seopanel.in/getversion.php');
+
+# seo panel theme site url
+define('SP_THEMESITE', 'http://www.seopanel.in/themes/');
 
 ?>

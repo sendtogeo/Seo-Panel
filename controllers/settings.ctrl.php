@@ -25,8 +25,9 @@ class SettingsController extends Controller{
 	
 	var $layout = 'ajax';
 	
-	function showSystemSettings($category='system') {
-		
+	# function to show system settings
+	function showSystemSettings($category='system') {		
+	    $category = addslashes($category);
 		$this->set('list', $this->__getAllSettings(true, 1, $category));
 		
 		if ($category == 'system') {		
@@ -34,9 +35,25 @@ class SettingsController extends Controller{
     		$langList = $langCtrler->__getAllLanguages(" where translated=1");
     		$this->set('langList', $langList);
 		}
+		
 		$this->set('category', $category);
 		
-		$this->render('settings/showsettings');
+		// if report settings page
+		if ($category == 'report') {		    
+		    
+            $spTextReport = $this->getLanguageTexts('report', $_SESSION['lang_code']);
+            $this->set('spTextReport', $spTextReport);		    
+		    $scheduleList = array(
+    			1 => $_SESSION['text']['label']['Daily'],
+    			2 => $spTextReport['2 Days'],
+    			7 => $_SESSION['text']['label']['Weekly'],
+    			30 => $_SESSION['text']['label']['Monthly'],
+    		);
+		    $this->set('scheduleList', $scheduleList);		    
+	        $this->render('settings/showreportsettings');
+		} else {	
+		    $this->render('settings/showsettings');
+		}
 	}
 	
 	function updateSystemSettings($postInfo) {
@@ -55,11 +72,30 @@ class SettingsController extends Controller{
 				case "SP_USER_GEN_REPORT":
 				case "SA_CRAWL_DELAY_TIME":
 				case "SA_MAX_NO_PAGES":
+				case "SP_NUMBER_KEYWORDS_CRON":
 					$postInfo[$setInfo['set_name']] = intval($postInfo[$setInfo['set_name']]);
-					break;					
+					break;
+
+				case "SP_SMTP_HOST":
+			    case "SP_SMTP_USERNAME":
+		        case "SP_SMTP_PASSWORD":		            
+			        // if smtp mail enabled then check all smtp details entered
+			        if (empty($postInfo[$setInfo['set_name']]) && !empty($postInfo['SP_SMTP_MAIL'])) {
+			            $this->set('errorMsg', $this->spTextSettings['entersmtpdetails']);
+	                    $this->showSystemSettings($postInfo['category']);
+	                    exit;
+			        }
+				    break;				    
+				    
+		        case "SP_SYSTEM_REPORT_INTERVAL":
+		            // update users report schedule if system report schedule is greater than them
+		            $postInfo[$setInfo['set_name']] = intval($postInfo[$setInfo['set_name']]);
+		            $sql = "Update reports_settings set report_interval=".$postInfo[$setInfo['set_name']]." where report_interval<".$postInfo[$setInfo['set_name']];
+		            $userList = $this->db->query($sql);
+		            break;
 			}
 			
-			$sql = "update settings set set_val='".addslashes($postInfo[$setInfo['set_name']])."' where set_name='{$setInfo['set_name']}'";
+			$sql = "update settings set set_val='".addslashes($postInfo[$setInfo['set_name']])."' where set_name='".addslashes($setInfo['set_name'])."'";
 			$this->db->query($sql);
 		}
 		

@@ -211,6 +211,15 @@ class Install {
 	}
 	
 	function getWebPath(){
+	    
+	    // to fix the issue with IIS
+	    if (!isset($_SERVER['REQUEST_URI'])) {
+            $_SERVER['REQUEST_URI'] = substr($_SERVER['PHP_SELF'], 1 );
+            if (isset($_SERVER['QUERY_STRING'])) {
+                $_SERVER['REQUEST_URI'].='?'.$_SERVER['QUERY_STRING'];
+            }
+        }	    
+	    
 		$reqUrl = $_SERVER['REQUEST_URI'];
 		$count = 0;
 		$reqUrl = preg_replace('/\/install\/$/i', '', $reqUrl, 1, $count);		
@@ -258,6 +267,14 @@ class Install {
 
 		# importing data to db
 		$errMsg = $db->importDatabaseFile(SP_INSTALL_DB_FILE);
+		if($db->error ){
+			$errMsg = "Error occured while importing data: ". $errMsg;
+			$this->startInstallation($info, $errMsg);
+			return;
+		}
+		
+		# importing text file
+		$errMsg = $db->importDatabaseFile(SP_INSTALL_DB_LANG_FILE);
 		if($db->error ){
 			$errMsg = "Error occured while importing data: ". $errMsg;
 			$this->startInstallation($info, $errMsg);
@@ -505,6 +522,7 @@ class Install {
 
 		# importing text file
 		$errMsg = $db->importDatabaseFile(SP_UPGRADE_DB_LANG_FILE, false);
+		$_SESSION['text'] = "";
 		
 		# create API Key if not exists
 		$this->createSeoPanelAPIKey($db);
@@ -556,7 +574,7 @@ class Install {
 	
 	# function to create seo panel API Key
 	function createSeoPanelAPIKey($db) {
-	    $sql = "Select set_val from settings where set_name='SP_API_KEY'";
+	    $sql = "Select id, set_val from settings where set_name='SP_API_KEY'";
 	    $apiInfo = $db->select($sql, true);
 
 	    if (empty($apiInfo['set_val'])) {
@@ -565,7 +583,11 @@ class Install {
 	        $apiKey .= rand(10000000, 100000000);
 	        $apiKey = md5($apiKey);
 	        
-	        $sql = "Insert into settings(set_label,set_name,set_val,set_type) values('Seo Panel API Key', 'SP_API_KEY', '$apiKey', 'large')";
+	        if (empty($apiInfo['id'])) {
+	            $sql = "Insert into settings(set_label,set_name,set_val,set_type) values('Seo Panel API Key', 'SP_API_KEY', '$apiKey', 'large')";
+	        } else {
+	            $sql = "update settings set set_val='$apiKey' where set_name='SP_API_KEY'";
+	        }
 	        $apiInfo = $db->query($sql);
 	    }
 	}	    

@@ -29,9 +29,7 @@ class DirectoryController extends Controller{
 	function showSubmissionPage( ) {
 		
 		$userId = isLoggedIn();
-		$this->session->setSession('no_captcha', false);
 		$this->session->setSession('dirsub_pr', '');
-		$this->session->setSession('dirsub_lang', '');
 		
 		$websiteController = New WebsiteController();
 		$this->set('websiteList', $websiteController->__getAllWebsites($userId, true));
@@ -180,9 +178,10 @@ class DirectoryController extends Controller{
 		if(!empty($_SESSION['no_captcha'])) $sql .= " and is_captcha=0";
 		if(!empty($_SESSION['dirsub_pr'])) $sql .= " and google_pagerank={$_SESSION['dirsub_pr']}";
 		if(!empty($_SESSION['dirsub_lang'])) $sql .= " and lang_code='{$_SESSION['dirsub_lang']}'";
+		if(!empty($_SESSION['no_reciprocal'])) $sql .= " and extra_val not like '%LINK_TYPE=reciprocal%'";
 		if(!empty($dirId)) $sql .= " and id=$dirId";
 		if(count($dirList) > 0) $sql .= " and id not in (".implode(',', $dirList).")";
-		$sql .= " order by id";
+		$sql .= " order by rank DESC, extra_val ASC, id ASC";
 		$dirInfo = $this->db->select($sql, true);
 		$this->set('dirInfo', $dirInfo);		
 		
@@ -355,6 +354,11 @@ class DirectoryController extends Controller{
 			if(preg_match('/<td.*?class="msg".*?>(.*?)<\/td>/is', $page, $matches)){
 				$this->set('msg', $matches[1]);
 				$status = 1;
+				
+				// to update the rank of directory
+				$sql = "update directories set rank=rank+1 where id=".$submitInfo['dir_id'];
+				$this->db->query($sql);
+				
 			}else{
 				$status = 0;
 				$this->set('msg', $this->spTextDir['nosuccessnote']);
@@ -527,7 +531,7 @@ class DirectoryController extends Controller{
 	}
 	
 	function updateSubmissionStatus($dirId, $status){
-		
+		$status = intval($status);
 		$dirId = intval($dirId);
 		$sql = "Update dirsubmitinfo set active=$status where id=".$dirId;
 		$this->db->query($sql);
@@ -580,9 +584,31 @@ class DirectoryController extends Controller{
 		echo "<script>scriptDoLoadPost('directories.php', 'search_form', 'content', '&sec=reports');</script>";
 	}
 	
-	function showFeaturedSubmission() {
-		
+	# function to show featured directories
+	function showFeaturedSubmission($info="") {
+	    $dirList = $this->getAllFeaturedDirectories();
+	    $this->set('list', $dirList);    
+//	    if (empty($info['dir_id'])) {
+//	        $selDirInfo = $dirList[1];
+//	        $selDirId = $selDirInfo['id'];
+//	    } else {
+//	        $selDirId = intval($info['dir_id']); 
+//	        $selDirInfo = $dirList[$selDirId];   
+//	    }
+//	    $this->set('selDirId', $selDirId);
+//	    $this->set('selDirInfo', $selDirInfo); 	    
 		$this->render('directory/featuredsubmission');
+	}	
+	
+	# function to get all features directories
+    function getAllFeaturedDirectories() {
+		$sql = "SELECT * FROM featured_directories where status=1 order by  google_pagerank DESC";		
+		$list = $this->db->select($sql);
+		$dirList = array();
+		foreach ($list as $listInfo) {
+		    $dirList[$listInfo['id']] = $listInfo;
+		}
+		return $dirList;
 	}
 	
 	# func to get all directories
@@ -610,21 +636,24 @@ class DirectoryController extends Controller{
 	
 	# func to show directory manager
 	function showDirectoryManager($info=''){		
-		
-		$info['stscheck'] = isset($info['stscheck']) ? $info['stscheck'] : 1;
+		$info = sanitizeData($info);
+		$info['stscheck'] = isset($info['stscheck']) ? intval($info['stscheck']) : 1;
 		$capcheck = isset($info['capcheck']) ? (($info['capcheck'] == 'yes') ? 1 : 0 ) : "";  
-		$sql = "SELECT *,l.lang_name FROM directories d,languages l where d.lang_code=l.lang_code and working={$info['stscheck']}";		
-		if(!empty($info['dir_name'])) $sql .= " and domain like '%{$info['dir_name']}%'";
-		if($info['capcheck'] != '') $sql .= " and is_captcha=$capcheck";
-		if(!empty($info['google_pagerank'])) $sql .= " and google_pagerank={$info['google_pagerank']}";
-		if(!empty($info['lang_code'])) $sql .= " and d.lang_code='{$info['lang_code']}'";
+		$sql = "SELECT *,l.lang_name FROM directories d,languages l where d.lang_code=l.lang_code and working='{$info['stscheck']}'";		
+		if(!empty($info['dir_name'])) $sql .= " and domain like '%".addslashes($info['dir_name'])."%'";
+		if($info['capcheck'] != '') $sql .= " and is_captcha='$capcheck'";
+		if(isset($info['google_pagerank']) && ($info['google_pagerank'] != '')) $sql .= " and google_pagerank='".intval($info['google_pagerank'])."'";
+		if (!empty($info['langcode'])) { $info['lang_code'] = $info['langcode']; }
+		if(!empty($info['lang_code'])) $sql .= " and d.lang_code='".addslashes($info['lang_code'])."'";
 		$sql .= " order by id";		
 		
 		# pagination setup		
 		$this->db->query($sql, true);
 		$this->paging->setDivClass('pagingdiv');
 		$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
-		$pagingDiv = $this->paging->printPages('directories.php?sec=directorymgr&dir_name='.urlencode($info['dir_name'])."&stscheck={$info['stscheck']}&capcheck={$info['capcheck']}");		
+		$pageScriptPath = 'directories.php?sec=directorymgr&dir_name='.urlencode($info['dir_name'])."&stscheck={$info['stscheck']}&capcheck=".$info['capcheck'];
+		$pageScriptPath .= "&google_pagerank=".$info['google_pagerank']."&langcode=".$info['lang_code'];
+		$pagingDiv = $this->paging->printPages($pageScriptPath);		
 		$this->set('pagingDiv', $pagingDiv);
 		$sql .= " limit ".$this->paging->start .",". $this->paging->per_page;
 		
@@ -653,6 +682,7 @@ class DirectoryController extends Controller{
 	# func to change status of directory
 	function changeStatusDirectory($dirId, $status, $printLink=false){
 		
+	    $status = intval($status);
 		$dirId = intval($dirId);
 		$sql = "update directories set working=$status where id=$dirId";
 		$this->db->query($sql);
@@ -694,6 +724,8 @@ class DirectoryController extends Controller{
 		$spider = new Spider(); 
 		$ret = $spider->getContent(addHttpToUrl($dirInfo['submit_url']));
 		$prUpdate = '';
+		$searchUpdate = '';
+		$extraValUpdate = '';
 		
 		if(empty($ret['error']) && !empty($ret['page'])) {								
 			$page = $ret['page'];
@@ -703,6 +735,19 @@ class DirectoryController extends Controller{
 			
 			$captcha = stristr($page, $dirInfo['captcha_script']) ? 1 : 0;
 			
+			// to check search script
+			if (stristr($page, 'name="search"')) {
+				$searchUpdate = ",search_script='index.php?search=[--keyword--]'";			    
+			}
+			
+			// to check  the value of the LINK_TYPE if phpld directory
+			if (($dirInfo['script_type_id'] == 1) && preg_match('/name="LINK_TYPE" value="(\d)"/s', $page)) {
+			    $subject = array('LINK_TYPE=reciprocal', 'LINK_TYPE=normal', 'LINK_TYPE=free');
+			    $replace = array('reciprocal=1&LINK_TYPE=1', 'LINK_TYPE=2', 'LINK_TYPE=3');
+			    $dirInfo['extra_val'] = str_replace($subject, $replace, $dirInfo['extra_val']);
+				$extraValUpdate = ",extra_val='{$dirInfo['extra_val']}'";	    
+			}
+			
 			if ($this->checkPR) {				
 				include_once(SP_CTRLPATH."/rank.ctrl.php");
 				$rankCtrler = New RankController();
@@ -711,7 +756,7 @@ class DirectoryController extends Controller{
 			}
 		}
 		
-		$sql = "update directories set working=$active,is_captcha=$captcha,checked=1 $prUpdate where id=$dirId";
+		$sql = "update directories set working=$active,is_captcha=$captcha,checked=1 $prUpdate $searchUpdate $extraValUpdate where id=$dirId";
 		$this->db->query($sql);
 		
 		if($nodebug){			

@@ -78,18 +78,51 @@ if(file_exists(SP_ABSPATH."/config/sp-config.php")){
 	# system settings
 	define('SP_CONFPATH', SP_ABSPATH."/config");
 	define('SP_CTRLPATH', SP_ABSPATH."/controllers");
-	define('SP_VIEWPATH', SP_ABSPATH."/views");
 	define('SP_INCPATH', SP_ABSPATH."/includes");
 	define('SP_LIBPATH', SP_ABSPATH."/libs");
 	define('SP_TMPPATH', SP_ABSPATH."/tmp");	
-	define('SP_PLUGINPATH', SP_ABSPATH."/plugins");
+	define('SP_PLUGINPATH', SP_ABSPATH."/plugins");	
+	define('SP_THEMEPATH', SP_ABSPATH."/themes");
 	define('SP_DATAPATH', SP_ABSPATH."/install/data");
-
+	define('SP_JSPATH', SP_WEBPATH."/js");	
+	
+	#create database object	
+	include_once(SP_LIBPATH."/database.class.php");
+	$dbObj = New Database(DB_ENGINE);
+	$dbConn = $dbObj->dbConnect();
+	
 	# web settings
-	define('SP_CSSPATH', SP_WEBPATH."/css");
-	define('SP_IMGPATH', SP_WEBPATH."/images");
-	define('SP_JSPATH', SP_WEBPATH."/js");
+	$sql = "select * from themes where status=1 order by id";
+	$themeInfo = $dbConn->select($sql, true);
+	$themeLocation = empty($themeInfo['folder']) ? "themes/classic" : "themes/".$themeInfo['folder'];
+	define('SP_VIEWPATH', SP_ABSPATH."/$themeLocation/views");
+	define('SP_CSSPATH', SP_WEBPATH."/$themeLocation/css");
+	define('SP_IMGPATH', SP_WEBPATH."/$themeLocation/images");
 
+	# to prevent sql injection
+	if(!empty($_SERVER['REQUEST_METHOD']) && SP_PREVENT_SQL_INJECTION){
+	    
+	    # merge all post and get elements
+        foreach (array_merge($_GET, $_POST) AS $name => $value) {
+            
+            # if not a numeric parameter
+            if (is_string($value) && !empty($value) && !is_numeric($value)) {
+               
+                # Search for patterns in the value of the parameter that indicate an SQL injection
+                $pattern = '/(and|or)[\s\(\)\/\*]+(update|delete|select)\W|(select|update).+\.(password|email)|(select|update|delete).+users/im';
+                
+                # replace all matched strings
+                while (preg_match($pattern, $value)) {
+                    if (isset($_GET[$name])) {
+                        $value = $_GET[$name] = $_REQUEST[$name] = preg_replace($pattern, '', $value);
+                    } else {
+                        $value = $_POST[$name] = $_REQUEST[$name] = preg_replace($pattern, '', $value);
+                    }
+                }
+            }
+        }
+    }
+    
 	# create super class object
 	include_once(SP_LIBPATH."/seopanel.class.php");
 	$seopanel = New Seopanel();

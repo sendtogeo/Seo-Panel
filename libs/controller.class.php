@@ -56,6 +56,7 @@ class Controller extends Seopanel{
 		# to define all system variables
 		$force = false;
 		if (!empty($_GET['lang_code'])) {
+		    $_GET['lang_code'] = addslashes($_GET['lang_code']);
 			$this->assignLangCode(trim($_GET['lang_code']));
 			$_GET['lang_code'] = '';
 			$force = true;
@@ -185,11 +186,6 @@ class Controller extends Seopanel{
 				$_SESSION['text'][$category] = $this->getLanguageTexts($category, $langCode);
 			}	
 		}
-	}
-	
-	# destructor
-	function __destruct() {
-		$this->db->close();	
 	}	
 
 	# function to check whether user is keyword owner or not
@@ -200,11 +196,11 @@ class Controller extends Seopanel{
 			switch ($objName) {
 				
 				case "keyword":
-					$sql = "select k.id from keywords k,websites w where k.website_id=w.id and w.user_id=$userId and k.id='$objId'";
+					$sql = "select k.id from keywords k,websites w where k.website_id=w.id and w.user_id='".intval($userId)."' and k.id='".intval($objId)."'";
 					break;
 					
 				case "website":
-					$sql = "select id from websites where id='$objId' and user_id=$userId";
+					$sql = "select id from websites where id='".intval($objId)."' and user_id='".intval($userId)."'";
 					break;
 					
 			}	
@@ -217,28 +213,33 @@ class Controller extends Seopanel{
 			
 	}
 
-	// to create component object
-	public static function createComponent($compName) {
+	# to create component object
+	public function createComponent($compName) {
 	    include_once(SP_CTRLPATH."/components/".strtolower($compName).".php");
 	    $componentObj = new $compName();
 	    return $componentObj;
 	}
 
-	// to create cotroller object
-	public static function createController($ctrlName) {
+	# to create cotroller object
+	public function createController($ctrlName) {
 	    include_once(SP_CTRLPATH."/".strtolower($ctrlName).".ctrl.php");
 	    $ctrlName .= "Controller"; 
 	    $controllerObj = new $ctrlName();
 	    return $controllerObj;
 	}
 	
-	// function to create mysql connect again
+	# function to create mysql connect again
 	function checkDBConn($force=false) {
 		if($force || !is_object($this->db)){
 			$dbObj = New Database(DB_ENGINE);
 			$this->db = $dbObj->dbConnect();
 		}
 	}
-
+	
+	# normal getViewContent function
+	function getViewContent($viewFile){
+		$this->view->data = $this->data;
+		return $this->view->getViewContent($viewFile);
+	}
 }
 ?>

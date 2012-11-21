@@ -64,7 +64,7 @@ class View extends Seopanel{
 		}
 
 		ob_start();
-		include_once(SP_VIEWPATH."/".$viewFile.".ctp.php");
+		include(SP_VIEWPATH."/".$viewFile.".ctp.php");
 		$viewContent = ob_get_contents();
 		ob_end_clean();
 		return $viewContent;
@@ -81,7 +81,7 @@ class View extends Seopanel{
 		}
 
 		ob_start();
-		include_once(SP_VIEWPATH."/".$viewFile.".ctp.php");
+		include(SP_VIEWPATH."/".$viewFile.".ctp.php");
 		$viewContent = ob_get_contents();
 		ob_end_clean();
 		return $viewContent;
@@ -100,7 +100,7 @@ class View extends Seopanel{
 				return $viewContent;
 			}
 		}else{
-			include_once(SP_VIEWPATH."/layout/".$layout.".ctp.php");
+			include(SP_VIEWPATH."/layout/".$layout.".ctp.php");
 		}
 	}
 
@@ -114,7 +114,7 @@ class View extends Seopanel{
 		}
 
 		ob_start();
-		include_once(PLUGIN_VIEWPATH."/".$viewFile.".ctp.php");
+		include(PLUGIN_VIEWPATH."/".$viewFile.".ctp.php");
 		$viewContent = ob_get_contents();
 		ob_end_clean();
 		return $viewContent;
@@ -131,7 +131,7 @@ class View extends Seopanel{
 		}
 
 		ob_start();
-		include_once($viewFile);
+		include($viewFile);
 		$viewContent = ob_get_contents();
 		ob_end_clean();
 		return $viewContent;

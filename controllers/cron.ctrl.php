@@ -22,12 +22,13 @@
 
 # class defines all cron controller functions
 class CronController extends Controller {
-	var $cronList;			// the array includes all tools avialable for cron
-	var $repTools;			// the array includes all tools avialable for report generation
-	var $debug = true;		// to show debug message or not
-	var $layout = 'ajax';   // ajax layout or not
-	var $timeStamp;         // timestamp for storing reports 
-	
+    
+	var $cronList;			    // the array includes all tools avialable for cron
+	var $repTools;			    // the array includes all tools avialable for report generation
+	var $debug = true;		    // to show debug message or not
+	var $layout = 'ajax';       // ajax layout or not
+	var $timeStamp;             // timestamp for storing reports
+	var $checkedKeywords = 0;   // the number of keywords checked in cron, this is used for split cron execution feature       	
 	
 	# function to load all tools required for report generation 
 	function loadReportGenerationTools($includeList=array()){
@@ -100,18 +101,43 @@ class CronController extends Controller {
 	# common cron execute function
 	function executeCron($includeList=array()) {
 		
-		$this->loadCronJobTools($includeList);
+		$this->loadCronJobTools($includeList);		
+		$lastGenerated = date('Y-m-d 00:00:00');
 		
 		$userCtrler = New UserController();
 		$userList = $userCtrler->__getAllUsers();
 		foreach($userList as $userInfo){
+		    
+		    // create report controller
+		    $reportCtrler = New ReportController();
 			
-			$websiteCtrler = New WebsiteController();
-			$websiteList = $websiteCtrler->__getAllWebsites($userInfo['id']);
-			foreach($websiteList as $websiteInfo){
-				
-				$this->websiteInfo = $websiteInfo;
-				$this->routeCronJob($websiteInfo['id'], '', true);
+		    $lastGenerated = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
+		    
+		    // check for user report schedule
+		    $repSetInfo = $reportCtrler->isGenerateReportsForUser($userInfo['id']); 
+			if (!empty($repSetInfo['generate_report'])) {
+			    
+			    $websiteCtrler = New WebsiteController();
+    			$websiteList = $websiteCtrler->__getAllWebsites($userInfo['id']);
+    			
+    			// if websites are available
+    			if (count($websiteList) > 0) {
+    			
+        			foreach($websiteList as $websiteInfo){
+        				
+        				$this->websiteInfo = $websiteInfo;
+        				$this->routeCronJob($websiteInfo['id'], '', true);
+        			}
+        			
+        			// save report generated time
+    				$reportCtrler->updateUserReportSetting($userInfo['id'], 'last_generated', $lastGenerated);
+    				
+    				// send email notification if enabled
+    				if (SP_REPORT_EMAIL_NOTIFICATION && $repSetInfo['email_notification']) {
+    				    $reportCtrler->sentEmailNotificationForReportGen($userInfo, $repSetInfo['last_generated'], $lastGenerated);
+    				}
+    			}
+    			
 			}
 		}		
 	}
@@ -257,6 +283,15 @@ class CronController extends Controller {
 					$this->debugMsg("Crawling keyword </b>{$keywordInfo['name']}</b> results from ".$reportController->seList[$sengineId]['domain']." failed......<br>\n");
 				}
 			}
+			
+			// to implement split cron execution feature
+			if ( (SP_NUMBER_KEYWORDS_CRON > 0) && !empty($crawlResult) ) {
+			    $this->checkedKeywords++;
+			    if ($this->checkedKeywords == SP_NUMBER_KEYWORDS_CRON) {
+			        die("Reached total number of allowed keywords(".SP_NUMBER_KEYWORDS_CRON.") in each cron job");
+			    }
+			}
+			
 			if(empty($reportController->seFound)){
 				$this->debugMsg("Keyword <b>{$keywordInfo['name']}</b> not assigned to required search engines........\n");
 			}
