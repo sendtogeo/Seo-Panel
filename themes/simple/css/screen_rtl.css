@@ -1,0 +1,8 @@
+@CHARSET "UTF-8";
+
+.actionSec A.actionbut {
+	display: block;
+	float: left;
+	height: 18px;
+	margin: 0 4px;
+}
