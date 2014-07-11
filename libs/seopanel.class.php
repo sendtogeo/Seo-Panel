@@ -40,7 +40,7 @@ class Seopanel{
 		include_once(SP_LIBPATH.'/xmlparser.class.php');		
 		include_once(SP_LIBPATH.'/captcha.class.php');		
 		include_once(SP_LIBPATH.'/phpmailer.class.php');
-		Session::startSession();
+		@Session::startSession();
 		
 		# include common functions		
 		include_once(SP_INCPATH.'/sp-common.php');
@@ -51,6 +51,8 @@ class Seopanel{
 		include_once(SP_CTRLPATH.'/website.ctrl.php');
 		include_once(SP_CTRLPATH.'/user.ctrl.php');
 		include_once(SP_CTRLPATH.'/settings.ctrl.php');
+		include_once(SP_CTRLPATH."/crawllog.ctrl.php");
+		include_once(SP_CTRLPATH.'/timezone.ctrl.php');
 		
 		//header ('Content-type: text / html; charset = utf-8');
 	}	

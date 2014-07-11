@@ -58,12 +58,18 @@ class UserController extends Controller{
                 	        
                 	        $userInfo['lang_code'] = $_POST['lang_code'];
                 	    }
+                	    
+                	    // update timezone
+                	    if (!empty($_POST['time_zone'])) {
+                	    	$sql = "UPDATE `settings` SET set_val='".addslashes($_POST['time_zone'])."' WHERE set_name='SP_TIME_ZONE'";
+                	    	$this->db->query($sql);
+                	    }
 					    
 						$uInfo['userId'] = $userInfo['id'];
 						$uInfo['userType'] = $userInfo['user_type']; 
-						Session::setSession('userInfo', $uInfo);
-						Session::setSession('lang_code', $userInfo['lang_code']);
-                	    Session::setSession('text', '');
+						@Session::setSession('userInfo', $uInfo);
+						@Session::setSession('lang_code', $userInfo['lang_code']);
+                	    @Session::setSession('text', '');
 						if ($referer = isValidReferer($_POST['referer'])) {
 							redirectUrl($referer);
 						} else {
@@ -388,6 +394,55 @@ class UserController extends Controller{
 		}
 		$this->set('errMsg', $errMsg);
 		$this->showMyProfile($userInfo);
+	}
+	
+	# forgot password function
+	function forgotPasswordForm(){		
+		$this->render('common/forgot');
+	}
+	
+	# reset password of user
+    function requestPassword($userEmail) {
+        
+		$errMsg['email'] = formatErrorMsg($this->validate->checkEmail($userEmail));
+		$errMsg['code'] = formatErrorMsg($this->validate->checkCaptcha($userInfo['code']));
+		$this->set('post', $_POST);
+		if(!$this->validate->flagErr){
+	        $userId = $this->__checkEmail($userEmail);
+	        if(!empty($userId)){
+	            $userInfo = $this->__getUserInfo($userId);
+	        	$rand = str_shuffle(rand().$userInfo['username']);
+
+	            // get admin details
+	            $adminInfo = $this->__getUserInfo(1);
+	            
+	            # send password to user
+	            $error = 0;
+	           	$this->set('rand', $rand);
+	           	$name = $userInfo['first_name']." ".$userInfo['last_name'];
+	           	$this->set('name', $name);
+	           	$content = $this->getViewContent('email/passwordreset');
+	           	$subject = "Seo panel password reset";
+	           	
+	           	if(!sendMail($adminInfo["email"], $name, $userEmail, $subject, $content)){
+	           		$error = $_SESSION['text']['login']['internal_error_mail_send'];
+	           	} else {
+	           		
+	           		// update password in DB
+	           		$sql = "update users set password=md5('$rand') where id={$userInfo['id']}";
+	           		$this->db->query($sql);
+	           		
+	           	}
+	           	
+	           	$this->set('error', $error);
+	           	$this->render('common/forgotconfirm');
+	           	exit;
+	        }else{
+	            $errMsg['email'] = formatErrorMsg($_SESSION['text']['login']['user_email_not_exist']);
+	        }
+		}
+		$this->set('errMsg', $errMsg);
+		$this->forgotPasswordForm();
 	}
 }
 ?>

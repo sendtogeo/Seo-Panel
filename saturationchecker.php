@@ -41,6 +41,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		case "reports":
 			$controller->showReports($_POST);
 			break;
+		
+		case "saturation":
+			$controller->printSearchEngineSaturation($_POST);
+			break;
 			
 		default:
 			$controller->findSearchEngineSaturation($_POST);

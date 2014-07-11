@@ -26,12 +26,12 @@
 				<td class="td_br_right" style="text-align: left;"><?=$url?></td>
 				<td width="150px" id='googlerank<?=$i?>' class='td_br_right rankarea'>
 					<script type="text/javascript">
-						scriptDoLoad('rank.php', 'googlerank<?=$i?>', 'sec=showpr&url=<? echo urlencode($url); ?>');
+						scriptDoLoadPost('rank.php', 'tmp', 'googlerank<?=$i?>', 'sec=showpr&url=<? echo urlencode($url); ?>');
 					</script>
 				</td>
 				<td class="<?=$rightBotClass?>" width="150px" id='alexarank<?=$i?>' class='rankarea'>
 					<script type="text/javascript">
-						scriptDoLoad('rank.php', 'alexarank<?=$i?>', 'sec=showalexa&url=<? echo urlencode($url); ?>');
+						scriptDoLoadPost('rank.php', 'tmp', 'alexarank<?=$i?>', 'sec=showalexa&url=<? echo urlencode($url); ?>');
 					</script>
 				</td>
 			</tr>

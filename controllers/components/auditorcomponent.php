@@ -28,9 +28,10 @@ class AuditorComponent extends Controller{
     // function to save report info
     function saveReportInfo($reportInfo, $action='create') {
         if ($action == 'create') {
+			$dateTime = date('Y-m-d H:i:s');
             $reportKeys = array_keys($reportInfo);
             $reportValues = array_values($reportInfo);
-            $sql = "insert into auditorreports(".implode(',', $reportKeys).") values('".implode("','", $reportValues)."')";
+            $sql = "insert into auditorreports(".implode(',', $reportKeys).", updated) values('".implode("','", $reportValues)."', '$dateTime')";
         } elseif($action == 'update') {
             $sql = "Update auditorreports set ";
             foreach ($reportInfo as $col => $value) {

@@ -209,7 +209,7 @@ class CronController extends Controller {
 	function backlinkCheckerCron($websiteId){
 		
 		include_once(SP_CTRLPATH."/backlink.ctrl.php");
-		$this->debugMsg("Starting Backlik Checker cron for website: {$this->websiteInfo['name']}....<br>\n");
+		$this->debugMsg("Starting Backlink Checker cron for website: {$this->websiteInfo['name']}....<br>\n");
 		
 		$backlinkCtrler = New BacklinkController();
 		$websiteInfo = $this->websiteInfo;
@@ -258,13 +258,22 @@ class CronController extends Controller {
 		$seController = New SearchEngineController();
 		$reportController->seList = $seController->__getAllCrawlFormatedSearchEngines();
 		
-		$sql = "select k.*,w.url from keywords k,websites w where k.website_id=w.id and w.id=$websiteId and k.status=1";		
-		$sql .= " order by k.name";
-		$keywordList = $reportController->db->select($sql);		
+		// get keywords not to be checked
+		$time = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
+		$sql = "select distinct(keyword_id) from keywordcrontracker kc, keywords k where k.id=kc.keyword_id and k.website_id=$websiteId and time=$time";
+		$keyList = $this->db->select($sql);
+		$excludeKeyList = array(0);
+		foreach ($keyList as $info) {
+			$excludeKeyList[] = $info['keyword_id'];
+		}
 		
+		// get keywords needs to be checked
+		$sql = "select k.*,w.url from keywords k,websites w where k.website_id=w.id and w.id=$websiteId and k.status=1";		
+		$sql .= " and k.id not in(".implode(",", $excludeKeyList).") order by k.name";
+		$keywordList = $reportController->db->select($sql);
 		$this->debugMsg("Starting keyword position checker cron for website: {$this->websiteInfo['name']}....<br>\n");
 		
-		# loop through each keyword			
+		// loop through each keyword			
 		foreach ( $keywordList as $keywordInfo ) {
 			$reportController->seFound = 0;
 			$crawlResult = $reportController->crawlKeyword($keywordInfo, '', true);

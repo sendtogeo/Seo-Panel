@@ -11,7 +11,6 @@ CREATE TABLE IF NOT EXISTS `auditorpagelinks` (
   KEY `report_id` (`report_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
-
 CREATE TABLE IF NOT EXISTS `auditorprojects` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `website_id` int(11) NOT NULL,
@@ -28,7 +27,6 @@ CREATE TABLE IF NOT EXISTS `auditorprojects` (
   PRIMARY KEY (`id`),
   KEY `website_id` (`website_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
-
 
 CREATE TABLE IF NOT EXISTS `auditorreports` (
   `id` bigint(24) NOT NULL AUTO_INCREMENT,
@@ -53,7 +51,6 @@ CREATE TABLE IF NOT EXISTS `auditorreports` (
   KEY `project_id` (`project_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
-
 CREATE TABLE IF NOT EXISTS `backlinkresults` (
   `website_id` int(11) NOT NULL,
   `google` int(11) NOT NULL,
@@ -61,7 +58,6 @@ CREATE TABLE IF NOT EXISTS `backlinkresults` (
   `alexa` int(11) NOT NULL,
   `result_time` int(11) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
 
 CREATE TABLE IF NOT EXISTS `country` (
   `country_code` char(2) COLLATE utf8_unicode_ci NOT NULL,
@@ -317,6 +313,27 @@ INSERT INTO `country` (`country_code`, `country_name`) VALUES
 ('ZM', 'Zambia'),
 ('ZW', 'Zimbabwe');
 
+CREATE TABLE IF NOT EXISTS `crawl_log` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `crawl_type` varchar(20) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'other',
+  `ref_id` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `subject` varchar(60) COLLATE utf8_unicode_ci NOT NULL,
+  `crawl_link` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `crawl_referer` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `crawl_cookie` text COLLATE utf8_unicode_ci NOT NULL,
+  `crawl_post_fields` text COLLATE utf8_unicode_ci NOT NULL,
+  `crawl_useragent` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `crawl_status` tinyint(4) NOT NULL DEFAULT '1',
+  `proxy_id` int(11) unsigned NOT NULL,
+  `log_message` text COLLATE utf8_unicode_ci NOT NULL,
+  `crawl_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `crawl_status` (`crawl_status`),
+  KEY `crawl_type` (`crawl_type`),
+  KEY `ref_id` (`ref_id`),
+  KEY `proxy_id` (`proxy_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+
 CREATE TABLE IF NOT EXISTS `directories` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `domain` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
@@ -501,7 +518,6 @@ CREATE TABLE IF NOT EXISTS `dirsubmitinfo` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
-
 CREATE TABLE IF NOT EXISTS `di_directory_meta` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(150) COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -555,7 +571,6 @@ CREATE TABLE IF NOT EXISTS `keywordcrontracker` (
   KEY `time` (`time`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-
 CREATE TABLE IF NOT EXISTS `keywords` (
   `id` bigint(24) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(120) COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -567,7 +582,6 @@ CREATE TABLE IF NOT EXISTS `keywords` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
-
 CREATE TABLE IF NOT EXISTS `proxylist` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `proxy` varchar(32) COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -576,9 +590,9 @@ CREATE TABLE IF NOT EXISTS `proxylist` (
   `proxy_username` varchar(64) COLLATE utf8_unicode_ci DEFAULT NULL,
   `proxy_password` varchar(64) COLLATE utf8_unicode_ci DEFAULT NULL,
   `status` tinyint(1) NOT NULL DEFAULT '0',
+  `checked` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
-
 
 CREATE TABLE IF NOT EXISTS `rankresults` (
   `website_id` int(11) NOT NULL,
@@ -586,7 +600,6 @@ CREATE TABLE IF NOT EXISTS `rankresults` (
   `alexa_rank` int(11) NOT NULL,
   `result_time` int(11) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
 
 CREATE TABLE IF NOT EXISTS `reports_settings` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -598,14 +611,12 @@ CREATE TABLE IF NOT EXISTS `reports_settings` (
   UNIQUE KEY `user_id` (`user_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
-
 CREATE TABLE IF NOT EXISTS `saturationresults` (
   `website_id` int(11) NOT NULL,
   `google` int(11) NOT NULL,
   `msn` int(11) NOT NULL,
   `result_time` int(11) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
 
 CREATE TABLE IF NOT EXISTS `searchengines` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -628,9 +639,9 @@ CREATE TABLE IF NOT EXISTS `searchengines` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=4 ;
 
 INSERT INTO `searchengines` (`id`, `domain`, `url`, `cookie_send`, `no_of_results_page`, `start`, `start_offset`, `max_results`, `regex`, `from_pattern`, `to_pattern`, `url_index`, `title_index`, `description_index`, `encoding`, `status`) VALUES
-(1, 'www.google.com', 'http://www.google.com/search?hl=[--lang--]&num=[--num--]&q=[--keyword--]&start=[--start--]&cr=country[--country--]&as_qdr=all', '', 100, 0, 100, 100, '<li.*?class="?g.*?<a.*?href="\\/url\\?q=(.*?)&amp;sa=U.*?>(.*?)<\\/a>.*?Cached.*?<span.*?>(.*?)<\\/span>', '<div id="?ires"?>', '<\\/ol>', 1, 2, 3, NULL, 1),
-(2, 'www.yahoo.com', 'http://search.yahoo.com/search?p=[--keyword--]&n=[--num--]&b=[--start--]&vl=lang_[--lang--]&fl=1&v=1&vc=[--country--]', '', 100, 1, 100, 100, '<li.*?<h3><a.*?\\*\\*(.*?)".*?>(.*?)<\\/a><\\/h3>.*?<div.*?>(.*?)<\\/div>.*?<\\/span>', NULL, NULL, 1, 2, 3, NULL, 1),
-(3, 'www.bing.com', 'http://www.bing.com/search?q=[--keyword--]&scope=web&first=[--start--]&setmkt=[--lang--]-[--country--]', 'SRCHHPGUSR=NEWWND=0&NRSLT=50&SRCHLANG=[--lang--]', 50, 1, 50, 100, '<li.*?<h3><a.*?href="(.*?)".*?>(.*?)<\\/a><\\/h3>.*?<p.*?>(.*?)<\\/p>', NULL, NULL, 1, 2, 3, NULL, 1);
+(1, 'www.google.com', 'http://www.google.com/search?hl=[--lang--]&num=[--num--]&q=[--keyword--]&start=[--start--]&cr=country[--country--]&as_qdr=all', '', 100, 0, 100, 100, '<li.*?class="?g.*?<a.*?href="\\/url\\?q=(.*?)&amp;sa=U.*?>(.*?)<\\/a>.*?<\\/div><span.*?>(.*?)<\\/span>', '<div id="?ires"?>', '<\\/ol>', 1, 2, 3, NULL, 1),
+(2, 'www.yahoo.com', 'http://search.yahoo.com/search?p=[--keyword--]&n=[--num--]&b=[--start--]&vl=lang_[--lang--]&fl=1&v=1&vc=[--country--]', '', 100, 1, 100, 100, '<li.*?<h3><a.*?RU=(.*?)\\/.*?>(.*?)<\\/a><\\/h3>.*?<div.*?>(.*?)<\\/div>', NULL, NULL, 1, 2, 3, NULL, 1),
+(3, 'www.bing.com', 'http://www.bing.com/search?q=[--keyword--]&scope=web&first=[--start--]&setmkt=[--lang--]-[--country--]', 'SRCHHPGUSR=NEWWND=0&NRSLT=50&SRCHLANG=[--lang--]', 50, 1, 50, 50, '<li.*?<h3><a.*?href="(.*?)".*?>(.*?)<\\/a><\\/h3>.*?<p.*?>(.*?)<\\/p>', NULL, NULL, 1, 2, 3, NULL, 1);
 
 CREATE TABLE IF NOT EXISTS `searchresultdetails` (
   `searchresult_id` bigint(24) unsigned DEFAULT NULL,
@@ -638,7 +649,6 @@ CREATE TABLE IF NOT EXISTS `searchresultdetails` (
   `title` varchar(160) COLLATE utf8_unicode_ci DEFAULT NULL,
   `description` text COLLATE utf8_unicode_ci
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
 
 CREATE TABLE IF NOT EXISTS `searchresults` (
   `id` bigint(24) unsigned NOT NULL AUTO_INCREMENT,
@@ -648,7 +658,6 @@ CREATE TABLE IF NOT EXISTS `searchresults` (
   `time` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
-
 
 CREATE TABLE IF NOT EXISTS `seoplugins` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -696,7 +705,7 @@ CREATE TABLE IF NOT EXISTS `settings` (
   `display` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   UNIQUE KEY `set_name` (`set_name`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=34 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=39 ;
 
 INSERT INTO `settings` (`id`, `set_label`, `set_name`, `set_val`, `set_category`, `set_type`, `display`) VALUES
 (1, 'Seo Panel Title', 'SP_TITLE', 'Seo Panel: World''s first open source seo control panel for managing multiple web sites', 'system', 'large', 1),
@@ -731,7 +740,12 @@ INSERT INTO `settings` (`id`, `set_label`, `set_name`, `set_val`, `set_category`
 (30, 'System report generation interval', 'SP_SYSTEM_REPORT_INTERVAL', '1', 'report', 'small', 1),
 (31, 'Enable report email notification', 'SP_REPORT_EMAIL_NOTIFICATION', '1', 'report', 'bool', 1),
 (32, 'Number of keywords needs to be checked in each cron execution', 'SP_NUMBER_KEYWORDS_CRON', '0', 'report', 'small', 1),
-(33, 'Crawl relative links in a page', 'SP_RELATIVE_LINK_CRAWL', '1', 'siteauditor', 'bool', 1);
+(33, 'Crawl relative links in a page', 'SP_RELATIVE_LINK_CRAWL', '1', 'siteauditor', 'bool', 1),
+(34, 'Enable HTTP Proxy Tunnel', 'CURLOPT_HTTPPROXYTUNNEL_VAL', '1', 'proxy', 'bool', 1),
+(35, 'Deactivate Proxy When Crawling Failed', 'PROXY_DEACTIVATE_CRAWL', '0', 'proxy', 'bool', 1),
+(36, 'Check With Another Proxy When Crawling Failed', 'CHECK_WITH_ANOTHER_PROXY_IF_FAILED', '0', 'proxy', 'bool', 1),
+(37, 'SMTP Mail Port', 'SP_SMTP_PORT', '25', 'system', 'small', 1),
+(38, 'Time Zone', 'SP_TIME_ZONE', '', 'system', 'medium', 1);
 
 CREATE TABLE IF NOT EXISTS `skipdirectories` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -741,7 +755,6 @@ CREATE TABLE IF NOT EXISTS `skipdirectories` (
   UNIQUE KEY `website_id` (`website_id`,`directory_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
-
 CREATE TABLE IF NOT EXISTS `testplugin` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(64) CHARACTER SET latin1 NOT NULL,
@@ -749,7 +762,6 @@ CREATE TABLE IF NOT EXISTS `testplugin` (
   `status` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
-
 
 CREATE TABLE IF NOT EXISTS `themes` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -767,6 +779,105 @@ CREATE TABLE IF NOT EXISTS `themes` (
 INSERT INTO `themes` (`id`, `name`, `folder`, `author`, `description`, `version`, `website`, `status`, `installed`) VALUES
 (1, 'Classic', 'classic', 'Geo Varghese', 'Classic theme of Seo Panel', '1.0.0', 'http://www.seopanel.in/theme/l/1/classic/', 1, 1),
 (2, 'Simple', 'simple', 'Geo Varghese', 'Simple theme of Seo Panel', '1.0.0', 'http://www.seopanel.in/theme/l/2/simple/', 0, 1);
+
+CREATE TABLE IF NOT EXISTS `timezone` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `timezone_name` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `timezone_label` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=91 ;
+
+INSERT INTO `timezone` (`id`, `timezone_name`, `timezone_label`) VALUES
+(1, 'Pacific/Midway', '(GMT-11:00) Midway Island, Samoa'),
+(2, 'America/Adak', '(GMT-10:00) Hawaii-Aleutian'),
+(3, 'Etc/GMT+10', '(GMT-10:00) Hawaii'),
+(4, 'Pacific/Marquesas', '(GMT-09:30) Marquesas Islands'),
+(5, 'Pacific/Gambier', '(GMT-09:00) Gambier Islands'),
+(6, 'America/Anchorage', '(GMT-09:00) Alaska'),
+(7, 'America/Ensenada', '(GMT-08:00) Tijuana, Baja California'),
+(8, 'Etc/GMT+8', '(GMT-08:00) Pitcairn Islands'),
+(9, 'America/Los_Angeles', '(GMT-08:00) Pacific Time (US & Canada)'),
+(10, 'America/Denver', '(GMT-07:00) Mountain Time (US & Canada)'),
+(11, 'America/Chihuahua', '(GMT-07:00) Chihuahua, La Paz, Mazatlan'),
+(12, 'America/Dawson_Creek', '(GMT-07:00) Arizona'),
+(13, 'America/Belize', '(GMT-06:00) Saskatchewan, Central America'),
+(14, 'America/Cancun', '(GMT-06:00) Guadalajara, Mexico City, Monterrey'),
+(15, 'Chile/EasterIsland', '(GMT-06:00) Easter Island'),
+(16, 'America/Chicago', '(GMT-06:00) Central Time (US & Canada)'),
+(17, 'America/New_York', '(GMT-05:00) Eastern Time (US & Canada)'),
+(18, 'America/Havana', '(GMT-05:00) Cuba'),
+(19, 'America/Bogota', '(GMT-05:00) Bogota, Lima, Quito, Rio Branco'),
+(20, 'America/Caracas', '(GMT-04:30) Caracas'),
+(21, 'America/Santiago', '(GMT-04:00) Santiago'),
+(22, 'America/La_Paz', '(GMT-04:00) La Paz'),
+(23, 'Atlantic/Stanley', '(GMT-04:00) Faukland Islands'),
+(24, 'America/Campo_Grande', '(GMT-04:00) Brazil'),
+(25, 'America/Goose_Bay', '(GMT-04:00) Atlantic Time (Goose Bay)'),
+(26, 'America/Glace_Bay', '(GMT-04:00) Atlantic Time (Canada)'),
+(27, 'America/St_Johns', '(GMT-03:30) Newfoundland'),
+(28, 'America/Araguaina', '(GMT-03:00) UTC-3'),
+(29, 'America/Montevideo', '(GMT-03:00) Montevideo'),
+(30, 'America/Miquelon', '(GMT-03:00) Miquelon, St. Pierre'),
+(31, 'America/Godthab', '(GMT-03:00) Greenland'),
+(32, 'America/Argentina/Buenos_Aires', '(GMT-03:00) Buenos Aires'),
+(33, 'America/Sao_Paulo', '(GMT-03:00) Brasilia'),
+(34, 'America/Noronha', '(GMT-02:00) Mid-Atlantic'),
+(35, 'Atlantic/Cape_Verde', '(GMT-01:00) Cape Verde Is.'),
+(36, 'Atlantic/Azores', '(GMT-01:00) Azores'),
+(37, 'Europe/Belfast', '(GMT) Greenwich Mean Time : Belfast'),
+(38, 'Europe/Dublin', '(GMT) Greenwich Mean Time : Dublin'),
+(39, 'Europe/Lisbon', '(GMT) Greenwich Mean Time : Lisbon'),
+(40, 'Europe/London', '(GMT) Greenwich Mean Time : London'),
+(41, 'Africa/Abidjan', '(GMT) Monrovia, Reykjavik'),
+(42, 'Europe/Berlin', '(GMT+01:00) Amsterdam, Berlin, Bern, Rome, Stockholm, Vienna'),
+(43, 'Europe/Belgrade', '(GMT+01:00) Belgrade, Bratislava, Budapest, Ljubljana, Prague'),
+(44, 'Europe/Brussels', '(GMT+01:00) Brussels, Copenhagen, Madrid, Paris'),
+(45, 'Africa/Algiers', '(GMT+01:00) West Central Africa'),
+(46, 'Africa/Windhoek', '(GMT+01:00) Windhoek'),
+(47, 'Asia/Beirut', '(GMT+02:00) Beirut'),
+(48, 'Africa/Cairo', '(GMT+02:00) Cairo'),
+(49, 'Asia/Gaza', '(GMT+02:00) Gaza'),
+(50, 'Africa/Blantyre', '(GMT+02:00) Harare, Pretoria'),
+(51, 'Asia/Jerusalem', '(GMT+02:00) Jerusalem'),
+(52, 'Europe/Minsk', '(GMT+02:00) Minsk'),
+(53, 'Asia/Damascus', '(GMT+02:00) Syria'),
+(54, 'Europe/Moscow', '(GMT+03:00) Moscow, St. Petersburg, Volgograd'),
+(55, 'Africa/Addis_Ababa', '(GMT+03:00) Nairobi'),
+(56, 'Asia/Tehran', '(GMT+03:30) Tehran'),
+(57, 'Asia/Dubai', '(GMT+04:00) Abu Dhabi, Muscat'),
+(58, 'Asia/Yerevan', '(GMT+04:00) Yerevan'),
+(59, 'Asia/Kabul', '(GMT+04:30) Kabul'),
+(60, 'Asia/Yekaterinburg', '(GMT+05:00) Ekaterinburg'),
+(61, 'Asia/Tashkent', '(GMT+05:00) Tashkent'),
+(62, 'Asia/Kolkata', '(GMT+05:30) Chennai, Kolkata, Mumbai, New Delhi'),
+(63, 'Asia/Katmandu', '(GMT+05:45) Kathmandu'),
+(64, 'Asia/Dhaka', '(GMT+06:00) Astana, Dhaka'),
+(65, 'Asia/Novosibirsk', '(GMT+06:00) Novosibirsk'),
+(66, 'Asia/Rangoon', '(GMT+06:30) Yangon (Rangoon)'),
+(67, 'Asia/Bangkok', '(GMT+07:00) Bangkok, Hanoi, Jakarta'),
+(68, 'Asia/Krasnoyarsk', '(GMT+07:00) Krasnoyarsk'),
+(69, 'Asia/Hong_Kong', '(GMT+08:00) Beijing, Chongqing, Hong Kong, Urumqi'),
+(70, 'Asia/Irkutsk', '(GMT+08:00) Irkutsk, Ulaan Bataar'),
+(71, 'Australia/Perth', '(GMT+08:00) Perth'),
+(72, 'Australia/Eucla', '(GMT+08:45) Eucla'),
+(73, 'Asia/Tokyo', '(GMT+09:00) Osaka, Sapporo, Tokyo'),
+(74, 'Asia/Seoul', '(GMT+09:00) Seoul'),
+(75, 'Asia/Yakutsk', '(GMT+09:00) Yakutsk'),
+(76, 'Australia/Adelaide', '(GMT+09:30) Adelaide'),
+(77, 'Australia/Darwin', '(GMT+09:30) Darwin'),
+(78, 'Australia/Brisbane', '(GMT+10:00) Brisbane'),
+(79, 'Australia/Hobart', '(GMT+10:00) Hobart'),
+(80, 'Asia/Vladivostok', '(GMT+10:00) Vladivostok'),
+(81, 'Australia/Lord_Howe', '(GMT+10:30) Lord Howe Island'),
+(82, 'Etc/GMT-11', '(GMT+11:00) Solomon Is., New Caledonia'),
+(83, 'Asia/Magadan', '(GMT+11:00) Magadan'),
+(84, 'Pacific/Norfolk', '(GMT+11:30) Norfolk Island'),
+(85, 'Asia/Anadyr', '(GMT+12:00) Anadyr, Kamchatka'),
+(86, 'Pacific/Auckland', '(GMT+12:00) Auckland, Wellington'),
+(87, 'Etc/GMT-12', '(GMT+12:00) Fiji, Kamchatka, Marshall Is.'),
+(88, 'Pacific/Chatham', '(GMT+12:45) Chatham Islands'),
+(89, 'Pacific/Tongatapu', '(GMT+13:00) Nuku''alofa'),
+(90, 'Pacific/Kiritimati', '(GMT+14:00) Kiritimati');
 
 CREATE TABLE IF NOT EXISTS `users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -819,4 +930,3 @@ CREATE TABLE IF NOT EXISTS `websites` (
   `status` tinyint(1) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
-

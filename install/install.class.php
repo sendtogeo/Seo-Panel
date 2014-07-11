@@ -293,7 +293,7 @@ class Install {
 			$installUpdateUrl = "http://www.seopanel.in/installupdate.php?url=".urlencode($info['web_path'])."&ip=".$_SERVER['SERVER_ADDR']."&email=".urlencode($info['email']);
 			$installUpdateUrl .= "&version=".SP_INSTALLED;
 			$spider = New Spider();
-			$spider->getContent($installUpdateUrl, false);
+			$spider->getContent($installUpdateUrl, false, false);
 		}
 		
 		$db = New DB();
@@ -305,7 +305,11 @@ class Install {
 		
 		// select languages list
 		$sql = "select * from languages where translated=1";
-		$langList = $db->select($sql);		
+		$langList = $db->select($sql);
+
+		// select timezones
+		$sql = "select * from timezone order by id";
+		$timezoneList = $db->select($sql);
 		?>		
 		<form method="post" action="<?php echo $info['web_path']."/login.php"; ?>">
 		<h1 class="BlockHeader">Seo Panel Installation Success</h1>
@@ -334,6 +338,22 @@ class Install {
             				$selected = ($langInfo['lang_code'] == 'en') ? "selected" : "";
             				?>			
             				<option value="<?=$langInfo['lang_code']?>" <?=$selected?>><?=$langInfo['lang_name']?></option>
+            				<?php
+            			}
+            			?>
+            		</select>
+				</td>
+			</tr>
+			<tr>
+				<td style="border-left: none;">Default Time Zone:</td>
+				<td>
+					<select name="time_zone" style="width: 260px;">
+            			<?php
+            			$listInfo['set_val'] = ini_get('date.timezone');
+            			foreach ($timezoneList as $timezoneInfo) {
+            				$selected = ($timezoneInfo['timezone_name'] == $listInfo['set_val']) ? 'selected="selected"' : "";
+            				?>
+            				<option value="<?=$timezoneInfo['timezone_name']?>" <?=$selected?> ><?=$timezoneInfo['timezone_label']?></option>
             				<?php
             			}
             			?>
@@ -554,6 +574,8 @@ class Install {
 		?>
 		<html>
 			<head>
+				<meta content="text/html; charset=UTF-8" http-equiv="content-type" />
+				<link rel="shortcut icon" href="../images/favicon.ico" />
 				<title>Seo Panel installation interface</title>
 				<meta name="description" content="Seo Panel installation Steps to install seo control panel for managing seo of your sites.">
 				<link rel="stylesheet" type="text/css" href="install.css" media="all" />				

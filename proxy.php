@@ -29,10 +29,12 @@ $controller->layout = 'ajax';
 $controller->set('spTextPanel', $controller->getLanguageTexts('panel', $_SESSION['lang_code']));
 $controller->spTextProxy = $controller->getLanguageTexts('proxy', $_SESSION['lang_code']);
 $controller->set('spTextProxy', $controller->spTextProxy);
+$controller->set('spTextSA', $controller->getLanguageTexts('siteauditor', $_SESSION['lang_code']));
 
-if($_SERVER['REQUEST_METHOD'] == 'POST'){
-
-	switch($_POST['sec']){
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+	
+	switch ($_POST['sec']) {
+		
 		case "create":
 		    $_POST = sanitizeData($_POST, true, true);
 			$controller->createProxy($_POST);
@@ -42,10 +44,64 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		    $_POST = sanitizeData($_POST, true, true);
 			$controller->updateProxy($_POST);
 			break;
+			
+		case "activateall":
+		    if (!empty($_POST['ids'])) {
+    		    foreach($_POST['ids'] as $id) {
+    		        $controller->__changeStatus($id, 1);
+    		    }
+		    }		    			
+			$controller->listProxy($_POST);
+		    break;
+			
+		case "inactivateall":
+		    if (!empty($_POST['ids'])) {
+    		    foreach($_POST['ids'] as $id) {
+    		        $controller->__changeStatus($id, 0);
+    		    }
+		    }			    			
+			$controller->listProxy($_POST);
+		    break;
+		    
+		case "deleteall":		    
+		    if (!empty($_POST['ids'])) {
+    		    foreach($_POST['ids'] as $id) {
+    		        $controller->__deleteProxy($id);
+    		    }
+		    }		    			
+			$controller->listProxy($_POST);
+		    break;
+		    
+	    case "checkall":
+	    	if (!empty($_POST['ids'])) {
+	    		foreach($_POST['ids'] as $id) {
+	    			$controller->checkStatus($id);
+	    		}
+	    	}
+	    	$controller->listProxy($_POST);
+	    	break;
+
+		case "checkAllstatus":
+			$controller->checkAllProxyStatus($_POST);
+			break;
+
+		case "importproxy":
+			$controller->importProxy($_POST);
+			break;
+		
+		case "perfomance":
+			$controller->showProxyPerfomance($_POST);
+			break;
+			
+		default:
+			$controller->listProxy($_POST);
+			break;
+		    
 	}
 
-}else{
-	switch($_GET['sec']){
+} else {
+	
+	switch ($_GET['sec']) {
 		
 		case "Activate":
 			$controller->__changeStatus($_GET['proxyId'], 1);			
@@ -73,6 +129,26 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		case "checkstatus":
 			$controller->checkStatus($_GET['proxyId']);			
 			$controller->listProxy($_GET);
+			break;
+
+		case "checkAllstatus":
+			$controller->showcheckAllStatus($_GET);
+			break;
+
+		case "runcheckstatus":
+			$controller->runCheckStatus($_GET);
+			break;
+
+		case "import":
+			$controller->showImportProxy($_GET);
+			break;
+			
+		case "croncommand":
+			$controller->showCronCommand();
+			break;
+		
+		case "perfomance":
+			$controller->showProxyPerfomance($_GET);
 			break;
 			
 		default:

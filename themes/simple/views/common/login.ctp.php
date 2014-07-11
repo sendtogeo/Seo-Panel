@@ -13,11 +13,11 @@
                 	</tr>
                 	<tr>
                 		<th><?=$spText['login']['Login']?>:</th>
-                		<td><input type="text" name="userName" id="userName" value="<?=$post['userName']?>"><?=$errMsg['userName']?></td>
+                		<td><input type="text" name="userName" id="userName" value="<?=$post['userName']?>"><br><?=$errMsg['userName']?></td>
                 	</tr>
                 	<tr>
                 		<th><?=$spText['login']['Password']?>:</th>
-                		<td><input type="password" name="password" value=""><?=$errMsg['password']?></td>
+                		<td><input type="password" name="password" value=""><a href="<?=SP_WEBPATH?>/login.php?sec=forgot" class="link"><?=$spText['login']['Forgot password?']?></a><br><?=$errMsg['password']?></td>
                 	</tr>
                 	<tr>
                 		<th>&nbsp;</th>

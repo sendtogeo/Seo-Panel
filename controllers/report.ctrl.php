@@ -34,14 +34,14 @@ class ReportController extends Controller {
 			$this->seLIst = $seController->__getAllSearchEngines();
 		}
 		
+		$fromTimeLabel = date('Y-m-d', $fromTime);
+		$toTimeLabel = date('Y-m-d', $toTime);
 		foreach($this->seLIst as $seInfo){
 			$sql = "select min(rank) as rank 
 					from searchresults 
 					where keyword_id=$keywordId and searchengine_id=".$seInfo['id']."
-					and (time=$fromTime or time=$toTime)
-					group by time 
-					order by time DESC
-					limit 0, 2";
+					and (FROM_UNIXTIME(time, '%Y-%m-%d')='$fromTimeLabel' or FROM_UNIXTIME(time, '%Y-%m-%d')='$toTimeLabel')
+					group by time order by time DESC limit 0, 2";
 			$reportList = $this->db->select($sql);
 			$reportList = array_reverse($reportList);
 			
@@ -185,12 +185,12 @@ class ReportController extends Controller {
 		if (!empty ($searchInfo['from_time'])) {
 			$fromTime = strtotime($searchInfo['from_time'] . ' 00:00:00');
 		} else {
-			$fromTime = mktime(0, 0, 0, date('m'), date('d') - 30, date('Y'));
+			$fromTime = @mktime(0, 0, 0, date('m'), date('d') - 30, date('Y'));
 		}
 		if (!empty ($searchInfo['to_time'])) {
 			$toTime = strtotime($searchInfo['to_time'] . ' 23:59:59');
 		} else {
-			$toTime = mktime();
+			$toTime = @mktime();
 		}
 		$this->set('fromTime', date('Y-m-d', $fromTime));
 		$this->set('toTime', date('Y-m-d', $toTime));
@@ -294,12 +294,12 @@ class ReportController extends Controller {
 		if (!empty ($searchInfo['from_time'])) {
 			$fromTime = strtotime($searchInfo['from_time'] . ' 00:00:00');
 		} else {			
-			$fromTime = mktime(0, 0, 0, date('m'), date('d') - 30, date('Y'));
+			$fromTime = @mktime(0, 0, 0, date('m'), date('d') - 30, date('Y'));
 		}
 		if (!empty ($searchInfo['to_time'])) {
 			$toTime = strtotime($searchInfo['to_time'] . ' 23:59:59');
 		} else {
-			$toTime = mktime();
+			$toTime = @mktime();
 		}
 		$this->set('fromTime', date('Y-m-d', $fromTime));
 		$this->set('toTime', date('Y-m-d', $toTime));
@@ -554,9 +554,9 @@ class ReportController extends Controller {
 			$this->seFound = 1;
 			
 			// if execution from cron check whether cron already executed
-			if ($cron) {
+			/*if ($cron) {
 			    if (SP_MULTIPLE_CRON_EXEC && $this->isCronExecuted($keywordInfo['id'], $seInfoId, $time)) continue;
-			}			
+			}*/			
 			
 			$searchUrl = str_replace('[--keyword--]', urlencode(stripslashes($keywordInfo['name'])), $this->seList[$seInfoId]['url']);
 			$searchUrl = str_replace('[--lang--]', $keywordInfo['lang_code'], $searchUrl);
@@ -579,10 +579,17 @@ class ReportController extends Controller {
 			}
 			
 			$result = $this->spider->getContent($seUrl);
-			$pageContent = $this->formatPageContent($seInfoId, $result['page']);
+			$pageContent = $this->formatPageContent($seInfoId, $result['page']);			
+
+			$crawlLogCtrl = new CrawlLogController();
+			$crawlInfo['crawl_type'] = 'keyword';
+			$crawlInfo['ref_id'] = empty($keywordInfo['id']) ? $keywordInfo['name'] : $keywordInfo['id'];
+			$crawlInfo['subject'] = $seInfoId;
 			
 			$seStart = $this->seList[$seInfoId]['start'] + $this->seList[$seInfoId]['start_offset'];
 			while(empty($result['error']) && ($seStart < $this->seList[$seInfoId]['max_results']) ){
+				$logId = $result['log_id'];
+				$crawlLogCtrl->updateCrawlLog($logId, $crawlInfo);
 				sleep(SP_CRAWL_DELAY);
 				$seUrl = str_replace('[--start--]', $seStart, $searchUrl);
 				$result = $this->spider->getContent($seUrl);
@@ -599,15 +606,23 @@ class ReportController extends Controller {
 			if(empty($result['error'])){
 			    
 			    // to update cron that report executed for akeyword on a search engine
-			    if (SP_MULTIPLE_CRON_EXEC && $cron) $this->saveCronTrackInfo($keywordInfo['id'], $seInfoId, $time);		
-				
+			    if (SP_MULTIPLE_CRON_EXEC && $cron) $this->saveCronTrackInfo($keywordInfo['id'], $seInfoId, $time);
+			    
 			    if(preg_match_all($this->seList[$seInfoId]['regex'], $pageContent, $matches)){
+			    	
 					$urlList = $matches[$this->seList[$seInfoId]['url_index']];
 					$crawlResult[$seInfoId]['matched'] = array();
 					$rank = 1;
 					$previousDomain = "";
 					foreach($urlList as $i => $url){
 						$url = urldecode(strip_tags($url));
+						
+						// add special condition for baidu
+						if (stristr($this->seList[$seInfoId]['domain'], "baidu")) {
+							$url =  addHttpToUrl($url);
+							$url = str_replace("...", "", $url);
+						}
+						
 						if(!preg_match('/^http:\/\/|^https:\/\//i', $url)) continue;
 						
 						// check for to remove msn ad links in page
@@ -637,19 +652,30 @@ class ReportController extends Controller {
 						}
 						$rank++;							
 					}
-					$crawlStatus = 1;
-				}else{
+					$crawlStatus = 1;					
+					
+				} else {
+					
+					// set crawl log info
+					$crawlInfo['crawl_status'] = 0;
+					$crawlInfo['log_message'] = "Regex not matched error occured while parsing search results!";
+					
 					if(SP_DEBUG){
 						echo "<p class='note' style='text-align:left;'>Error occured while parsing $seUrl ".formatErrorMsg("Regex not matched <br>\n")."</p>";
 					}
 				}	
-			}else{
-				if(SP_DEBUG){
+			} else {
+				if (SP_DEBUG) {
 					echo "<p class='note' style='text-align:left;'>Error occured while crawling $seUrl ".formatErrorMsg($result['errmsg']."<br>\n")."</p>";
 				}
 			}			
 			$crawlResult[$seInfoId]['status'] = $crawlStatus;			
 			sleep(SP_CRAWL_DELAY);
+			
+			// update crawl log
+			$logId = $result['log_id'];
+			$crawlLogCtrl->updateCrawlLog($logId, $crawlInfo);
+			
 		}
 		return  $crawlResult;
 	}
@@ -982,6 +1008,7 @@ class ReportController extends Controller {
 	
     # func to get report settings data
 	function getUserReportSettings($userId) {
+		$userId = intval($userId);
 		$sql = "select * from reports_settings where user_id=$userId";
 		$repSetInfo = $this->db->select($sql, true);
 		

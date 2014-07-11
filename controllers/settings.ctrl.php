@@ -34,6 +34,11 @@ class SettingsController extends Controller{
     		$langCtrler = New LanguageController();
     		$langList = $langCtrler->__getAllLanguages(" where translated=1");
     		$this->set('langList', $langList);
+    		
+    		$timezoneCtrler = New TimeZoneController();
+    		$timezoneList = $timezoneCtrler->__getAllTimezones();
+    		$this->set('timezoneList', $timezoneList);
+    		
 		}
 		
 		$this->set('category', $category);
@@ -51,6 +56,12 @@ class SettingsController extends Controller{
     		);
 		    $this->set('scheduleList', $scheduleList);		    
 	        $this->render('settings/showreportsettings');
+	        
+		} else if ($category == 'proxy') {		    
+		    
+            $spTextProxy = $this->getLanguageTexts('proxy', $_SESSION['lang_code']);
+            $this->set('spTextProxy', $spTextProxy);		    
+	        $this->render('settings/showproxysettings');
 		} else {	
 		    $this->render('settings/showsettings');
 		}

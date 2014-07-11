@@ -1,8 +1,10 @@
-function scriptDoLoadDialog(scriptUrl, scriptPos, scriptArgs) {
+function scriptDoLoadDialog(scriptUrl, scriptPos, scriptArgs, widthVal, heightVal) {
+	widthVal = widthVal ? widthVal : 900;
+	heightVal = heightVal ? heightVal : 600;
 	$('#dialogContent').dialog({
 	    autoOpen : false,
-	    width : 900,
-	    height : 600,
+	    width : widthVal,
+	    height : heightVal,
 	    title : 'Seo Panel',
 	    modal : true,
 	    close : function() {
@@ -73,7 +75,7 @@ function scriptDoLoadPostDialog(scriptUrl, scriptForm, scriptPos, scriptArgs, no
 function scriptDoLoadGetDialog(scriptUrl, scriptPos, scriptArgs, noLoading) {
 	if(!scriptArgs){ var scriptArgs = ''; }
 	var loadingContent = showLoadingIcon(scriptPos, noLoading);
-	var scriptPos = "#dialogContent #" + scriptPos;
+	var scriptPos = (scriptPos == "content") ? "#dialogContent" : "#dialogContent #" + scriptPos;
 	var dataVals = {
             "method" : "get",
             "dataType" : "html",

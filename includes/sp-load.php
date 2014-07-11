@@ -84,7 +84,8 @@ if(file_exists(SP_ABSPATH."/config/sp-config.php")){
 	define('SP_PLUGINPATH', SP_ABSPATH."/plugins");	
 	define('SP_THEMEPATH', SP_ABSPATH."/themes");
 	define('SP_DATAPATH', SP_ABSPATH."/install/data");
-	define('SP_JSPATH', SP_WEBPATH."/js");	
+	define('SP_JSPATH', SP_WEBPATH."/js");
+	define('SP_IMGPATH', SP_WEBPATH."/images");	
 	
 	#create database object	
 	include_once(SP_LIBPATH."/database.class.php");
@@ -97,7 +98,6 @@ if(file_exists(SP_ABSPATH."/config/sp-config.php")){
 	$themeLocation = empty($themeInfo['folder']) ? "themes/classic" : "themes/".$themeInfo['folder'];
 	define('SP_VIEWPATH', SP_ABSPATH."/$themeLocation/views");
 	define('SP_CSSPATH', SP_WEBPATH."/$themeLocation/css");
-	define('SP_IMGPATH', SP_WEBPATH."/$themeLocation/images");
 
 	# to prevent sql injection
 	if(!empty($_SERVER['REQUEST_METHOD']) && SP_PREVENT_SQL_INJECTION){
@@ -109,7 +109,7 @@ if(file_exists(SP_ABSPATH."/config/sp-config.php")){
             if (is_string($value) && !empty($value) && !is_numeric($value)) {
                
                 # Search for patterns in the value of the parameter that indicate an SQL injection
-                $pattern = '/(and|or)[\s\(\)\/\*]+(update|delete|select)\W|(select|update).+\.(password|email)|(select|update|delete).+users/im';
+                $pattern = '/(and|or)[\s\(\)\/\*]+(update|delete|select)\W|(select|update).+\.(password|email)|(select|update|delete).+users|<script>|<\/script>/im';
                 
                 # replace all matched strings
                 while (preg_match($pattern, $value)) {

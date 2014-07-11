@@ -23,11 +23,11 @@ if(!empty($printVersion)) {
     echo showSectionHead($spTextTools['Keyword Position Summary']);
     ?>
 	<form id='search_form'>
-	<table width="98%" border="0" cellspacing="0" cellpadding="0" class="search">
+	<table width="100%" border="0" cellspacing="0" cellpadding="0" class="search">
 		<tr>
 			<th width="100px"><?=$spText['common']['Website']?>: </th>
-			<td width="200px">
-				<select name="website_id" id="website_id" style='width:190px;' onchange="scriptDoLoadPost('reports.php', 'search_form', 'content', '&sec=reportsum')">
+			<td width="160px">
+				<select name="website_id" id="website_id" style='width:160px;' onchange="scriptDoLoadPost('reports.php', 'search_form', 'content', '&sec=reportsum')">
 					<option value="">-- <?=$spText['common']['All']?> --</option>
 					<?php foreach($websiteList as $websiteInfo){?>
 						<?php if($websiteInfo['id'] == $websiteId){?>
@@ -38,14 +38,14 @@ if(!empty($printVersion)) {
 					<?php }?>
 				</select>
 			</td>
-			<th><?=$spText['common']['Period']?>:</th>
+			<th width="100px;"><?=$spText['common']['Period']?>:</th>
     		<td width="236px">
     			<input type="text" style="width: 80px;margin-right:0px;" value="<?=$fromTime?>" name="from_time"/> 
     			<img align="bottom" onclick="displayDatePicker('from_time', false, 'ymd', '-');" src="<?=SP_IMGPATH?>/cal.gif"/> 
     			<input type="text" style="width: 80px;margin-right:0px;" value="<?=$toTime?>" name="to_time"/> 
     			<img align="bottom" onclick="displayDatePicker('to_time', false, 'ymd', '-');" src="<?=SP_IMGPATH?>/cal.gif"/>
     		</td>
-			<td><a href="javascript:void(0);" onclick="scriptDoLoadPost('reports.php', 'search_form', 'content', '&sec=reportsum')" class="actionbut"><?=$spText['button']['Show Records']?></a></td>
+			<td><a href="javascript:void(0);" onclick="scriptDoLoadPost('reports.php', 'search_form', 'content', '&sec=reportsum')" class="actionbut"><?=$spText['button']['Search']?></a></td>
 		</tr>
 	</table>
 	</form>
@@ -149,8 +149,8 @@ if(!empty($printVersion)) {
 					$rankDiff = empty($positionInfo[$seInfo['id']]['rank_diff']) ? '' : $positionInfo[$seInfo['id']]['rank_diff'];
 				    $rankPadding = "";
 				    if ($rank != '-') {
-				        $rankLink = scriptAJAXLinkHref('reports.php', 'content', $scriptLink."&se_id=".$seInfo['id'], $rank);
-				        $graphLink = scriptAJAXLinkHref('graphical-reports.php', 'content', $scriptLink."&se_id=".$seInfo['id'], '&nbsp;', 'graphicon');
+				        $rankLink = scriptAJAXLinkHrefDialog('reports.php', 'content', $scriptLink."&se_id=".$seInfo['id'], $rank);
+				        $graphLink = scriptAJAXLinkHrefDialog('graphical-reports.php', 'content', $scriptLink."&se_id=".$seInfo['id'], '&nbsp;', 'graphicon');
 					    $rankPadding = empty($rankDiff) ? "" : "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
 					    $rankLink = $rankPadding . $rankLink;
 				    } else {

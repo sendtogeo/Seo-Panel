@@ -1,29 +1,50 @@
 var menuList = new Array();
 var buttonList = new Array();
 var scriptList = new Array();
+var needPopup = false;
 
-/* Ajax post request */
 function scriptDoLoadPost(scriptUrl, scriptForm, scriptPos, scriptArgs, noLoading) {
+	if(needPopup) {
+		scriptDoLoadPostDialog(scriptUrl, scriptForm, scriptPos, scriptArgs, noLoading);
+		return;
+	}
+	
 	if(!scriptArgs){ var scriptArgs = ''; }
-	scriptArgs = $(scriptForm).serialize() + scriptArgs;
-	myAjax = new Ajax.Updater(scriptPos, scriptUrl, {
-		method : 'post',
-		parameters : scriptArgs,
-		evalScripts : true,
-		onLoading: function(request){ showLoadingIcon(scriptPos, noLoading); },
-		insertion : Insertion.Append
+	
+	scriptArgs = jQuery('#'+scriptForm).serialize() + scriptArgs;
+	showLoadingIcon(scriptPos, noLoading);
+	jQuery.ajax({
+		type: "POST",
+		url:scriptUrl,
+		data: scriptArgs, 
+		 success: function(data){
+			 document.getElementById(scriptPos).innerHTML = data;
+			 jQuery("#"+scriptPos).find("script").each(function(i) {
+	            eval($(this).text());
+	         });
+	     }
 	});
 }
 
-/* Ajax get request */
 function scriptDoLoad(scriptUrl, scriptPos, scriptArgs, noLoading) {
-	myAjax = new Ajax.Updater(scriptPos, scriptUrl, {
-		method : 'get',
-		parameters : scriptArgs,
-		evalScripts : true,
-		onLoading : function(request){ showLoadingIcon(scriptPos, noLoading); },
-		insertion : Insertion.Append
-	});
+	
+	if(needPopup) {
+		scriptDoLoadGetDialog(scriptUrl, scriptPos, scriptArgs, noLoading);
+		return;
+	}
+	
+	showLoadingIcon(scriptPos, noLoading);
+    jQuery.ajax({
+         type: "get",
+         url:scriptUrl,
+         data: scriptArgs, 
+         success: function(data){
+             document.getElementById(scriptPos).innerHTML = data;
+             jQuery("#"+scriptPos).find("script").each(function(i) {
+                eval($(this).text());
+             });
+         }
+     });
 }
 
 function createCookie(name,value,days) {
@@ -51,22 +72,26 @@ function eraseCookie(name) {
 	createCookie(name,"",-1);
 }
 
-/* site map request */
 function sitemapDoLoadPost(scriptUrl, scriptForm, scriptPos, scriptArgs, noLoading) {
 	
 	hideDiv('proceed');
 	showDiv('message');
 	if(!scriptArgs){ var scriptArgs = ''; }
-	scriptArgs = $(scriptForm).serialize() + scriptArgs;
-	myAjax = new Ajax.Updater(scriptPos, scriptUrl, {
-		method : 'post',
-		parameters : scriptArgs,
-		evalScripts : true,
-		onLoading: function(request){ showLoadingIcon(scriptPos, noLoading); }
-	});	
+	scriptArgs = jQuery('#'+scriptForm).serialize() + scriptArgs;
+	showLoadingIcon(scriptPos, noLoading);
+    jQuery.ajax({
+         type: "POST",
+         url:scriptUrl,
+         data: scriptArgs, 
+         success: function(data){
+             document.getElementById(scriptPos).innerHTML = data;
+             jQuery("#"+scriptPos).find("script").each(function(i) {
+                eval($(this).text());
+             });
+         }
+    });
 }
 
-/* Onloading image icon function */
 function showLoadingIcon(scriptPos,noLoading){
 	loading = 0;
   	contentDiv = "";
@@ -104,7 +129,12 @@ function showLoadingIcon(scriptPos,noLoading){
 	}
 	
 	if((loading == 1) && (noLoading != 1)){
-		document.getElementById(scriptPos).innerHTML = contentDiv;
+		if(needPopup) {
+			return contentDiv;
+		} else {
+			document.getElementById(scriptPos).innerHTML = contentDiv;
+		}
+		
 	}
 }
 
@@ -150,7 +180,6 @@ function doAction(scriptUrl, scriptPos, scriptArgs, actionDiv) {
 			break;
 	
 		default:
-			/* check whether the system is demo or not */
 			if(spdemo){
 				if((actVal == 'delete') || (actVal == 'Activate') || (actVal == 'Inactivate') || (actVal == 'recheckreport') 
 					|| (actVal == 'showrunproject') || (actVal == 'checkscore') || (actVal == 'deletepage') || (actVal == 'upgrade') || (actVal == 'reinstall') ){
@@ -162,8 +191,12 @@ function doAction(scriptUrl, scriptPos, scriptArgs, actionDiv) {
 	}
 }
 
-function doLoad(argVal, scriptUrl, scriptPos, scriptArgs) {
-	actVal = document.getElementById(argVal).value;
+function doLoad(argVal, scriptUrl, scriptPos, scriptArgs) {	
+	if(needPopup) {
+		actVal = $("#dialogContent #" + argVal).val();
+	} else {
+		actVal = document.getElementById(argVal).value;
+	}	
 	scriptArgs += "&"+ argVal +"=" + actVal;
 	scriptDoLoad(scriptUrl, scriptPos, scriptArgs);
 }
@@ -173,7 +206,6 @@ function doLoadUrl(argVal, scriptUrl) {
 	window.location = scriptUrl += "&"+ argVal +"=" + actVal;
 }
 
-/* func to show hide menu */
 function showMenu(button, scriptPos){
 	
 	for (var i=0; i<menuList.length; i++) {
@@ -184,7 +216,6 @@ function showMenu(button, scriptPos){
 		        document.getElementById(scriptPos).style.display = '';
 		        document.getElementById(button).src = but;
 		        
-		        // load default script
 		        if(typeof(scriptList[i]) != "undefined") {
 		        	scriptDoLoad(scriptList[i], 'content')
 		        }
@@ -206,6 +237,10 @@ function showMenu(button, scriptPos){
 
 function updateArea(scriptPos, content) {
 	document.getElementById(scriptPos).innerHTML += content;
+}
+
+function updateInnerHtml(scriptPos, content) {
+	document.getElementById(scriptPos).innerHTML = content;
 }
 
 function chkObject(theVal) {
@@ -237,11 +272,11 @@ function checkSubmitInfo(scriptUrl, scriptForm, scriptPos, catCol) {
 }
 
 function loadJsCssFile(filename, filetype){
-	if (filetype=="js"){ //if filename is a external JavaScript file
+	if (filetype=="js"){
 		var fileref=document.createElement('script')
 		fileref.setAttribute("type","text/javascript")
 		fileref.setAttribute("src", filename)
-	}else if (filetype=="css"){ //if filename is an external CSS file
+	}else if (filetype=="css"){
 		var fileref=document.createElement("link")
 		fileref.setAttribute("rel", "stylesheet")
 		fileref.setAttribute("type", "text/css")
@@ -264,8 +299,9 @@ function crawlMetaData(url,scriptPos) {
 	if(weburl==null||weburl==""||weburl==0){
 		alert('Website url is empty!');
 	}else{
-		url = url + "&url=" + escape(weburl);
-		scriptDoLoad(url, scriptPos);
+		var urlInfo = url.split("?");
+		scriptArgs = urlInfo[1] + "&url=" + urlencode(weburl);
+		scriptDoLoadPost(urlInfo[0], "tmp", scriptPos, scriptArgs);
 	}
 }
 
@@ -301,9 +337,18 @@ function checkList(checkId) {
 }
 
 function selectAllOptions(selectBoxId, selectAll) {
-	
+	if (selectAll) {
+		document.getElementById("clear_all").checked=false;
+    } else {
+    	document.getElementById("select_all").checked=false;
+    }
 	selectBox = document.getElementById(selectBoxId);
 	for (var i = 0; i < selectBox.options.length; i++) { 
 		selectBox.options[i].selected = selectAll; 
 	}
+}
+
+function urlencode(str) {
+	  str = (str + '').toString();
+	  return encodeURIComponent(str).replace(/!/g, '%21').replace(/'/g, '%27').replace(/\(/g, '%28').replace(/\)/g, '%29').replace(/\*/g, '%2A').replace(/%20/g, '+');
 }

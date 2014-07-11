@@ -50,6 +50,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$controller->showSystemSettings('report');
 			break;
 		
+		case "proxysettings":
+			$controller->showSystemSettings('proxy');
+			break;
+		
 		case "aboutus":
 			$controller->showAboutUs();
 			break;

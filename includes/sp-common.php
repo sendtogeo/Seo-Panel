@@ -66,32 +66,32 @@ function showNoRecordsList($colspan, $msg='', $plain=false) {
 	$data['colspan'] = $colspan;
 	$data['msg'] = $msg;
 	$data['plain'] = $plain;
-	return View::fetchViewFile('common/norecords', $data);
+	return @View::fetchViewFile('common/norecords', $data);
 }
 
 # func to show error msg
 function showErrorMsg($errorMsg, $exit=true) {
 	$data['errorMsg'] = $errorMsg;
-	print View::fetchViewFile('common/error', $data);
+	print @View::fetchViewFile('common/error', $data);
 	if($exit) exit;
 }
 
 # func to show success msg
 function showSuccessMsg($successMsg, $exit=true) {
 	$data['successMsg'] = $successMsg;
-	print View::fetchViewFile('common/success', $data);
+	print @View::fetchViewFile('common/success', $data);
 	if($exit) exit;
 }
 
 # func to show no results
 function showSectionHead($sectionHead) {
 	$data['sectionHead'] = $sectionHead;
-	return View::fetchViewFile('common/sectionHead', $data);
+	return @View::fetchViewFile('common/sectionHead', $data);
 }
 
 # function to check whether user logged in
 function checkLoggedIn() {
-	$userInfo = Session::readSession('userInfo');
+	$userInfo = @Session::readSession('userInfo');
 	if(empty($userInfo['userId'])){
 		redirectUrlByScript(SP_WEBPATH."/login.php");
 		exit;
@@ -100,7 +100,7 @@ function checkLoggedIn() {
 
 # function to check whether admin logged in
 function checkAdminLoggedIn() {
-	$userInfo = Session::readSession('userInfo');
+	$userInfo = @Session::readSession('userInfo');
 	if(empty($userInfo['userType']) || ($userInfo['userType'] != 'admin') ) {
 		redirectUrlByScript(SP_WEBPATH."/login.php");
 		exit;
@@ -109,13 +109,13 @@ function checkAdminLoggedIn() {
 
 # function to user is admin or not
 function isAdmin() {
-	$userInfo = Session::readSession('userInfo');
+	$userInfo = @Session::readSession('userInfo');
 	return ($userInfo['userType'] == 'admin') ? $userInfo['userId'] : false;
 }
 
 # function to user logged in or not
 function isLoggedIn() {
-	$userInfo = Session::readSession('userInfo');
+	$userInfo = @Session::readSession('userInfo');
 	return empty($userInfo['userId']) ? false : $userInfo['userId'];
 }
 
@@ -135,6 +135,16 @@ function scriptAJAXLinkHref($file, $area, $args='', $linkText='Click', $class=''
 		$link = ' '.$trigger.'="alertDemoMsg()"';
 	} else {
 		$link = ' '.$trigger.'="scriptDoLoad('."'$file', '$area', '$args')".'"';		
+	}
+	$link = "<a href='javascript:void(0);'class='$class' $link>$linkText</a>";
+	return $link;
+}
+
+function scriptAJAXLinkHrefDialog($file, $area, $args='', $linkText='Click', $class='', $trigger='OnClick', $widthVal = 900, $heightVal = 600){
+	if ($file == 'demo') {
+		$link = ' '.$trigger.'="alertDemoMsg()"';
+	} else {
+		$link = ' '.$trigger.'="scriptDoLoadDialog('."'$file', '$area', '$args', $widthVal, $heightVal)".'"';		
 	}
 	$link = "<a href='javascript:void(0);'class='$class' $link>$linkText</a>";
 	return $link;
@@ -280,6 +290,7 @@ function isValidReferer($referer) {
 	
 	if(stristr($referer, SP_WEBPATH)) {
 		if (!stristr($referer, 'install')) {
+			$referer = str_ireplace("&lang_code=", "&", $referer);
 			return $referer;
 		}		
 	}
@@ -305,6 +316,9 @@ function exportToCsv($fileName, $content) {
 # func to show printer hearder
 function showPrintHeader($headMsg='', $doPrint=true) {
     ?>
+    <head>
+    	<meta content="text/html; charset=UTF-8" http-equiv="content-type" />
+    </head>
 	<script language="Javascript" src="<?=SP_JSPATH?>/common.js"></script>
 	<script type="text/javascript">
 		<?php if ($doPrint) { ?>
@@ -340,6 +354,7 @@ function sendMail($from, $fromName, $to ,$subject,$content){
 		$mail->Host = SP_SMTP_HOST;
 		$mail->Username = SP_SMTP_USERNAME;
 		$mail->Password = SP_SMTP_PASSWORD;
+		$mail->Port = SP_SMTP_PORT;
 	}
 
 	$mail->From = $from;

@@ -8,7 +8,7 @@ body {
 	color: #333;
 	background-color: #e5e5e5;
 	text-align: center;
-	background: url("../images/background.png") repeat-x scroll 0 0 #EDF0F4;
+	background: url("../../../images/background.png") repeat-x scroll 0 0 #EDF0F4;
 }
 
 td { font-family: Arial; }
@@ -244,7 +244,7 @@ div#Wrapper {
 	font-weight: bold;
 	color: #ABABAB;
 	text-align: left;
-	background: url('../images/logo.jpg') no-repeat 0px 0px;
+	background: url('../../../images/logo.jpg') no-repeat 0px 0px;
 	height:35px;
 	font-style: normal;
 }
@@ -296,7 +296,7 @@ div#Wrapper {
 	text-decoration: none;
 }
 
-#Tabs {	margin: 14px 0 0 30px;	height: 25px; padding: 0;}
+#Tabs {	margin: 14px 0 0 10px;	height: 25px; padding: 0;}
 #Tabs ul {	margin: 0;	padding: 0;}
 #Tabs li {
 	margin: 0;
@@ -311,7 +311,7 @@ div#Tabs a:link, div#Tabs a:visited {text-decoration: none;}
 	float: left;
 	font-size: 14px;
 	font-weight: bold;
-	padding: 6px 18px;
+	padding: 6px 16px;
 	margin: 0;
 }
 #Tabs ul#MainTabs a:link.current,#Tabs ul#MainTabs a:visited.current {
@@ -397,7 +397,7 @@ div.Left .SectionHeader,div.Full .SectionHeader { text-align: center;}
 .list {	margin-top: 6px; }
 .list A:hover {	color: black; background-color: white; }
 .list select.multi { height: 100px; }
-.listHead {	background: url(../images/blue_img2.gif) top left repeat-x; }
+.listHead {	background: url(../../../images/blue_img2.gif) top left repeat-x; }
 .plainHead td,.listHead td {
 	text-align: center;
 	height: 25px;
@@ -410,20 +410,20 @@ div.Left .SectionHeader,div.Full .SectionHeader { text-align: center;}
 	vertical-align: middle;
 }
 .listHead td.leftid {
-	background:transparent url(../images/blue_img1.gif) no-repeat scroll left top;
+	background:transparent url(../../../images/blue_img1.gif) no-repeat scroll left top;
 	width:28px;
 }
 .listHead td.leftid input { height: 14px;}
-.listHead td.left {	background: url(../images/blue_img1.gif) top left no-repeat;}
+.listHead td.left {	background: url(../../../images/blue_img1.gif) top left no-repeat;}
 .plainHead {background-color: #DBE6EE;}
 .plainHead td{border-top:1px solid #B0C2CC;border-right:1px solid #B0C2CC;border-bottom:1px solid #B0C2CC;padding: 4px}
 .plainHead td.left {border-left:1px solid #B0C2CC;}
 .plainHead td.right {border-right:1px solid #B0C2CC;}
-.listHead td.right { background: url(../images/blue_img3.gif) top right no-repeat; }
-.listBot { background: url(../images/blue_img8.gif) top left repeat-x;}
+.listHead td.right { background: url(../../../images/blue_img3.gif) top right no-repeat; }
+.listBot { background: url(../../../images/blue_img8.gif) top left repeat-x;}
 .listBot td { height: 10px; }
-.listBot td.left { background: url(../images/blue_img7.gif) top left no-repeat;}
-.listBot td.right {	background: url(../images/blue_img9.gif) top right no-repeat; }
+.listBot td.left { background: url(../../../images/blue_img7.gif) top left no-repeat;}
+.listBot td.right {	background: url(../../../images/blue_img9.gif) top right no-repeat; }
 
 .blue_row {	background-color: #F4F7FA;}
 .white_row {	background-color: #FFFFFF;}
@@ -471,11 +471,11 @@ div.Left .SectionHeader,div.Full .SectionHeader { text-align: center;}
 }
 
 .tab_left_bot {
-	background: url(../images/blue_img10.gif) bottom left no-repeat;
+	background: url(../../../images/blue_img10.gif) bottom left no-repeat;
 	border-right: 1px #B0C2CC solid;
 }
-.tab_left_bot_noborder {	background: url(../images/blue_img10.gif) bottom left no-repeat;}
-.tab_right_bot {	background: url(../images/blue_img16.gif) bottom right no-repeat;}
+.tab_left_bot_noborder {	background: url(../../../images/blue_img10.gif) bottom left no-repeat;}
+.tab_right_bot {	background: url(../../../images/blue_img16.gif) bottom right no-repeat;}
 
 .actionSec a {
 	font-family: Arial;
@@ -527,7 +527,7 @@ div.Left .SectionHeader,div.Full .SectionHeader { text-align: center;}
 	background-color:#F4F7FA;
 }
 .subtab li {
-	background: url(../images/arrow.gif) 2px 9px no-repeat;
+	background: url(../../../images/arrow.gif) 2px 9px no-repeat;
 	min-height: 16px;
 	height: auto;
 	vertical-align: middle;
@@ -564,7 +564,7 @@ div.Left .SectionHeader,div.Full .SectionHeader { text-align: center;}
 #loading_rankarea {
 	width: 100px;
 	height: 20px;
-	background: url('../images/ajax-loader-small.gif') center center no-repeat;
+	background: url('../../../images/ajax-loader-small.gif') center center no-repeat;
 	z-index: 5;
 	margin: auto;
 }
@@ -573,14 +573,14 @@ div.Left .SectionHeader,div.Full .SectionHeader { text-align: center;}
 	margin: 5px;
 	width: 700px;
 	height: 20px;
-	background: url('../images/ajax-loader.gif') center center no-repeat;
+	background: url('../../../images/ajax-loader.gif') center center no-repeat;
 	z-index: 5;
 }
 
 #loading_content {
 	width: 700px;
 	height: 350px;
-	background: url('../images/ajax-loader.gif') center center no-repeat;
+	background: url('../../../images/ajax-loader.gif') center center no-repeat;
 	z-index: 5;
 	margin: auto;
 }
@@ -588,7 +588,7 @@ div.Left .SectionHeader,div.Full .SectionHeader { text-align: center;}
 #loading_subcontent {
 	width: 732px;
 	height: 350px;
-	background: url('../images/ajax-loader.gif') center center no-repeat;
+	background: url('../../../images/ajax-loader.gif') center center no-repeat;
 	z-index: 5;
 	margin: 10px auto 0px auto;
 	border: 1px solid #E5E5E5;
@@ -597,7 +597,7 @@ div.Left .SectionHeader,div.Full .SectionHeader { text-align: center;}
 #loading_subcontmed {
 	width: 732px;
 	height: 100px;
-	background: url('../images/ajax-loader.gif') center center no-repeat;
+	background: url('../../../images/ajax-loader.gif') center center no-repeat;
 	z-index: 5;
 	margin: 10px auto 0px auto;
 	border: 1px solid #E5E5E5;
@@ -606,7 +606,7 @@ div.Left .SectionHeader,div.Full .SectionHeader { text-align: center;}
 #loading_content_frame {
 	width: 700px;
 	height: 300px;
-	background: url('../images/ajax-loader.gif') center center no-repeat;
+	background: url('../../../images/ajax-loader.gif') center center no-repeat;
 	z-index: 5;
 }
 
@@ -863,7 +863,7 @@ legend {
 }
 
 .actionbut, .actionForm input.button {
-	background:url("../images/bg_button.gif") repeat-x scroll center top #EFEFEF;
+	background:url("../../../images/bg_button.gif") repeat-x scroll center top #EFEFEF;
 	border:1px solid #666666;
 	color:#000000;
 	cursor:pointer;
@@ -877,7 +877,7 @@ legend {
 }
 
 A.actionbut{
-	background:url("../images/bg_button.gif") repeat-x scroll center top #EFEFEF;
+	background:url("../../../images/bg_button.gif") repeat-x scroll center top #EFEFEF;
 	border:1px solid #666666;
 	color:#000000;
 	cursor:pointer;
@@ -913,7 +913,7 @@ A.actionbut{
 
 .infobox A{
 	text-decoration: none;
-	background: url(../images/urlicon.gif) 2px 5px no-repeat;
+	background: url(../../../images/urlicon.gif) 2px 5px no-repeat;
 	padding-left: 17px;
 	padding-bottom: 2px;
 	color: #222222;
@@ -923,7 +923,7 @@ A.actionbut{
 .selectmenu #round_content {min-height: 422px;}
 
 A.graphicon{
-	background: url(../images/graph.gif) 2px 5px no-repeat;
+	background: url(../../../images/graph.gif) 2px 5px no-repeat;
 	padding-left:16px;
 	padding-top:6px;
 	text-decoration:none;
@@ -1001,11 +1001,11 @@ A.graphicon{
 
 #sortLink { text-decoration: none;color: black;}
 #sortLink:HOVER { text-decoration: underline;background-color: #DBE6EE;}
-.sort_asc{background:transparent url(../images/sort_asc.gif) no-repeat scroll right center;padding-right: 18px;}
-.sort_desc{background:transparent url(../images/sort_desc.gif) no-repeat scroll right center;padding-right: 18px;}
+.sort_asc{background:transparent url(../../../images/sort_asc.gif) no-repeat scroll right center;padding-right: 18px;}
+.sort_desc{background:transparent url(../../../images/sort_desc.gif) no-repeat scroll right center;padding-right: 18px;}
 
-.plus{background:transparent url(../images/green.png) no-repeat scroll center center;}
-.minus{background:transparent url(../images/red.png) no-repeat scroll center center;}
+.plus{background:transparent url(../../../images/green.png) no-repeat scroll center center;}
+.minus{background:transparent url(../../../images/red.png) no-repeat scroll center center;}
 
 .bold{font-weight: bold;}
 .left {text-align: left;}

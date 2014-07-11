@@ -71,6 +71,18 @@ if (!empty($errorMsg)) {
 								}
 								?>
 							</select>
+						<?php } else if($listInfo['set_name'] == 'SP_TIME_ZONE') {?>
+							<select name="<?=$listInfo['set_name']?>">
+								<?php
+								$listInfo['set_val'] = empty($listInfo['set_val']) ? ini_get('date.timezone') : $listInfo['set_val'];
+								foreach ($timezoneList as $timezoneInfo) {
+									$selected = ($timezoneInfo['timezone_name'] == $listInfo['set_val']) ? "selected" : "";
+									?>			
+									<option value="<?=$timezoneInfo['timezone_name']?>" <?=$selected?>><?=$timezoneInfo['timezone_label']?></option>
+									<?php
+								}
+								?>
+							</select>
 						<?php } else {
 						    $type = ($listInfo['set_name'] == 'SP_SMTP_PASSWORD') ? "password" : "text";
 						    ?>

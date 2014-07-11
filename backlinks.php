@@ -41,6 +41,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		case "reports":
 			$controller->showReports($_POST);
 			break;
+		
+		case "backlink":
+			$controller->printBacklink($_POST);
+			break;
 			
 		default:
 			$controller->findBacklink($_POST);

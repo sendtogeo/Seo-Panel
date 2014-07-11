@@ -235,7 +235,7 @@ class Spider{
 	
 	
 	# get contents of a web page	
-	function getContent( $url, $enableProxy=true)	{
+	function getContent( $url, $enableProxy=true, $logCrawl = true)	{
 		
 		curl_setopt( $this -> _CURL_RESOURCE , CURLOPT_URL , $url );
 		curl_setopt( $this -> _CURL_RESOURCE , CURLOPT_FAILONERROR , $this -> _CURLOPT_FAILONERROR );
@@ -270,7 +270,7 @@ class Spider{
 			$proxyCtrler = New ProxyController();
 			if ($proxyInfo = $proxyCtrler->getRandomProxy()) {
 				curl_setopt($this -> _CURL_RESOURCE, CURLOPT_PROXY, $proxyInfo['proxy'].":".$proxyInfo['port']);
-				curl_setopt($this -> _CURL_RESOURCE, CURLOPT_HTTPPROXYTUNNEL, 1);		
+				curl_setopt($this -> _CURL_RESOURCE, CURLOPT_HTTPPROXYTUNNEL, CURLOPT_HTTPPROXYTUNNEL_VAL);		
 				if (!empty($proxyInfo['proxy_auth'])) {
 					curl_setopt ($this -> _CURL_RESOURCE, CURLOPT_PROXYUSERPWD, $proxyInfo['proxy_username'].":".$proxyInfo['proxy_password']);
 				}
@@ -282,6 +282,34 @@ class Spider{
 		$ret['page'] = curl_exec( $this -> _CURL_RESOURCE );
 		$ret['error'] = curl_errno( $this -> _CURL_RESOURCE );
 		$ret['errmsg'] = curl_error( $this -> _CURL_RESOURCE );
+		
+		// update crawl log in database for future reference
+		if ($logCrawl) {
+			$crawlLogCtrl = new CrawlLogController();
+			$crawlInfo['crawl_status'] = $ret['error'] ? 0 : 1;
+			$crawlInfo['ref_id'] = $crawlInfo['crawl_link'] = addslashes($url);
+			$crawlInfo['crawl_referer'] = addslashes($this-> _CURLOPT_REFERER);
+			$crawlInfo['crawl_cookie'] = addslashes($this -> _CURLOPT_COOKIE);
+			$crawlInfo['crawl_post_fields'] = addslashes($this -> _CURLOPT_POSTFIELDS);
+			$crawlInfo['crawl_useragent'] = addslashes($this->_CURLOPT_USERAGENT);
+			$crawlInfo['proxy_id'] = $proxyInfo['id'];
+			$crawlInfo['log_message'] = addslashes($ret['errmsg']);
+			$ret['log_id'] = $crawlLogCtrl->createCrawlLog($crawlInfo);
+		}
+		
+		// disable proxy if not working
+		if (SP_ENABLE_PROXY && $enableProxy && !empty($ret['error']) && !empty($proxyInfo['id'])) {
+			
+			// deactivate proxy
+			if (PROXY_DEACTIVATE_CRAWL) {
+				$proxyCtrler->__changeStatus($proxyInfo['id'], 0);
+			}
+			
+			// chekc with another proxy
+			if (CHECK_WITH_ANOTHER_PROXY_IF_FAILED) {
+				$ret = $this->getContent($url, $enableProxy);
+			}
+		}
 
 		return $ret;
 	}
@@ -301,10 +329,9 @@ class Spider{
 		$this->_CURLOPT_USERAGENT = defined('SP_USER_AGENT') ? SP_USER_AGENT : $this->_CURLOPT_USERAGENT;
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($ch, CURLOPT_PROXY, $proxyInfo['proxy'].":".$proxyInfo['port']);
-		
-		curl_setopt($ch, CURLOPT_HTTPPROXYTUNNEL, 1);
-		curl_setopt($ch, CURLOPT_HEADER, $this->_CURLOPT_HEADER);
+		curl_setopt($ch, CURLOPT_PROXY, $proxyInfo['proxy'].":".$proxyInfo['port']);		
+		curl_setopt($ch, CURLOPT_HTTPPROXYTUNNEL, CURLOPT_HTTPPROXYTUNNEL_VAL);
+		curl_setopt($ch, CURLOPT_HEADER, 1);
 		curl_setopt($ch, CURLOPT_USERAGENT, $this->_CURLOPT_USERAGENT);
 		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);		
 		
@@ -317,6 +344,13 @@ class Spider{
 		$ret['error'] = curl_errno( $ch );
 		$ret['errmsg'] = curl_error( $ch );
 		curl_close($ch);
+		
+		// if no error check whether the ouput contains twitter keyword
+		if (empty($ret['error']) && !stristr($ret['page'], 'twitter') ) {
+			$ret['error'] = "Page not contains twitter keyword";
+			$ret['errmsg'] = strtok($ret['page'], "\n");
+		}
+		
 		return $ret;
 	}
 	

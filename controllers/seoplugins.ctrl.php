@@ -105,11 +105,11 @@ class SeoPluginsController extends Controller{
 		
 		# to get sub menus under a plugin main menu
 		foreach($menuList as $i => $menuInfo){
-			Session::setSession('plugin_id', $menuInfo['id']);
+			@Session::setSession('plugin_id', $menuInfo['id']);
 			$pluginDirName = $menuInfo['name'];
 			$menuFile = SP_PLUGINPATH."/".$pluginDirName."/views/".SP_PLUGINMENUFILE;
 			if(file_exists($menuFile)){
-				$menuList[$i]['menu'] = View::fetchFile($menuFile);
+				$menuList[$i]['menu'] = @View::fetchFile($menuFile);
 			}else{				
 				$menuList[$i]['menu'] = "<ul id='subui'>
 											<li><a href='javascript:void(0);' onclick=\"".pluginMenu('action=index')."\">{$menuInfo['name']}</a></li>

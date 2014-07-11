@@ -69,6 +69,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		    }		    			
 			$controller->listWebsites($_POST);
 		    break;
+		
+		case "crawlmeta":
+		    $keyInput = empty($_POST['keyinput']) ? "" : $_POST['keyinput']; 
+			$controller->crawlMetaData(urldecode($_POST['url']), $keyInput);
+			break;
 	}
 
 }else{

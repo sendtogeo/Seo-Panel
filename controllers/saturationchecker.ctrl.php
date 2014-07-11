@@ -62,41 +62,52 @@ class SaturationCheckerController extends Controller{
 	
 	function __getSaturationRank ($engine) {
 		if (SP_DEMO && !empty($_SERVER['REQUEST_METHOD'])) return 0;
+		$saturationCount = 0;
 		switch ($engine) {
 			
 			#google
 			case 'google':
 				$url = $this->saturationUrlList[$engine] . urlencode($this->url);			
 				$v = $this->spider->getContent($url);
-				$v = empty($v['page']) ? '' :  $v['page'];				
+				$pageContent = empty($v['page']) ? '' :  $v['page'];				
 				
-				if(preg_match('/about ([0-9\,]+) result/si', $v, $r)){					
-				}elseif(preg_match('/<div id=resultStats>([0-9\,]+) result/si', $v, $r)){					
-				}elseif(preg_match('/([0-9\,]+) result/si', $v, $r)){					
-				}elseif(preg_match('/about <b>([0-9\,]+)<\/b> from/si', $v, $r)){					
+				if (preg_match('/about ([0-9\,]+) result/si', $pageContent, $r)){					
+				} elseif (preg_match('/<div id=resultStats>([0-9\,]+) result/si', $pageContent, $r)){					
+				} elseif (preg_match('/([0-9\,]+) result/si', $pageContent, $r)){					
+				} elseif (preg_match('/about <b>([0-9\,]+)<\/b> from/si', $pageContent, $r)){					
+				} elseif (preg_match('/of <b>([0-9\,]+)<\/b>/si', $pageContent, $r) ) {
+				} else {
+					$crawlInfo['crawl_status'] = 0;
+					$crawlInfo['log_message'] = "Regex not matched error occured while parsing search results!";
 				}
 								
-				$rank = ($r[1]) ? str_replace(',', '', $r[1]) : 0;
-				if(empty($rank)){
-					preg_match('/of <b>([0-9\,]+)<\/b>/si', $v, $r);
-					$rank = ($r[1]) ? str_replace(',', '', $r[1]) : 0;
-				}
-				return $rank;
+				$saturationCount = !empty($r[1]) ? str_replace(',', '', $r[1]) : 0;
 				break;
 				
 			#msn
 			case 'msn':
 				$url = $this->saturationUrlList[$engine] . urlencode(addHttpToUrl($this->url));
 				$v = $this->spider->getContent($url);
-				$v = empty($v['page']) ? '' :  $v['page'];
-		        if (preg_match('/([0-9\,]+) results/si', $v, $r)) {
-				} elseif (preg_match('/id="count".*?>.*?\(([0-9\,]+).*?\)/si', $v, $r)) {
+				$pageContent = empty($v['page']) ? '' :  $v['page'];
+		        if (preg_match('/([0-9\,]+) results/si', $pageContent, $r)) {
+				} elseif (preg_match('/id="count".*?>.*?\(([0-9\,]+).*?\)/si', $pageContent, $r)) {
+				} elseif (preg_match('/id="count".*?>.*?([0-9\,]+).*?/si', $pageContent, $r)) {
+				} else {
+					$crawlInfo['crawl_status'] = 0;
+					$crawlInfo['log_message'] = "Regex not matched error occured while parsing search results!";
 				}
-				return ($r[1]) ? str_replace(',', '', $r[1]) : 0;
+				$saturationCount = !empty($r[1]) ? str_replace(',', '', $r[1]) : 0;
 				break;
 		}
+
+		// update crawl log
+		$crawlLogCtrl = new CrawlLogController();
+		$crawlInfo['crawl_type'] = 'saturation';
+		$crawlInfo['ref_id'] = $this->url;
+		$crawlInfo['subject'] = $engine;
+		$crawlLogCtrl->updateCrawlLog($v['log_id'], $crawlInfo);
 		
-		return 0;
+		return $saturationCount;
 	}
 	
 	# func to show genearte reports interface
@@ -172,7 +183,7 @@ class SaturationCheckerController extends Controller{
 		if (!empty ($searchInfo['to_time'])) {
 			$toTime = strtotime($searchInfo['to_time'] . ' 23:59:59');
 		} else {
-			$toTime = mktime();
+			$toTime = @mktime();
 		}
 		$this->set('fromTime', date('Y-m-d', $fromTime));
 		$this->set('toTime', date('Y-m-d', $toTime));
@@ -235,13 +246,12 @@ class SaturationCheckerController extends Controller{
 	
 	# func to get reports of saturation of a website
 	function __getWebsiteSaturationReport($websiteId, $fromTime, $toTime) {
-				
-		$sql = "select s.* ,w.name
-				from saturationresults s,websites w 
-				where s.website_id=w.id 
-				and s.website_id=$websiteId	and (result_time=$fromTime or result_time=$toTime)     
-				order by result_time DESC
-				Limit 0,2";
+
+		$fromTimeLabel = date('Y-m-d', $fromTime);
+		$toTimeLabel = date('Y-m-d', $toTime);
+		$sql = "select s.* ,w.name from saturationresults s,websites w where s.website_id=w.id and s.website_id=$websiteId
+				and (FROM_UNIXTIME(result_time, '%Y-%m-%d')='$fromTimeLabel' or FROM_UNIXTIME(result_time, '%Y-%m-%d')='$toTimeLabel')     
+				order by result_time DESC Limit 0,2";
 		$reportList = $this->db->select($sql);
 		$reportList = array_reverse($reportList);
 		

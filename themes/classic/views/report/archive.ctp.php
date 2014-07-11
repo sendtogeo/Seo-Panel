@@ -57,7 +57,7 @@
 				</select>
 			</td>
 			<td width="120px">
-				<a href="javascript:void(0);" onclick="scriptDoLoadPost('archive.php', 'search_form', 'content')" class="actionbut"><?=$spText['button']['Show Records']?></a>
+				<a href="javascript:void(0);" onclick="scriptDoLoadPost('archive.php', 'search_form', 'content')" class="actionbut"><?=$spText['button']['Search']?></a>
 			</td>
 		</tr>
 	</table>

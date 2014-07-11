@@ -55,9 +55,17 @@ class DownloadController extends Controller{
 	function isValidFile($fileName) {
 		$fileName = urldecode($fileName);
 		$fileName = str_replace(array('../', './', '..'), '', $fileName);
+		
+		// check its any system file
+		if ($fileName[0] == '/') {
+			return false;
+		}
+		
+		// allow only these file format
 		if (preg_match('/\.xml$|\.html$|\.txt$/i', $fileName)) {
 			return $fileName;
-		}		
+		}
+				
 		return false;
 	}
 }

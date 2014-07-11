@@ -25,7 +25,6 @@ class Session extends Seopanel{
 
 	# starts session
 	function startSession(){
-		ob_end_clean();
 		ini_set("session.gc_probability", 100);
 		ini_set("session.gc_divisor", 100);
 		ini_set("session.gc_maxlifetime", SP_TIMEOUT);
@@ -44,9 +43,9 @@ class Session extends Seopanel{
 
 	# fucntion to destroy session
 	function destroySession() {	    
-		Session::setSession('userInfo', "");
-		Session::setSession('lang_code', "");
-		Session::setSession('text', "");
+		@Session::setSession('userInfo', "");
+		@Session::setSession('lang_code', "");
+		@Session::setSession('text', "");
         session_destroy();	    
 	}
 }

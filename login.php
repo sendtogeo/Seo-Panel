@@ -37,6 +37,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		case "login":
 			$controller->login();
 			break;
+
+		case "requestpass":			
+			$controller->set('spTitle', 'Seo panel forgot password');
+			$controller->requestPassword($_POST['email']);
+            break;
 		
 		default:
 			$controller->index();
@@ -48,6 +53,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		
 		case "logout":
 			$controller->logout();
+			break;
+		
+		case "forgot":	
+			$controller->set('spTitle', 'Seo Panel forgot password');
+			$controller->forgotPasswordForm();
 			break;
 
 		default:

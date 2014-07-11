@@ -25,12 +25,12 @@
 				<td class="<?=$leftBotClass?>" style="text-align:left;padding-left:10px;"><?=$url?></td>
 				<td class="td_br_right" width="<?=$tdWidth?>" id='googlerank<?=$i?>'>
 					<script type="text/javascript">
-						scriptDoLoad('saturationchecker.php', 'googlerank<?=$i?>', 'sec=saturation&engine=google&url=<? echo urlencode($url); ?>');
+						scriptDoLoadPost('saturationchecker.php', 'tmp', 'googlerank<?=$i?>', 'sec=saturation&engine=google&url=<? echo urlencode($url); ?>');
 					</script>
 				</td>
 				<td class="<?=$rightBotClass?>" width="<?=$tdWidth?>" id='msnrank<?=$i?>'>
 					<script type="text/javascript">
-						scriptDoLoad('saturationchecker.php', 'msnrank<?=$i?>', 'sec=saturation&engine=msn&url=<? echo urlencode($url); ?>');
+						scriptDoLoadPost('saturationchecker.php', 'tmp', 'msnrank<?=$i?>', 'sec=saturation&engine=msn&url=<? echo urlencode($url); ?>');
 					</script>
 				</td>
 			</tr>

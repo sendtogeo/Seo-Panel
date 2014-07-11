@@ -4,7 +4,7 @@
 	<?php $submitLink = "scriptDoLoadPost('directories.php', 'search_form', 'content', '&sec=directorymgr')";?>
 	<tr>
 		<th><?=$spText['common']['Directory']?>: </th>
-		<td width="100px"><input type="text" name="dir_name" value="<?=$info['dir_name']?>" onblur="<?=$submitLink?>"></td>
+		<td width="100px"><input type="text" name="dir_name" value="<?=htmlentities($info['dir_name'], ENT_QUOTES)?>" onblur="<?=$submitLink?>"></td>
 		<th><?=$spText['common']['Status']?>: </th>
 		<td width="100px">
 			<select name="stscheck" onchange="<?=$submitLink?>">

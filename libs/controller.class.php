@@ -62,6 +62,13 @@ class Controller extends Seopanel{
 			$force = true;
 		}
 		
+		// set system timezone
+		if (defined('SP_TIME_ZONE')) {
+			if (SP_TIME_ZONE != '') {
+				@ini_set( 'date.timezone', SP_TIME_ZONE);
+			}
+		}
+		
 		# func to assign texts to session
 		$_SESSION['lang_code'] = empty($_SESSION['lang_code']) ? SP_DEFAULTLANG : $_SESSION['lang_code'];
 		$this->assignTextsToSession($_SESSION['lang_code'], $force);
@@ -78,7 +85,7 @@ class Controller extends Seopanel{
 		if ($userId = isLoggedIn()) {
 			$sql = "update users set lang_code='$langCode' where id=$userId";
 			$res = $this->db->query($sql);			
-			Session::setSession('text', '');
+			@Session::setSession('text', '');
 		}
 	}
 	

@@ -30,7 +30,7 @@ class WebsiteController extends Controller{
 		$info['pageno'] = intval($info['pageno']);
 		if(isAdmin()){
 			$sql = "select w.*,u.username from websites w,users u where u.id=w.user_id";
-			$sql .= empty($info['userid']) ? "" : " and w.user_id=".$info['userid']; 
+			$sql .= empty($info['userid']) ? "" : " and w.user_id=".intval($info['userid']); 
 			$sql .= " order by w.name";			
 			$this->set('isAdmin', 1);
 			

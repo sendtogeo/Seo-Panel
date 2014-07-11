@@ -60,14 +60,30 @@ class RankController extends Controller{
 
 	function __getGooglePageRank ($url) {
 
-	    if (SP_DEMO && !empty($_SERVER['REQUEST_METHOD'])) return 0;	    
+	    if (SP_DEMO && !empty($_SERVER['REQUEST_METHOD'])) return 0;	
+	    $websiteUrl =  $url;   
 		$url = "http://toolbarqueries.google.com/tbr?client=navclient-auto&ch=".$this->CheckHash($this->hashURL($url))."&features=Rank&q=info:".$url."&num=100&filter=0";
 		$ret = $this->spider->getContent($url);
-		if(!empty($ret['page'])){
-			preg_match('/Rank_([0-9]+):([0-9]+):([0-9]+)/si', $ret['page'], $matches);
-			return ($matches[3]) ? $matches[3] : 0;
+		$rank = 0;
+		
+		// parse rank from the page
+		if (!empty($ret['page'])) {
+			if (preg_match('/Rank_([0-9]+):([0-9]+):([0-9]+)/si', $ret['page'], $matches) ) {
+				$rank = empty($matches[3]) ? 0 : $matches[3];
+			} else {
+				$crawlInfo['crawl_status'] = 0;
+				$crawlInfo['log_message'] = "Regex not matched error occured while parsing search results!";
+			}
 		}
-		return 0;
+		
+		// update crawl log
+		$crawlLogCtrl = new CrawlLogController();
+		$crawlInfo['crawl_type'] = 'rank';
+		$crawlInfo['ref_id'] = $websiteUrl;
+		$crawlInfo['subject'] = "google";
+		$crawlLogCtrl->updateCrawlLog($ret['log_id'], $crawlInfo);
+		
+		return $rank;
 	}
 
 	function printAlexaRank($url){
@@ -95,14 +111,31 @@ class RankController extends Controller{
 
 	# alexa_rank
 	function __getAlexaRank ($url) {
-	    if (SP_DEMO && !empty($_SERVER['REQUEST_METHOD'])) return 0;
+	    if (SP_DEMO && !empty($_SERVER['REQUEST_METHOD'])) return 0;	
+	    $websiteUrl =  $url;
 		$url = 'http://data.alexa.com/data?cli=10&dat=snbamz&url=' . urlencode($url);
 		$ret = $this->spider->getContent($url);
+		$rank = 0;
+		
+		// parse rank from teh page
 		if(!empty($ret['page'])){
-			preg_match('/\<popularity url\="(.*?)" TEXT\="([0-9]+)"/si', $ret['page'], $matches);
-			return ($matches[2]) ? $matches[2] : 0;
+			if (preg_match('/\<popularity url\="(.*?)" TEXT\="([0-9]+)"/si', $ret['page'], $matches) ) {
+				$rank = empty($matches[2]) ? 0 : $matches[2];	
+			} else {
+				$crawlInfo['crawl_status'] = 0;
+				$crawlInfo['log_message'] = "Regex not matched error occured while parsing search results!";
+			}
+			
 		}
-		return 0;
+		
+		// update crawl log
+		$crawlLogCtrl = new CrawlLogController();
+		$crawlInfo['crawl_type'] = 'rank';
+		$crawlInfo['ref_id'] = $websiteUrl;
+		$crawlInfo['subject'] = "alexa";
+		$crawlLogCtrl->updateCrawlLog($ret['log_id'], $crawlInfo);
+		
+		return $rank;
 	}
 
 	function strToNum($Str, $Check, $Magic) {
@@ -235,7 +268,7 @@ class RankController extends Controller{
 		if (!empty ($searchInfo['to_time'])) {
 			$toTime = strtotime($searchInfo['to_time'] . ' 23:59:59');
 		} else {
-			$toTime = mktime();
+			$toTime = @mktime();
 		}
 		$this->set('fromTime', date('Y-m-d', $fromTime));
 		$this->set('toTime', date('Y-m-d', $toTime));
@@ -301,11 +334,13 @@ class RankController extends Controller{
 	# func to show reports for a particular website
 	function __getWebsiteRankReport($websiteId, $fromTime, $toTime) {
 
+		$fromTimeLabel = date('Y-m-d', $fromTime);
+		$toTimeLabel = date('Y-m-d', $toTime);
 		$sql = "select s.* ,w.name
 				from rankresults s,websites w 
 				where s.website_id=w.id 
 				and s.website_id=$websiteId
-				and (result_time=$fromTime or result_time=$toTime)  
+				and (FROM_UNIXTIME(result_time, '%Y-%m-%d')='$fromTimeLabel' or FROM_UNIXTIME(result_time, '%Y-%m-%d')='$toTimeLabel')
 				order by result_time DESC
 				Limit 0, 2";
 		$reportList = $this->db->select($sql);

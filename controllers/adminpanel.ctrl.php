@@ -86,19 +86,25 @@ class AdminPanelController extends Controller{
 						
 			$menuList[] = array(
 						'id' => 10,
+            			'name' => $this->spTextPanel['Log Manager'],
+            			'url_section' => 'log-manager'						
+						);
+						
+			$menuList[] = array(
+						'id' => 11,
             			'name' => $this->spTextPanel['System Settings'],
             			'url_section' => 'settings'						
 						);
 		
 		    $menuList[] = array(
-						'id' => 11,
+						'id' => 12,
             			'name' => $this->spTextPanel['My Profile'],
             			'url_section' => 'my-profile'						
 						);
 		}
 		
 		$menuList[] = array(
-						'id' => 12,
+						'id' => 13,
             			'name' => $this->spTextPanel['About Us'],
             			'url_section' => 'about-us'						
 						);

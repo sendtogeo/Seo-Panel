@@ -109,18 +109,9 @@ class KeywordController extends Controller{
 		$sql = "delete from keywords where id=$keywordId";
 		$this->db->query($sql);
 		
-		$sql = "select id from searchresults where keyword_id=$keywordId";
-		$recordList = $this->db->select($sql);
-		
-		if(count($recordList) > 0){
-			foreach($recordList as $recordInfo){
-				$sql = "delete from searchresultdetails where searchresult_id=".$recordInfo['id'];
-				$this->db->query($sql);
-			}
-			
-			$sql = "delete from searchresults where keyword_id=$keywordId";
-			$this->db->query($sql);
-		}
+		// delete related data
+		$sql = "delete sd.*, s.* from searchresults s, searchresultdetails sd where s.id=sd.searchresult_id and s.keyword_id=$keywordId";
+		$this->db->query($sql);
 	}
 
 	function newKeyword(){		

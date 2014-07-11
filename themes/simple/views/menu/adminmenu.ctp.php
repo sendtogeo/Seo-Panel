@@ -36,4 +36,4 @@ switch($this->menu){
 	<li><a href="<?=SP_DOWNLOAD_LINK?>" target="_blank"><?=$spText['label']['Download']?></a></li>
 <?php }?>
 
-<li style="float: right; margin-right: 30px;"><a class="<?=$adminClass?>" href="<?=SP_WEBPATH?>/admin-panel.php"><?=$spText['common']['Admin Panel']?></a>
+<li style="float: right; margin-right: 12px;"><a class="<?=$adminClass?>" href="<?=SP_WEBPATH?>/admin-panel.php"><?=$spText['common']['Admin Panel']?></a>

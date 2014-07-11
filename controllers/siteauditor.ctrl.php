@@ -168,7 +168,7 @@ class SiteAuditorController extends Controller{
 	function __getProjectInfo($projectId) {
 		$sql = "select p.*,w.url,w.name from auditorprojects p,websites w where  p.website_id=w.id and p.id=$projectId";
 		$info = $this->db->select($sql, true);
-		$info['url'] = Spider::removeTrailingSlash($info['url']);
+		$info['url'] = @Spider::removeTrailingSlash($info['url']);
 		return $info;
 	}
 	
