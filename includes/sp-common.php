@@ -136,7 +136,8 @@ function scriptAJAXLinkHref($file, $area, $args='', $linkText='Click', $class=''
 	} else {
 		$link = ' '.$trigger.'="scriptDoLoad('."'$file', '$area', '$args')".'"';		
 	}
-	$link = "<a href='javascript:void(0);'class='$class' $link>$linkText</a>";
+	
+	$link = "<a href='javascript:void(0);' class='$class' $link>$linkText</a>";
 	return $link;
 }
 
@@ -146,13 +147,14 @@ function scriptAJAXLinkHrefDialog($file, $area, $args='', $linkText='Click', $cl
 	} else {
 		$link = ' '.$trigger.'="scriptDoLoadDialog('."'$file', '$area', '$args', $widthVal, $heightVal)".'"';		
 	}
-	$link = "<a href='javascript:void(0);'class='$class' $link>$linkText</a>";
+	
+	$link = "<a href='javascript:void(0);' class='$class' $link>$linkText</a>";
 	return $link;
 }
 
 function confirmScriptAJAXLinkHref($file, $area, $args='', $linkText='Click', $trigger='OnClick'){
 	$link = ' '.$trigger.'="confirmLoad('."'$file', '$area', '$args')".'"';
-	$link = "<a href='javascript:void(0);'class='$class' $link>$linkText</a>";
+	$link = "<a href='javascript:void(0);' class='$class' $link>$linkText</a>";
 	return $link;
 }
 
@@ -319,12 +321,12 @@ function showPrintHeader($headMsg='', $doPrint=true) {
     <head>
     	<meta content="text/html; charset=UTF-8" http-equiv="content-type" />
     </head>
-	<script language="Javascript" src="<?=SP_JSPATH?>/common.js"></script>
+	<script language="Javascript" src="<?php echo SP_JSPATH?>/common.js"></script>
 	<script type="text/javascript">
 		<?php if ($doPrint) { ?>
 			window.print();
 		<?php }?>
-		loadJsCssFile("<?=SP_CSSPATH?>/screen.css", "css");
+		loadJsCssFile("<?php echo SP_CSSPATH?>/screen.css", "css");
 	</script>	
     <style>BODY{background-color:white;padding:50px 10px;}</style>
 	<?php
@@ -339,12 +341,18 @@ function showPrintFooter($spText) {
 }
 
 # func to debug the variables
-function debugVar($value) {
+function debugVar($value, $exitFlag = true) {
     echo "<pre>";print_r($value);echo "</pre>";
+    
+    // if exit flag set terminate execution
+    if ($exitFlag) {
+		exit;
+	}
+    
 }
 
 # func to send mail
-function sendMail($from, $fromName, $to ,$subject,$content){
+function sendMail($from, $fromName, $to ,$subject,$content, $attachment = ''){
 	$mail = new PHPMailer();
 	
 	# check whether the mail send by smtp or not
@@ -365,6 +373,12 @@ function sendMail($from, $fromName, $to ,$subject,$content){
 
 	$mail->Subject = $subject;
 	$mail->Body = $content;
+	
+	// if attachments are there
+	if (!empty($attachment)) {
+		$mail->AddAttachment($attachment);
+	}
+	
 	if(!$mail->Send()){
 		return 0;
 	}else{
@@ -428,5 +442,40 @@ function getRoundTabBot(){
 		</b>
 	';
 	return $content;
+}
+
+# function to convert to pdf  from view file
+function exportToPdf($content, $fileName = "reports.pdf") {
+	
+	include_once(SP_LIBPATH . "/mpdf/mpdf.php");
+	$mpdf = new mPDF();
+	$mpdf->useAdobeCJK = true;
+	$mpdf->SetAutoFont(AUTOFONT_ALL);
+	$spider = new Spider();
+	$ret = $spider->getContent(SP_CSSPATH . "/screen.css");
+	$stylesheet = str_replace("../../../images", SP_IMGPATH, $ret['page']);
+	$mpdf->WriteHTML($stylesheet,1);
+	$mpdf->SetDisplayMode('fullpage');
+	$mpdf->WriteHTML($content, 2);
+	$mpdf->Output($fileName, "I");
+	exit;
+}
+
+# func to show pdf header
+function showPdfHeader($headMsg = '') {
+	?>
+    <head>
+    	<meta content="text/html; charset=UTF-8" http-equiv="content-type" />
+    </head>
+	<?php
+	if (!empty($headMsg)) echo showSectionHead($headMsg);
+}
+
+# func to show pdf footer
+function showPdfFooter($spText) {
+	$copyrightTxt = str_replace("www.seopanel.in", "<a href='http://www.seopanel.in'>www.seopanel.in</a>", $spText['common']['copyright']);
+    ?>
+    <div style="clear: both; margin-top: 30px;font-size: 12px; text-align: center;"><?php echo str_replace('[year]', date('Y'), $copyrightTxt)?></div>
+	<?php
 }
 ?>
