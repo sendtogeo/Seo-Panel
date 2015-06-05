@@ -157,7 +157,7 @@ class SeoPluginsController extends Controller{
 
 	#function to change status of seo plugins
 	function changeStatus($seoPluginId, $status){
-		
+		$status = intval($status);		
 		$seoPluginId = intval($seoPluginId);
 		$sql = "update seoplugins set status=$status where id=$seoPluginId";
 		$this->db->query($sql);
@@ -165,7 +165,7 @@ class SeoPluginsController extends Controller{
 	
 	#function to change installed status of seo plugins
 	function __changeInstallStatus($seoPluginId, $status){
-		
+		$status = intval($status);		
 		$seoPluginId = intval($seoPluginId);
 		$sql = "update seoplugins set installed=$status where id=$seoPluginId";
 		$this->db->query($sql);
@@ -173,6 +173,7 @@ class SeoPluginsController extends Controller{
 	
 	# func to get seo plugin info
 	function __getSeoPluginInfo($val, $col='id') {
+		$val = ($col == 'id') ? intval($val) : addslashes($val);
 		$sql = "select * from seoplugins where $col='$val'";
 		$seoPluginInfo = $this->db->select($sql, true);
 		return $seoPluginInfo;
@@ -380,6 +381,13 @@ class SeoPluginsController extends Controller{
 			$this->pluginText = $this->getPluginLanguageTexts($category, $_SESSION['lang_code'], $table);
 			$this->set('pluginText', $this->pluginText);	
 		}		
+	}
+	
+	# function to check whether a plugin is installed and active
+	function isPluginActive($value, $col = 'name') {
+		$sql = "select * from seoplugins where $col='".addslashes($value)."' and installed=1 and status=1";
+		$pluginInfo = $this->db->select($sql, true);
+		return empty($pluginInfo['id']) ? false : $pluginInfo;
 	}
 	
 }

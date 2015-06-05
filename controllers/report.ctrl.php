@@ -24,9 +24,10 @@
 class ReportController extends Controller {
 	var $seLIst;
 	var $showAll = false;
+	var $proxyCheckCount = 1;
 
 	# func to get keyword report summary
-	function __getKeywordSearchReport($keywordId, $fromTime, $toTime){
+	function __getKeywordSearchReport($keywordId, $fromTime, $toTime, $apiCall = false){
 		$positionInfo = array();
 		
 		if(empty($this->seLIst)){
@@ -37,11 +38,10 @@ class ReportController extends Controller {
 		$fromTimeLabel = date('Y-m-d', $fromTime);
 		$toTimeLabel = date('Y-m-d', $toTime);
 		foreach($this->seLIst as $seInfo){
-			$sql = "select min(rank) as rank 
-					from searchresults 
-					where keyword_id=$keywordId and searchengine_id=".$seInfo['id']."
-					and (FROM_UNIXTIME(time, '%Y-%m-%d')='$fromTimeLabel' or FROM_UNIXTIME(time, '%Y-%m-%d')='$toTimeLabel')
-					group by time order by time DESC limit 0, 2";
+			$sql = "select min(rank) as rank from searchresults 
+			where keyword_id=$keywordId and searchengine_id=".$seInfo['id']."
+			and (result_date='$fromTimeLabel' or result_date='$toTimeLabel')
+			group by result_date order by result_date DESC limit 0, 2";
 			$reportList = $this->db->select($sql);
 			$reportList = array_reverse($reportList);
 			
@@ -52,9 +52,9 @@ class ReportController extends Controller {
 				if ($i > 0) {
 					$rankDiff = $prevRank - $repInfo['rank'];
 					if ($rankDiff > 0) {
-						$rankDiff = "<font class='green'>($rankDiff)</font>";
-					}elseif ($rankDiff < 0) {
-						$rankDiff = "<font class='red'>($rankDiff)</font>";
+						$rankDiff = $apiCall ? $rankDiff : "<font class='green'>($rankDiff)</font>";
+					} elseif ($rankDiff < 0) {
+						$rankDiff = $apiCall ? $rankDiff : "<font class='red'>($rankDiff)</font>";
 					}
 				}
 				$positionInfo[$seInfo['id']]['rank_diff'] = empty ($rankDiff) ? '' : $rankDiff;
@@ -80,6 +80,10 @@ class ReportController extends Controller {
 				$exportContent = "";
 				break;
 			
+			case "pdf":
+				$this->set('pdfVersion', true);
+				break;
+			
 			case "print":
 				$this->set('printVersion', true);
 				break;
@@ -95,8 +99,11 @@ class ReportController extends Controller {
 		} else {
 			$toTime = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
 		}
-		$this->set('fromTime', date('Y-m-d', $fromTime));
-		$this->set('toTime', date('Y-m-d', $toTime));
+		
+		$fromTimeTxt = date('Y-m-d', $fromTime);
+		$toTimeTxt = date('Y-m-d', $toTime);
+		$this->set('fromTime', $fromTimeTxt);
+		$this->set('toTime', $toTimeTxt);
 		
 		$websiteController = New WebsiteController();
 		$websiteList = $websiteController->__getAllWebsitesWithActiveKeywords($userId, true);
@@ -130,7 +137,7 @@ class ReportController extends Controller {
 		$this->set('orderVal', $orderVal);
 		
 		$keywordController = New KeywordController();
-		$list = $keywordController->__getAllKeywords($userId, $websiteId, true, true, $orderVal);
+		$list = $keywordController->__getAllKeywords($userId, $websiteId, true, true, $orderVal, $searchInfo['search_name']);
 		$indexList = array();
 		foreach($list as $keywordInfo){
 			$positionInfo = $this->__getKeywordSearchReport($keywordInfo['id'], $fromTime, $toTime);
@@ -173,8 +180,16 @@ class ReportController extends Controller {
 			}
 			exportToCsv('keyword_report_summary', $exportContent);
 		} else {
+			
 			$this->set('list', $keywordList);
-			$this->render('report/reportsummary');	
+			
+			// if pdf export
+			if ($searchInfo['doc_type'] == "pdf") {
+				exportToPdf($this->getViewContent('report/reportsummary'), "keyword_report_summary_$fromTimeTxt-$toTimeTxt.pdf");
+			} else {
+				$this->set('searchInfo', $searchInfo);
+				$this->render('report/reportsummary');
+			}	
 		}		
 	}
 	
@@ -192,8 +207,11 @@ class ReportController extends Controller {
 		} else {
 			$toTime = @mktime();
 		}
-		$this->set('fromTime', date('Y-m-d', $fromTime));
-		$this->set('toTime', date('Y-m-d', $toTime));
+		
+		$fromTimeDate = date('Y-m-d', $fromTime);
+		$toTimeDate = date('Y-m-d', $toTime);
+		$this->set('fromTime', $fromTimeDate);
+		$this->set('toTime', $toTimeDate);
 		
 		$keywordController = New KeywordController();
 		if(!empty($searchInfo['keyword_id']) && !empty($searchInfo['rep'])){
@@ -223,16 +241,14 @@ class ReportController extends Controller {
 
 		$conditions = empty ($keywordId) ? "" : " and s.keyword_id=$keywordId";
 		$conditions .= empty ($seId) ? "" : " and s.searchengine_id=$seId";
-		$sql = "select s.*,sd.url,sd.title,sd.description 
-								from searchresults s,searchresultdetails sd 
-								where s.id=sd.searchresult_id 
-								and time>= $fromTime and time<=$toTime $conditions  
-								order by s.time";
+		$sql = "select s.*,sd.url,sd.title,sd.description from searchresults s,searchresultdetails sd 
+		where s.id=sd.searchresult_id and result_date>='$fromTimeDate' and result_date<='$toTimeDate' $conditions  
+		order by s.result_date";
 		$repList = $this->db->select($sql);
 
 		$reportList = array ();
 		foreach ($repList as $repInfo) {
-			$var = 'se' . $seId . $repInfo['keyword_id'] . $repInfo['time'];
+			$var = 'se' . $seId . $repInfo['keyword_id'] . $repInfo['result_date'];
 			if (empty ($reportList[$var])) {
 				$reportList[$var] = $repInfo;
 			} else {
@@ -277,11 +293,12 @@ class ReportController extends Controller {
 
 		$conditions = empty ($keywordId) ? "" : " and s.keyword_id=$keywordId";
 		$conditions .= empty ($seId) ? "" : " and s.searchengine_id=$seId";
-		$sql = "select s.*,sd.url,sd.title,sd.description 
-								from searchresults s,searchresultdetails sd 
-								where s.id=sd.searchresult_id 
-								and time>= $fromTime and time<$toTime $conditions  
-								order by s.rank";
+		
+		$fromTimeDate = date('Y-m-d', $fromTime);
+		$toTimeDate = date('Y-m-d', $toTime);
+		$sql = "select s.*,sd.url,sd.title,sd.description from searchresults s,searchresultdetails sd 
+		where s.id=sd.searchresult_id and result_date>='$fromTimeDate' and result_date<'$toTimeDate' $conditions  
+		order by s.rank";
 		$reportList = $this->db->select($sql);
 		$this->set('list', $reportList);
 		$this->render('report/timereport');
@@ -343,26 +360,25 @@ class ReportController extends Controller {
 	# function to show graph
 	function showGraph($searchInfo = '') {
 		
+		$fromTimeDate = date('Y-m-d', $searchInfo['fromTime']);
+		$toTimeDate = date('Y-m-d', $searchInfo['toTime']);
 		$conditions = empty ($searchInfo['keywordId']) ? "" : " and s.keyword_id=".intval($searchInfo['keywordId']);
 		$conditions .= empty ($searchInfo['seId']) ? "" : " and s.searchengine_id=".intval($searchInfo['seId']);
-		$sql = "select s.*,se.domain 
-					from searchresults s,searchengines se  
-					where s.searchengine_id=se.id 
-					and time>= ".intval($searchInfo['fromTime'])." and time<".intval($searchInfo['toTime'])." $conditions  
-					order by s.time";
+		$sql = "select s.*,se.domain from searchresults s,searchengines se  
+		where s.searchengine_id=se.id and result_date>='$fromTimeDate' and result_date<='$toTimeDate'
+		$conditions order by s.result_date";
 		$repList = $this->db->select($sql);		
 		$reportList = array ();
 		$seList = array();
 		foreach ($repList as $repInfo) {
-			$var = $repInfo['searchengine_id'] . $repInfo['keyword_id'] . $repInfo['time'];
+			$var = $repInfo['searchengine_id'] . $repInfo['keyword_id'] . $repInfo['result_date'];
 			if (empty ($reportList[$var])) {
 				$reportList[$var] = $repInfo;
 			} else {
 				if ($repInfo['rank'] < $reportList[$var]['rank']) {
 					$reportList[$var] = $repInfo;
 				}
-			}
-			
+			}			
 			
 			if(empty($seList[$repInfo['searchengine_id']])){
 				$seList[$repInfo['searchengine_id']] = $repInfo['domain'];
@@ -374,7 +390,7 @@ class ReportController extends Controller {
 		$maxValue = 0;
 		foreach($reportList as $repInfo){
 			$seId = $repInfo['searchengine_id'];
-			$dataList[$repInfo['time']][$seId] = $repInfo['rank'];
+			$dataList[$repInfo['result_date']][$seId] = $repInfo['rank'];
 			$maxValue = ($repInfo['rank'] > $maxValue) ? $repInfo['rank'] : $maxValue;
 		}
 		
@@ -542,14 +558,19 @@ class ReportController extends Controller {
 	# func to crawl keyword
 	function crawlKeyword( $keywordInfo, $seId='', $cron=false, $removeDuplicate=true) {
 		$crawlResult = array();
-		$websiteUrl = formatUrl($keywordInfo['url'], false);
+		$websiteUrl = $keywordInfo['url'];
 		if(empty($websiteUrl)) return $crawlResult;
 		if(empty($keywordInfo['name'])) return $crawlResult;	
 		
 		$time = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
 		$seList = explode(':', $keywordInfo['searchengines']);
 		foreach($seList as $seInfoId){
+			
+			// function to execute only passed search engine
 			if(!empty($seId) && ($seInfoId != $seId)) continue;
+			
+			// if search engine not found continue
+			if (empty($this->seList[$seInfoId])) continue;
 			
 			$this->seFound = 1;
 			
@@ -658,7 +679,7 @@ class ReportController extends Controller {
 					
 					// set crawl log info
 					$crawlInfo['crawl_status'] = 0;
-					$crawlInfo['log_message'] = "Regex not matched error occured while parsing search results!";
+					$crawlInfo['log_message'] = SearchEngineController::isCaptchInSearchResults($pageContent) ? "<font class=error>Captcha found</font> in search result page" : "Regex not matched error occured while parsing search results!";
 					
 					if(SP_DEBUG){
 						echo "<p class='note' style='text-align:left;'>Error occured while parsing $seUrl ".formatErrorMsg("Regex not matched <br>\n")."</p>";
@@ -677,15 +698,37 @@ class ReportController extends Controller {
 			$crawlLogCtrl->updateCrawlLog($logId, $crawlInfo);
 			
 		}
+		
+		// if proxy enabled if crawl failed try to check next item
+		if (SP_ENABLE_PROXY && CHECK_WITH_ANOTHER_PROXY_IF_FAILED) {
+			
+			// max proxy checked in one execution is exeeded
+			if ($this->proxyCheckCount < CHECK_MAX_PROXY_COUNT_IF_FAILED) {
+			
+				// if proxy is available for execution
+				$proxyCtrler = New ProxyController();
+				if ($proxyInfo = $proxyCtrler->getRandomProxy()) {
+					$this->proxyCheckCount++;
+					sleep(SP_CRAWL_DELAY);
+					$crawlResult = $this->crawlKeyword($keywordInfo, $seId, $cron, $removeDuplicate);		
+				}
+				
+			} else {
+				$this->proxyCheckCount = 1;
+			}
+		}
+		
 		return  $crawlResult;
 	}
 	
 	# func to save the report
 	function saveMatchedKeywordInfo($matchInfo, $remove=false) {
 		$time = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
+		$resultDate = date('Y-m-d');
 		$this->checkDBConn();
 		if($remove){
-			$sql = "select id from searchresults where keyword_id={$matchInfo['keyword_id']} and searchengine_id={$matchInfo['se_id']} and time=$time";
+			$sql = "select id from searchresults where keyword_id={$matchInfo['keyword_id']}
+			and searchengine_id={$matchInfo['se_id']} and result_date='$resultDate'";
 			$recordList = $this->db->select($sql);
 		
 			if(count($recordList) > 0){
@@ -694,13 +737,14 @@ class ReportController extends Controller {
 					$this->db->query($sql);
 				}
 				
-				$sql = "delete from searchresults where keyword_id={$matchInfo['keyword_id']} and searchengine_id={$matchInfo['se_id']} and time=$time";
+				$sql = "delete from searchresults where keyword_id={$matchInfo['keyword_id']}
+				and searchengine_id={$matchInfo['se_id']} and result_date='$resultDate'";
 				$this->db->query($sql);
 			}
 		}
 		
-		$sql = "insert into searchresults(keyword_id,searchengine_id,rank,time)
-				values({$matchInfo['keyword_id']},{$matchInfo['se_id']},{$matchInfo['rank']},$time)";
+		$sql = "insert into searchresults(keyword_id,searchengine_id,rank,time,result_date)
+				values({$matchInfo['keyword_id']},{$matchInfo['se_id']},{$matchInfo['rank']},$time,'$resultDate')";
 		$this->db->query($sql);
 		
 		$recordId = $this->db->getMaxId('searchresults');		
@@ -778,6 +822,10 @@ class ReportController extends Controller {
 			case "export":
 				$exportVersion = true;
 				$exportContent = "";
+				break;
+			
+			case "pdf":
+				$this->set('pdfVersion', true);
 				break;
 			
 			case "print":
@@ -1001,7 +1049,13 @@ class ReportController extends Controller {
 			if (!empty($cronUserId)) {
 			    return $this->getViewContent('report/archive');
 			} else {
-			    $this->render('report/archive');
+				
+				// if pdf export
+				if ($searchInfo['doc_type'] == "pdf") {
+					exportToPdf($this->getViewContent('report/archive'), "overall_summary_$fromTimeShort-$toTimeShort.pdf");
+				} else {
+			    	$this->render('report/archive');
+				}
 			}
 		}	
 	}

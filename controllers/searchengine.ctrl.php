@@ -55,20 +55,37 @@ class SearchEngineController extends Controller{
 	
 	# func to show search engines
 	function listSE($info=''){
+		$info = sanitizeData($info);
+		$info['stscheck'] = isset($info['stscheck']) ? intval($info['stscheck']) : 1;
+		$pageScriptPath = 'searchengine.php?stscheck=' . $info['stscheck'];
+		$sql = "select * from searchengines where status='{$info['stscheck']}'";
 		
-		$sql = "select * from searchengines order by id";
+		// search for search engine name
+		if (!empty($info['se_name'])) {
+			$sql .= " and url like '%".addslashes($info['se_name'])."%'";
+			$pageScriptPath .= "&se_name=" . $info['se_name'];
+		}
+		
+		$sql .= " order by id"; 
 		
 		# pagination setup		
 		$this->db->query($sql, true);
 		$this->paging->setDivClass('pagingdiv');
 		$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
-		$pagingDiv = $this->paging->printPages('searchengine.php', '', 'scriptDoLoad', 'content', 'layout=ajax');		
+		$pagingDiv = $this->paging->printPages($pageScriptPath, '', 'scriptDoLoad', 'content', 'layout=ajax');		
 		$this->set('pagingDiv', $pagingDiv);
 		$sql .= " limit ".$this->paging->start .",". $this->paging->per_page;
-		
 		$seList = $this->db->select($sql);
 		$this->set('seList', $seList);
-		$this->set('pageNo', $info['pageno']);			
+
+		$statusList = array(
+			$_SESSION['text']['common']['Active'] => 1,
+			$_SESSION['text']['common']['Inactive'] => 0,
+		);
+		
+		$this->set('statusList', $statusList);
+		$this->set('info', $info);
+		$this->set('pageNo', $info['pageno']);		
 		$this->render('searchengine/list', 'ajax');
 	}
 	
@@ -100,5 +117,19 @@ class SearchEngineController extends Controller{
 		}		
 		
 	}
+	
+	# function to check whether captcha found in search engine results
+	function isCaptchInSearchResults($searchContent) {
+
+		$captchFound = false;
+		
+		// if captcha input field is found
+		if (stristr($searchContent, 'name="captcha"') || stristr($searchContent, 'id="captcha"')) {
+			$captchFound = true;
+		}
+		
+		return $captchFound;
+	}
+	
 }
 ?>

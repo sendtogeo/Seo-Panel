@@ -74,9 +74,9 @@ class SeoToolsController extends Controller{
 				if($seoToolInfo['status'] == 1){					
 					$info['menu_sec'] = 'keyword-position-checker';
 					$defaultScript = "reports.php";
-					$defaultArgs = "sec=reportsum";	
+					$defaultArgs = empty($defaultArgs) ? "sec=reportsum" : $defaultArgs;	
 				}
-		}
+		}	
 		
 		$this->set('menuSelected', $info['menu_sec']);
 		$this->set('defaultScript', $defaultScript);

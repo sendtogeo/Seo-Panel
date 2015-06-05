@@ -90,7 +90,29 @@ class UserController extends Controller{
 	}
 	
 	# register function
-	function register(){		
+	function register(){
+		
+		$seopluginCtrler =  new SeoPluginsController();
+		$subscriptionActive = false;
+		
+		// check whetehr plugin installed or not
+		if ($seopluginCtrler->isPluginActive("Subscription")) {
+			$subscriptionActive = true;
+			$utypeCtrler = new UserTypeController();
+			$userTypeList = $utypeCtrler->getAllUserTypes();
+			$this->set('userTypeList', $userTypeList);
+			
+			// include available payment gateways
+			include SP_PLUGINPATH . "/Subscription/paymentgateway.ctrl.php";
+			$pgCtrler = new PaymentGateway();
+			$pgList = $pgCtrler->__getAllPaymentGateway();
+			$this->set('pgList', $pgList);
+			$this->set('defaultPgId', $pgCtrler->__getDefaultPaymentGateway());
+			$this->set('spTextSubscription', $this->getLanguageTexts('subscription', $_SESSION['lang_code']));
+			
+		}
+		
+		$this->set('subscriptionActive', $subscriptionActive);
 		$this->render('common/register');
 	}
 	
@@ -99,25 +121,53 @@ class UserController extends Controller{
 	    $_POST = sanitizeData($_POST);
 		$this->set('post', $_POST);
 		$userInfo = $_POST;
+		$subscriptionActive = false;
 		$errMsg['userName'] = formatErrorMsg($this->validate->checkUname($userInfo['userName']));
 		$errMsg['password'] = formatErrorMsg($this->validate->checkPasswords($userInfo['password'], $userInfo['confirmPassword']));
 		$errMsg['firstName'] = formatErrorMsg($this->validate->checkBlank($userInfo['firstName']));
 		$errMsg['lastName'] = formatErrorMsg($this->validate->checkBlank($userInfo['lastName']));
 		$errMsg['email'] = formatErrorMsg($this->validate->checkEmail($userInfo['email']));
 		$errMsg['code'] = formatErrorMsg($this->validate->checkCaptcha($userInfo['code']));
+		$errMsg['utype_id'] = formatErrorMsg($this->validate->checkNumber($userInfo['utype_id']));
+		
+		// if payment plugin installed check whether valid payment gateway found
+		$seopluginCtrler =  new SeoPluginsController();
+		if ($seopluginCtrler->isPluginActive("Subscription")) {
+			$subscriptionActive = true;
+			$errMsg['pg_id'] = formatErrorMsg($this->validate->checkNumber($userInfo['pg_id']));
+		}
+		
 		if(!$this->validate->flagErr){
 			if (!$this->__checkUserName($userInfo['userName'])) {
 				if (!$this->__checkEmail($userInfo['email'])) {
-										
-					# format values					
+					$utypeId = intval($userInfo['utype_id']);
 					$sql = "insert into users
-							(utype_id,username,password,first_name,last_name,email,created,status) 
-							values
-							(2,'".addslashes($userInfo['userName'])."','".md5($userInfo['password'])."',
-							'".addslashes($userInfo['firstName'])."','".addslashes($userInfo['lastName'])."','".addslashes($userInfo['email'])."',UNIX_TIMESTAMP(),1)";
-					$this->db->query($sql);					
+					(utype_id,username,password,first_name,last_name,email,created,status) 
+					values ($utypeId,'".addslashes($userInfo['userName'])."','".md5($userInfo['password'])."',
+					'".addslashes($userInfo['firstName'])."','".addslashes($userInfo['lastName'])."',
+					'".addslashes($userInfo['email'])."',UNIX_TIMESTAMP(),1)";
+					$this->db->query($sql);
+					
+					// get user id created
+					$userId = $this->db->getMaxId('users');
+					
+					// check whether subscription is active
+					if ($subscriptionActive and $userId) {
+						$utypeCtrler = New UserTypeController();
+						$utypeInfo = $utypeCtrler->__getUserTypeInfo($utypeId);
+						
+						// if it is paid subscription, proceed with payment
+						if ($utypeInfo['price'] > 0) {
+							include SP_PLUGINPATH . "/Subscription/paymentgateway.ctrl.php";
+							$pgCtrler = new PaymentGateway();
+							$paymentForm = $pgCtrler->getPaymentForm(intval($userInfo['pg_id']), $userId, $utypeInfo);
+							$this->set('paymentForm', $paymentForm);
+						}						
+					}
+					
 					$this->render('common/registerconfirm');
-					exit;
+					return True;
+					
 				}else{
 					$errMsg['email'] = formatErrorMsg($_SESSION['text']['login']['emailexist']);
 				}
@@ -139,15 +189,35 @@ class UserController extends Controller{
 	function listUsers($info=''){
 		
 	    $info['pageno'] = intval($info['pageno']);
-		$sql = "select * from users where utype_id=2 order by username";
+		$info['stscheck'] = isset($info['stscheck']) ? intval($info['stscheck']) : 1;
+		$pageScriptPath = 'users.php?stscheck=' . $info['stscheck'];
+		$sql = "select * from users where utype_id=2 and status='{$info['stscheck']}'";
+		
+		// search for user name
+		if (!empty($info['user_name'])) {
+			$sql .= " and (username like '%".addslashes($info['user_name'])."%' 
+			or first_name like '%".addslashes($info['user_name'])."%'
+			or last_name like '%".addslashes($info['user_name'])."%')";
+			$pageScriptPath .= "&user_name=" . $info['user_name'];
+		}
+		
+		$sql .= " order by username";
 		
 		# pagination setup		
 		$this->db->query($sql, true);
 		$this->paging->setDivClass('pagingdiv');
 		$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
-		$pagingDiv = $this->paging->printPages('users.php', '', 'scriptDoLoad', 'content', 'layout=ajax');		
+		$pagingDiv = $this->paging->printPages($pageScriptPath, '', 'scriptDoLoad', 'content', 'layout=ajax');		
 		$this->set('pagingDiv', $pagingDiv);
 		$sql .= " limit ".$this->paging->start .",". $this->paging->per_page;
+
+		$statusList = array(
+			$_SESSION['text']['common']['Active'] => 1,
+			$_SESSION['text']['common']['Inactive'] => 0,
+		);
+		
+		$this->set('statusList', $statusList);
+		$this->set('info', $info);
 		
 		$userList = $this->db->select($sql);
 		$this->set('userList', $userList);
@@ -238,7 +308,7 @@ class UserController extends Controller{
 		return $userList;
 	}
 	
-	function createUser($userInfo){
+	function createUser($userInfo, $renderResults = true){
 	    $userInfo = sanitizeData($userInfo);
 		$this->set('post', $userInfo);
 		$errMsg['userName'] = formatErrorMsg($this->validate->checkUname($userInfo['userName']));
@@ -246,14 +316,25 @@ class UserController extends Controller{
 		$errMsg['firstName'] = formatErrorMsg($this->validate->checkBlank($userInfo['firstName']));
 		$errMsg['lastName'] = formatErrorMsg($this->validate->checkBlank($userInfo['lastName']));
 		$errMsg['email'] = formatErrorMsg($this->validate->checkEmail($userInfo['email']));
+		$userTypeId = empty($userInfo['type_id']) ? 2 : intval($userInfo['user_type_id']);
+		$userStatus = isset($userInfo['status']) ? intval($userInfo['status']) : 1;
+		
+		// check error flag is on
 		if(!$this->validate->flagErr){
 			if (!$this->__checkUserName($userInfo['userName'])) {
 				if (!$this->__checkEmail($userInfo['email'])) {
 					$sql = "insert into users(utype_id,username,password,first_name,last_name,email,created,status) 
-							values(2,'".addslashes($userInfo['userName'])."','".md5($userInfo['password'])."','".addslashes($userInfo['firstName'])."','".addslashes($userInfo['lastName'])."','".addslashes($userInfo['email'])."',UNIX_TIMESTAMP(),1)";
+						values($userTypeId,'".addslashes($userInfo['userName'])."','".md5($userInfo['password'])."','".addslashes($userInfo['firstName'])."',
+						'".addslashes($userInfo['lastName'])."','".addslashes($userInfo['email'])."',UNIX_TIMESTAMP(),$userStatus)";
 					$this->db->query($sql);
-					$this->listUsers('ajax');
-					exit;
+					
+					// if render results
+					if ($renderResults) {					
+						$this->listUsers('ajax');
+						exit;
+					} else {
+						return array('success', 'Successfully created user');
+					}
 				}else{
 					$errMsg['email'] = formatErrorMsg($_SESSION['text']['login']['emailexist']);
 				}
@@ -261,8 +342,14 @@ class UserController extends Controller{
 				$errMsg['userName'] = formatErrorMsg($_SESSION['text']['login']['usernameexist']);
 			}
 		}
-		$this->set('errMsg', $errMsg);
-		$this->newUser();
+		
+		// if render results
+		if ($renderResults) {
+			$this->set('errMsg', $errMsg);
+			$this->newUser();
+		} else {
+			return array('error', $errMsg);
+		}
 	}
 	
 	function editUser($userId, $userInfo=''){		
@@ -285,15 +372,23 @@ class UserController extends Controller{
 		$this->listUsers('ajax');		
 	}
 	
-	function updateUser($userInfo){
+	function updateUser($userInfo, $renderResults = true){
 	    $userInfo = sanitizeData($userInfo);
 		$userInfo['id'] = intval($userInfo['id']);
 		$this->set('post', $userInfo);
 		$errMsg['userName'] = formatErrorMsg($this->validate->checkUname($userInfo['userName']));
+		
+		// if password needs to be reset
 		if(!empty($userInfo['password'])){
 			$errMsg['password'] = formatErrorMsg($this->validate->checkPasswords($userInfo['password'], $userInfo['confirmPassword']));
 			$passStr = "password = '".md5($userInfo['password'])."',";
 		}
+		
+		// if change status of user
+		if (isset($userInfo['status'])) {
+			$activeStr = "status = '".intval($userInfo['status'])."',";
+		}
+		
 		$errMsg['firstName'] = formatErrorMsg($this->validate->checkBlank($userInfo['firstName']));
 		$errMsg['lastName'] = formatErrorMsg($this->validate->checkBlank($userInfo['lastName']));
 		$errMsg['email'] = formatErrorMsg($this->validate->checkEmail($userInfo['email']));
@@ -313,21 +408,37 @@ class UserController extends Controller{
 				}
 			}
 			
+			// if no error to inputs
 			if (!$this->validate->flagErr) {
 				$sql = "update users set
 						username = '".addslashes($userInfo['userName'])."',
 						first_name = '".addslashes($userInfo['firstName'])."',
 						last_name = '".addslashes($userInfo['lastName'])."',
 						$passStr
+						$activeStr
 						email = '".addslashes($userInfo['email'])."'
 						where id={$userInfo['id']}";
 				$this->db->query($sql);
-				$this->listUsers('ajax');
-				exit;
+				
+				// if render results
+				if ($renderResults) {
+					$this->listUsers('ajax');
+					exit;
+				} else {
+					return array('success', 'Successfully updated user');
+				}
+				
 			}
 		}
-		$this->set('errMsg', $errMsg);
-		$this->editUser($userInfo['id'], $userInfo);
+		
+		if ($renderResults) {
+			$this->set('errMsg', $errMsg);
+			$this->editUser($userInfo['id'], $userInfo);
+		} else {
+			return array('error', $errMsg);
+		}
+		
+		
 	}
 	
 	function showMyProfile($userInfo=''){
@@ -421,6 +532,7 @@ class UserController extends Controller{
 	           	$this->set('rand', $rand);
 	           	$name = $userInfo['first_name']." ".$userInfo['last_name'];
 	           	$this->set('name', $name);
+	           	$this->set('userName', $userInfo['username']);
 	           	$content = $this->getViewContent('email/passwordreset');
 	           	$subject = "Seo panel password reset";
 	           	

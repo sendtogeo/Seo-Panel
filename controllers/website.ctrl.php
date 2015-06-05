@@ -27,29 +27,55 @@ class WebsiteController extends Controller{
 	function listWebsites($info=''){		
 		
 		$userId = isLoggedIn();
+		$info['stscheck'] = isset($info['stscheck']) ? intval($info['stscheck']) : 1;
 		$info['pageno'] = intval($info['pageno']);
+		$pageScriptPath = 'websites.php?stscheck=' . $info['stscheck'];
+		
+		// if admin add user filter
 		if(isAdmin()){
 			$sql = "select w.*,u.username from websites w,users u where u.id=w.user_id";
-			$sql .= empty($info['userid']) ? "" : " and w.user_id=".intval($info['userid']); 
-			$sql .= " order by w.name";			
 			$this->set('isAdmin', 1);
+			
+			// if user id is not empty
+			if (!empty($info['userid'])) {
+				$sql .= " and w.user_id=".intval($info['userid']);
+				$pageScriptPath .= "&userid=" . intval($info['userid']);
+			}
 			
 			$userCtrler = New UserController();
 			$userList = $userCtrler->__getAllUsers();
 			$this->set('userList', $userList);
 			
 		}else{
-			$sql = "select * from websites where user_id=$userId order by name";	
-		}		
+			$sql = "select * from websites w where user_id=$userId";	
+		}
+
+		// search for user name
+		if (!empty($info['search_name'])) {
+			$sql .= " and (w.name like '%".addslashes($info['search_name'])."%'
+			or w.url like '%".addslashes($info['search_name'])."%')";
+			$pageScriptPath .= "&search_name=" . $info['search_name'];
+		}
+
+		$sql .= " and w.status='{$info['stscheck']}' order by w.name"; 
+		
 		$this->set('userId', empty($info['userid']) ? 0 : $info['userid']);		
 		
 		# pagination setup		
 		$this->db->query($sql, true);
 		$this->paging->setDivClass('pagingdiv');
 		$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
-		$pagingDiv = $this->paging->printPages('websites.php?userid='.$info['userid']);		
+		$pagingDiv = $this->paging->printPages($pageScriptPath);		
 		$this->set('pagingDiv', $pagingDiv);
 		$sql .= " limit ".$this->paging->start .",". $this->paging->per_page;
+
+		$statusList = array(
+			$_SESSION['text']['common']['Active'] => 1,
+			$_SESSION['text']['common']['Inactive'] => 0,
+		);
+		
+		$this->set('statusList', $statusList);
+		$this->set('info', $info);
 				
 		$websiteList = $this->db->select($sql);	
 		$this->set('pageNo', $info['pageno']);		
@@ -58,11 +84,17 @@ class WebsiteController extends Controller{
 	}
 
 	# func to get all Websites
-	function __getAllWebsites($userId='', $isAdminCheck=false){
+	function __getAllWebsites($userId = '', $isAdminCheck = false, $searchName = '') {
 		$sql = "select * from websites where status=1";
 		if(!$isAdminCheck || !isAdmin() ){
-			if(!empty($userId)) $sql .= " and user_id=$userId";
+			if(!empty($userId)) $sql .= " and user_id=" . intval($userId);
 		} 
+		
+		// if search string is not empty
+		if (!empty($searchName)) {
+			$sql .= " and (name like '%".addslashes($searchName)."%' or url like '%".addslashes($searchName)."%')";
+		}
+		
 		$sql .= " order by name";
 		$websiteList = $this->db->select($sql);
 		return $websiteList;
@@ -71,7 +103,7 @@ class WebsiteController extends Controller{
 	# func to get all Websites
 	function __getCountAllWebsites($userId=''){
 		$sql = "select count(*) count from websites where status=1";
-		if(!empty($userId)) $sql .= " and user_id=$userId";
+		if(!empty($userId)) $sql .= " and user_id=" . intval($userId);
 		$countInfo = $this->db->select($sql, true);
 		$count = empty($countInfo['count']) ? 0 : $countInfo['count']; 
 		return $count;
@@ -81,8 +113,9 @@ class WebsiteController extends Controller{
 	function __getAllWebsitesWithActiveKeywords($userId='', $isAdminCheck=false){
 		$sql = "select w.* from websites w,keywords k where w.id=k.website_id and w.status=1 and k.status=1";
 		if(!$isAdminCheck || !isAdmin() ){
-			if(!empty($userId)) $sql .= " and user_id=$userId";
+			if(!empty($userId)) $sql .= " and user_id=" . intval($userId);
 		} 
+		
 		$sql .= " group by w.id order by w.name";
 		$websiteList = $this->db->select($sql);
 		return $websiteList;
@@ -175,9 +208,10 @@ class WebsiteController extends Controller{
 		return empty($listInfo['id']) ? false :  $listInfo['id'];
 	}
 
-	function createWebsite($listInfo){
+	function createWebsite($listInfo, $apiCall = false){
 		
-		if (isAdmin()) {
+		// add user id when using as admin or calling api
+		if (isAdmin() || $apiCall) {
 			$userId = empty($listInfo['userid']) ? isLoggedIn() : $listInfo['userid'];	
 		} else {
 			$userId = isLoggedIn();
@@ -187,26 +221,45 @@ class WebsiteController extends Controller{
 		$errMsg['name'] = formatErrorMsg($this->validate->checkBlank($listInfo['name']));
 		$errMsg['url'] = formatErrorMsg($this->validate->checkBlank($listInfo['url']));
 		$listInfo['url'] = addHttpToUrl($listInfo['url']);
+		$statusVal = isset($listInfo['status']) ? intval($listInfo['status']) : 1;
+		
+		// validate website creation
 		if(!$this->validate->flagErr){
 			if (!$this->__checkName($listInfo['name'], $userId)) {
 			    if (!$this->__checkWebsiteUrl($listInfo['url'])) {
     				$sql = "insert into websites(name,url,title,description,keywords,user_id,status)
-    							values('".addslashes($listInfo['name'])."','".addslashes($listInfo['url'])."','".addslashes($listInfo['title'])."','".addslashes($listInfo['description'])."','".addslashes($listInfo['keywords'])."',$userId,1)";
+    				values('".addslashes($listInfo['name'])."','".addslashes($listInfo['url'])."','".
+    				addslashes($listInfo['title'])."','".addslashes($listInfo['description'])."','".
+    				addslashes($listInfo['keywords'])."', $userId, $statusVal)";
     				$this->db->query($sql);
-    				$this->listWebsites();
-    				exit;
+    				
+    				// if api call
+    				if ($apiCall) {
+    					return array('success', 'Successfully created website');
+    				} else {
+	    				$this->listWebsites();
+	    				exit;
+    				}
+    				
 			    } else {
 			        $errMsg['url'] = formatErrorMsg($this->spTextWeb['Website already exist']);
 			    }
 			}else{
 				$errMsg['name'] = formatErrorMsg($this->spTextWeb['Website already exist']);
 			}
+		}		
+		
+		// if api call
+		if ($apiCall) {
+			return array('error', $errMsg);
+		} else {
+			$this->set('errMsg', $errMsg);
+			$this->newWebsite($listInfo);
 		}
-		$this->set('errMsg', $errMsg);
-		$this->newWebsite($listInfo);
 	}
 
 	function __getWebsiteInfo($websiteId){
+		$websiteId = intval($websiteId);
 		$sql = "select * from websites where id=$websiteId";
 		$listInfo = $this->db->select($sql, true);
 		return empty($listInfo['id']) ? false :  $listInfo;
@@ -239,9 +292,10 @@ class WebsiteController extends Controller{
 		$this->listWebsites();
 	}
 
-	function updateWebsite($listInfo){
+	function updateWebsite($listInfo, $apiCall = false){
 		
-		if (isAdmin()) {
+		// check whether admin or api calll
+		if (isAdmin() || $apiCall) {
 			$userId = empty($listInfo['user_id']) ? isLoggedIn() : $listInfo['user_id'];	
 		} else {
 			$userId = isLoggedIn();
@@ -252,6 +306,9 @@ class WebsiteController extends Controller{
 		$errMsg['name'] = formatErrorMsg($this->validate->checkBlank($listInfo['name']));
 		$errMsg['url'] = formatErrorMsg($this->validate->checkBlank($listInfo['url']));
 		$listInfo['url'] = addHttpToUrl($listInfo['url']);
+		$statusVal = isset($listInfo['status']) ? "status = " . intval($listInfo['status']) ."," : "";		
+		
+		// verify the form
 		if(!$this->validate->flagErr){
 
 			if($listInfo['name'] != $listInfo['oldName']){
@@ -273,19 +330,34 @@ class WebsiteController extends Controller{
 						user_id = $userId,
 						title = '".addslashes($listInfo['title'])."',
 						description = '".addslashes($listInfo['description'])."',
+						$statusVal
 						keywords = '".addslashes($listInfo['keywords'])."'
 						where id={$listInfo['id']}";
 				$this->db->query($sql);
-				$this->listWebsites();
-				exit;
+				
+				// if api call
+				if ($apiCall) {
+					return array('success', 'Successfully updated website');
+				} else {
+					$this->listWebsites();
+					exit;
+				}
+				
 			}
 		}
-		$this->set('errMsg', $errMsg);
-		$this->editWebsite($listInfo['id'], $listInfo);
+		
+		// if api call
+		if ($apiCall) {
+			return array('error', $errMsg);
+		} else {
+			$this->set('errMsg', $errMsg);
+			$this->editWebsite($listInfo['id'], $listInfo);
+		}
+		
 	}
 	
 	# func to crawl meta data of a website
-	public function crawlMetaData($websiteUrl, $keyInput='', $pageContent='', $returVal=false) {
+	function crawlMetaData($websiteUrl, $keyInput='', $pageContent='', $returVal=false) {
 	    if (empty($pageContent)) {
     		if(!preg_match('/\w+/', $websiteUrl)) return;
     		if(!stristr($websiteUrl, 'http://')) $websiteUrl = "http://".$websiteUrl;
@@ -346,12 +418,12 @@ class WebsiteController extends Controller{
 		return $metaInfo; 
 	}
 	
-	public function addInputValue($value, $col) {
+	function addInputValue($value, $col) {
 
 		$value = removeNewLines($value);
 		?>
 		<script type="text/javascript">
-			document.getElementById('<?php echo $col;?>').value = '<?php echo addslashes($value);?>';
+			document.getElementById('<?php echo $col;?>').value = '<?php echo str_replace("'", "\'", $value);?>';
 		</script>
 		<?php
 	}
