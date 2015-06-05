@@ -41,11 +41,12 @@ class TimeZoneController extends Controller {
 	
 	/**
 	 * function to get timezone information
-	 * @param int $timezoneId	The id of the timezone
+	 * @param int $timezoneVal	The value of the timezone
+	 * @param int $timezoneCol	The col name of the timezone
 	 * @return Array		Contains all details about the  timezone
 	 */
-	function __getTimezoneInfo($timezoneId) {
-		$sql = "select * from timezone where lang_code='$timezoneId'";
+	function __getTimezoneInfo($timezoneVal, $timezoneCol = 'timezone_name') {
+		$sql = "select * from timezone where $timezoneCol='".addslashes($timezoneVal)."'";
 		$timezoneInfo = $this->db->select($sql, true);
 		return $timezoneInfo;
 	}

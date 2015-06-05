@@ -1,51 +1,21 @@
-<?php
+--
+-- Seo Panel 3.4.0 changes
+--
 
-/***************************************************************************
- *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	           *
- *   sendtogeo@gmail.com   						                           *
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- *   This program is distributed in the hope that it will be useful,       *
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
- *   GNU General Public License for more details.                          *
- *                                                                         *
- *   You should have received a copy of the GNU General Public License     *
- *   along with this program; if not, write to the                         *
- *   Free Software Foundation, Inc.,                                       *
- *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- ***************************************************************************/
+INSERT INTO `settings` (`set_label`, `set_name`, `set_val`, `set_category`, `set_type`, `display`) 
+VALUES ('Enable HTTP Proxy Tunnel', 'CURLOPT_HTTPPROXYTUNNEL_VAL', '1', 'proxy', 'bool', '1');
 
-# The web path or url to access seo panel through browser.
-define('SP_WEBPATH', '[SP_WEBPATH]');
+INSERT INTO `settings` (`set_label`, `set_name`, `set_val`, `set_category`, `set_type`, `display`) 
+VALUES ('Deactivate Proxy When Crawling Failed', 'PROXY_DEACTIVATE_CRAWL', '0', 'proxy', 'bool', '1');
 
-# DB settings - You can get this info from your web hosting provider.
-# The name of the database for seo panel
-define('DB_NAME', '[DB_NAME]');
+INSERT INTO `settings` (`set_label`, `set_name`, `set_val`, `set_category`, `set_type`, `display`) 
+VALUES ('Check With Another Proxy When Crawling Failed', 'CHECK_WITH_ANOTHER_PROXY_IF_FAILED', '0', 'proxy', 'bool', '1');
 
-# DB database username
-define('DB_USER', '[DB_USER]');
+INSERT INTO `settings` (`set_label`, `set_name`, `set_val`, `set_category`, `set_type`, `display`) 
+VALUES ('SMTP Mail Port', 'SP_SMTP_PORT', '25', 'system', 'small', '1');
 
-# DB database password
-define('DB_PASSWORD', '[DB_PASSWORD]');
+ALTER TABLE `proxylist` ADD `checked` TINYINT( 1 ) NOT NULL DEFAULT '0';
 
-# DB hostname
-define('DB_HOST', '[DB_HOST]');
+Update `searchengines` set `regex`='<li.*?<h3><a.*?\\*\\*(.*?)".*?>(.*?)<\\/a><\\/h3>.*?<div.*?>(.*?)<\\/div>' where url like '%yahoo.com%';
 
-# The name of the database engine for seo panel
-define('DB_ENGINE', '[DB_ENGINE]');
 
-# The version of seo panel installed
-define('SP_INSTALLED', '3.5.0');
-
-# The DB debug mode
-define('SP_DEBUG', 0);
-
-# The seo panel seconds for session timeout
-define('SP_TIMEOUT', 18000);
-
-?>

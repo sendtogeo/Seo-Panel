@@ -2,6 +2,8 @@
 
 include_once("includes/sp-load.php");
 include_once(SP_CTRLPATH."/user.ctrl.php");
+include_once(SP_CTRLPATH."/seoplugins.ctrl.php");
+include_once(SP_CTRLPATH."/user-type.ctrl.php");
 $controller = New UserController();
 
 if(isLoggedIn() || !SP_USER_REGISTRATION){

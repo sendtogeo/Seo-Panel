@@ -2,7 +2,7 @@
 	$msgClass = empty($error) ? "success" : "error"; 
 	?>
 		<p class="dirmsg">
-			<font class="<?=$msgClass?>"><?=$msg?></font>
+			<font class="<?php echo $msgClass?>"><?php echo $msg?></font>
 		</p>
 	<? 
 	}

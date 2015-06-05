@@ -1,15 +1,41 @@
 <form name="listform" id="listform">
 <?php echo showSectionHead($spTextPanel['User Manager']); ?>
-<?=$pagingDiv?>
+<table width="88%" border="0" cellspacing="0" cellpadding="0" class="search">
+	<?php $submitLink = "scriptDoLoadPost('users.php', 'listform', 'content')";?>
+	<tr>
+		<th><?php echo $spText['common']['Name']?>: </th>
+		<td width="100px">
+			<input type="text" name="user_name" value="<?php echo htmlentities($info['user_name'], ENT_QUOTES)?>" onblur="<?php echo $submitLink?>">
+		</td>
+		<th><?php echo $spText['common']['Status']?>: </th>
+		<td width="100px">
+			<select name="stscheck" onchange="<?php echo $submitLink?>">
+				<?php foreach($statusList as $key => $val){?>
+					<?php if($info['stscheck'] == $val){?>
+						<option value="<?php echo $val?>" selected><?php echo $key?></option>
+					<?php }else{?>
+						<option value="<?php echo $val?>"><?php echo $key?></option>
+					<?php }?>
+				<?php }?>
+			</select>
+		</td>
+		<td style="text-align: center;">
+			<a href="javascript:void(0);" onclick="<?php echo $submitLink; ?>" class="actionbut">
+				<?php echo $spText['button']['Search']?>
+			</a>
+		</td>
+	</tr>
+</table>
+<?php echo $pagingDiv?>
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
 	<tr class="listHead">
 		<td class="leftid"><input type="checkbox" id="checkall" onclick="checkList('checkall')"></td>
-		<td><?=$spText['common']['Id']?></td>
-		<td><?=$spText['login']['Username']?></td>
-		<td><?=$spText['common']['Name']?></td>
-		<td><?=$spText['login']['Email']?></td>
-		<td><?=$spText['common']['Status']?></td>
-		<td class="right"><?=$spText['common']['Action']?></td>
+		<td><?php echo $spText['common']['Id']?></td>
+		<td><?php echo $spText['login']['Username']?></td>
+		<td><?php echo $spText['common']['Name']?></td>
+		<td><?php echo $spText['login']['Email']?></td>
+		<td><?php echo $spText['common']['Status']?></td>
+		<td class="right"><?php echo $spText['common']['Action']?></td>
 	</tr>
 	<?php
 	$colCount = 7; 
@@ -26,14 +52,14 @@
             }
             $usernameLink = scriptAJAXLinkHref('users.php', 'content', "sec=edit&userId={$userInfo['id']}", "{$userInfo['username']}")
 			?>
-			<tr class="<?=$class?>">				
-				<td class="<?=$leftBotClass?>"><input type="checkbox" name="ids[]" value="<?=$userInfo['id']?>"></td>
-				<td class="td_br_right"><?=$userInfo['id']?></td>
-				<td class="td_br_right left"><?=$usernameLink?></td>
-				<td class="td_br_right left"><?=$userInfo['first_name']." ".$userInfo['last_name']?></td>
-				<td class="td_br_right left"><?=$userInfo['email']?></td>
+			<tr class="<?php echo $class?>">				
+				<td class="<?php echo $leftBotClass?>"><input type="checkbox" name="ids[]" value="<?php echo $userInfo['id']?>"></td>
+				<td class="td_br_right"><?php echo $userInfo['id']?></td>
+				<td class="td_br_right left"><?php echo $usernameLink?></td>
+				<td class="td_br_right left"><?php echo $userInfo['first_name']." ".$userInfo['last_name']?></td>
+				<td class="td_br_right left"><?php echo $userInfo['email']?></td>
 				<td class="td_br_right"><?php echo $userInfo['status'] ? $spText['common']["Active"] : $spText['common']["Inactive"];	?></td>
-				<td class="<?=$rightBotClass?>" width="100px">
+				<td class="<?php echo $rightBotClass?>" width="100px">
 					<?php
 						if($userInfo['status']){
 							$statVal = "Inactivate";
@@ -43,11 +69,11 @@
 							$statLabel = $spText['common']["Activate"];
 						} 
 					?>
-					<select name="action" id="action<?=$userInfo['id']?>" onchange="doAction('users.php', 'content', 'userId=<?=$userInfo['id']?>&pageno=<?=$pageNo?>', 'action<?=$userInfo['id']?>')">
-						<option value="select">-- <?=$spText['common']['Select']?> --</option>
-						<option value="<?=$statVal?>"><?=$statLabel?></option>
-						<option value="edit"><?=$spText['common']['Edit']?></option>
-						<option value="delete"><?=$spText['common']['Delete']?></option>
+					<select name="action" id="action<?php echo $userInfo['id']?>" onchange="doAction('users.php', 'content', 'userId=<?php echo $userInfo['id']?>&pageno=<?php echo $pageNo?>', 'action<?php echo $userInfo['id']?>')">
+						<option value="select">-- <?php echo $spText['common']['Select']?> --</option>
+						<option value="<?php echo $statVal?>"><?php echo $statLabel?></option>
+						<option value="edit"><?php echo $spText['common']['Edit']?></option>
+						<option value="delete"><?php echo $spText['common']['Delete']?></option>
 					</select>
 				</td>
 			</tr>
@@ -58,7 +84,7 @@
 	} 
 	?>
 	<tr class="listBot">
-		<td class="left" colspan="<?=($colCount-1)?>"></td>
+		<td class="left" colspan="<?php echo ($colCount-1)?>"></td>
 		<td class="right"></td>
 	</tr>
 </table>
@@ -75,16 +101,16 @@ if (SP_DEMO) {
 	<tr>
     	<td style="padding-top: 6px;">
          	<a onclick="scriptDoLoad('users.php', 'content', 'sec=new')" href="javascript:void(0);" class="actionbut">
-         		<?=$spTextPanel['New User']?>
+         		<?php echo $spTextPanel['New User']?>
          	</a>&nbsp;&nbsp;
-         	<a onclick="<?=$actFun?>" href="javascript:void(0);" class="actionbut">
-         		<?=$spText['common']["Activate"]?>
+         	<a onclick="<?php echo $actFun?>" href="javascript:void(0);" class="actionbut">
+         		<?php echo $spText['common']["Activate"]?>
          	</a>&nbsp;&nbsp;
-         	<a onclick="<?=$inactFun?>" href="javascript:void(0);" class="actionbut">
-         		<?=$spText['common']["Inactivate"]?>
+         	<a onclick="<?php echo $inactFun?>" href="javascript:void(0);" class="actionbut">
+         		<?php echo $spText['common']["Inactivate"]?>
          	</a>&nbsp;&nbsp;
-         	<a onclick="<?=$delFun?>" href="javascript:void(0);" class="actionbut">
-         		<?=$spText['common']['Delete']?>
+         	<a onclick="<?php echo $delFun?>" href="javascript:void(0);" class="actionbut">
+         		<?php echo $spText['common']['Delete']?>
          	</a>
     	</td>
 	</tr>

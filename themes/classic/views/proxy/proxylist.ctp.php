@@ -2,15 +2,15 @@
 echo showSectionHead($spTextPanel["Proxy Manager"]);
 $searchFun = "scriptDoLoadPost('proxy.php', 'listform', 'content')"; 
 ?>
-<form name="listform" id="listform" onsubmit="<?=$searchFun?>">
+<form name="listform" id="listform" onsubmit="<?php echo $searchFun?>">
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="search">
 	<tr>
-		<th><?=$spText['common']['Keyword']?>: </th>
-		<td><input type="text" name="keyword" value="<?=htmlentities($keyword, ENT_QUOTES)?>" onblur="<?=$searchFun?>"></td>
-		<th><?=$spText['common']['Status']?>: </th>
+		<th><?php echo $spText['common']['Keyword']?>: </th>
+		<td><input type="text" name="keyword" value="<?php echo htmlentities($keyword, ENT_QUOTES)?>" onblur="<?php echo $searchFun?>"></td>
+		<th><?php echo $spText['common']['Status']?>: </th>
 		<td>
-			<select name="status" onchange="<?=$searchFun?>">
-				<option value="">-- <?=$spText['common']['Select']?> --</option>
+			<select name="status" onchange="<?php echo $searchFun?>">
+				<option value="">-- <?php echo $spText['common']['Select']?> --</option>
 				<?php				
 				$inactCheck = $actCheck = "";
 				if ($statVal == 'active') {
@@ -19,25 +19,25 @@ $searchFun = "scriptDoLoadPost('proxy.php', 'listform', 'content')";
 				    $inactCheck = "selected";
 				}
 				?>
-				<option value="active" <?=$actCheck?> ><?=$spText['common']["Active"]?></option>
-				<option value="inactive" <?=$inactCheck?> ><?=$spText['common']["Inactive"]?></option>
+				<option value="active" <?php echo $actCheck?> ><?php echo $spText['common']["Active"]?></option>
+				<option value="inactive" <?php echo $inactCheck?> ><?php echo $spText['common']["Inactive"]?></option>
 			</select>
 		</td>
 		<td>
-			<a href="javascript:void(0);" onclick="<?=$searchFun?>" class="actionbut"><?=$spText['button']['Show Records']?></a>
+			<a href="javascript:void(0);" onclick="<?php echo $searchFun?>" class="actionbut"><?php echo $spText['button']['Show Records']?></a>
 		</td>
 	</tr>
 </table>
-<?=$pagingDiv?>
+<?php echo $pagingDiv?>
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
 	<tr class="listHead">
 		<td class="leftid"><input type="checkbox" id="checkall" onclick="checkList('checkall')"></td>
-		<td><?=$spText['common']['Id']?></td>		
-		<td><?=$spText['label']['Proxy']?></td>
-		<td><?=$spText['label']['Port']?></td>
-		<td><?=$spText['label']['Authentication']?></td>
-		<td><?=$spText['common']['Status']?></td>
-		<td class="right"><?=$spText['common']['Action']?></td>
+		<td><?php echo $spText['common']['Id']?></td>		
+		<td><?php echo $spText['label']['Proxy']?></td>
+		<td><?php echo $spText['label']['Port']?></td>
+		<td><?php echo $spText['label']['Authentication']?></td>
+		<td><?php echo $spText['common']['Status']?></td>
+		<td class="right"><?php echo $spText['common']['Action']?></td>
 	</tr>
 	<?php
 	$colCount = 7; 
@@ -54,14 +54,14 @@ $searchFun = "scriptDoLoadPost('proxy.php', 'listform', 'content')";
             }
             $proxyLink = scriptAJAXLinkHref('proxy.php', 'content', "sec=edit&proxyId={$listInfo['id']}", "{$listInfo['proxy']}");
 			?>
-			<tr class="<?=$class?>">
-				<td class="<?=$leftBotClass?>"><input type="checkbox" name="ids[]" value="<?=$listInfo['id']?>"></td>
-				<td class="td_br_right"><?=$listInfo['id']?></td>
-				<td class="td_br_right left"><?=$proxyLink?></td>
-				<td class="td_br_right"><?=$listInfo['port']?></td>
+			<tr class="<?php echo $class?>">
+				<td class="<?php echo $leftBotClass?>"><input type="checkbox" name="ids[]" value="<?php echo $listInfo['id']?>"></td>
+				<td class="td_br_right"><?php echo $listInfo['id']?></td>
+				<td class="td_br_right left"><?php echo $proxyLink?></td>
+				<td class="td_br_right"><?php echo $listInfo['port']?></td>
 				<td class="td_br_right"><?php echo $listInfo['proxy_auth'] ? $spText['common']["Yes"] : $spText['common']["No"]; ?></td>
 				<td class="td_br_right"><?php echo $listInfo['status'] ? $spText['common']["Active"] : $spText['common']["Inactive"]; ?></td>
-				<td class="<?=$rightBotClass?>" width="100px">
+				<td class="<?php echo $rightBotClass?>" width="100px">
 					<?php
 						if($listInfo['status']){
 							$statLabel = $spText['common']["Inactivate"];
@@ -69,12 +69,12 @@ $searchFun = "scriptDoLoadPost('proxy.php', 'listform', 'content')";
 							$statLabel = $spText['common']["Activate"];
 						} 
 					?>
-					<select name="action" id="action<?=$listInfo['id']?>" onchange="doAction('proxy.php', 'content', 'proxyId=<?=$listInfo['id']?>&pageno=<?=$pageNo?><?=$urlParams?>', 'action<?=$listInfo['id']?>')">
-						<option value="select">-- <?=$spText['common']['Select']?> --</option>						
-						<option value="checkstatus"><?=$spText['button']['Check Status']?></option>
-						<option value="<?=$statLabel?>"><?=$statLabel?></option>
-						<option value="edit"><?=$spText['common']['Edit']?></option>
-						<option value="delete"><?=$spText['common']['Delete']?></option>
+					<select name="action" id="action<?php echo $listInfo['id']?>" onchange="doAction('proxy.php', 'content', 'proxyId=<?php echo $listInfo['id']?>&pageno=<?php echo $pageNo?><?php echo $urlParams?>', 'action<?php echo $listInfo['id']?>')">
+						<option value="select">-- <?php echo $spText['common']['Select']?> --</option>						
+						<option value="checkstatus"><?php echo $spText['button']['Check Status']?></option>
+						<option value="<?php echo $statLabel?>"><?php echo $statLabel?></option>
+						<option value="edit"><?php echo $spText['common']['Edit']?></option>
+						<option value="delete"><?php echo $spText['common']['Delete']?></option>
 					</select>
 				</td>
 			</tr>
@@ -85,7 +85,7 @@ $searchFun = "scriptDoLoadPost('proxy.php', 'listform', 'content')";
 	} 
 	?>
 	<tr class="listBot">
-		<td class="left" colspan="<?=($colCount-1)?>"></td>
+		<td class="left" colspan="<?php echo ($colCount-1)?>"></td>
 		<td class="right"></td>
 	</tr>
 </table>
@@ -103,19 +103,19 @@ if (SP_DEMO) {
 	<tr>
     	<td style="padding-top: 6px;" class='left'>
          	<a onclick="scriptDoLoad('proxy.php', 'content', 'sec=new')" href="javascript:void(0);" class="actionbut">
-         		<?=$spTextPanel['New Proxy']?>
+         		<?php echo $spTextPanel['New Proxy']?>
          	</a>&nbsp;&nbsp;
-         	<a onclick="<?=$checkFun?>" href="javascript:void(0);" class="actionbut">
-         		<?=$spText['button']["Check Status"]?>
+         	<a onclick="<?php echo $checkFun?>" href="javascript:void(0);" class="actionbut">
+         		<?php echo $spText['button']["Check Status"]?>
          	</a>&nbsp;&nbsp;
-         	<a onclick="<?=$actFun?>" href="javascript:void(0);" class="actionbut">
-         		<?=$spText['common']["Activate"]?>
+         	<a onclick="<?php echo $actFun?>" href="javascript:void(0);" class="actionbut">
+         		<?php echo $spText['common']["Activate"]?>
          	</a>&nbsp;&nbsp;
-         	<a onclick="<?=$inactFun?>" href="javascript:void(0);" class="actionbut">
-         		<?=$spText['common']["Inactivate"]?>
+         	<a onclick="<?php echo $inactFun?>" href="javascript:void(0);" class="actionbut">
+         		<?php echo $spText['common']["Inactivate"]?>
          	</a>&nbsp;&nbsp;
-         	<a onclick="<?=$delFun?>" href="javascript:void(0);" class="actionbut">
-         		<?=$spText['common']['Delete']?>
+         	<a onclick="<?php echo $delFun?>" href="javascript:void(0);" class="actionbut">
+         		<?php echo $spText['common']['Delete']?>
          	</a>&nbsp;&nbsp;
          	<a target="_blank" href="http://www.squidproxies.com/billing/aff.php?aff=249" class="actionbut">
          		Get Proxy

@@ -26,8 +26,8 @@ class BacklinkController extends Controller{
 	var $colList = array('google' => 'google', 'alexa' => 'alexa', 'msn' => 'msn');
 	var $backUrlList = array(
 		'google' => 'http://www.google.com/search?hl=en&q=link%3A',
-		'alexa' => 'http://www.alexa.com/site/linksin/',
-		'msn' => 'http://www.bing.com/search?setmkt=en&q=link%3A',
+		'alexa' => 'http://www.alexa.com/siteinfo/',
+		'msn' => 'http://www.bing.com/search?setmkt=en-us&q=link%3A',
 	);
 	
 	function showBacklink() {
@@ -46,7 +46,7 @@ class BacklinkController extends Controller{
 			    if ($i++ > 10) break;
 			}
 			if(!stristr($url, 'http://')) $url = "http://".$url;
-			$list[] = $url;
+			$list[] = str_replace(array("\n", "\r", "\r\n", "\n\r"), "", trim($url));
 		}
 
 		$this->set('list', $list);
@@ -55,8 +55,15 @@ class BacklinkController extends Controller{
 	
 	function printBacklink($backlinkInfo){
 		$this->url = $backlinkInfo['url'];
-		$backlinkCount = $this->__getBacklinks($backlinkInfo['engine']);		
-		$websiteUrl = @Spider::removeTrailingSlash(formatUrl($backlinkInfo['url']));
+		$backlinkCount = $this->__getBacklinks($backlinkInfo['engine']);
+		
+		// if msn engine
+		if ($backlinkInfo['engine'] == 'msn') {
+			$websiteUrl = addHttpToUrl($backlinkInfo['url']);
+		} else {		
+			$websiteUrl = @Spider::removeTrailingSlash(formatUrl($backlinkInfo['url']));
+		}
+
 		$websiteUrl = urldecode($websiteUrl);
 		$backlinkUrl = $this->backUrlList[$backlinkInfo['engine']] . $websiteUrl;
 		echo "<a href='$backlinkUrl' target='_blank'>$backlinkCount</a>";
@@ -78,7 +85,7 @@ class BacklinkController extends Controller{
 				} elseif (preg_match('/about <b>([0-9\,]+)<\/b> linking/si', $pageContent, $r)) {					
 				} else {
 					$crawlInfo['crawl_status'] = 0;
-					$crawlInfo['log_message'] = "Regex not matched error occured while parsing search results!";					
+					$crawlInfo['log_message'] = SearchEngineController::isCaptchInSearchResults($pageContent) ? "<font class=error>Captcha found</font> in search result page" : "Regex not matched error occured while parsing search results!";					
 				}
 				
 				$backlinkCount = !empty($r[1]) ? str_replace(',', '', $r[1]) : 0;
@@ -93,9 +100,10 @@ class BacklinkController extends Controller{
 		        if (preg_match('/([0-9\,]+) results/si', $pageContent, $r)) {
 				} elseif (preg_match('/id="count".*?>.*?\(([0-9\,]+).*?\)/si', $pageContent, $r)) {
 				} elseif (preg_match('/id="count".*?>.*?([0-9\,]+).*?/si', $pageContent, $r)) {
+				} elseif (preg_match('/class="sb_count".*?>.*?([0-9\,]+).*?<\/span>/si', $pageContent, $r)) {
 				} else {
 					$crawlInfo['crawl_status'] = 0;
-					$crawlInfo['log_message'] = "Regex not matched error occured while parsing search results!";
+					$crawlInfo['log_message'] = SearchEngineController::isCaptchInSearchResults($pageContent) ? "<font class=error>Captcha found</font> in search result page" : "Regex not matched error occured while parsing search results!";
 				}
 				
 				$backlinkCount = !empty($r[1]) ? str_replace(',', '', $r[1]) : 0;
@@ -103,15 +111,21 @@ class BacklinkController extends Controller{
 				
 			# alexa
 			case 'alexa':
-				$url = 'http://data.alexa.com/data?cli=10&dat=snbamz&url=' . urlencode($this->url);
+				/*$url = 'http://data.alexa.com/data?cli=10&dat=snbamz&url=' . urlencode($this->url);*/
+				$url = $this->backUrlList[$engine] . urlencode($this->url);
 				$v = $this->spider->getContent($url);
 				$pageContent = empty($v['page']) ? '' :  $v['page'];
-				if (preg_match('/<LINKSIN NUM="(.*?)"/si', $pageContent, $r) ) {
-					$backlinkCount = !empty($r[1]) ? intval($r[1]) : 0;
+				
+				/*if (preg_match('/<LINKSIN NUM="(.*?)"/si', $pageContent, $r) ) {
+				}*/
+				
+				if (preg_match('/id="linksin-panel-content".*>([0-9,]+)<\/span>/si', $pageContent, $r)) {
 				} else {
 					$crawlInfo['crawl_status'] = 0;
-					$crawlInfo['log_message'] = "Regex not matched error occured while parsing search results!";
+					$crawlInfo['log_message'] = SearchEngineController::isCaptchInSearchResults($pageContent) ? "<font class=error>Captcha found</font> in search result page" : "Regex not matched error occured while parsing search results!";
 				}
+							
+				$backlinkCount = !empty($r[1]) ? intval(str_replace(",", "", $r[1])) : 0;
 				break;
 		}
 

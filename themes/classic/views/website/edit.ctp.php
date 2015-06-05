@@ -1,23 +1,23 @@
 <?php echo showSectionHead($spTextWeb['Edit Website']); ?>
 <form id="editWebsite">
 <input type="hidden" name="sec" value="update"/>
-<input type="hidden" name="oldName" value="<?=$post['oldName']?>"/>
-<input type="hidden" name="id" value="<?=$post['id']?>"/>
+<input type="hidden" name="oldName" value="<?php echo $post['oldName']?>"/>
+<input type="hidden" name="id" value="<?php echo $post['id']?>"/>
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
 	<tr class="listHead">
-		<td class="left" width='30%'><?=$spTextWeb['Edit Website']?></td>
+		<td class="left" width='30%'><?php echo $spTextWeb['Edit Website']?></td>
 		<td class="right">&nbsp;</td>
 	</tr>
 	<?php if(!empty($isAdmin)){ ?>	
 		<tr class="blue_row">
-			<td class="td_left_col"><?=$spText['common']['User']?>:</td>
+			<td class="td_left_col"><?php echo $spText['common']['User']?>:</td>
 			<td class="td_right_col">
 				<select name="user_id" style="width:150px;">
 					<?php foreach($userList as $userInfo){?>
 						<?php if($userInfo['id'] == $post['user_id']){?>
-							<option value="<?=$userInfo['id']?>" selected><?=$userInfo['username']?></option>
+							<option value="<?php echo $userInfo['id']?>" selected><?php echo $userInfo['username']?></option>
 						<?php }else{?>
-							<option value="<?=$userInfo['id']?>"><?=$userInfo['username']?></option>
+							<option value="<?php echo $userInfo['id']?>"><?php echo $userInfo['username']?></option>
 						<?php }?>						
 					<?php }?>
 				</select>
@@ -25,29 +25,29 @@
 		</tr>
 	<?php }?>
 	<tr class="white_row">
-		<td class="td_left_col"><?=$spText['common']['Name']?>:</td>
-		<td class="td_right_col"><input type="text" name="name" value="<?=$post['name']?>"><?=$errMsg['name']?></td>
+		<td class="td_left_col"><?php echo $spText['common']['Name']?>:</td>
+		<td class="td_right_col"><input type="text" name="name" value="<?php echo $post['name']?>"><?php echo $errMsg['name']?></td>
 	</tr>
 	<tr class="blue_row">
-		<td class="td_left_col"><?=$spText['common']['Url']?>:</td>
+		<td class="td_left_col"><?php echo $spText['common']['Url']?>:</td>
 		<td class="td_right_col">
-			<input type="text" id='weburl' name="url" value="<?=$post['url']?>" style="width:300px;">
-			<a style="text-decoration: none;" href="javascript:void(0);" onclick="crawlMetaData('websites.php?sec=crawlmeta', 'crawlstats')">&#171&#171 <?=$spText['common']['Crawl Meta Data']?></a>
+			<input type="text" id='weburl' name="url" value="<?php echo $post['url']?>" style="width:300px;">
+			<a style="text-decoration: none;" href="javascript:void(0);" onclick="crawlMetaData('websites.php?sec=crawlmeta', 'crawlstats')">&#171&#171 <?php echo $spText['common']['Crawl Meta Data']?></a>
 			<div id="crawlstats" style="float: right;padding-right:40px;"></div>
-			<br><?=$errMsg['url']?>
+			<br><?php echo $errMsg['url']?>
 		</td>
 	</tr>
 	<tr class="white_row">
-		<td class="td_left_col"><?=$spText['label']['Title']?>:</td>
-		<td class="td_right_col"><input type="text" name="title" id="webtitle" value="<?=$post['title']?>" style="width:400px;"></td>
+		<td class="td_left_col"><?php echo $spText['label']['Title']?>:</td>
+		<td class="td_right_col"><input type="text" name="title" id="webtitle" value="<?php echo $post['title']?>" style="width:400px;"></td>
 	</tr>
 	<tr class="blue_row">
-		<td class="td_left_col"><?=$spText['label']['Description']?>:</td>
-		<td class="td_right_col"><textarea name="description" id="webdescription"><?=$post['description']?></textarea><?=$errMsg['description']?></td>
+		<td class="td_left_col"><?php echo $spText['label']['Description']?>:</td>
+		<td class="td_right_col"><textarea name="description" id="webdescription"><?php echo $post['description']?></textarea><?php echo $errMsg['description']?></td>
 	</tr>
 	<tr class="white_row">
-		<td class="td_left_col"><?=$spText['label']['Keywords']?>:</td>
-		<td class="td_right_col"><textarea name="keywords" id="webkeywords"><?=$post['keywords']?></textarea><?=$errMsg['keywords']?></td>
+		<td class="td_left_col"><?php echo $spText['label']['Keywords']?>:</td>
+		<td class="td_right_col"><textarea name="keywords" id="webkeywords"><?php echo $post['keywords']?></textarea><?php echo $errMsg['keywords']?></td>
 	</tr>		
 	<tr class="blue_row">
 		<td class="tab_left_bot_noborder"></td>
@@ -62,11 +62,11 @@
 	<tr>
     	<td style="padding-top: 6px;text-align:right;">
     		<a onclick="scriptDoLoad('websites.php', 'content')" href="javascript:void(0);" class="actionbut">
-         		<?=$spText['button']['Cancel']?>
+         		<?php echo $spText['button']['Cancel']?>
          	</a> &nbsp;
          	<?php $actFun = SP_DEMO ? "alertDemoMsg()" : "confirmSubmit('websites.php', 'editWebsite', 'content')"; ?>         		
-         	<a onclick="<?=$actFun?>" href="javascript:void(0);" class="actionbut">
-         		<?=$spText['button']['Proceed']?>
+         	<a onclick="<?php echo $actFun?>" href="javascript:void(0);" class="actionbut">
+         		<?php echo $spText['button']['Proceed']?>
          	</a>
     	</td>
 	</tr>

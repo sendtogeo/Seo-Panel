@@ -26,7 +26,7 @@ class SaturationCheckerController extends Controller{
 	var $colList = array('google' => 'google', 'msn' => 'msn');
 	var $saturationUrlList = array(
 		'google' => 'http://www.google.com/search?hl=en&q=site%3A',
-		'msn' => 'http://www.bing.com/search?setmkt=en&q=site%3A',
+		'msn' => 'http://www.bing.com/search?setmkt=en-us&q=site%3A',
 	);
 	
 	function showSaturationChecker() {
@@ -45,7 +45,7 @@ class SaturationCheckerController extends Controller{
 			    if ($i++ > 10) break;
 			}
 			if(!stristr($url, 'http://')) $url = "http://".$url;
-			$list[] = $url;
+			$list[] = str_replace(array("\n", "\r", "\r\n", "\n\r"), "", trim($url));
 		}
 
 		$this->set('list', $list);
@@ -78,7 +78,7 @@ class SaturationCheckerController extends Controller{
 				} elseif (preg_match('/of <b>([0-9\,]+)<\/b>/si', $pageContent, $r) ) {
 				} else {
 					$crawlInfo['crawl_status'] = 0;
-					$crawlInfo['log_message'] = "Regex not matched error occured while parsing search results!";
+					$crawlInfo['log_message'] = SearchEngineController::isCaptchInSearchResults($pageContent) ? "<font class=error>Captcha found</font> in search result page" : "Regex not matched error occured while parsing search results!";
 				}
 								
 				$saturationCount = !empty($r[1]) ? str_replace(',', '', $r[1]) : 0;
@@ -92,9 +92,10 @@ class SaturationCheckerController extends Controller{
 		        if (preg_match('/([0-9\,]+) results/si', $pageContent, $r)) {
 				} elseif (preg_match('/id="count".*?>.*?\(([0-9\,]+).*?\)/si', $pageContent, $r)) {
 				} elseif (preg_match('/id="count".*?>.*?([0-9\,]+).*?/si', $pageContent, $r)) {
+				} elseif (preg_match('/class="sb_count".*?>.*?([0-9\,]+).*?<\/span>/si', $pageContent, $r)) {
 				} else {
 					$crawlInfo['crawl_status'] = 0;
-					$crawlInfo['log_message'] = "Regex not matched error occured while parsing search results!";
+					$crawlInfo['log_message'] = SearchEngineController::isCaptchInSearchResults($pageContent) ? "<font class=error>Captcha found</font> in search result page" : "Regex not matched error occured while parsing search results!";
 				}
 				$saturationCount = !empty($r[1]) ? str_replace(',', '', $r[1]) : 0;
 				break;

@@ -27,13 +27,13 @@ switch($this->menu){
 		break;
 } 
 ?>
-<li><a class="<?=$homeClass?>" href="<?=SP_WEBPATH?>/"><?=$spText['common']['Dashboard']?></a></li>
-<li><a class="<?=$seoToolsClass?>" href="<?=SP_WEBPATH?>/seo-tools.php"><?=$spText['common']['Seo Tools']?></a></li>
-<li><a class="<?=$seoPluginsClass?>" href="<?=SP_WEBPATH?>/seo-plugins.php?sec=show"><?=$spText['common']['Seo Plugins']?></a></li>
-<li><a class="<?=$supportClass?>" href="<?=SP_WEBPATH?>/support.php"><?=$spText['common']['Support']?></a></li>
-<li><a href="<?=SP_DONATE_LINK?>" target="_blank"><?=$spText['common']['Donate']?></a></li>
+<li><a class="<?php echo $homeClass?>" href="<?php echo SP_WEBPATH?>/"><?php echo $spText['common']['Dashboard']?></a></li>
+<li><a class="<?php echo $seoToolsClass?>" href="<?php echo SP_WEBPATH?>/seo-tools.php"><?php echo $spText['common']['Seo Tools']?></a></li>
+<li><a class="<?php echo $seoPluginsClass?>" href="<?php echo SP_WEBPATH?>/seo-plugins.php?sec=show"><?php echo $spText['common']['Seo Plugins']?></a></li>
+<li><a class="<?php echo $supportClass?>" href="<?php echo SP_WEBPATH?>/support.php"><?php echo $spText['common']['Support']?></a></li>
+<li><a href="<?php echo SP_DONATE_LINK?>" target="_blank"><?php echo $spText['common']['Donate']?></a></li>
 <?php if (SP_DEMO) {?>
-	<li><a href="<?=SP_DOWNLOAD_LINK?>" target="_blank"><?=$spText['label']['Download']?></a></li>
+	<li><a href="<?php echo SP_DOWNLOAD_LINK?>" target="_blank"><?php echo $spText['label']['Download']?></a></li>
 <?php }?>
 
-<li style="float: right; margin-right: 12px;"><a class="<?=$adminClass?>" href="<?=SP_WEBPATH?>/admin-panel.php"><?=$spText['common']['User Panel']?></a></li>
+<li style="float: right; margin-right: 12px;"><a class="<?php echo $adminClass?>" href="<?php echo SP_WEBPATH?>/admin-panel.php"><?php echo $spText['common']['User Panel']?></a></li>

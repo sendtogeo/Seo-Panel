@@ -61,7 +61,7 @@ class Spider{
 	}	
 	
 	# func to format urls
-	public function formatUrl($url){	    
+	function formatUrl($url){	    
 	    $scheme = "";
 		if(stristr($url,'http://')){
 			$scheme = "http://";
@@ -106,29 +106,50 @@ class Spider{
 		    $relativeUrl = $domainUrl . $this->getRelativeUrl($url);
 		}
 		
+		// find main domain host link
+		$domainHostInfo = parse_url($domainUrl);
+		$domainHostLink = $domainHostInfo['scheme'] . "://" . $domainHostInfo['host'] . "/";
+		
 		if( !empty($ret['page'])){
 			$string = str_replace(array("\n",'\n\r','\r\n','\r'), "", $ret['page']);			
-			$pageInfo = WebsiteController::crawlMetaData($url, '', $string, true); 
+			$pageInfo = WebsiteController::crawlMetaData($url, '', $string, true);
+			
+			// check whether base url tag is there
+			$baseTagUrl = "";
+			if (preg_match("/<base (.*?)>/is", $string, $match)) {
+				$baseTagUrl = $this->__getTagParam("href", $match[1]);
+				$baseTagUrl = $this->addTrailingSlash($baseTagUrl);
+			}
 					
 			$pattern = "/<a(.*?)>(.*?)<\/a>/is";	
 			preg_match_all($pattern, $string, $matches, PREG_PATTERN_ORDER);
-			for($i=0;$i<count($matches[1]);$i++){
+			
+			// loop through matches
+			for($i=0; $i < count($matches[1]); $i++){
+				
+				// check links foudn valid or not
 				$href = $this->__getTagParam("href",$matches[1][$i]);
 				if ( !empty($href) || !empty($matches[2][$i])) {
+					
     				if( !preg_match( '/mailto:/', $href ) && !preg_match( '/javascript:|;/', $href ) ){
     				    
+    					// find external links
     				    $pageInfo['total_links'] += 1;
     				    $external = 0;
     				    if (stristr($href, 'http://') ||  stristr($href, 'https://')) {
+    				    	
     					    if (!preg_match("/^".preg_quote($checkUrl, '/')."/", formatUrl($href))) {
     					        $external = 1;
     					        $pageInfo['external'] += 1;
-    					    }					        
+    					    }
+    					    					        
     				    } else {
     				        
     				        // if url starts with / then append with base url of site
-    				        if (preg_match('/^\//', $href)) {
-    				            $href = $domainUrl . $href;    
+    				    	if (preg_match('/^\//', $href)) {
+    				    		$href = $domainHostLink . $href;
+    				    	} elseif (!empty($baseTagUrl)) {
+    				        	$href = $baseTagUrl . $href;
     				        } elseif ( $url == $domainUrl) {
     				            $href = $domainUrl ."/". $href;        
     				        } elseif ( SP_RELATIVE_LINK_CRAWL) {    				            
@@ -162,6 +183,7 @@ class Spider{
     						    $pageInfo['site_links'][] = $linkInfo;
     						}
     				    }
+    				    
     				}
 				}
 			}			
@@ -171,13 +193,13 @@ class Spider{
 	}
 	
 	# function to remove last trailing slash
-	public function removeTrailingSlash($url) {		
+	function removeTrailingSlash($url) {		
 		$url = preg_replace('/\/$/', '', $url);
 		return $url;
 	}
 	
     # function to remove last trailing slash
-	public function addTrailingSlash($url) {
+	function addTrailingSlash($url) {
 	    if (!stristr($url, '?') && !stristr($url, '#')) {
 	        if (!preg_match("/\.([^\/]+)$/", $url)) {		
         		if (!preg_match('/\/$/', $url)) {
@@ -310,6 +332,21 @@ class Spider{
 				$ret = $this->getContent($url, $enableProxy);
 			}
 		}
+		
+		// check debug request is enabled
+		if (!empty($_GET['debug']) || !empty($_POST['debug'])) {
+			?>
+			<div style="width: 760px; margin-top: 30px; padding: 14px; height: 900px; overflow: auto; border: 1px solid #B0C2CC;">
+				<?php
+				if ( ($_GET['debug_format'] == 'html') || ($_POST['debug_format'] == 'html') ) {
+					highlight_string($ret['page']);
+				} else {
+					debugVar($ret, false);
+				}
+				?>
+			</div>
+			<?php
+		}
 
 		return $ret;
 	}
@@ -355,7 +392,7 @@ class Spider{
 	}
 	
 	// function to get the header of url
-    public function getHeader($url){
+    function getHeader($url){
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($ch, CURLOPT_URL, $url);
@@ -374,7 +411,7 @@ class Spider{
 	}
 	
 	// function to check whether link is brocke
-	public function isLInkBrocken($url) {
+	function isLInkBrocken($url) {
 	    $header = Spider::getHeader($url);
 	    if (stristr($header, '404 Not Found')) {
 	        return true;

@@ -1,9 +1,9 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <?php echo $this->getViewContent('email/emailhead'); ?>    
 <body>
-<?=$commonTexts['Hello']?> <?=$name?>,<br><br>
+<?php echo $commonTexts['Hello']?> <?php echo $name?>,<br><br>
 
-<?=$reportTexts['report_email_body_text1']?><br><br><br><br>
+<?php echo $reportTexts['report_email_body_text1']?><br><br><br><br>
 
 <?php echo $reportContent; ?>
 

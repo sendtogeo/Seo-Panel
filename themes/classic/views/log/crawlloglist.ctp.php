@@ -2,15 +2,15 @@
 echo showSectionHead($spTextPanel["Crawl Log Manager"]);
 $searchFun = "scriptDoLoadPost('log.php', 'listform', 'content')";
 ?>
-<form name="listform" id="listform" onsubmit="<?=$searchFun?>">
+<form name="listform" id="listform" onsubmit="<?php echo $searchFun?>">
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="search">
 	<tr>
-		<th><?=$spText['button']['Search']?>: </th>
-		<td><input type="text" name="keyword" value="<?=htmlentities($keyword, ENT_QUOTES)?>" onblur="<?=$searchFun?>"></td>
-		<th><?=$spText['label']['Report Type']?>: </th>
+		<th><?php echo $spText['button']['Search']?>: </th>
+		<td><input type="text" name="keyword" value="<?php echo htmlentities($keyword, ENT_QUOTES)?>" onblur="<?php echo $searchFun?>"></td>
+		<th><?php echo $spText['label']['Report Type']?>: </th>
 		<td>
-			<select name="crawl_type" onchange="<?=$searchFun?>">
-				<option value="">-- <?=$spText['common']['Select']?> --</option>
+			<select name="crawl_type" onchange="<?php echo $searchFun?>">
+				<option value="">-- <?php echo $spText['common']['Select']?> --</option>
 				<?php				
 				foreach ($crawlTypeList as $cInfo) {
 					$selectType = ($cInfo['crawl_type'] == $crawlType) ? "selected" : "";
@@ -23,14 +23,14 @@ $searchFun = "scriptDoLoadPost('log.php', 'listform', 'content')";
 		</td>
 	</tr>
 	<tr>
-		<th width="100px;"><?=$spText['common']['Period']?>:</th>
+		<th width="100px;"><?php echo $spText['common']['Period']?>:</th>
     	<td width="236px">
-    		<input type="text" style="width: 80px;margin-right:0px;" value="<?=$fromTime?>" name="from_time"/> 
-    		<img align="bottom" onclick="displayDatePicker('from_time', false, 'ymd', '-');" src="<?=SP_IMGPATH?>/cal.gif"/> 
-    		<input type="text" style="width: 80px;margin-right:0px;" value="<?=$toTime?>" name="to_time"/> 
-    		<img align="bottom" onclick="displayDatePicker('to_time', false, 'ymd', '-');" src="<?=SP_IMGPATH?>/cal.gif"/>
+    		<input type="text" style="width: 80px;margin-right:0px;" value="<?php echo $fromTime?>" name="from_time"/> 
+    		<img align="bottom" onclick="displayDatePicker('from_time', false, 'ymd', '-');" src="<?php echo SP_IMGPATH?>/cal.gif"/> 
+    		<input type="text" style="width: 80px;margin-right:0px;" value="<?php echo $toTime?>" name="to_time"/> 
+    		<img align="bottom" onclick="displayDatePicker('to_time', false, 'ymd', '-');" src="<?php echo SP_IMGPATH?>/cal.gif"/>
     	</td>	
-		<th><?=$spText['common']['Search Engine']?>: </th>
+		<th><?php echo $spText['common']['Search Engine']?>: </th>
 		<td>
 			<?php
 			$this->data['onChange'] = $searchFun;
@@ -40,10 +40,10 @@ $searchFun = "scriptDoLoadPost('log.php', 'listform', 'content')";
 		</td>
 	</tr>
 	<tr>
-		<th><?=$spText['common']['Status']?>: </th>
+		<th><?php echo $spText['common']['Status']?>: </th>
 		<td>
-			<select name="status" onchange="<?=$searchFun?>">
-				<option value="">-- <?=$spText['common']['Select']?> --</option>
+			<select name="status" onchange="<?php echo $searchFun?>">
+				<option value="">-- <?php echo $spText['common']['Select']?> --</option>
 				<?php				
 				$inactCheck = $actCheck = "";
 				if ($statVal == 'success') {
@@ -52,14 +52,14 @@ $searchFun = "scriptDoLoadPost('log.php', 'listform', 'content')";
 				    $inactCheck = "selected";
 				}
 				?>
-				<option value="success" <?=$actCheck?> ><?=$spText['label']["Success"]?></option>
-				<option value="fail" <?=$inactCheck?> ><?=$spText['label']["Fail"]?></option>
+				<option value="success" <?php echo $actCheck?> ><?php echo $spText['label']["Success"]?></option>
+				<option value="fail" <?php echo $inactCheck?> ><?php echo $spText['label']["Fail"]?></option>
 			</select>
 		</td>
 		<th><?php echo $spText['label']['Proxy']; ?>: </th>
 		<td>
-			<select name="proxy_id" onchange="<?=$searchFun?>">
-				<option value="">-- <?=$spText['common']['Select']?> --</option>
+			<select name="proxy_id" onchange="<?php echo $searchFun?>">
+				<option value="">-- <?php echo $spText['common']['Select']?> --</option>
 				<?php				
 				foreach ($proxyList as $proxyInfo) {
 					$selectType = ($proxyInfo['proxy_id'] == $proxyId) ? "selected" : "";
@@ -70,22 +70,22 @@ $searchFun = "scriptDoLoadPost('log.php', 'listform', 'content')";
 				?>
 			</select>
 			&nbsp;&nbsp;&nbsp;&nbsp;
-			<a href="javascript:void(0);" onclick="<?=$searchFun?>" class="actionbut"><?=$spText['button']['Show Records']?></a>
+			<a href="javascript:void(0);" onclick="<?php echo $searchFun?>" class="actionbut"><?php echo $spText['button']['Show Records']?></a>
 		</td>
 	</tr>
 </table>
-<?=$pagingDiv?>
+<?php echo $pagingDiv?>
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
 	<tr class="listHead">
 		<td class="leftid"><input type="checkbox" id="checkall" onclick="checkList('checkall')"></td>
-		<td><?=$spText['common']['Id']?></td>		
-		<td width="80px"><?=$spText['label']['Report Type']?></td>		
-		<td><?=$spText['label']['Reference']?></td>	
-		<td><?=$spText['label']['Subject']?></td>
-		<td><?=$spText['common']['Details']?></td>
-		<td><?=$spText['common']['Status']?></td>
-		<td><?=$spText['label']['Updated']?></td>
-		<td class="right"><?=$spText['common']['Action']?></td>
+		<td><?php echo $spText['common']['Id']?></td>		
+		<td width="80px"><?php echo $spText['label']['Report Type']?></td>		
+		<td><?php echo $spText['label']['Reference']?></td>	
+		<td><?php echo $spText['label']['Subject']?></td>
+		<td><?php echo $spText['common']['Details']?></td>
+		<td><?php echo $spText['common']['Status']?></td>
+		<td><?php echo $spText['label']['Updated']?></td>
+		<td class="right"><?php echo $spText['common']['Action']?></td>
 	</tr>
 	<?php
 	$colCount = 9; 
@@ -126,13 +126,13 @@ $searchFun = "scriptDoLoadPost('log.php', 'listform', 'content')";
 			}
             
 			?>
-			<tr class="<?=$class?>">
-				<td class="<?=$leftBotClass?>"><input type="checkbox" name="ids[]" value="<?=$listInfo['id']?>"></td>
-				<td class="td_br_right"><?=$logLink?></td>
-				<td class="td_br_right left"><?=$listInfo['crawl_type']?></td>
-				<td class="td_br_right left"><?=$listInfo['ref_id']?></td>
-				<td class="td_br_right left"><?=$listInfo['subject']?></td>
-				<td class="td_br_right left"><?=$listInfo['log_message']?></td>
+			<tr class="<?php echo $class?>">
+				<td class="<?php echo $leftBotClass?>"><input type="checkbox" name="ids[]" value="<?php echo $listInfo['id']?>"></td>
+				<td class="td_br_right"><?php echo $logLink?></td>
+				<td class="td_br_right left"><?php echo $listInfo['crawl_type']?></td>
+				<td class="td_br_right left"><?php echo $listInfo['ref_id']?></td>
+				<td class="td_br_right left"><?php echo $listInfo['subject']?></td>
+				<td class="td_br_right left"><?php echo $listInfo['log_message']?></td>
 				<td class="td_br_right">
 					<?php 
 					if ($listInfo['crawl_status']) {
@@ -142,11 +142,11 @@ $searchFun = "scriptDoLoadPost('log.php', 'listform', 'content')";
 					}
 					?>
 				</td>
-				<td class="td_br_right"><?=$listInfo['crawl_time']?></td>
-				<td class="<?=$rightBotClass?>" width="100px">
-					<select name="action" id="action<?=$listInfo['id']?>" onchange="doAction('log.php', 'content', 'id=<?=$listInfo['id']?>&pageno=<?=$pageNo?><?=$urlParams?>', 'action<?=$listInfo['id']?>')">
-						<option value="select">-- <?=$spText['common']['Select']?> --</option>
-						<option value="delete_crawl_log"><?=$spText['common']['Delete']?></option>
+				<td class="td_br_right"><?php echo $listInfo['crawl_time']?></td>
+				<td class="<?php echo $rightBotClass?>" width="100px">
+					<select name="action" id="action<?php echo $listInfo['id']?>" onchange="doAction('log.php', 'content', 'id=<?php echo $listInfo['id']?>&pageno=<?php echo $pageNo?><?php echo $urlParams?>', 'action<?php echo $listInfo['id']?>')">
+						<option value="select">-- <?php echo $spText['common']['Select']?> --</option>
+						<option value="delete_crawl_log"><?php echo $spText['common']['Delete']?></option>
 					</select>
 				</td>
 			</tr>
@@ -157,7 +157,7 @@ $searchFun = "scriptDoLoadPost('log.php', 'listform', 'content')";
 	} 
 	?>
 	<tr class="listBot">
-		<td class="left" colspan="<?=($colCount-1)?>"></td>
+		<td class="left" colspan="<?php echo ($colCount-1)?>"></td>
 		<td class="right"></td>
 	</tr>
 </table>
@@ -172,12 +172,12 @@ if (SP_DEMO) {
 <table width="100%" cellspacing="0" cellpadding="0" border="0" class="actionSec">
 	<tr>
     	<td style="padding-top: 6px;" class="left">
-         	<a onclick="<?=$delFun?>" href="javascript:void(0);" class="actionbut">
-         		<?=$spText['common']['Delete']?>
+         	<a onclick="<?php echo $delFun?>" href="javascript:void(0);" class="actionbut">
+         		<?php echo $spText['common']['Delete']?>
          	</a>&nbsp;&nbsp;
          	<?php if (empty($fromPopUp)) {?>
-	         	<a onclick="<?=$clearAllFun?>" href="javascript:void(0);" class="actionbut">
-	         		<?=$spTextLog['Clear All Logs']?>
+	         	<a onclick="<?php echo $clearAllFun?>" href="javascript:void(0);" class="actionbut">
+	         		<?php echo $spTextLog['Clear All Logs']?>
 	         	</a>
 	         <?php }?>
     	</td>

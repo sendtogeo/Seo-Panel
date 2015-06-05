@@ -157,29 +157,47 @@ class KeywordController extends Controller{
 		$this->render('keyword/importkeywords');
 	}
 
-	function createKeyword($listInfo){
+	function createKeyword($listInfo, $apiCall = false){
 		
 		$userId = isLoggedIn();
 		$this->set('post', $listInfo);
 		$errMsg['name'] = formatErrorMsg($this->validate->checkBlank($listInfo['name']));
 		if (!is_array($listInfo['searchengines'])) $listInfo['searchengines'] = array(); 		
 		$errMsg['searchengines'] = formatErrorMsg($this->validate->checkBlank(implode('', $listInfo['searchengines'])));
+		$statusVal = isset($listInfo['status']) ? intval($listInfo['status']) : 1;
+		$seStr = is_array($listInfo['searchengines']) ? implode(':', $listInfo['searchengines']) : $listInfo['searchengines'];		
 		
+		// verify the form elements
 		if(!$this->validate->flagErr){
 			$keyword = addslashes(trim($listInfo['name']));
 			if (!$this->__checkName($keyword, $listInfo['website_id'])) {
 				$listInfo['searchengines'] = is_array($listInfo['searchengines']) ? $listInfo['searchengines'] : array();
 				$sql = "insert into keywords(name,lang_code,country_code,website_id,searchengines,status)
-							values('$keyword','{$listInfo['lang_code']}','{$listInfo['country_code']}',{$listInfo['website_id']},'".implode(':', $listInfo['searchengines'])."',1)";
+				values('$keyword', '".addslashes($listInfo['lang_code'])."', '".addslashes($listInfo['country_code'])."',
+				".intval($listInfo['website_id']).", '".addslashes($seStr)."', $statusVal)";
 				$this->db->query($sql);
-				$this->listKeywords();
-				exit;
+				
+				// if api call
+				if ($apiCall) {
+					return array('success', 'Successfully created keyword');
+				} else {
+					$this->listKeywords();
+					exit;
+				}
+				
 			}else{
 				$errMsg['name'] = formatErrorMsg($this->spTextKeyword['Keyword already exist']);
 			}
 		}
-		$this->set('errMsg', $errMsg);
-		$this->newKeyword();
+		
+		// if api call
+		if ($apiCall) {
+			return array('error', $errMsg);
+		} else {
+			$this->set('errMsg', $errMsg);
+			$this->newKeyword();
+		}
+		
 	}
 	
 	# function to import keywords to the seo panel
@@ -196,6 +214,7 @@ class KeywordController extends Controller{
 			$listInfo['website_id'] = intval($listInfo['website_id']);
 			$keywords = explode(",", $listInfo['keywords']);
 			$keyExist = false;
+			$keywordList = array();
 			foreach ($keywords as $i => $keyword) {
 				$keyword = addslashes(trim($keyword));
 				if ($this->__checkName($keyword, $listInfo['website_id'])) {
@@ -203,13 +222,17 @@ class KeywordController extends Controller{
 					$keyExist = true;
 					break;
 				}
-				$keywords[$i] = $keyword;
-			}
+				
+				// if keyword is not empty
+				if (!empty($keyword)) {
+					$keywordList[$i] = $keyword;
+				}
+			}			
 			
 			if (!$keyExist) {
 				
 				$listInfo['searchengines'] = is_array($listInfo['searchengines']) ? $listInfo['searchengines'] : array();
-				foreach ($keywords as $keyword) {				
+				foreach ($keywordList as $keyword) {				
 					$sql = "insert into keywords(name,lang_code,country_code,website_id,searchengines,status)
 								values('$keyword','".$listInfo['lang_code']."','".$listInfo['country_code']."',".$listInfo['website_id'].",'".implode(':', $listInfo['searchengines'])."',1)";
 					$this->db->query($sql);
@@ -232,12 +255,18 @@ class KeywordController extends Controller{
 	}
 
 	# func to get all keywords
-	function __getAllKeywords($userId='', $websiteId='', $isAdminCheck=false, $orderByWeb=false, $orderByValue='ASC'){
+	function __getAllKeywords($userId='', $websiteId='', $isAdminCheck=false, $orderByWeb=false, $orderByValue='ASC', $searchName = ''){
 		$sql = "select k.*,w.name website,w.url weburl from keywords k,websites w where k.website_id=w.id and k.status=1";		
 		if(!$isAdminCheck || !isAdmin() ){
 			if(!empty($userId)) $sql .= " and w.user_id=$userId";
 		}
+		
 		if(!empty($websiteId)) $sql .= " and k.website_id=$websiteId";
+		
+		if (!empty($searchName)) {
+			$sql .= " and k.name like '%".addslashes($searchName)."%'";
+		}
+		
 		$sql .= $orderByWeb ? " order by w.id, k.name $orderByValue" : " order by k.name $orderByValue";
 		$keywordList = $this->db->select($sql);
 		return $keywordList;
@@ -277,11 +306,15 @@ class KeywordController extends Controller{
 		$this->listKeywords();
 	}
 
-	function updateKeyword($listInfo){
+	function updateKeyword($listInfo, $apiCall = false){
 		$userId = isLoggedIn();
 		$this->set('post', $listInfo);
 		$errMsg['name'] = formatErrorMsg($this->validate->checkBlank($listInfo['name']));
 		$errMsg['searchengines'] = formatErrorMsg($this->validate->checkBlank(implode('', $listInfo['searchengines'])));
+		$seStr = is_array($listInfo['searchengines']) ? implode(':', $listInfo['searchengines']) : $listInfo['searchengines'];
+		$statusVal = isset($listInfo['status']) ? "status = " . intval($listInfo['status']) ."," : "";	
+				
+		//validate form
 		if(!$this->validate->flagErr){
 
 			$listInfo['website_id'] = intval($listInfo['website_id']);
@@ -301,15 +334,29 @@ class KeywordController extends Controller{
 						lang_code = '".addslashes($listInfo['lang_code'])."',
 						country_code = '".addslashes($listInfo['country_code'])."',
 						website_id = {$listInfo['website_id']},
-						searchengines = '".implode(':', $listInfo['searchengines'])."'
+						$statusVal
+						searchengines = '".addslashes($seStr)."'
 						where id={$listInfo['id']}";
 				$this->db->query($sql);
-				$this->listKeywords();
-				exit;
+				
+				// if api call
+				if ($apiCall) {
+					return array('success', 'Successfully updated keyword');
+				} else {
+					$this->listKeywords();
+					exit;
+				}	
+					
 			}
 		}
-		$this->set('errMsg', $errMsg);
-		$this->editKeyword($listInfo['id'], $listInfo);
+
+		// if api call
+		if ($apiCall) {
+			return array('error', $errMsg);
+		} else {
+			$this->set('errMsg', $errMsg);
+			$this->editKeyword($listInfo['id'], $listInfo);
+		}
 	}
 	
 	function showKeywordReports($keywordId) {

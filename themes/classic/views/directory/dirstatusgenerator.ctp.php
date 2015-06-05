@@ -4,9 +4,9 @@
 <table width="100%" border="0" cellspacing="5px" cellpadding="0">
 	<?php foreach($dirList as $i => $dirInfo){ ?>
 	<tr>
-		<td style="border: 1px solid #b0c2cc;padding:3px;font-size: 12px;" id="rep<?=$i?>">			
+		<td style="border: 1px solid #b0c2cc;padding:3px;font-size: 12px;" id="rep<?php echo $i?>">			
 			<script type="text/javascript">
-				scriptDoLoad('directories.php?sec=checkdir&dir_id=<?=$dirInfo['id']?>', 'rep<?=$i?>');
+				scriptDoLoad('directories.php?sec=checkdir&dir_id=<?php echo $dirInfo['id']?>', 'rep<?php echo $i?>');
 			</script>
 		</td>
 	</tr>

@@ -38,6 +38,10 @@ class IndexController extends Controller{
 					$exportVersion = true;
 					$exportContent = "";
 					break;
+			
+				case "pdf":
+					$this->set('pdfVersion', true);
+					break;
 				
 				case "print":
 					$this->set('printVersion', true);
@@ -67,7 +71,7 @@ class IndexController extends Controller{
 			
 			$websiteCtrler = New WebsiteController();
 			$adminCheck = (isAdmin() && empty($webUserId)) ? true : false;
-			$list = $websiteCtrler->__getAllWebsites($webUserId, $adminCheck);
+			$list = $websiteCtrler->__getAllWebsites($webUserId, $adminCheck, $searchInfo['search_name']);
 			
 			include_once(SP_CTRLPATH."/saturationchecker.ctrl.php");
 			include_once(SP_CTRLPATH."/rank.ctrl.php");
@@ -152,10 +156,21 @@ class IndexController extends Controller{
 					$exportContent .= createExportContent( $valueList);
 				}
 				exportToCsv('website_statistics', $exportContent);
-			} else {			
+			} else {
+							
 				$this->set('websiteList', $websiteList);
-				$layout = ($searchInfo['doc_type'] == "print") ? "ajax" : "";
-				$this->render('user/userhome', $layout);
+				
+				// if pdf export
+				if ($searchInfo['doc_type'] == "pdf") {
+					$fromTimeTxt = date('Y-m-d', $fromTime);
+					$toTimeTxt = date('Y-m-d', $toTime);
+					exportToPdf($this->getViewContent('user/userhome'), "account_summary_$fromTimeTxt-$toTimeTxt.pdf");
+				} else {
+					$layout = ($searchInfo['doc_type'] == "print") ? "ajax" : "";
+					$this->set('searchInfo', $searchInfo);
+					$this->render('user/userhome', $layout);
+				}
+				
 			}			
 			
 		}else{
@@ -174,24 +189,5 @@ class IndexController extends Controller{
 		$this->render('support');
 	}
 	
-	# function to show news boxes
-	function showNews($secInfo='') {
-		switch($secInfo['sec_name']){
-			
-			default:
-				if(empty($_COOKIE['default_news'])){
-					$ret = $this->spider->getContent(SP_NEWS_PAGE . "?lang=". $_SESSION['lang_code']);
-					setcookie("default_news", $ret['page'], time()+ (60*60*24));
-				} else {
-					$ret['page'] = $_COOKIE['default_news'];
-				}
-				
-				if(!empty($ret['page'])){				
-					$this->set('newsContent', stripslashes($ret['page']));
-					$this->render('common/topnewsbox', 'ajax');
-				}
-		}
-		
-	}
 }
 ?>

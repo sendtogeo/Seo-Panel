@@ -33,7 +33,6 @@ class DirectoryController extends Controller{
 		
 		$websiteController = New WebsiteController();
 		$this->set('websiteList', $websiteController->__getAllWebsites($userId, true));
-		$this->set('websiteNull', true);
 		
 		$langCtrler = New LanguageController();
 		$langList = $langCtrler->__getAllLanguages();
@@ -143,10 +142,14 @@ class DirectoryController extends Controller{
 		
 		$spider = new Spider();
 		$spider->_CURLOPT_REFERER = $submitUrl;
+		$spider->_CURLOPT_TIMEOUT = 30;
+		
 		if(!empty($phpsessid)){
 			$spider->_CURLOPT_COOKIE = 'PHPSESSID=' . $phpsessid . '; path=/';	
-		} 
+		}
+		
 		$ret = $spider->getContent($captchaUrl);
+		
 		if(!empty($ret['page'])){
 			$captchaFile = $this->capchaFile .isLoggedIn() . ".jpg";
 			$fp = fopen(SP_TMPPATH."/".$captchaFile, 'w');
@@ -154,6 +157,7 @@ class DirectoryController extends Controller{
 			fclose($fp);
 			$captchaUrl = SP_WEBPATH. "/tmp/" .$captchaFile ."?rand=".mktime();	
 		}
+		
 		return $captchaUrl; 
 	}
 	
@@ -223,16 +227,17 @@ class DirectoryController extends Controller{
 				if($count <= 0){
 					$categorysel = $matches[0];
 				}
-			}						
+			}
+
+			$categorysel = str_replace("ADD_CATEGORY_ID[]", $dirInfo['category_col'], $categorysel);
 			$this->set('categorySel', $categorysel);
-			
 			
 			$captchaUrl = '';
 			if(stristr($page, $dirInfo['captcha_script'])){
 				$captchaUrl = $dirInfo['captcha_script'];
 			}
 			
-			$imageHash = "";
+			$imageHash = $addParams = "";
 			if(preg_match('/name="'.$dirInfo['imagehash_col'].'".*?value="(.*?)"/is', $page, $hashMatch)){
 				$imageHash = $hashMatch[1];
 			}
@@ -245,8 +250,9 @@ class DirectoryController extends Controller{
 				$dirInfo['domain'] = addHttpToUrl($dirInfo['domain']);
 				if(preg_match('/\/$/', $dirInfo['domain'])){
 					$captchaUrl = $dirInfo['domain']. $captchaUrl;
-				}else 
-					$captchaUrl =  $dirInfo['domain']."/". $captchaUrl;				
+				} else { 
+					$captchaUrl =  $dirInfo['domain']."/". $captchaUrl;	
+				}			
 				
 				if(!stristr($captchaUrl, '?')){
 					if(!empty($imageHash)) {
@@ -260,14 +266,27 @@ class DirectoryController extends Controller{
 
 				# to get stored image path if hot linking is prevented
 				$captchaUrl = $this->__getCreatedCaptchaUrl($captchaUrl, $dirInfo['submit_url'], $phpsessid);
-			}
+				
+			} else {
+
+				// check for number question existing there
+				if (preg_match('/(\d+) \+ (\d+) =/is', $page, $numMatch)) {
+					$sumMath = intval($numMatch[1]) + intval($numMatch[2]);
+					$addParams = "&DO_MATH=$sumMath&Anti_Spam_Field=$sumMath";
+				}
+				
+			}			
+			
 			$this->set('captchaUrl', $captchaUrl);
+			$this->set('addParams', $addParams);
 
 			// function check whether recriprocal directory
 			$scriptInfo = $this->getDirectoryScriptMetaInfo($dirInfo['script_type_id']);
 			$checkArg = $scriptInfo['link_type_col']."=".$scriptInfo['reciprocal'];
-			$reciprocalUrl = false;
-			if (stristr($dirInfo['extra_val'], $checkArg)) {			    
+			$reciprocalUrl = '';
+			$reciprocalDir = false;
+			if (!empty($dirInfo['is_reciprocal']) || stristr($dirInfo['extra_val'], $checkArg)) {
+				$reciprocalDir = true;
                 $reciprocalUrl =  $websiteInfo['reciprocal_url'];
                 if (empty($reciprocalUrl)) {
                     if (preg_match("/&{$scriptInfo['reciprocal_col']}=(.*)/", $dirInfo['extra_val'], $matches)) { 
@@ -275,6 +294,8 @@ class DirectoryController extends Controller{
                     }
                 }
 			}
+			
+			$this->set('reciprocalDir', $reciprocalDir);
 			$this->set('reciprocalUrl', $reciprocalUrl);
 			
 		}else{
@@ -325,17 +346,34 @@ class DirectoryController extends Controller{
 		$postData .= "&".$dirInfo['email_col']."=".$websiteInfo['owner_email'];
 		$postData .= "&".$dirInfo['category_col']."=".$submitInfo[$dirInfo['category_col']];
 		$postData .= "&".$dirInfo['cptcha_col']."=".$submitInfo[$dirInfo['cptcha_col']];
+		$postData .= $submitInfo['add_params'];
+		
+		// check image hash there
 		if(!empty($submitInfo[$dirInfo['imagehash_col']])){
 			$postData .= "&".$dirInfo['imagehash_col']."=".$submitInfo[$dirInfo['imagehash_col']];
 		}
 		
 		// check for reciprocal link
+		$scriptInfo = $this->getDirectoryScriptMetaInfo($dirInfo['script_type_id']);
 		if (!empty($submitInfo['reciprocal_url'])) {
-		    $reciprocalUrl = addHttpToUrl($submitInfo['reciprocal_url']);
-		    $scriptInfo = $this->getDirectoryScriptMetaInfo($dirInfo['script_type_id']);
-		    $dirInfo['extra_val'] = preg_replace("/&{$scriptInfo['reciprocal_col']}=(.*)/", "&{$scriptInfo['reciprocal_col']}=$reciprocalUrl", $dirInfo['extra_val']);
+		    
+		    // if extra values contain the reciprocal col name
+			$reciprocalUrl = addHttpToUrl($submitInfo['reciprocal_url']);
+		    if (stristr($dirInfo['extra_val'], $scriptInfo['reciprocal_col'])) {
+		    	$dirInfo['extra_val'] = preg_replace("/&{$scriptInfo['reciprocal_col']}=(.*)/", "&{$scriptInfo['reciprocal_col']}=$reciprocalUrl", $dirInfo['extra_val']);
+		    } else {
+		    	$postData .= "&".$dirInfo['reciprocal_col']."=$reciprocalUrl";
+		    }
+		    
 		}		
+		
 		$postData .= "&".$dirInfo['extra_val'];
+		
+		// check phpLD directory. Then add extra values
+		if ($scriptInfo['name'] == 'phpLD') {
+			$postData .= "&OWNER_NEWSLETTER_ALLOW=on&META_KEYWORDS={$websiteInfo['keywords']}
+			&META_DESCRIPTION=" . substr($websiteInfo['description'], 0, 249) . "&META_DESCRIPTION_limit=250&formSubmitted=1";
+		}
 		
 		$spider = new Spider(); 
 		$spider->_CURLOPT_POSTFIELDS = $postData;
@@ -349,20 +387,29 @@ class DirectoryController extends Controller{
 			$this->set('error', 1);
 			$this->set('msg', $ret['errmsg']);
 		}else{
+			
 			$page = $ret['page'];
-			// if(SP_DEBUG) $this->logSubmissionResult($page, $submitInfo['dir_id'], $submitInfo['website_id']);		
-			if(preg_match('/<td.*?class="msg".*?>(.*?)<\/td>/is', $page, $matches)){
+			
+			if(SP_DEBUG) $this->logSubmissionResult($page, $submitInfo['dir_id'], $submitInfo['website_id']);		
+			
+			// check success messages
+			if (preg_match('/<td.*?class="msg".*?>(.*?)<\/td>/is', $page, $matches)) {
+			} elseif (preg_match('/<p.*?class="box success".*?>(.*?)<\/p>/is', $page, $matches)) {
+			} else{
+				$status = 0;
+				$this->set('msg', $this->spTextDir['nosuccessnote']);
+			}			
+			
+			// if $matches[1] is not empty
+			if (!empty($matches[1])) {
 				$this->set('msg', $matches[1]);
 				$status = 1;
 				
 				// to update the rank of directory
 				$sql = "update directories set rank=rank+1 where id=".$submitInfo['dir_id'];
-				$this->db->query($sql);
-				
-			}else{
-				$status = 0;
-				$this->set('msg', $this->spTextDir['nosuccessnote']);
+				$this->db->query($sql);				
 			}
+			
 			
 			$sql = "select id from dirsubmitinfo where website_id={$submitInfo['website_id']} and directory_id={$submitInfo['dir_id']}";
 			$subInfo = $this->db->select($sql);
@@ -426,18 +473,24 @@ class DirectoryController extends Controller{
 		$this->set('websiteId', $websiteId);
 		$this->set('onChange', "scriptDoLoadPost('directories.php', 'search_form', 'content', '&sec=skipped')");		
 		
-		$conditions = empty ($websiteId) ? "" : " and ds.website_id=$websiteId";		
-		$sql = "select ds.* ,d.domain,d.google_pagerank
-								from skipdirectories ds,directories d 
-								where ds.directory_id=d.id 
-								$conditions  
-								order by id desc,d.domain";
+		$conditions = empty ($websiteId) ? "" : " and ds.website_id=$websiteId";
+		$pageScriptPath = 'directories.php?sec=skipped&website_id='.$websiteId;
+		$this->set('searchInfo', $searchInfo); 
+
+		// search for name
+		if (!empty($searchInfo['search_name'])) {
+			$conditions .= " and d.submit_url like '%".addslashes($searchInfo['search_name'])."%'";
+			$pageScriptPath .= "&search_name=" . $searchInfo['search_name'];
+		}
+				
+		$sql = "select ds.* ,d.domain,d.google_pagerank, d.submit_url
+		from skipdirectories ds,directories d where ds.directory_id=d.id $conditions order by id desc,d.domain";
 								
 		# pagination setup		
 		$this->db->query($sql, true);
 		$this->paging->setDivClass('pagingdiv');
 		$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
-		$pagingDiv = $this->paging->printPages('directories.php?sec=skipped', '', 'scriptDoLoad', 'content', 'website_id='.$websiteId);		
+		$pagingDiv = $this->paging->printPages($pageScriptPath, '', 'scriptDoLoad', 'content');		
 		$this->set('pagingDiv', $pagingDiv);
 		$sql .= " limit ".$this->paging->start .",". $this->paging->per_page;						
 								
@@ -462,22 +515,30 @@ class DirectoryController extends Controller{
 		
 		$conditions = empty ($websiteId) ? "" : " and ds.website_id=$websiteId";
 		$conditions .= empty ($searchInfo['active']) ? "" : " and ds.active=".($searchInfo['active']=='pending' ? 0 : 1);		
-		$sql = "select ds.* ,d.domain,d.google_pagerank
-								from dirsubmitinfo ds,directories d 
-								where ds.directory_id=d.id 
-								$conditions  
-								order by submit_time desc,d.domain";
+
+		$pageScriptPath = 'directories.php?sec=reports&website_id='.$websiteId.'&active='.$searchInfo['active'];
+		$this->set('searchInfo', $searchInfo);
+		
+		// search for name
+		if (!empty($searchInfo['search_name'])) {
+			$conditions .= " and d.submit_url like '%".addslashes($searchInfo['search_name'])."%'";
+			$pageScriptPath .= "&search_name=" . $searchInfo['search_name'];
+		}
+		
+		$sql = "select ds.* ,d.domain,d.google_pagerank, d.submit_url from dirsubmitinfo ds,directories d 
+		where ds.directory_id=d.id $conditions order by submit_time desc,d.domain";
 								
 		# pagination setup		
 		$this->db->query($sql, true);
 		$this->paging->setDivClass('pagingdiv');
 		$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
-		$pagingDiv = $this->paging->printPages('directories.php?sec=reports', '', 'scriptDoLoad', 'content', 'website_id='.$websiteId.'&active='.$searchInfo['active']);		
+		$pagingDiv = $this->paging->printPages($pageScriptPath, '', 'scriptDoLoad', 'content');		
 		$this->set('pagingDiv', $pagingDiv);
-		$sql .= " limit ".$this->paging->start .",". $this->paging->per_page;						
+		$sql .= " limit ".$this->paging->start .",". $this->paging->per_page;
 								
 		$reportList = $this->db->select($sql);
-		
+		$this->set('pageScriptPath', $pageScriptPath);
+		$this->set('pageNo', $_GET['pageno']);
 		$this->set('activeVal', $searchInfo['active']);
 		$this->set('list', $reportList);
 		$this->render('directory/directoryreport');	
@@ -588,15 +649,15 @@ class DirectoryController extends Controller{
 	function showFeaturedSubmission($info="") {
 	    $dirList = $this->getAllFeaturedDirectories();
 	    $this->set('list', $dirList);    
-//	    if (empty($info['dir_id'])) {
-//	        $selDirInfo = $dirList[1];
-//	        $selDirId = $selDirInfo['id'];
-//	    } else {
-//	        $selDirId = intval($info['dir_id']); 
-//	        $selDirInfo = $dirList[$selDirId];   
-//	    }
-//	    $this->set('selDirId', $selDirId);
-//	    $this->set('selDirInfo', $selDirInfo); 	    
+	    /*if (empty($info['dir_id'])) {
+	        $selDirInfo = $dirList[1];
+	        $selDirId = $selDirInfo['id'];
+	    } else {
+	        $selDirId = intval($info['dir_id']); 
+	        $selDirInfo = $dirList[$selDirId];   
+	    }
+	    $this->set('selDirId', $selDirId);
+	    $this->set('selDirInfo', $selDirInfo);*/ 	    
 		$this->render('directory/featuredsubmission');
 	}	
 	
@@ -763,13 +824,13 @@ class DirectoryController extends Controller{
 			$captchaLabel = $captcha ? $_SESSION['text']['common']['Yes'] : $_SESSION['text']['common']['No'];
 			?>
 			<script type="text/javascript">
-				document.getElementById('captcha_<?=$dirId?>').innerHTML = '<?=$captchaLabel?>';
+				document.getElementById('captcha_<?php echo $dirId?>').innerHTML = '<?php echo $captchaLabel?>';
 			</script>
 			<?php
 			if ($this->checkPR) {
 				?>
 				<script type="text/javascript">
-					document.getElementById('pr_<?=$dirId?>').innerHTML = '<?=$pagerank?>';
+					document.getElementById('pr_<?php echo $dirId?>').innerHTML = '<?php echo $pagerank?>';
 				</script>
 				<?php
 			}

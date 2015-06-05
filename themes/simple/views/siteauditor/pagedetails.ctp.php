@@ -3,50 +3,50 @@ $backLink = "scriptDoLoadPost('siteauditor.php', 'search_form', 'subcontent', '&
 ?>
 <br>
 <div id="run_project">
-	<div>&nbsp;<a href="javascript:void(0)" onclick="<?=$backLink?>" class="back">&#171&#171 Back</a></div>
+	<div>&nbsp;<a href="javascript:void(0)" onclick="<?php echo $backLink?>" class="back">&#171&#171 Back</a></div>
 	<div id="run_info">
 		<table width="100%" border="0" cellspacing="0" cellpadding="0px" class="summary_tab">
         	<tr>
-        		<td class="topheader" colspan="10"><?=$spTextSA['Page Details']?></td>
+        		<td class="topheader" colspan="10"><?php echo $spTextSA['Page Details']?></td>
         	</tr>
         	<tr>
-        		<th class="leftcell" width="20%"><?=$spTextSA['Page Link']?>:</th>
-        		<td width="40%" style="text-align: left;"><a href="<?=$reportInfo['page_url']?>" target="_blank"><?=$reportInfo['page_url']?></a></td>
+        		<th class="leftcell" width="20%"><?php echo $spTextSA['Page Link']?>:</th>
+        		<td width="40%" style="text-align: left;"><a href="<?php echo $reportInfo['page_url']?>" target="_blank"><?php echo $reportInfo['page_url']?></a></td>
         		<th width="20%">Google Pagerank:</th>
-        		<td><?=$reportInfo['pagerank']?></td>        		
+        		<td><?php echo $reportInfo['pagerank']?></td>        		
         	</tr>
         	<tr>
-        		<th class="leftcell"><?=$spText['label']['Title']?>:</th>
-        		<td style="text-align: left;"><?=strip_tags($reportInfo['page_title'])?></td>
-        		<th>Google <?=$spTextHome['Backlinks']?>:</th>
-        		<td><?=$reportInfo['google_backlinks']?></td>
+        		<th class="leftcell"><?php echo $spText['label']['Title']?>:</th>
+        		<td style="text-align: left;"><?php echo strip_tags($reportInfo['page_title'])?></td>
+        		<th>Google <?php echo $spTextHome['Backlinks']?>:</th>
+        		<td><?php echo $reportInfo['google_backlinks']?></td>
         	</tr>
         	<tr>
-        		<th class="leftcell"><?=$spText['label']['Description']?>:</th>
-        		<td style="text-align: left;"><?=strip_tags($reportInfo['page_description'])?></td>
-        		<th>Bing <?=$spTextHome['Backlinks']?>:</th>
-        		<td><?=$reportInfo['bing_backlinks']?></td>
+        		<th class="leftcell"><?php echo $spText['label']['Description']?>:</th>
+        		<td style="text-align: left;"><?php echo strip_tags($reportInfo['page_description'])?></td>
+        		<th>Bing <?php echo $spTextHome['Backlinks']?>:</th>
+        		<td><?php echo $reportInfo['bing_backlinks']?></td>
         	</tr>
         	<tr>
-        		<th class="leftcell"><?=$spText['label']['Keywords']?>:</th>
-        		<td style="text-align: left;"><?=strip_tags($reportInfo['page_keywords'])?></td>
-        		<th>Google <?=$spTextHome['Indexed']?>:</th>
-        		<td><?=$reportInfo['google_indexed']?></td>
+        		<th class="leftcell"><?php echo $spText['label']['Keywords']?>:</th>
+        		<td style="text-align: left;"><?php echo strip_tags($reportInfo['page_keywords'])?></td>
+        		<th>Google <?php echo $spTextHome['Indexed']?>:</th>
+        		<td><?php echo $reportInfo['google_indexed']?></td>
         	</tr>
         	<tr>
-        		<th class="leftcell"><?=$spText['label']['Comments']?>:</th>
-        		<td style="text-align: left;"><?=$reportInfo['comments']?></td>
-        		<th>Bing <?=$spTextHome['Indexed']?>:</th>
-        		<td><?=$reportInfo['bing_indexed']?></td>
+        		<th class="leftcell"><?php echo $spText['label']['Comments']?>:</th>
+        		<td style="text-align: left;"><?php echo $reportInfo['comments']?></td>
+        		<th>Bing <?php echo $spTextHome['Indexed']?>:</th>
+        		<td><?php echo $reportInfo['bing_indexed']?></td>
         	</tr>
         	<tr>
-        		<th class="leftcell"><?=$spTextSA['Total Links']?>:</th>
-        		<td style="text-align: left;"><?=$reportInfo['total_links']?></td>
-        		<th><?=$spTextSA['External Links']?>:</th>
-        		<td><?=$reportInfo['external_links']?></td>
+        		<th class="leftcell"><?php echo $spTextSA['Total Links']?>:</th>
+        		<td style="text-align: left;"><?php echo $reportInfo['total_links']?></td>
+        		<th><?php echo $spTextSA['External Links']?>:</th>
+        		<td><?php echo $reportInfo['external_links']?></td>
         	</tr>
         	<tr>
-        		<th class="leftcell"><?=$spText['label']['Score']?>:</th>
+        		<th class="leftcell"><?php echo $spText['label']['Score']?>:</th>
         		<td style="text-align: left;">
         		    <?php
 				        if ($reportInfo['score'] < 0) {
@@ -57,9 +57,9 @@ $backLink = "scriptDoLoadPost('siteauditor.php', 'search_form', 'subcontent', '&
 				        }
 				        for($b=0;$b<=$reportInfo['score'];$b++) echo "<span class='$scoreClass'>&nbsp;</span>";
 				    ?>
-        		    <?=$reportInfo['score']?>
+        		    <?php echo $reportInfo['score']?>
     			</td>
-        		<th><?=$spText['label']['Brocken']?>:</th>
+        		<th><?php echo $spText['label']['Brocken']?>:</th>
         		<td><?php echo $reportInfo['brocken'] ? $spText['common']['Yes'] : $spText['common']['No']; ?></td>
         	</tr>
         </table>
@@ -70,12 +70,12 @@ $backLink = "scriptDoLoadPost('siteauditor.php', 'search_form', 'subcontent', '&
 	<div>		
 		<table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
         	<tr class="listHead">
-        		<td class="leftid"><?=$spText['common']['No']?></td>		
-        		<td><?=$spText['common']['Url']?></td>		
-        		<td><?=$spTextSA['Anchor']?></td>		
-        		<td><?=$spTextSA['Link Title']?></td>		
-        		<td><?=$spTextSA['Nofollow']?></td>
-        		<td class="right"><?=$spTextSA['External']?></td>
+        		<td class="leftid"><?php echo $spText['common']['No']?></td>		
+        		<td><?php echo $spText['common']['Url']?></td>		
+        		<td><?php echo $spTextSA['Anchor']?></td>		
+        		<td><?php echo $spTextSA['Link Title']?></td>		
+        		<td><?php echo $spTextSA['Nofollow']?></td>
+        		<td class="right"><?php echo $spTextSA['External']?></td>
         	</tr>
         	<?php
         	$colCount = 6; 
@@ -91,17 +91,17 @@ $backLink = "scriptDoLoadPost('siteauditor.php', 'search_form', 'subcontent', '&
                         $rightBotClass = "td_br_right";
                     }
         			?>
-        			<tr class="<?=$class?>">
-        				<td class="<?=$leftBotClass?>"><?=$i+1?></td>				
+        			<tr class="<?php echo $class?>">
+        				<td class="<?php echo $leftBotClass?>"><?php echo $i+1?></td>				
         				<td class="td_br_right left">
-        				    <a href="<?=$listInfo['link_url']?>" target="_blank"><?=$listInfo['link_url']?></a>
+        				    <a href="<?php echo $listInfo['link_url']?>" target="_blank"><?php echo $listInfo['link_url']?></a>
         				</td>
-        				<td class="td_br_right left"><?=$listInfo['link_anchor']?></td>
-        				<td class="td_br_right left"><?=$listInfo['link_title']?></td>
+        				<td class="td_br_right left"><?php echo $listInfo['link_anchor']?></td>
+        				<td class="td_br_right left"><?php echo $listInfo['link_title']?></td>
         				<td class="td_br_right">
         				    <?php echo $listInfo['nofollow'] ? $spText['common']['Yes'] : $spText['common']['No']; ?>
         				</td>
-        				<td class="<?=$rightBotClass?>">
+        				<td class="<?php echo $rightBotClass?>">
         					<?php echo $listInfo['extrenal'] ? $spText['common']['Yes'] : $spText['common']['No']; ?>
         				</td>
         			</tr>
@@ -112,7 +112,7 @@ $backLink = "scriptDoLoadPost('siteauditor.php', 'search_form', 'subcontent', '&
         	} 
         	?>
         	<tr class="listBot">
-        		<td class="left" colspan="<?=($colCount-1)?>"></td>
+        		<td class="left" colspan="<?php echo ($colCount-1)?>"></td>
         		<td class="right"></td>
         	</tr>
         </table>

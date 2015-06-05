@@ -11,19 +11,19 @@ if (!empty($success)) {
 <input type="hidden" name="sec" value="schedule"/>
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
 	<tr class="listHead">
-		<td class="left" width='30%'><?=$spTextPanel['Schedule Reports']?></td>
+		<td class="left" width='30%'><?php echo $spTextPanel['Schedule Reports']?></td>
 		<td class="right">&nbsp;</td>
 	</tr>
 	<?php if(isAdmin()){ ?>	
 		<tr class="blue_row">
-			<td class="td_left_col"><?=$spText['common']['User']?>:</td>
+			<td class="td_left_col"><?php echo $spText['common']['User']?>:</td>
 			<td class="td_right_col">
 				<select id="user_id" name="user_id" style="width:150px;" onchange="doLoad('user_id', 'reports.php?sec=schedule', 'content')">
 					<?php foreach($userList as $userInfo){?>
 						<?php if($userInfo['id'] == $repSetInfo['user_id']){?>
-							<option value="<?=$userInfo['id']?>" selected><?=$userInfo['username']?></option>
+							<option value="<?php echo $userInfo['id']?>" selected><?php echo $userInfo['username']?></option>
 						<?php }else{?>
-							<option value="<?=$userInfo['id']?>"><?=$userInfo['username']?></option>
+							<option value="<?php echo $userInfo['id']?>"><?php echo $userInfo['username']?></option>
 						<?php }?>						
 					<?php }?>
 				</select>
@@ -31,18 +31,18 @@ if (!empty($success)) {
 		</tr>
 	<?php }?>	
 	<tr class="white_row">
-		<td  class="td_left_col"><?=$spTextReport['Next report generation time']?>:</td>
-		<td class="td_right_col"><?=$nextReportTime?></td>
+		<td  class="td_left_col"><?php echo $spTextReport['Next report generation time']?>:</td>
+		<td class="td_right_col"><?php echo $nextReportTime?></td>
 	</tr>
 	<tr class="blue_row">				
-		<td class="td_left_col"><?=$spTextReport['Reports generation interval']?>: </td>
+		<td class="td_left_col"><?php echo $spTextReport['Reports generation interval']?>: </td>
 		<td class="td_right_col">
 			<select name="report_interval">
 				<?php foreach ($scheduleList as $key => $val) {
 				    if ($key < SP_SYSTEM_REPORT_INTERVAL) continue;
 					$selected = ($key == $reportInterval) ? "selected" : "";
 					?>
-					<option value="<?=$key?>" <?=$selected?> ><?=$val?></option>
+					<option value="<?php echo $key?>" <?php echo $selected?> ><?php echo $val?></option>
 					<?php
 				}?>
 			</select>
@@ -50,14 +50,14 @@ if (!empty($success)) {
 	</tr>
 	<?php if (SP_REPORT_EMAIL_NOTIFICATION) {?>
     	<tr class="white_row">
-    		<td class="td_left_col"><?=$spTextReport['Email notification']?>:</td>
+    		<td class="td_left_col"><?php echo $spTextReport['Email notification']?>:</td>
     		<td class="td_right_col">
     			<?php 
     			$selected = $repSetInfo['email_notification'] ? 'selected' : '';
     			?>
     			<select name="email_notification">
-    				<option value="0"><?=$spText['common']['No']?></option>
-    				<option value="1" <?=$selected?>><?=$spText['common']['Yes']?></option>
+    				<option value="0"><?php echo $spText['common']['No']?></option>
+    				<option value="1" <?php echo $selected?>><?php echo $spText['common']['Yes']?></option>
     			</select>
     		</td>
     	</tr>
@@ -75,11 +75,11 @@ if (!empty($success)) {
 	<tr>
     	<td style="padding-top: 6px;text-align:right;">
     		<a onclick="scriptDoLoad('reports.php?sec=schedule', 'content')" href="javascript:void(0);" class="actionbut">
-         		<?=$spText['button']['Cancel']?>
+         		<?php echo $spText['button']['Cancel']?>
          	</a> &nbsp;
          	<?php $actFun = SP_DEMO ? "alertDemoMsg()" : "confirmSubmit('reports.php', 'schedule_form', 'content')"; ?>         		
-         	<a onclick="<?=$actFun?>" href="javascript:void(0);" class="actionbut">
-         		<?=$spText['button']['Proceed']?>
+         	<a onclick="<?php echo $actFun?>" href="javascript:void(0);" class="actionbut">
+         		<?php echo $spText['button']['Proceed']?>
          	</a>
     	</td>
 	</tr>

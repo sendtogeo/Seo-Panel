@@ -2,18 +2,18 @@
 <form id='search_form'>
 <table width="45%" border="0" cellspacing="0" cellpadding="0" class="search">
 	<tr>				
-		<th><?=$spText['common']['Website']?>: </th>
+		<th><?php echo $spText['common']['Website']?>: </th>
 		<td>
 			<?php echo $this->render('website/websiteselectbox', 'ajax'); ?>
 		</td>
 		<td align='left'>
-			<a onclick="<?=$onClick?>" href="javascript:void(0);" class="actionbut">
-         		<?=$spText['button']['Proceed']?>
+			<a onclick="<?php echo $onClick?>" href="javascript:void(0);" class="actionbut">
+         		<?php echo $spText['button']['Proceed']?>
          	</a>
          </td>
 	</tr>
 </table>
 </form>
 <div id='subcontent'>
-	<p class='note'><?=$spTextDir['selectwebsiteschecksub']?></p>
+	<p class='note'><?php echo $spTextDir['selectwebsiteschecksub']?></p>
 </div>

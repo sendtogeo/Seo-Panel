@@ -1,9 +1,9 @@
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
 	<tr class="listHead">
-		<td class="left"><?=$spText['common']['Id']?></td>
-		<td><?=$spText['common']['Url']?></td>		
-		<td><?=$spText['common']['Google Pagerank']?></td>
-		<td class="right"><?=$spText['common']['Alexa Rank']?></td>
+		<td class="left"><?php echo $spText['common']['Id']?></td>
+		<td><?php echo $spText['common']['Url']?></td>		
+		<td><?php echo $spText['common']['Google Pagerank']?></td>
+		<td class="right"><?php echo $spText['common']['Alexa Rank']?></td>
 	</tr>
 	<?php
 	$colCount = 4; 
@@ -19,19 +19,22 @@
             }else{
                 $leftBotClass = "td_left_border td_br_right";
                 $rightBotClass = "td_br_right";
-            }            
+            }
+            
+            $debugVar = !empty($_POST['debug']) ? "&debug=1" : "";
+            $debugVar .= !empty($_POST['debug_format']) ? "&debug_format=" . $_POST['debug_format'] : ""
 			?>
-			<tr class="<?=$class?>">
-				<td class="<?=$leftBotClass?>"><?=($i+1)?></td>
-				<td class="td_br_right" style="text-align: left;"><?=$url?></td>
-				<td width="150px" id='googlerank<?=$i?>' class='td_br_right rankarea'>
+			<tr class="<?php echo $class?>">
+				<td class="<?php echo $leftBotClass?>"><?php echo ($i+1)?></td>
+				<td class="td_br_right" style="text-align: left;"><?php echo $url?></td>
+				<td width="150px" id='googlerank<?php echo $i?>' class='td_br_right rankarea'>
 					<script type="text/javascript">
-						scriptDoLoadPost('rank.php', 'tmp', 'googlerank<?=$i?>', 'sec=showpr&url=<? echo urlencode($url); ?>');
+						scriptDoLoadPost('rank.php', 'tmp', 'googlerank<?php echo $i?>', 'sec=showpr&url=<? echo urlencode($url); ?><?php echo $debugVar?>');
 					</script>
 				</td>
-				<td class="<?=$rightBotClass?>" width="150px" id='alexarank<?=$i?>' class='rankarea'>
+				<td class="<?php echo $rightBotClass?>" width="150px" id='alexarank<?php echo $i?>' class='rankarea'>
 					<script type="text/javascript">
-						scriptDoLoadPost('rank.php', 'tmp', 'alexarank<?=$i?>', 'sec=showalexa&url=<? echo urlencode($url); ?>');
+						scriptDoLoadPost('rank.php', 'tmp', 'alexarank<?php echo $i?>', 'sec=showalexa&url=<? echo urlencode($url); ?><?php echo $debugVar?>');
 					</script>
 				</td>
 			</tr>
@@ -43,7 +46,7 @@
 	} 
 	?>
 	<tr class="listBot">
-		<td class="left" colspan="<?=($colCount-1)?>"></td>
+		<td class="left" colspan="<?php echo ($colCount-1)?>"></td>
 		<td class="right"></td>
 	</tr>
 </table>

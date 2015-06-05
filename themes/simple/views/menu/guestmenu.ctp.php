@@ -34,15 +34,15 @@
 	}
 	
 ?>
-<li><a class="<?=$homeClass?>" href="<?=SP_WEBPATH?>/"><?=$spText['common']['Home']?></a></li>
-<li><a class="" href="<?=SP_WEBPATH?>/seo-tools.php"><?=$spText['common']['Seo Tools']?></a></li>
-<li><a class="" href="<?=SP_WEBPATH?>/seo-plugins.php?sec=show"><?=$spText['common']['Seo Plugins']?></a></li>
-<li><a class="<?=$supportClass?>" href="<?=SP_WEBPATH?>/support.php"><?=$spText['common']['Support']?></a></li>
+<li><a class="<?php echo $homeClass?>" href="<?php echo SP_WEBPATH?>/"><?php echo $spText['common']['Home']?></a></li>
+<li><a class="" href="<?php echo SP_WEBPATH?>/seo-tools.php"><?php echo $spText['common']['Seo Tools']?></a></li>
+<li><a class="" href="<?php echo SP_WEBPATH?>/seo-plugins.php?sec=show"><?php echo $spText['common']['Seo Plugins']?></a></li>
+<li><a class="<?php echo $supportClass?>" href="<?php echo SP_WEBPATH?>/support.php"><?php echo $spText['common']['Support']?></a></li>
 
 <?php if (SP_DEMO) {?>
-	<li><a href="<?=SP_DOWNLOAD_LINK?>" target="_blank"><?=$spText['label']['Download']?></a></li>
+	<li><a href="<?php echo SP_DOWNLOAD_LINK?>" target="_blank"><?php echo $spText['label']['Download']?></a></li>
 <?php } else {?>
-	<li><a href="<?=SP_DONATE_LINK?>" target="_blank"><?=$spText['common']['Donate']?></a></li>
+	<li><a href="<?php echo SP_DONATE_LINK?>" target="_blank"><?php echo $spText['common']['Donate']?></a></li>
 <?php }?>
 
 <li style="padding-left: 2px;">
@@ -55,8 +55,8 @@
 </li>
 
 <li style="float: right; margin-right: 12px;">
-	<a class="<?=$loginClass?>" href="<?=SP_WEBPATH?>/login.php"><?=$spText['common']['My Account']?></a>
+	<a class="<?php echo $loginClass?>" href="<?php echo SP_WEBPATH?>/login.php"><?php echo $spText['common']['My Account']?></a>
 </li>
 <?php if(!isLoggedIn() && SP_USER_REGISTRATION){?>
-	<li style="float: right;"><a class="<?=$registerClass?>" title="register seo panel" href="<?=SP_WEBPATH?>/register.php"><?=$spText['common']['Sign Up']?></a></li>
+	<li style="float: right;"><a class="<?php echo $registerClass?>" title="register seo panel" href="<?php echo SP_WEBPATH?>/register.php"><?php echo $spText['common']['Sign Up']?></a></li>
 <?php } ?>

@@ -1,13 +1,13 @@
 <?php echo showSectionHead($spTextPanel['Seo Tools Manager']); ?>
-<?=$pagingDiv?>
+<?php echo $pagingDiv?>
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
 	<tr class="listHead">
-		<td class="left"><?=$spText['common']['Id']?></td>
-		<td><?=$spText['common']['Name']?></td>
-		<td><?=$spTextTools['User Access']?></td>
-		<td><?=$spText['common']['Reports']?></td>
-		<td><?=$spText['label']['Cron']?></td>
-		<td class="right"><?=$spText['common']['Status']?></td>
+		<td class="left"><?php echo $spText['common']['Id']?></td>
+		<td><?php echo $spText['common']['Name']?></td>
+		<td><?php echo $spTextTools['User Access']?></td>
+		<td><?php echo $spText['common']['Reports']?></td>
+		<td><?php echo $spText['label']['Cron']?></td>
+		<td class="right"><?php echo $spText['common']['Status']?></td>
 	</tr>
 	<?php
 	$colCount = 6; 
@@ -40,13 +40,13 @@
             $accessLink = SP_DEMO ? scriptAJAXLinkHref('demo', '', "", $accessLabel) : scriptAJAXLinkHref('seo-tools-manager.php', 'content', "sec=changeaccess&seotool_id={$listInfo['id']}&user_access={$listInfo['user_access']}", $accessLabel);
             
 			?>
-			<tr class="<?=$class?>">
-				<td class="<?=$leftBotClass?>"><?echo $listInfo['id'];?></td>
+			<tr class="<?php echo $class?>">
+				<td class="<?php echo $leftBotClass?>"><?echo $listInfo['id'];?></td>
 				<td class="td_br_right left"><? echo $listInfo['name'];?></td>
 				<td class="td_br_right"><? echo $accessLink;?></td>				
 				<td class="td_br_right"><? echo $reportgenLink;?></td>
 				<td class="td_br_right"><? echo $cronLink;?></td>
-				<td class="<?=$rightBotClass?>" width="100px"><? echo $activateLink;?></td>
+				<td class="<?php echo $rightBotClass?>" width="100px"><? echo $activateLink;?></td>
 			</tr>
 			<?php
 		}
@@ -55,7 +55,7 @@
 	} 
 	?>
 	<tr class="listBot">
-		<td class="left" colspan="<?=($colCount-1)?>"></td>
+		<td class="left" colspan="<?php echo ($colCount-1)?>"></td>
 		<td class="right"></td>
 	</tr>
 </table>

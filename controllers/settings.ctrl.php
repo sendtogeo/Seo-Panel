@@ -62,7 +62,20 @@ class SettingsController extends Controller{
             $spTextProxy = $this->getLanguageTexts('proxy', $_SESSION['lang_code']);
             $this->set('spTextProxy', $spTextProxy);		    
 	        $this->render('settings/showproxysettings');
-		} else {	
+		} else {
+
+			// switch through category
+			switch ($category) {
+				
+				case "api":
+					$this->set('headLabel', 'API Settings');					
+					break;
+					
+				default:					
+					break;
+				
+			}
+			
 		    $this->render('settings/showsettings');
 		}
 	}
@@ -121,22 +134,11 @@ class SettingsController extends Controller{
 		$transList = $this->db->select($sql); 
 		$this->set('transList', $transList);
 		
-		$this->set('sponsors', $this->getSponsors());		
+		include_once(SP_CTRLPATH."/information.ctrl.php");
+		$infoCtrler = new InformationController();
+		$this->set('sponsors', $infoCtrler->getSponsors());		
 		$this->render('settings/aboutus');
-	}
-	
-	# function to get sponsors
-	function getSponsors() {		
-		
-		if(empty($_COOKIE['sponsors'])){
-			$ret = $this->spider->getContent(SP_SPONSOR_PAGE . "?lang=". $_SESSION['lang_code']);			
-			setcookie("sponsors", $ret['page'], time()+ (60*60*24));
-		} else {
-			$ret['page'] = $_COOKIE['sponsors'];
-		}
-		
-		return $ret['page'];
-	}
+	}	
 	
 	# func to show version of seo panel
 	function showVersion() {		

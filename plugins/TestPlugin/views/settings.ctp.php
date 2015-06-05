@@ -8,6 +8,6 @@
 </form>
 <div id='subcontent'>
 	<?php if($showGraph){?>
-		<img src="<?=PLUGIN_IMGPATH?>/graph.gif"></img>
+		<img src="<?php echo PLUGIN_IMGPATH?>/graph.gif"></img>
 	<?php }?>
 </div>

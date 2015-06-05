@@ -32,26 +32,15 @@ class Controller extends Seopanel{
 	var $sessionCats = array('common','login','button','label');
 
 	function Controller(){
-		# create database object
-		if(!is_object($this->db)){
-			include_once(SP_LIBPATH."/database.class.php");
-			$dbObj = New Database(DB_ENGINE);
-			$this->db = $dbObj->dbConnect();
-			
-			$this->db->query("show tables", true);
-			if($this->db->noRows <= 0){
-				showErrorMsg("<p>The database tables could not be found.</p><p><a href=\"install/index.php\">Click here to install Seo Panel.</a></p>");
-			}
-		}
 		
+		# create database object
+		$dbObj = New Database(DB_ENGINE);
+		$this->db = $dbObj->dbConnect();
 		$this->view = New View();
 		$this->session = New Session();
 		$this->validate = New Validation();
 		$this->spider = New Spider();
 		$this->paging = New Paging();
-		
-		# to define all system variables
-		$this->defineAllSystemSettings();
 
 		# to define all system variables
 		$force = false;
@@ -60,13 +49,6 @@ class Controller extends Seopanel{
 			$this->assignLangCode(trim($_GET['lang_code']));
 			$_GET['lang_code'] = '';
 			$force = true;
-		}
-		
-		// set system timezone
-		if (defined('SP_TIME_ZONE')) {
-			if (SP_TIME_ZONE != '') {
-				@ini_set( 'date.timezone', SP_TIME_ZONE);
-			}
 		}
 		
 		# func to assign texts to session
@@ -161,6 +143,12 @@ class Controller extends Seopanel{
 		$this->view->data = $this->data;
 		$this->view->pluginRender($viewFile, $layout);
 	}
+	
+	# normal plugingetViewContent function
+	function getPluginViewContent($viewFile){
+		$this->view->data = $this->data;
+		return $this->view->getPluginViewContent($viewFile);
+	}
 		
 	# func to getting language texts
 	function getLanguageTexts($category, $langCode='en') {
@@ -221,14 +209,14 @@ class Controller extends Seopanel{
 	}
 
 	# to create component object
-	public function createComponent($compName) {
+	function createComponent($compName) {
 	    include_once(SP_CTRLPATH."/components/".strtolower($compName).".php");
 	    $componentObj = new $compName();
 	    return $componentObj;
 	}
 
 	# to create cotroller object
-	public function createController($ctrlName) {
+	function createController($ctrlName) {
 	    include_once(SP_CTRLPATH."/".strtolower($ctrlName).".ctrl.php");
 	    $ctrlName .= "Controller"; 
 	    $controllerObj = new $ctrlName();

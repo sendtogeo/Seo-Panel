@@ -11,7 +11,7 @@
 		</td>
 		<td align='left'>
 			<a onclick="testPlugin();<?php echo pluginPOSTMethod('search_form', 'subcontent', 'action=show'); ?>" href="javascript:void(0);">
-         		<img border="0" alt="" src="<?=SP_IMGPATH?>/show_records.gif"/>
+         		<img border="0" alt="" src="<?php echo SP_IMGPATH?>/show_records.gif"/>
          	</a>
          </td>
 	</tr>

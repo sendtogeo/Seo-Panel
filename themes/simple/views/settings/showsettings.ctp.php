@@ -4,7 +4,7 @@ echo showSectionHead($headLabel);
 
 // if saved successfully
 if (!empty($saved)) {
-    showSuccessMsg($spTextSettings['syssettingssaved'], false);
+    showSuccessMsg($spTextSettings['allsettingssaved'], false);
 }
 
 // save process failed
@@ -15,10 +15,10 @@ if (!empty($errorMsg)) {
 ?>
 <form id="updateSettings">
 <input type="hidden" value="update" name="sec">
-<input type="hidden" value="<?=$category?>" name="category">
+<input type="hidden" value="<?php echo $category?>" name="category">
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
 	<tr class="listHead">
-		<td class="left" width='30%'><?=$headLabel?></td>
+		<td class="left" width='30%'><?php echo $headLabel?></td>
 		<td class="right">&nbsp;</td>
 	</tr>
 	<?php 
@@ -49,48 +49,56 @@ if (!empty($errorMsg)) {
 				$width = 500;
 				break;
 		}
+		
+		// sp demo settings
+		$demoCheckArr = array('SP_API_KEY', 'API_SECRET', 'SP_SMTP_PASSWORD');
+		if (SP_DEMO && in_array($listInfo['set_name'], $demoCheckArr)) {
+			$listInfo['set_val'] = "********";
+		}
+		
 		?>
-		<tr class="<?=$class?>">
-			<td class="td_left_col"><?=$spTextSettings[$listInfo['set_name']]?>:</td>
+		<tr class="<?php echo $class?>">
+			<td class="td_left_col"><?php echo $spTextSettings[$listInfo['set_name']]?>:</td>
 			<td class="td_right_col">
 				<?php if($listInfo['set_type'] != 'text'){?>
 					<?php if($listInfo['set_type'] == 'bool'){?>
-						<select  name="<?=$listInfo['set_name']?>">
-							<option value="1" <?=$selectYes?>><?=$spText['common']['Yes']?></option>
-							<option value="0" <?=$selectNo?>><?=$spText['common']['No']?></option>
+						<select  name="<?php echo $listInfo['set_name']?>">
+							<option value="1" <?php echo $selectYes?>><?php echo $spText['common']['Yes']?></option>
+							<option value="0" <?php echo $selectNo?>><?php echo $spText['common']['No']?></option>
 						</select>
 					<?php }else{?>
 						<?php if($listInfo['set_name'] == 'SP_DEFAULTLANG') {?>
-							<select name="<?=$listInfo['set_name']?>">
+							<select name="<?php echo $listInfo['set_name']?>">
 								<?php
 								foreach ($langList as $langInfo) {
 									$selected = ($langInfo['lang_code'] == $listInfo['set_val']) ? "selected" : "";
 									?>			
-									<option value="<?=$langInfo['lang_code']?>" <?=$selected?>><?=$langInfo['lang_name']?></option>
+									<option value="<?php echo $langInfo['lang_code']?>" <?php echo $selected?>><?php echo $langInfo['lang_name']?></option>
 									<?php
 								}
 								?>
 							</select>
 						<?php } else if($listInfo['set_name'] == 'SP_TIME_ZONE') {?>
-							<select name="<?=$listInfo['set_name']?>">
+							<select name="<?php echo $listInfo['set_name']?>">
 								<?php
 								$listInfo['set_val'] = empty($listInfo['set_val']) ? ini_get('date.timezone') : $listInfo['set_val'];
 								foreach ($timezoneList as $timezoneInfo) {
 									$selected = ($timezoneInfo['timezone_name'] == $listInfo['set_val']) ? "selected" : "";
 									?>			
-									<option value="<?=$timezoneInfo['timezone_name']?>" <?=$selected?>><?=$timezoneInfo['timezone_label']?></option>
+									<option value="<?php echo $timezoneInfo['timezone_name']?>" <?php echo $selected?>><?php echo $timezoneInfo['timezone_label']?></option>
 									<?php
 								}
 								?>
 							</select>
 						<?php } else {
-						    $type = ($listInfo['set_name'] == 'SP_SMTP_PASSWORD') ? "password" : "text";
+							$passTypeList = array('SP_SMTP_PASSWORD', 'API_SECRET');
+						    $type = in_array($listInfo['set_name'], $passTypeList) ? "password" : "text";
 						    ?>
-							<input type="<?=$type?>" name="<?=$listInfo['set_name']?>" value="<?=stripslashes($listInfo['set_val'])?>" style='width:<?=$width?>px'>
+							<input type="<?php echo $type?>" name="<?php echo $listInfo['set_name']?>" value="<?php echo stripslashes($listInfo['set_val'])?>" style='width:<?php echo $width?>px'>
 						<?php }?>
 					<?php }?>
 				<?php }else{?>
-					<textarea name="<?=$listInfo['set_name']?>" style='width:<?=$width?>px'><?=stripslashes($listInfo['set_val'])?></textarea>
+					<textarea name="<?php echo $listInfo['set_name']?>" style='width:<?php echo $width?>px'><?php echo stripslashes($listInfo['set_val'])?></textarea>
 				<?php }?>
 			</td>
 		</tr>
@@ -109,12 +117,12 @@ if (!empty($errorMsg)) {
 <table width="100%" cellspacing="0" cellpadding="0" border="0" class="actionSec">
 	<tr>
     	<td style="padding-top: 6px;text-align:right;">
-    		<a onclick="scriptDoLoad('settings.php?category=<?=$category?>', 'content', 'layout=ajax')" href="javascript:void(0);" class="actionbut">
-         		<?=$spText['button']['Cancel']?>
+    		<a onclick="scriptDoLoad('settings.php?category=<?php echo $category?>', 'content', 'layout=ajax')" href="javascript:void(0);" class="actionbut">
+         		<?php echo $spText['button']['Cancel']?>
          	</a>&nbsp;
          	<?php $actFun = SP_DEMO ? "alertDemoMsg()" : "confirmSubmit('settings.php', 'updateSettings', 'content')"; ?>
-         	<a onclick="<?=$actFun?>" href="javascript:void(0);" class="actionbut">
-         		<?=$spText['button']['Proceed']?>
+         	<a onclick="<?php echo $actFun?>" href="javascript:void(0);" class="actionbut">
+         		<?php echo $spText['button']['Proceed']?>
          	</a>
     	</td>
 	</tr>

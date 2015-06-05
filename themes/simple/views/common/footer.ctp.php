@@ -5,6 +5,6 @@
         <div id="powered">
         	<?php echo $spText['common']['Powered by']; ?> <a href="http://www.seopanel.in/" target="_blank" title="Seo Control Panel">Seo Panel</a> (Seo Control Panel)
         </div>
-        <?=$translatorInfo?>
+        <?php echo $translatorInfo?>
     </div>
 </div>

@@ -18,7 +18,7 @@
                         <div id="content">
                 			<?php if(!empty($defaultScript)) {?>
                 				<script type="text/javascript">
-                					scriptDoLoad('<?=$defaultScript?>', 'content', '<?=$defaultArgs?>');
+                					scriptDoLoad('<?php echo $defaultScript?>', 'content', '<?php echo $defaultArgs?>');
                 				</script>
                 			<?php }?>
         				</div>

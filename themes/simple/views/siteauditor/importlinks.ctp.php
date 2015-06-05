@@ -3,18 +3,18 @@
 <input type="hidden" name="sec" value="importlinks"/>
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
 	<tr class="listHead">
-		<td class="left" width='30%'><?=$spTextSA['Import Project Links']?></td>
+		<td class="left" width='30%'><?php echo $spTextSA['Import Project Links']?></td>
 		<td class="right">&nbsp;</td>
 	</tr>
 	<tr class="blue_row">				
-		<td class="td_left_col"><?=$spText['label']['Project']?>: </td>
+		<td class="td_left_col"><?php echo $spText['label']['Project']?>: </td>
 		<td class="td_right_col">
-			<select id="project_id" name="project_id" onchange="<?=$submitJsFunc?>" style="width: 180px;">
+			<select id="project_id" name="project_id" onchange="<?php echo $submitJsFunc?>" style="width: 180px;">
 				<?php foreach($projectList as $list) {?>
 					<?php if($list['id'] == $projectId) {?>
-						<option value="<?=$list['id']?>" selected="selected"><?=$list['name']?></option>
+						<option value="<?php echo $list['id']?>" selected="selected"><?php echo $list['name']?></option>
 					<?php } else {?>
-						<option value="<?=$list['id']?>"><?=$list['name']?></option>
+						<option value="<?php echo $list['id']?>"><?php echo $list['name']?></option>
 					<?php }?>
 				<?php }?>
 			</select>
@@ -23,9 +23,9 @@
 	<tr class="white_row">
 		<td class="td_left_col">Links:</td>
 		<td class="td_right_col">
-			<textarea name="links" rows="10"><?=$post['links']?></textarea>
-			<br><?=$errMsg['links']?>
-			<p style="font-size: 12px;"><?=$spTextSA['Insert links separated with comma']?>.</p>
+			<textarea name="links" rows="10"><?php echo $post['links']?></textarea>
+			<br><?php echo $errMsg['links']?>
+			<p style="font-size: 12px;"><?php echo $spTextSA['Insert links separated with comma']?>.</p>
 			<P><b>Eg:</b> http://www.seopanel.in/plugin/l/, http://www.seopanel.in/plugin/d/</P>
 		</td>
 	</tr>		
@@ -42,11 +42,11 @@
 	<tr>
     	<td style="padding-top: 6px;text-align:right;">
     		<a onclick="scriptDoLoad('siteauditor.php', 'content')" href="javascript:void(0);" class="actionbut">
-         		<?=$spText['button']['Cancel']?>
+         		<?php echo $spText['button']['Cancel']?>
          	</a>&nbsp;
          	<?php $actFun = SP_DEMO ? "alertDemoMsg()" : "scriptDoLoadPost('siteauditor.php', 'importlinks', 'content')"; ?>
-         	<a onclick="<?=$actFun?>" href="javascript:void(0);" class="actionbut">
-         		<?=$spText['button']['Proceed']?>
+         	<a onclick="<?php echo $actFun?>" href="javascript:void(0);" class="actionbut">
+         		<?php echo $spText['button']['Proceed']?>
          	</a>
     	</td>
 	</tr>

@@ -66,6 +66,15 @@ define('SP_PREVENT_SQL_INJECTION', true);
 # database persistent connection
 define('SP_DB_PERSISTENT_CONNECTION', false);
 
+# The seo panel api file
+define('SP_API_FILE', 'api/api.php');
+
+# The crawl log clear interval in days
+define('SP_CRAWL_LOG_CLEAR_TIME', 90);
+
+# The api language code
+define('SP_API_LANG_CODE', 'en');
+
 # The seo panel help page
 define('SP_HELP_LINK', 'http://help.seopanel.in/');
 
@@ -98,5 +107,10 @@ define('SP_VERSION_PAGE', 'http://www.seopanel.in/getversion.php');
 
 # seo panel theme site url
 define('SP_THEMESITE', 'http://www.seopanel.in/themes/');
+
+# payment related variables
+define('SP_PAYMENT_CANCEL_LINK', SP_WEBPATH."/payment_cancel.php");
+define('SP_PAYMENT_RETURN_LINK', SP_WEBPATH."/payment_return.php");
+define('SP_PAYMENT_CURRENCY', "USD");
 
 ?>

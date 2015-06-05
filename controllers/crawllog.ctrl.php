@@ -218,5 +218,18 @@ class CrawlLogController extends Controller {
 		$this->render('log/showcrawllog');
 	}
 	
+	/**
+	 * function to clear logs before an interval 
+	 * @param int $daysBefore 	The days before the crawl logs to be deleted
+	 */
+	function clearCrawlLog($daysBefore) {
+		
+		$dateBefore = mktime(0, 0, 0, date('m'), date('d') - $daysBefore, date('y'));
+		$dateBefore = date('Y-m-d H:i:s', $dateBefore);
+		$sql = "delete from crawl_log where crawl_time < '$dateBefore'";
+		$this->db->query($sql);
+		
+	}
+	
 }
 ?>
