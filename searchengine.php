@@ -61,6 +61,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		    }
 		    $controller->listSE($_POST);
 		    break;
+
+		default:
+			$controller->listSE($_POST);
+			break;
 	}
 	
 }else{

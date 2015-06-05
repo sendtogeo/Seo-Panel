@@ -78,6 +78,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		    }
 		    $controller->listUsers($_POST);
 		    break;
+
+		default:
+			$controller->listUsers($_POST);
+			break;
 	}
 	
 }else{

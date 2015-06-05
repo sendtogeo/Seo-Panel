@@ -74,6 +74,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		    $keyInput = empty($_POST['keyinput']) ? "" : $_POST['keyinput']; 
 			$controller->crawlMetaData(urldecode($_POST['url']), $keyInput);
 			break;
+			
+		default:
+			$controller->listWebsites($_POST);
+			break;
 	}
 
 }else{

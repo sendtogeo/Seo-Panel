@@ -31,7 +31,9 @@ if($_SERVER['REQUEST_METHOD'] == 'GET'){
 	switch($_GET['sec']){
 		
 		case "news":
-			$controller->showNews($_GET);
+			include_once(SP_CTRLPATH."/information.ctrl.php");
+			$infoCtrler = new InformationController();
+			$infoCtrler->showNews($_GET);
 			break;
 
 		default:

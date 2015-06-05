@@ -72,5 +72,12 @@ if(!empty($_SERVER['REQUEST_METHOD'])){
 	
 	$includeList = array();   // the only included seo tools id 
 	$controller->executeCron($includeList);
+	
+	// delete crawl logs before 2 months
+	include_once(SP_CTRLPATH."/crawllog.ctrl.php");
+	$crawlLog = new CrawlLogController();
+	$crawlLog->clearCrawlLog(SP_CRAWL_LOG_CLEAR_TIME);
+	echo "Clearing crawl logs before " . SP_CRAWL_LOG_CLEAR_TIME . " days";
+	
 }
 ?>
