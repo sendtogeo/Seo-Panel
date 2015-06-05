@@ -17,7 +17,7 @@
                         <?php echo getRoundTabTop(); ?>
                         <div id="content">
                 			<script type="text/javascript">
-                				<?=$startFunction?>
+                				<?php echo $startFunction?>
                 			</script>
         				</div>
         				<?php echo getRoundTabBot(); ?>	

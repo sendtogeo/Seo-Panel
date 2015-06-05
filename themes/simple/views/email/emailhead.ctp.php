@@ -13,8 +13,8 @@
         .listHead td.left {border-left: 1px solid #B0C2CC;}		
 		#sortLink {color: black; text-decoration: none;}
 		#sortLink:HOVER { text-decoration: underline;background-color: #DBE6EE;}
-		.sort_asc{background:transparent url(<?=SP_IMGPATH?>/sort_asc.gif) no-repeat scroll right center;padding-right: 18px;}
-		.sort_desc{background:transparent url(<?=SP_IMGPATH?>/sort_desc.gif) no-repeat scroll right center;padding-right: 18px;}
+		.sort_asc{background:transparent url(<?php echo SP_IMGPATH?>/sort_asc.gif) no-repeat scroll right center;padding-right: 18px;}
+		.sort_desc{background:transparent url(<?php echo SP_IMGPATH?>/sort_desc.gif) no-repeat scroll right center;padding-right: 18px;}
 		.blue_row {background-color: #F4F7FA;}
 		.white_row {background-color: #FFFFFF;}
         .blue_row td,.white_row td {text-align: center; color: #343333; font-family: Tahoma, verdana, arial, sans-serif; font-size: 11px;

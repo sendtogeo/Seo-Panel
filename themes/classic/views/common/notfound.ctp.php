@@ -5,14 +5,14 @@
 	<tr>
 		<td align="center">
 		<p class="dirmsg" style="height: 20px;padding:5px;">
-			<font class="error" style="font-size: 13px;"><b><?=$msg?></b></font>
+			<font class="error" style="font-size: 13px;"><b><?php echo $msg?></b></font>
 		</p>
 		</td>
 	</tr>
 	
 	<?php if(!empty($msgButton)) {?>
 		<tr>
-			<td align="center"><br><?=$msgButton?></td>
+			<td align="center"><br><?php echo $msgButton?></td>
 		</tr>
 	<?php }?>
 	

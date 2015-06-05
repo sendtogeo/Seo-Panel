@@ -2,22 +2,22 @@
 echo showSectionHead($spTextPanel["Proxy Perfomance"]);
 $searchFun = "scriptDoLoadPost('proxy.php', 'listform', 'content')";
 ?>
-<form name="listform" id="listform" onsubmit="<?=$searchFun?>">
+<form name="listform" id="listform" onsubmit="<?php echo $searchFun?>">
 <input type="hidden" name="sec" value="perfomance">
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="search">
 	<tr>
-		<th><?=$spText['button']['Search']?>: </th>
-		<td><input type="text" name="keyword" value="<?=htmlentities($keyword, ENT_QUOTES)?>" onblur="<?=$searchFun?>"></td>
-		<th><?=$spText['common']['Period']?>:</th>
+		<th><?php echo $spText['button']['Search']?>: </th>
+		<td><input type="text" name="keyword" value="<?php echo htmlentities($keyword, ENT_QUOTES)?>" onblur="<?php echo $searchFun?>"></td>
+		<th><?php echo $spText['common']['Period']?>:</th>
     	<td width="236px">
-    		<input type="text" style="width: 80px;margin-right:0px;" value="<?=$fromTime?>" name="from_time"/> 
-    		<img align="bottom" onclick="displayDatePicker('from_time', false, 'ymd', '-');" src="<?=SP_IMGPATH?>/cal.gif"/> 
-    		<input type="text" style="width: 80px;margin-right:0px;" value="<?=$toTime?>" name="to_time"/> 
-    		<img align="bottom" onclick="displayDatePicker('to_time', false, 'ymd', '-');" src="<?=SP_IMGPATH?>/cal.gif"/>
+    		<input type="text" style="width: 80px;margin-right:0px;" value="<?php echo $fromTime?>" name="from_time"/> 
+    		<img align="bottom" onclick="displayDatePicker('from_time', false, 'ymd', '-');" src="<?php echo SP_IMGPATH?>/cal.gif"/> 
+    		<input type="text" style="width: 80px;margin-right:0px;" value="<?php echo $toTime?>" name="to_time"/> 
+    		<img align="bottom" onclick="displayDatePicker('to_time', false, 'ymd', '-');" src="<?php echo SP_IMGPATH?>/cal.gif"/>
     	</td>
-		<th><?=$spText['label']['Order By']?>: </th>
+		<th><?php echo $spText['label']['Order By']?>: </th>
 		<td>
-			<select name="order_by" onchange="<?=$searchFun?>">
+			<select name="order_by" onchange="<?php echo $searchFun?>">
 				<?php				
 				$inactCheck = $actCheck = "";
 				if ($statVal == 'success') {
@@ -26,24 +26,24 @@ $searchFun = "scriptDoLoadPost('proxy.php', 'listform', 'content')";
 				    $inactCheck = "selected";
 				}
 				?>
-				<option value="success" <?=$actCheck?> ><?=$spText['label']["Success"]?></option>
-				<option value="fail" <?=$inactCheck?> ><?=$spText['label']["Fail"]?></option>
+				<option value="success" <?php echo $actCheck?> ><?php echo $spText['label']["Success"]?></option>
+				<option value="fail" <?php echo $inactCheck?> ><?php echo $spText['label']["Fail"]?></option>
 			</select>
 		</td>
 		<td>
-			<a href="javascript:void(0);" onclick="<?=$searchFun?>" class="actionbut"><?=$spText['button']['Search']?></a>
+			<a href="javascript:void(0);" onclick="<?php echo $searchFun?>" class="actionbut"><?php echo $spText['button']['Search']?></a>
 		</td>
 	</tr>
 </table>
-<?=$pagingDiv?>
+<?php echo $pagingDiv?>
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
 	<tr class="listHead">
 		<td class="leftid"><input type="checkbox" id="checkall" onclick="checkList('checkall')"></td>
-		<td><?=$spText['common']['Id']?></td>
-		<td><?=$spText['label']['Proxy']?></td>
-		<td><?=$spTextProxy['Request Count']?></td>
-		<td><?=$spText['label']['Success']?></td>
-		<td class="right"><?=$spText['label']['Fail']?></td>
+		<td><?php echo $spText['common']['Id']?></td>
+		<td><?php echo $spText['label']['Proxy']?></td>
+		<td><?php echo $spTextProxy['Request Count']?></td>
+		<td><?php echo $spText['label']['Success']?></td>
+		<td class="right"><?php echo $spText['label']['Fail']?></td>
 	</tr>
 	<?php
 	$colCount = 6; 
@@ -64,13 +64,13 @@ $searchFun = "scriptDoLoadPost('proxy.php', 'listform', 'content')";
 			$successLink = scriptAJAXLinkHrefDialog('log.php', 'content', "sec=crawl_log"."$urlParams&status=success&proxy_id=".$listInfo['proxy_id'], $listInfo['success'], '', 'OnClick', 1000);
 			$failLink = scriptAJAXLinkHrefDialog('log.php', 'content', "sec=crawl_log"."$urlParams&status=fail&proxy_id=".$listInfo['proxy_id'], $listInfo['fail'], '', 'OnClick', 1000);
             ?>
-			<tr class="<?=$class?>">
-				<td class="<?=$leftBotClass?>"><input type="checkbox" name="ids[]" value="<?=$listInfo['id']?>"></td>
-				<td class="td_br_right"><?=$listInfo['proxy_id']?></td>
-				<td class="td_br_right left"><?=$logLink?></td>
-				<td class="td_br_right"><?=$countLink?></td>
-				<td class="td_br_right"><?=$successLink?></td>
-				<td class="<?=$rightBotClass?>"><?=$failLink?></td>
+			<tr class="<?php echo $class?>">
+				<td class="<?php echo $leftBotClass?>"><input type="checkbox" name="ids[]" value="<?php echo $listInfo['id']?>"></td>
+				<td class="td_br_right"><?php echo $listInfo['proxy_id']?></td>
+				<td class="td_br_right left"><?php echo $logLink?></td>
+				<td class="td_br_right"><?php echo $countLink?></td>
+				<td class="td_br_right"><?php echo $successLink?></td>
+				<td class="<?php echo $rightBotClass?>"><?php echo $failLink?></td>
 			</tr>
 			<?php
 		}
@@ -79,7 +79,7 @@ $searchFun = "scriptDoLoadPost('proxy.php', 'listform', 'content')";
 	} 
 	?>
 	<tr class="listBot">
-		<td class="left" colspan="<?=($colCount-1)?>"></td>
+		<td class="left" colspan="<?php echo ($colCount-1)?>"></td>
 		<td class="right"></td>
 	</tr>
 </table>

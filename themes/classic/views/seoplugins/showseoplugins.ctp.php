@@ -26,7 +26,7 @@
                 				    }
                 				} 
                 				?>
-                				scriptDoLoad('seo-plugins.php?pid=<?=$menuSelected?><?=$argString?>', 'content', '');
+                				scriptDoLoad('seo-plugins.php?pid=<?php echo $menuSelected?><?php echo $argString?>', 'content', '');
                 			</script>
         				</div>
         				<?php echo getRoundTabBot(); ?>	

@@ -9,10 +9,10 @@ if (!empty($saved)) {
 ?>
 <form id="updateSettings">
 <input type="hidden" value="update" name="sec">
-<input type="hidden" value="<?=$category?>" name="category">
+<input type="hidden" value="<?php echo $category?>" name="category">
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
 	<tr class="listHead">
-		<td class="left" width='35%'><?=$headLabel?></td>
+		<td class="left" width='35%'><?php echo $headLabel?></td>
 		<td class="right">&nbsp;</td>
 	</tr>
 	<?php 
@@ -44,36 +44,36 @@ if (!empty($saved)) {
 				break;
 		}
 		?>
-		<tr class="<?=$class?>">
-			<td class="td_left_col"><?=$spTextSettings[$listInfo['set_name']]?>:</td>
+		<tr class="<?php echo $class?>">
+			<td class="td_left_col"><?php echo $spTextSettings[$listInfo['set_name']]?>:</td>
 			<td class="td_right_col">
 				<?php if($listInfo['set_type'] != 'text'){?>
 					<?php if($listInfo['set_type'] == 'bool'){?>
-						<select  name="<?=$listInfo['set_name']?>">
-							<option value="1" <?=$selectYes?>><?=$spText['common']['Yes']?></option>
-							<option value="0" <?=$selectNo?>><?=$spText['common']['No']?></option>
+						<select  name="<?php echo $listInfo['set_name']?>">
+							<option value="1" <?php echo $selectYes?>><?php echo $spText['common']['Yes']?></option>
+							<option value="0" <?php echo $selectNo?>><?php echo $spText['common']['No']?></option>
 						</select>
 					<?php }else{?>
 						<?php if($listInfo['set_name'] == 'SP_SYSTEM_REPORT_INTERVAL') {?>
-							<select name="<?=$listInfo['set_name']?>">
+							<select name="<?php echo $listInfo['set_name']?>">
 								<?php
 								foreach ($scheduleList as $interval => $label) {
 									$selected = ($interval == $listInfo['set_val']) ? "selected" : "";
 									?>			
-									<option value="<?=$interval?>" <?=$selected?>><?=$label?></option>
+									<option value="<?php echo $interval?>" <?php echo $selected?>><?php echo $label?></option>
 									<?php
 								}
 								?>
 							</select>
 						<?php } else {?>
-							<input type="text" name="<?=$listInfo['set_name']?>" value="<?=stripslashes($listInfo['set_val'])?>" style='width:<?=$width?>px'>
+							<input type="text" name="<?php echo $listInfo['set_name']?>" value="<?php echo stripslashes($listInfo['set_val'])?>" style='width:<?php echo $width?>px'>
 							<?php if ($listInfo['set_name'] == 'SP_NUMBER_KEYWORDS_CRON') {?>
-								<p><?=$spTextReport['keywordnumbercheckedcronnote']?></p>
+								<p><?php echo $spTextReport['keywordnumbercheckedcronnote']?></p>
 							<?php } ?>
 						<?php }?>
 					<?php }?>
 				<?php }else{?>
-					<textarea name="<?=$listInfo['set_name']?>" style='width:<?=$width?>px'><?=stripslashes($listInfo['set_val'])?></textarea>
+					<textarea name="<?php echo $listInfo['set_name']?>" style='width:<?php echo $width?>px'><?php echo stripslashes($listInfo['set_val'])?></textarea>
 				<?php }?>
 			</td>
 		</tr>
@@ -93,11 +93,11 @@ if (!empty($saved)) {
 	<tr>
     	<td style="padding-top: 6px;text-align:right;">
     		<a onclick="scriptDoLoad('settings.php?sec=reportsettings', 'content', 'layout=ajax')" href="javascript:void(0);" class="actionbut">
-         		<?=$spText['button']['Cancel']?>
+         		<?php echo $spText['button']['Cancel']?>
          	</a>&nbsp;
          	<?php $actFun = SP_DEMO ? "alertDemoMsg()" : "confirmSubmit('settings.php', 'updateSettings', 'content')"; ?>
-         	<a onclick="<?=$actFun?>" href="javascript:void(0);" class="actionbut">
-         		<?=$spText['button']['Proceed']?>
+         	<a onclick="<?php echo $actFun?>" href="javascript:void(0);" class="actionbut">
+         		<?php echo $spText['button']['Proceed']?>
          	</a>
     	</td>
 	</tr>

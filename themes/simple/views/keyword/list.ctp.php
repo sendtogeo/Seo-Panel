@@ -5,25 +5,25 @@ $searchFun = "scriptDoLoadPost('keywords.php', 'listform', 'content')";
 <form name="listform" id="listform">
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="search">
 	<tr>
-		<th><?=$spText['common']['Keyword']?>: </th>
-		<td><input type="text" name="keyword" value="<?=htmlentities($keyword, ENT_QUOTES)?>" onblur="<?=$searchFun?>"></td>
-		<th><?=$spText['common']['Website']?>: </th>
+		<th><?php echo $spText['common']['Keyword']?>: </th>
+		<td><input type="text" name="keyword" value="<?php echo htmlentities($keyword, ENT_QUOTES)?>" onblur="<?php echo $searchFun?>"></td>
+		<th><?php echo $spText['common']['Website']?>: </th>
 		<td>
-			<select name="website_id" id="website_id" onchange="<?=$searchFun?>">
-				<option value="">-- <?=$spText['common']['Select']?> --</option>
+			<select name="website_id" id="website_id" onchange="<?php echo $searchFun?>">
+				<option value="">-- <?php echo $spText['common']['Select']?> --</option>
 				<?php foreach($websiteList as $websiteInfo){?>
 					<?php if($websiteInfo['id'] == $websiteId){?>
-						<option value="<?=$websiteInfo['id']?>" selected><?=$websiteInfo['name']?></option>
+						<option value="<?php echo $websiteInfo['id']?>" selected><?php echo $websiteInfo['name']?></option>
 					<?php }else{?>
-						<option value="<?=$websiteInfo['id']?>"><?=$websiteInfo['name']?></option>
+						<option value="<?php echo $websiteInfo['id']?>"><?php echo $websiteInfo['name']?></option>
 					<?php }?>
 				<?php }?>
 			</select>
 		</td>
-		<th><?=$spText['common']['Status']?>: </th>
+		<th><?php echo $spText['common']['Status']?>: </th>
 		<td>
-			<select name="status" onchange="<?=$searchFun?>">
-				<option value="">-- <?=$spText['common']['Select']?> --</option>
+			<select name="status" onchange="<?php echo $searchFun?>">
+				<option value="">-- <?php echo $spText['common']['Select']?> --</option>
 				<?php				
 				$inactCheck = $actCheck = "";
 				if ($statVal == 'active') {
@@ -32,26 +32,26 @@ $searchFun = "scriptDoLoadPost('keywords.php', 'listform', 'content')";
 				    $inactCheck = "selected";
 				}
 				?>
-				<option value="active" <?=$actCheck?> ><?=$spText['common']["Active"]?></option>
-				<option value="inactive" <?=$inactCheck?> ><?=$spText['common']["Inactive"]?></option>
+				<option value="active" <?php echo $actCheck?> ><?php echo $spText['common']["Active"]?></option>
+				<option value="inactive" <?php echo $inactCheck?> ><?php echo $spText['common']["Inactive"]?></option>
 			</select>
 		</td>
 		<td>
-			<a href="javascript:void(0);" onclick="<?=$searchFun?>" class="actionbut"><?=$spText['button']['Search']?></a>
+			<a href="javascript:void(0);" onclick="<?php echo $searchFun?>" class="actionbut"><?php echo $spText['button']['Search']?></a>
 		</td>
 	</tr>
 </table>
-<?=$pagingDiv?>
+<?php echo $pagingDiv?>
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
 	<tr class="listHead">		
 		<td class="leftid"><input type="checkbox" id="checkall" onclick="checkList('checkall')"></td>
-		<td><?=$spText['common']['Id']?></td>
-		<td><?=$spText['common']['Name']?></td>
-		<td><?=$spText['common']['Website']?></td>
-		<td><?=$spText['common']['Country']?></td>
-		<td><?=$spText['common']['lang']?></td>
-		<td><?=$spText['common']['Status']?></td>
-		<td class="right"><?=$spText['common']['Action']?></td>
+		<td><?php echo $spText['common']['Id']?></td>
+		<td><?php echo $spText['common']['Name']?></td>
+		<td><?php echo $spText['common']['Website']?></td>
+		<td><?php echo $spText['common']['Country']?></td>
+		<td><?php echo $spText['common']['lang']?></td>
+		<td><?php echo $spText['common']['Status']?></td>
+		<td class="right"><?php echo $spText['common']['Action']?></td>
 	</tr>
 	<?php
 	$colCount = 8; 
@@ -68,15 +68,15 @@ $searchFun = "scriptDoLoadPost('keywords.php', 'listform', 'content')";
             }
             $keywordLink = scriptAJAXLinkHref('keywords.php', 'content', "sec=edit&keywordId={$listInfo['id']}", "{$listInfo['name']}")
 			?>
-			<tr class="<?=$class?>">
-				<td class="<?=$leftBotClass?>"><input type="checkbox" name="ids[]" value="<?=$listInfo['id']?>"></td>
-				<td class="td_br_right"><?=$listInfo['id']?></td>
-				<td class="td_br_right left"><?=$keywordLink?></td>
-				<td class="td_br_right left"><?=$listInfo['website']?></td>
+			<tr class="<?php echo $class?>">
+				<td class="<?php echo $leftBotClass?>"><input type="checkbox" name="ids[]" value="<?php echo $listInfo['id']?>"></td>
+				<td class="td_br_right"><?php echo $listInfo['id']?></td>
+				<td class="td_br_right left"><?php echo $keywordLink?></td>
+				<td class="td_br_right left"><?php echo $listInfo['website']?></td>
 				<td class="td_br_right"><? echo empty($listInfo['country_name']) ? $spText['common']["All"] : $listInfo['country_name']; ?></td>
 				<td class="td_br_right"><? echo empty($listInfo['lang_name']) ? $spText['common']["All"] : $listInfo['lang_name']; ?></td>
 				<td class="td_br_right"><?php echo $listInfo['status'] ? $spText['common']["Active"] : $spText['common']["Inactive"];	?></td>
-				<td class="<?=$rightBotClass?>" width="100px">
+				<td class="<?php echo $rightBotClass?>" width="100px">
 					<?php
 						if($listInfo['status']){
 							$statVal = "Inactivate";
@@ -86,14 +86,14 @@ $searchFun = "scriptDoLoadPost('keywords.php', 'listform', 'content')";
 							$statLabel = $spText['common']["Activate"];
 						} 
 					?>
-					<select name="action" id="action<?=$listInfo['id']?>" onchange="doAction('keywords.php', 'content', 'keywordId=<?=$listInfo['id']?>&pageno=<?=$pageNo?>&website_id=<?=$websiteId?>', 'action<?=$listInfo['id']?>')">
-						<option value="select">-- <?=$spText['common']['Select']?> --</option>
+					<select name="action" id="action<?php echo $listInfo['id']?>" onchange="doAction('keywords.php', 'content', 'keywordId=<?php echo $listInfo['id']?>&pageno=<?php echo $pageNo?>&website_id=<?php echo $websiteId?>', 'action<?php echo $listInfo['id']?>')">
+						<option value="select">-- <?php echo $spText['common']['Select']?> --</option>
 						<?if($listInfo['webstatus'] && $listInfo['status']){?>
-							<option value="reports"><?=$spText['common']['Reports']?></option>
+							<option value="reports"><?php echo $spText['common']['Reports']?></option>
 						<?php }?>
-						<option value="<?=$statVal?>"><?=$statLabel?></option>
-						<option value="edit"><?=$spText['common']['Edit']?></option>
-						<option value="delete"><?=$spText['common']['Delete']?></option>
+						<option value="<?php echo $statVal?>"><?php echo $statLabel?></option>
+						<option value="edit"><?php echo $spText['common']['Edit']?></option>
+						<option value="delete"><?php echo $spText['common']['Delete']?></option>
 					</select>
 				</td>
 			</tr>
@@ -104,7 +104,7 @@ $searchFun = "scriptDoLoadPost('keywords.php', 'listform', 'content')";
 	} 
 	?>
 	<tr class="listBot">
-		<td class="left" colspan="<?=($colCount-1)?>"></td>
+		<td class="left" colspan="<?php echo ($colCount-1)?>"></td>
 		<td class="right"></td>
 	</tr>
 </table>
@@ -120,17 +120,17 @@ if (SP_DEMO) {
 <table width="100%" cellspacing="0" cellpadding="0" border="0" class="actionSec">
 	<tr>
     	<td style="padding-top: 6px;">
-         	<a onclick="scriptDoLoad('keywords.php', 'content', 'sec=new&website_id=<?=$websiteId?>')" href="javascript:void(0);" class="actionbut">
-         		<?=$spTextKeyword['New Keyword']?>
+         	<a onclick="scriptDoLoad('keywords.php', 'content', 'sec=new&website_id=<?php echo $websiteId?>')" href="javascript:void(0);" class="actionbut">
+         		<?php echo $spTextKeyword['New Keyword']?>
          	</a>&nbsp;&nbsp;
-         	<a onclick="<?=$actFun?>" href="javascript:void(0);" class="actionbut">
-         		<?=$spText['common']["Activate"]?>
+         	<a onclick="<?php echo $actFun?>" href="javascript:void(0);" class="actionbut">
+         		<?php echo $spText['common']["Activate"]?>
          	</a>&nbsp;&nbsp;
-         	<a onclick="<?=$inactFun?>" href="javascript:void(0);" class="actionbut">
-         		<?=$spText['common']["Inactivate"]?>
+         	<a onclick="<?php echo $inactFun?>" href="javascript:void(0);" class="actionbut">
+         		<?php echo $spText['common']["Inactivate"]?>
          	</a>&nbsp;&nbsp;
-         	<a onclick="<?=$delFun?>" href="javascript:void(0);" class="actionbut">
-         		<?=$spText['common']['Delete']?>
+         	<a onclick="<?php echo $delFun?>" href="javascript:void(0);" class="actionbut">
+         		<?php echo $spText['common']['Delete']?>
          	</a>
     	</td>
 	</tr>

@@ -4,7 +4,7 @@
 	<td width='33%'>
 	<table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
 	<tr class="listHead">
-		<td class="left" colspan='2'><?=$seInfo['domain']?></td>
+		<td class="left" colspan='2'><?php echo $seInfo['domain']?></td>
 		<td class="right">&nbsp;</td>
 	</tr>
 	<?php
@@ -23,14 +23,14 @@
                 $rightBotClass = "td_br_right";
             }
 			?>
-			<tr class="<?=$class?>">
-				<td class="<?=$leftBotClass?>" width='100px;'><?php echo date('Y-m-d', $listInfo['time']); ?></td>
+			<tr class="<?php echo $class?>">
+				<td class="<?php echo $leftBotClass?>" width='100px;'><?php echo date('Y-m-d', $listInfo['time']); ?></td>
 				<td class='td_br_right' id='seresult'>
-					<a href='<?=$listInfo['url']?>' target='_blank'><? echo stripslashes($listInfo['title']);?></a>
+					<a href='<?php echo $listInfo['url']?>' target='_blank'><? echo stripslashes($listInfo['title']);?></a>
 					<p><? echo stripslashes($listInfo['description']);?><p>
-					<label><?=$listInfo['url']?></label>
+					<label><?php echo $listInfo['url']?></label>
 				</td>
-				<td class="<?=$rightBotClass?>" width="100px" style='text-align:left;'><b><?=$listInfo['rank']?></b></td>
+				<td class="<?php echo $rightBotClass?>" width="100px" style='text-align:left;'><b><?php echo $listInfo['rank']?></b></td>
 			</tr>
 			<?php
 			$i++;
@@ -46,7 +46,7 @@
 	} 
 	?>
 	<tr class="listBot">
-		<td class="left" colspan="<?=($colCount-1)?>"></td>
+		<td class="left" colspan="<?php echo ($colCount-1)?>"></td>
 		<td class="right"></td>
 	</tr>
 	</table>

@@ -3,10 +3,10 @@
 	<td width='33%'>
 	<table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
 	<tr class="listHead">
-		<td class="left" width='340px'><?=$spText['common']['Directory']?></td>
-		<td><?=$spText['common']['Date']?></td>
-		<td><?=$spTextDir['Confirmation']?></td>
-		<td class="right"><?=$spText['common']['Status']?></td>
+		<td class="left" width='340px'><?php echo $spText['common']['Directory']?></td>
+		<td><?php echo $spText['common']['Date']?></td>
+		<td><?php echo $spTextDir['Confirmation']?></td>
+		<td class="right"><?php echo $spText['common']['Status']?></td>
 	</tr>
 	<?php
 	$colCount = 4; 
@@ -27,11 +27,11 @@
             $statusId = "status_".$listInfo['id'];
             $checkStatusLink = "<script>scriptDoLoad('directories.php', '$statusId', 'sec=checkstatus&id={$listInfo['id']}');</script>";
 			?>
-			<tr class="<?=$class?>">
-				<td class="<?=$leftBotClass?>" style='text-align:left;padding-left:10px;'><?=$listInfo['domain']?></td>
+			<tr class="<?php echo $class?>">
+				<td class="<?php echo $leftBotClass?>" style='text-align:left;padding-left:10px;'><?php echo $listInfo['domain']?></td>
 				<td class='td_br_right'><?php echo date('Y-m-d', $listInfo['submit_time']); ?></td>
-				<td class='td_br_right'><?=$confirm?></td>				
-				<td class="<?=$rightBotClass?>" id="<?=$statusId?>"><?=$checkStatusLink?></td>
+				<td class='td_br_right'><?php echo $confirm?></td>				
+				<td class="<?php echo $rightBotClass?>" id="<?php echo $statusId?>"><?php echo $checkStatusLink?></td>
 			</tr>
 			<?php
 			$i++;
@@ -41,7 +41,7 @@
 	} 
 	?>
 	<tr class="listBot">
-		<td class="left" colspan="<?=($colCount-1)?>"></td>
+		<td class="left" colspan="<?php echo ($colCount-1)?>"></td>
 		<td class="right"></td>
 	</tr>
 	</table>

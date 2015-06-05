@@ -8,21 +8,21 @@
     $spKeywords = empty($spKeywords) ? SP_KEYWORDS : $spKeywords;
     $spKey = "v" . substr(SP_INSTALLED, 2);  
     ?>
-    <title><?=stripslashes($spTitle)?></title>
-    <meta name="description" content="<?=$spDescription?>" />
-    <meta name="keywords" content="<?=$spKeywords?>" />
-    <link type="text/css" href="<?=SP_WEBPATH?>/jquery-ui-custom/css/jquery-ui-1.10.3.custom.min.css" rel="stylesheet" />
-    <link rel="stylesheet" type="text/css" href="<?=SP_CSSPATH?>/screen.css?<?=$spKey?>" media="all" />
-    <link rel="stylesheet" type="text/css" href="<?=SP_CSSPATH?>/datepicker.css?<?=$spKey?>" media="all" />
+    <title><?php echo stripslashes($spTitle)?></title>
+    <meta name="description" content="<?php echo $spDescription?>" />
+    <meta name="keywords" content="<?php echo $spKeywords?>" />
+    <link type="text/css" href="<?php echo SP_WEBPATH?>/jquery-ui-custom/css/jquery-ui-1.10.3.custom.min.css" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="<?php echo SP_CSSPATH?>/screen.css?<?php echo $spKey?>" media="all" />
+    <link rel="stylesheet" type="text/css" href="<?php echo SP_CSSPATH?>/datepicker.css?<?php echo $spKey?>" media="all" />
     <?php if (in_array($_SESSION['lang_code'], array('ar', 'he', 'fa'))) {?>
-    	<link rel="stylesheet" type="text/css" href="<?=SP_CSSPATH?>/screen_rtl.css?<?=$spKey?>" media="all" />
+    	<link rel="stylesheet" type="text/css" href="<?php echo SP_CSSPATH?>/screen_rtl.css?<?php echo $spKey?>" media="all" />
     <?php }?>
-    <link rel="shortcut icon" href="<?=SP_IMGPATH?>/favicon.ico" />
-    <script type="text/javascript" src="<?=SP_JSPATH?>/jquery-1.10.1.min.js?<?=$spKey?>"></script>
-    <script type="text/javascript" src="<?=SP_JSPATH?>/common.js?<?=$spKey?>"></script>
-    <script type="text/javascript" src="<?=SP_JSPATH?>/popup.js?<?=$spKey?>"></script>
-    <script type="text/javascript" src="<?=SP_JSPATH?>/datepicker.js?<?=$spKey?>"></script>
-    <script type="text/javascript" src="<?=SP_WEBPATH?>/jquery-ui-custom/js/jquery-ui-1.10.3.custom.min.js?<?=$spKey?>"></script>
+    <link rel="shortcut icon" href="<?php echo SP_IMGPATH?>/favicon.ico" />
+    <script type="text/javascript" src="<?php echo SP_JSPATH?>/jquery-1.10.1.min.js?<?php echo $spKey?>"></script>
+    <script type="text/javascript" src="<?php echo SP_JSPATH?>/common.js?<?php echo $spKey?>"></script>
+    <script type="text/javascript" src="<?php echo SP_JSPATH?>/popup.js?<?php echo $spKey?>"></script>
+    <script type="text/javascript" src="<?php echo SP_JSPATH?>/datepicker.js?<?php echo $spKey?>"></script>
+    <script type="text/javascript" src="<?php echo SP_WEBPATH?>/jquery-ui-custom/js/jquery-ui-1.10.3.custom.min.js?<?php echo $spKey?>"></script>
 </head>
 <body>
 <script type="text/javascript">
@@ -66,7 +66,7 @@ var wantproceed = '<?php  echo $spText['label']['wantproceed']; ?>';
             			<noscript>
             				<p class="note error">JavaScript is turned off in your web browser. Turn it on to take full advantage of this site, then refresh the page.</p>
             			</noscript>
-            			<?=$viewContent?>
+            			<?php echo $viewContent?>
             		</div>
         		</td>
         	</tr>
@@ -77,7 +77,7 @@ var wantproceed = '<?php  echo $spText['label']['wantproceed']; ?>';
 <div id="tmp"><form name="tmp" id="tmp"></form></div>
 <div id="dialogContent" style="display:none;"></div>
 <?php if(empty($_COOKIE['hidenews'])){ ?>
-	<script>scriptDoLoad('<?=SP_WEBPATH?>/index.php?sec=news', 'newsalert');</script>
+	<script>scriptDoLoad('<?php echo SP_WEBPATH?>/index.php?sec=news', 'newsalert');</script>
 <?php }?>
 </body>
 </html>

@@ -17,7 +17,7 @@ if ($completed == 1) {
     echo "<b>'$crawledUrl' {$spTextSA['crawledsuccesssfullywaitfornext']} ".($delay/1000)." seconds</b>";    
     ?>
 	<script>
- 		setTimeout('scriptDoLoad(\'siteauditor.php?sec=runproject&project_id=<?=$projectId?>\', \'subcontmed\')', <?=$delay?>);
+ 		setTimeout('scriptDoLoad(\'siteauditor.php?sec=runproject&project_id=<?php echo $projectId?>\', \'subcontmed\')', <?php echo $delay?>);
     </script>
 	<?php
 }

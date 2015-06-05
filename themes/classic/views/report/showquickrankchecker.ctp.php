@@ -3,8 +3,8 @@
 	<td width='33%'>
 	<table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
 	<tr class="listHead">
-		<td class="left"><?=$spText['common']['Rank']?></td>
-		<td class="right" colspan="2"><?=$spText['common']['Details']?></td>
+		<td class="left"><?php echo $spText['common']['Rank']?></td>
+		<td class="right" colspan="2"><?php echo $spText['common']['Details']?></td>
 	</tr>
 	<?php
 	$colCount = 2; 
@@ -23,12 +23,12 @@
             }
             $foundStyle = empty($listInfo['found']) ? "" : "background-color: #ffff00;";            
 			?>
-			<tr class="<?=$class?>" style="<?=$foundStyle?>">
-				<td class="<?=$leftBotClass?>" width='100px;'><b><?php echo $listInfo['rank']; ?></b></td>
+			<tr class="<?php echo $class?>" style="<?php echo $foundStyle?>">
+				<td class="<?php echo $leftBotClass?>" width='100px;'><b><?php echo $listInfo['rank']; ?></b></td>
 				<td class='td_br_right' id='seresult' colspan="2">
-					<a href='<?=$listInfo['url']?>' target='_blank'><? echo stripslashes($listInfo['title']);?></a>
+					<a href='<?php echo $listInfo['url']?>' target='_blank'><? echo stripslashes($listInfo['title']);?></a>
 					<p><? echo stripslashes($listInfo['description']);?><p>
-					<label><?=$listInfo['url']?></label>
+					<label><?php echo $listInfo['url']?></label>
 				</td>
 			</tr>
 			<?php
@@ -38,13 +38,13 @@
 		?>				
 		<tr class="blue_row">
 			<td class="tab_left_bot_noborder"></td>
-			<td class="tab_right_bot" colspan="2" style="text-align: left;"><?=$spText['common']['No Records Found']?>!</td>
+			<td class="tab_right_bot" colspan="2" style="text-align: left;"><?php echo $spText['common']['No Records Found']?>!</td>
 		</tr>
 		<?		
 	} 
 	?>
 	<tr class="listBot">
-		<td class="left" colspan="<?=($colCount-1)?>"></td>
+		<td class="left" colspan="<?php echo ($colCount-1)?>"></td>
 		<td class="right"></td>
 	</tr>
 	</table>
