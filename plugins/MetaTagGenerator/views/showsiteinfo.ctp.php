@@ -1,6 +1,6 @@
 <form id="editSubmitInfo">
 <input type="hidden" name="sec" value="updatesiteinfo"/>
-<input type="hidden" name="website_id" value="<?=$websiteInfo['website_id']?>"/>
+<input type="hidden" name="website_id" value="<?php echo $websiteInfo['website_id']?>"/>
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
 	<tr class="listHead">
 		<td class="left">Website Information</td>
@@ -9,42 +9,42 @@
 	<tr class="white_row">
 		<td class="td_left_col">Website Title:</td>
 		<td class="td_right_col">
-			<input type="text" name="title" value="<?=stripslashes($websiteInfo['title'])?>" style="width:400px;"><?=$errMsg['title']?>
+			<input type="text" name="title" value="<?php echo stripslashes($websiteInfo['title'])?>" style="width:400px;"><?php echo $errMsg['title']?>
 			<p>Use no more than 100 characters.</p>
 		</td>
 	</tr>
 	<tr class="blue_row">
 		<td class="td_left_col">Website Description:</td>
 		<td class="td_right_col">
-			<textarea name="description"><?=stripslashes($websiteInfo['description'])?></textarea><?=$errMsg['description']?>
+			<textarea name="description"><?php echo stripslashes($websiteInfo['description'])?></textarea><?php echo $errMsg['description']?>
 			<p>Use no more than 255 characters</p>
 		</td>
 	</tr>
 	<tr class="white_row">
 		<td class="td_left_col">Website Keywords:</td>
 		<td class="td_right_col">
-			<textarea name="keywords"><?=stripslashes($websiteInfo['keywords'])?></textarea><?=$errMsg['keywords']?>
+			<textarea name="keywords"><?php echo stripslashes($websiteInfo['keywords'])?></textarea><?php echo $errMsg['keywords']?>
 			<p>Use no more than 12 unique  search terms separated by a comma and space.</p>
 		</td>
 	</tr>
 	<tr class="blue_row">
 		<td class="td_left_col">Author:</td>
 		<td class="td_right_col">
-			<input type="text" name="owner_name" value="<?=stripslashes($websiteInfo['owner_name'])?>" style="width:200px;">
+			<input type="text" name="owner_name" value="<?php echo stripslashes($websiteInfo['owner_name'])?>" style="width:200px;">
 			<p>Your Name/Company</p>
 		</td>
 	</tr>
 	<tr class="white_row">
 		<td class="td_left_col">Copyright:</td>
 		<td class="td_right_col">
-			<input type="text" name="copyright" value="<?=stripslashes($websiteInfo['copyright'])?>" style="width:200px;">
+			<input type="text" name="copyright" value="<?php echo stripslashes($websiteInfo['copyright'])?>" style="width:200px;">
 			<p>Copyright YourCompany - 2008</p>
 		</td>
 	</tr>	
 	<tr class="blue_row">
 		<td class="td_left_col">Email:</td>
 		<td class="td_right_col">
-			<input type="text" name="owner_email" value="<?=stripslashes($websiteInfo['owner_email'])?>" style="width:200px;">
+			<input type="text" name="owner_email" value="<?php echo stripslashes($websiteInfo['owner_email'])?>" style="width:200px;">
 			<p>suppport@yoursite.com</p>
 		</td>
 	</tr>	
@@ -109,7 +109,7 @@
 	<tr class="white_row">
 		<td class="td_left_col">Expires:</td>
 		<td class="td_right_col">
-			<input type="text" name="expires" value="<?=stripslashes($websiteInfo['expires'])?>" style="width:200px;">
+			<input type="text" name="expires" value="<?php echo stripslashes($websiteInfo['expires'])?>" style="width:200px;">
 		</td>
 	</tr>			
 	<tr class="blue_row">
@@ -125,10 +125,10 @@
 	<tr>
     	<td style="padding-top: 6px;text-align:right;">
     		<a onclick="<?php echo pluginGETMethod(); ?>" href="javascript:void(0);">
-         		<img border="0" alt="" src="<?=SP_IMGPATH?>/cancel.gif"/>
+         		<img border="0" alt="" src="<?php echo SP_IMGPATH?>/cancel.gif"/>
          	</a>
          	<a onclick="<?php echo pluginPOSTMethod('editSubmitInfo', 'subcontent', 'action=createmetatag'); ?>" href="javascript:void(0);">
-         		<img border="0" alt="" src="<?=SP_IMGPATH?>/proceed.gif"/>
+         		<img border="0" alt="" src="<?php echo SP_IMGPATH?>/proceed.gif"/>
          	</a>
     	</td>
 	</tr>
