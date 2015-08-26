@@ -25,11 +25,16 @@ class CronController extends Controller {
     
 	var $cronList;			    // the array includes all tools avialable for cron
 	var $repTools;			    // the array includes all tools avialable for report generation
-	var $debug = true;		    // to show debug message or not
+	var $debug = false;		    // to show debug message or not
 	var $layout = 'ajax';       // ajax layout or not
 	var $timeStamp;             // timestamp for storing reports
 	var $checkedKeywords = 0;   // the number of keywords checked in cron, this is used for split cron execution feature       	
 	
+	# initialize preperties
+	function __construct() {
+		$this->debug = ( defined('SP_DEBUG') && SP_DEBUG );
+	}
+
 	# function to load all tools required for report generation 
 	function loadReportGenerationTools($includeList=array()){
 		$sql = "select * from seotools where status=1 and reportgen=1";
