@@ -2,3 +2,5 @@
 .project
 .settings
 .gitignore.swp
+plugins/*
+config/sp-config.php
