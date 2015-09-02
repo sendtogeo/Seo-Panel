@@ -1,10 +1,12 @@
 *******************************************
-Seo Control Panel - Seo Panel Version 3.7.0
+Seo Control Panel - Seo Panel Version 3.8.0 
 *******************************************
 
 ------------------------------------------
 Installation: Simple 5 minute installation
 ------------------------------------------
+
+ Simply use Softaculous / Installatron / Webuzo / AMPPS to install SEO Panel or Follow the below steps
 
 	1. Download and Unzip the package
    
@@ -14,7 +16,8 @@ Installation: Simple 5 minute installation
 	
 	4. Change the permissions on the "tmp" directory to be writable by all (777 or -rwxrwxrwx within your FTP Client)
 
-	5. Using your web browser visit the location you placed Seo Panel with the addition of "install/index.php" or pointing directly to "install/", e.g. http://www.yourdomain.com/seopanel/install/
+	5. Using your web browser visit the location you placed Seo Panel with the addition of "install/index.php" or 
+	   pointing directly to "install/", e.g. http://www.yourdomain.com/seopanel/install/
 
 	6. Follow the steps and fill out all the requested information.
 
@@ -28,8 +31,9 @@ Installation: Simple 5 minute installation
    			Password: spadmin
    		
    	Note: 
-   		Please change password of administrator by visiting 'Profile' link on right top of the seo panel to prevent from security threats.
-   		Remove "install" directory of seo panel
+   		a) Please change password of administrator by visiting 'Profile' link on right top of the seo panel to prevent from security threats.
+   		
+   		b) Remove "install" directory of seo panel
 
 
 
@@ -37,7 +41,9 @@ Installation: Simple 5 minute installation
 Steps to Upgrade Seo Panel to Latest Version
 --------------------------------------------
 
-	Note: Before upgrade please take the backup of your current seo panel database and code 
+	Note: Before upgrade please take the backup of your current seo panel database and code
+	
+	Simply use Softaculous / Installatron / Webuzo / AMPPS to upgrade SEO Panel or Follow the below steps 
 
 	1. Change the current seo panel directory name or move it to another place, e.g seopanel to seopanel_bak
 	
@@ -45,10 +51,12 @@ Steps to Upgrade Seo Panel to Latest Version
    
    	3. Upload all the files contained in this folder (retaining the directory structure) to a web accessible directory on your server or hosting account.
 
-	4. Copy the contents of sample config file "config/sp-config-sample.php" to "config/sp-config.php" or remove "config/sp-config.php" and rename "config/sp-config-sample.php" to "config/sp-config.php"
+	4. Copy the contents of sample config file "config/sp-config-sample.php" to "config/sp-config.php" 
+	   or remove "config/sp-config.php" and rename "config/sp-config-sample.php" to "config/sp-config.php"
    	
    	5. Open up "config/sp-config.php" with a text editor like Notepad or similar editor.
-           Then modify the following sections with your server and database settings of previous version of seo panel.
+       
+       Then modify the following sections with your server and database settings of previous version of seo panel.
 
 		# The web path or url to access seo panel through browser.
 		define('SP_WEBPATH', 'http://localhost/seopanel');
@@ -72,9 +80,16 @@ Steps to Upgrade Seo Panel to Latest Version
    	7. Change the permissions on the tmp directory to be writable by all (777 or -rwxrwxrwx within your FTP Client)
    
    	8. Using your web browser visit the location you placed Seo Panel with the addition of "install/upgrade.php", 
-      	   e.g. http://www.yourdomain.com/seopanel/install/upgrade.php
+      	   
+       e.g. http://www.yourdomain.com/seopanel/install/upgrade.php
    
    	9. Follow the steps and fill out all the requested information.   
+
+	Note:
+
+		a. Remove install directory of seo panel
+		
+		b. Copy all plugins from "plugins" folder of old seo panel folder to "plugins" folder of new Seo Panel. 
 
 
 Installation Reference Link: http://www.seopanel.in/install/

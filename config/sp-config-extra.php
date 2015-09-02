@@ -109,7 +109,7 @@ define('SP_VERSION_PAGE', 'http://www.seopanel.in/getversion.php');
 define('SP_THEMESITE', 'http://www.seopanel.in/themes/');
 
 # payment related variables
-define('SP_PAYMENT_CANCEL_LINK', SP_WEBPATH."/payment_cancel.php");
+define('SP_PAYMENT_CANCEL_LINK', SP_WEBPATH."/register.php");
 define('SP_PAYMENT_RETURN_LINK', SP_WEBPATH."/payment_return.php");
 define('SP_PAYMENT_CURRENCY', "USD");
 

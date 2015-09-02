@@ -158,10 +158,12 @@ class UserController extends Controller{
 						
 						// if it is paid subscription, proceed with payment
 						if ($utypeInfo['price'] > 0) {
-							include SP_PLUGINPATH . "/Subscription/paymentgateway.ctrl.php";
-							$pgCtrler = new PaymentGateway();
-							$paymentForm = $pgCtrler->getPaymentForm(intval($userInfo['pg_id']), $userId, $utypeInfo);
-							$this->set('paymentForm', $paymentForm);
+							$paymentPluginId = intval($userInfo['pg_id']);
+							@Session::setSession('payment_plugin_id', $paymentPluginId);
+							$quantity = intval($userInfo['quantity']);
+							$pluginCtrler = $seopluginCtrler->createPluginObject("Subscription");
+							$paymentForm = $pluginCtrler->pgCtrler->getPaymentForm($paymentPluginId, $userId, $utypeInfo, $quantity);
+							$this->set('paymentForm', $paymentForm);							
 						}						
 					}
 					

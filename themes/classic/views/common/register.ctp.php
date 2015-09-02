@@ -32,7 +32,22 @@
 								</select>
 								<?php echo $errMsg['utype_id']?>
 							</td>
-						</tr><tr>
+						</tr>
+						<tr>
+							<th><?php echo $spTextSubscription['Term']?>:*</th>
+							<td>
+								<select name="quantity">
+									<?php
+									for ($i = 1; $i <= 24; $i++) {
+										?>
+										<option value="<?php echo $i;?>"><?php echo $i;?></option>
+										<?php
+									} 
+									?>
+								</select>
+							</td>
+						</tr>
+						<tr>
 							<th width="28%"><?php echo $spTextSubscription['Payment Method']?>:*</th>
 							<td>
 								<select name="pg_id">

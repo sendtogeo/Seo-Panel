@@ -431,7 +431,9 @@ class ReportController extends Controller {
 		    $dataSet->SetXAxisName("Date");		
 		    $dataSet->SetYAxisName("Rank");
 		}
-		$dataSet->SetXAxisFormat("date");		
+
+		/* commented to fix invalid date in graphical reports x axis issue */
+		// $dataSet->SetXAxisFormat("date");		
 		
 		# Initialise the graph
 		$chart = new pChart(720, 520);

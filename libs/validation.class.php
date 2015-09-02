@@ -35,7 +35,7 @@ class Validation{
 		$this->Filters['name']= "/^[a-zA-Z\'\-\s]+$/";
 		$this->Filters['startName'] = "/^[a-zA-Z]$/";
 		$this->Filters['nameGen'] = "/^[0-9a-zA-Z\-\s\'\!\@\#\$\%\^\&\*\(\)\-\_\+\?\.\:\;\[\]\/\,\"\=]+$/";
-		$this->Filters['startGenName'] = $Filters['nameGen'];
+		$this->Filters['startGenName'] = $this->Filters['nameGen'];
 		$this->Filters['uname'] = "/^[0-9a-zA-Z\-\_\.]+$/";
 	}
 
