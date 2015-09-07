@@ -20,48 +20,23 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-# super class defines all seo panel functions
-class Seopanel{
+# class defines all currency controller functions
+class CurrencyController extends Controller{
 	
-	var $data;
-	
-	# function load seo panel
-	function loadSeoPanel() {
-		
-		# include main classes
-		include_once(SP_LIBPATH.'/session.class.php');
-		include_once(SP_LIBPATH.'/controller.class.php');
-		include_once(SP_LIBPATH.'/view.class.php');
-		include_once(SP_LIBPATH.'/validation.class.php');
-		include_once(SP_LIBPATH.'/spider.class.php');
-		include_once(SP_LIBPATH.'/paging.class.php');
-		include_once(SP_LIBPATH.'/pchart.class.php');
-		include_once(SP_LIBPATH.'/pdata.class.php');
-		include_once(SP_LIBPATH.'/xmlparser.class.php');		
-		include_once(SP_LIBPATH.'/captcha.class.php');		
-		include_once(SP_LIBPATH.'/phpmailer.class.php');	
-		include_once(SP_LIBPATH.'/currency.class.php');
-		@Session::startSession();
-		
-		# include common functions		
-		include_once(SP_INCPATH.'/sp-common.php');
-		
-		# include coomon controllers classes
-		include_once(SP_CTRLPATH.'/country.ctrl.php');
-		include_once(SP_CTRLPATH.'/language.ctrl.php');
-		include_once(SP_CTRLPATH.'/website.ctrl.php');
-		include_once(SP_CTRLPATH.'/user.ctrl.php');
-		include_once(SP_CTRLPATH.'/settings.ctrl.php');
-		include_once(SP_CTRLPATH."/crawllog.ctrl.php");
-		include_once(SP_CTRLPATH.'/timezone.ctrl.php');
-		include_once(SP_CTRLPATH.'/searchengine.ctrl.php');
-		
-	}	
-	
-	# to set variable to render
-	function set($varName, $varValue){
-		$this->controller->set($varName, $varValue);
+	# func to get all currency
+	function __getAllCurrency($where = ''){
+		$sql = "select * from currency where 1=1";
+		if (!empty($where)) $sql .= $where;
+		$sql .= " order by name";
+		$currencyList = $this->db->select($sql);
+		return $currencyList;
 	}
 	
+	# func to get currency info
+	function __getCurrencyInfo($currencyCode) {
+		$sql = "select * from currency where iso_code='".addslashes($langCode)."'";
+		$langInfo = $this->db->select($sql, true);
+		return $langInfo;
+	}
 }
 ?>
