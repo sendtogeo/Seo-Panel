@@ -34,9 +34,10 @@ class CurrencyController extends Controller{
 	
 	# func to get currency info
 	function __getCurrencyInfo($currencyCode) {
-		$sql = "select * from currency where iso_code='".addslashes($langCode)."'";
-		$langInfo = $this->db->select($sql, true);
-		return $langInfo;
+		$sql = "select * from currency where iso_code='".addslashes($currencyCode)."'";
+		$currencyInfo = $this->db->select($sql, true);
+		return $currencyInfo;
 	}
+	
 }
 ?>

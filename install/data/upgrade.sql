@@ -4,7 +4,10 @@
 
 
 
-INSERT INTO texts(`lang_code`, `category`, `label`, `content`) VALUES  ('en', 'subscription', 'Term', 'Term');
+INSERT INTO texts(`lang_code`, `category`, `label`, `content`) 
+VALUES  ('en', 'subscription', 'Term', 'Term');
+INSERT INTO texts(`lang_code`, `category`, `label`, `content`) 
+VALUES  ('en', 'subscription', 'Currency', 'Currency');
 
 
 -- commented for next version
@@ -27,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `currency` (
   `status` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   UNIQUE KEY `iso_code` (`iso_code`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=68 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=68 ;
 
 --
 -- Dumping data for table `currency`
