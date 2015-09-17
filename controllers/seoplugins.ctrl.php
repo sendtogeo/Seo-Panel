@@ -50,7 +50,7 @@ class SeoPluginsController extends Controller{
 		$pluginControler = New $pluginDirName();
 		
 		// if no action specified just initialize plugin
-		if (empty($info['action'])) {
+		if ($info['action'] == 'get_plugin_object') {
 			$pluginControler->initPlugin($data);
 			return $pluginControler;
 		} else {

@@ -39,5 +39,21 @@ class CurrencyController extends Controller{
 		return $currencyInfo;
 	}
 	
+	# function get currency code map list
+	function getCurrencyCodeMapList() {
+		$allList = $this->__getAllCurrency();
+		$currencyList = array();
+		
+		// loop through currency
+		foreach ($allList as $currInfo) {
+			$isoCode = $currInfo['iso_code'];
+			$currencyList[$isoCode]['symbol'] = $currInfo['symbol'];
+			$currencyList[$isoCode]['unicode'] = $currInfo['unicode'];
+			$currencyList[$isoCode]['position'] = $currInfo['position'];
+		}
+		
+		return $currencyList;
+	}
+	
 }
 ?>
