@@ -30,7 +30,7 @@ class CronController extends Controller {
 	var $timeStamp;             // timestamp for storing reports
 	var $checkedKeywords = 0;   // the number of keywords checked in cron, this is used for split cron execution feature       	
 	
-	# initialize preperties
+	# initialize properties
 	function __construct() {
 		$this->debug = ( defined('SP_DEBUG') && SP_DEBUG );
 	}
