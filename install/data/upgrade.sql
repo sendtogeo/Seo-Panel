@@ -2,6 +2,14 @@
 -- Seo Panel 3.8.0 changes
 --
 
+INSERT INTO texts(`lang_code`, `category`, `label`, `content`) 
+VALUES  ('en', 'panel', 'Import Websites', 'Import Websites');
+INSERT INTO texts(`lang_code`, `category`, `label`, `content`) 
+VALUES  ('en', 'website', 'Website CSV File', 'Website CSV File');
+INSERT INTO texts(`lang_code`, `category`, `label`, `content`) 
+VALUES  ('en', 'website', 'Please enter CSV file', 'Please enter CSV file');
+INSERT INTO texts(`lang_code`, `category`, `label`, `content`) 
+VALUES  ('en', 'common', 'Sample CSV File', 'Sample CSV File');
 
 
 INSERT INTO texts(`lang_code`, `category`, `label`, `content`) 

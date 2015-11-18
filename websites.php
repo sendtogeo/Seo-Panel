@@ -73,6 +73,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		case "crawlmeta":
 		    $keyInput = empty($_POST['keyinput']) ? "" : $_POST['keyinput']; 
 			$controller->crawlMetaData(urldecode($_POST['url']), $keyInput);
+			break;		
+		
+		case "import":
+			$controller->importWebsiteFromCsv($_POST);
 			break;
 			
 		default:
@@ -104,6 +108,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		
 		case "new":
 			$controller->newWebsite($_GET);
+			break;		
+		
+		case "import":
+			$controller->showImportWebsites($_GET);
 			break;
 		
 		case "crawlmeta":

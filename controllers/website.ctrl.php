@@ -427,5 +427,93 @@ class WebsiteController extends Controller{
 		</script>
 		<?php
 	}
+	
+	function showImportWebsites() {
+
+		$userId = isLoggedIn();
+		
+		# get all users
+		if(isAdmin()){
+			$userCtrler = New UserController();
+			$userList = $userCtrler->__getAllUsers();
+			$this->set('userList', $userList);
+			$this->set('userSelected', empty($info['userid']) ? $userId : $info['userid']);
+			$this->set('isAdmin', 1);
+		}
+		
+		$this->render('website/importwebsites');
+	}
+	
+	function importWebsiteFromCsv($info) {
+		
+		// if csv file is not uploaded
+		if (empty($_FILES['website_csv_file']['name'])) {
+			print "<script>alert('".$this->spTextWeb['Please enter CSV file']."')</script>";
+			return False;
+		}
+		
+		$userId = isAdmin() ? intval($info['userid']) : isLoggedIn();
+		$text = "<p class=\'note\' id=\'note\'><b>Website import process started. It will take some time depends on the number of websites needs to be imported!</b></p><div id=\'subcontmed\'></div>";
+		print "<script type='text/javascript'>parent.document.getElementById('import_website_div').innerHTML = '$text';</script>";
+		print "<script>parent.showLoadingIcon('subcontmed', 0)</script>";
+		
+		$resultInfo = array(
+			'total' => 0,
+			'valid' => 0,
+			'invalid' => 0,
+		);
+				 
+		// process file upload option
+		$fileInfo = $_FILES['website_csv_file'];
+		if (!empty($fileInfo['name']) && !empty($userId)) {
+			if ($fileInfo["type"] == "text/csv") {
+				$targetFile = SP_TMPPATH . "/".$fileInfo['name'];
+				if(move_uploaded_file($fileInfo['tmp_name'], $targetFile)) {
+					$handle = fopen($targetFile, 'r');
+					
+					while (($websiteInfo = fgets($handle, 4096)) !== false) {
+						if (!empty($websiteInfo)) {
+							$status = $this->importWebsite($websiteInfo, $userId);
+							$resultInfo[$status] += 1;
+							$resultInfo['total'] += 1;
+						}
+					}
+				}
+			}
+		}
+					 
+		$spText = $_SESSION['text'];
+		$resText = '<table width="40%" border="0" cellspacing="0" cellpadding="0px" class="summary_tab" align="center">'.
+		'<tr><td class="topheader" colspan="10">Import Summary</td></tr>'.
+				'<tr><th class="leftcell">'.$spText['common']['Total'].':</th><td>'.$resultInfo['total'].'</td><th>Valid:</th><td>'.$resultInfo['valid'].'</td></tr>'.
+				'<tr><th>Invalid:</th><td>'.$resultInfo['invalid'].'</td><th>&nbsp;</th><td>&nbsp;</td></tr>'.
+		'</table>';
+		echo "<script type='text/javascript'>parent.document.getElementById('subcontmed').innerHTML = '$resText'</script>";
+        echo "<script type='text/javascript'>parent.document.getElementById('note').style.display='none';</script>";
+	}
+	
+	function importWebsite($info, $userId) {
+		$wInfo = explode(',', $info);
+		$status = 'invalid';
+		
+		if (!empty($wInfo[0]) && !empty($wInfo[1])) {
+
+			$listInfo['name'] = trim($wInfo[0]);
+			$listInfo['url'] = trim($wInfo[1]);
+			$listInfo['title'] = $wInfo[2] ? trim($wInfo[2]) : "";
+			$listInfo['description'] = $wInfo[3] ? trim($wInfo[3]) : "";
+			$listInfo['keywords'] = $wInfo[4] ? trim($wInfo[4]) : "";
+			$listInfo['status'] = intval($wInfo[5]);
+			$listInfo['userid'] = $userId;
+			$return = $this->createWebsite($listInfo, true);
+			
+			if ($return[0] == 'success') {
+				$status = "valid";
+			}
+		}
+		
+		return $status;
+	}
+		
 }
 ?>
