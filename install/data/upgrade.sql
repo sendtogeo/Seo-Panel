@@ -113,4 +113,25 @@ INSERT INTO `currency` (`id`, `name`, `iso_code`, `symbol`, `unicode`, `position
 (66, 'East Caribbean Dollar', 'XCD', '$', '&#36;', 'before', 0, 1),
 (67, 'South African Rand', 'ZAR', 'R', 'R', 'before', 0, 1);
 
+--
+-- Table structure for table `user_specs`
+--
 
+CREATE TABLE IF NOT EXISTS `user_specs` (
+`id` int(11) NOT NULL,
+  `user_type_id` int(11) NOT NULL,
+  `spec_column` varchar(120) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `spec_value` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Indexes for table `user_specs`
+--
+ALTER TABLE `user_specs`
+ ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for table `user_specs`
+--
+ALTER TABLE `user_specs`
+MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
