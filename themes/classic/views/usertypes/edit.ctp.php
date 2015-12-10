@@ -18,11 +18,11 @@
 	</tr>
 	<tr class="white_row">
 		<td class="td_left_col"><?php echo $spText['common']['Keywords Count']?>:</td>
-		<td class="td_right_col"><input type="text" name="num_keywords" id="keywordcount" value="<?php echo $post['num_keywords']?>"><?php echo $errMsg['num_keywords']?></td>
+		<td class="td_right_col"><input type="text" name="keywordcount" id="keywordcount" value="<?php echo $post['keywordcount']?>"><?php echo $errMsg['keywordcount']?></td>
 	</tr>
 	<tr class="blue_row">
 		<td class="td_left_col"><?php echo $spText['common']['Websites Count']?>:</td>
-		<td class="td_right_col"><input type="text" name="num_websites" id="websitecount" value="<?php echo $post['num_websites']?>"><?php echo $errMsg['num_websites']?></td>
+		<td class="td_right_col"><input type="text" name="websitecount" id="websitecount" value="<?php echo $post['websitecount']?>"><?php echo $errMsg['websitecount']?></td>
 	</tr>
 	<tr class="white_row">
 		<td class="td_left_col"><?php echo $spText['common']['Price']?>:</td>

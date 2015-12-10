@@ -135,3 +135,6 @@ ALTER TABLE `user_specs`
 --
 ALTER TABLE `user_specs`
 MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+alter table usertypes add column status tinyint(4) default 1;
+insert into user_specs(user_type_id,spec_column,spec_value) values (2,'keywordcount',50),(2,'websitecount',10),(2,'price',0)

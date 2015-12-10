@@ -34,8 +34,8 @@
 				<td class="td_br_right"><?php echo $listInfo['id']?></td>								
 				<td class="td_br_right left"><?php echo $userTypeLink?></td>		
 				<td class="td_br_right left"><?php echo $listInfo['description']?></td>		
-				<td class="td_br_right left"><?php echo $listInfo['num_keywords']?></td>	
-				<td class="td_br_right left"><?php echo $listInfo['num_websites']?></td>
+				<td class="td_br_right left"><?php echo $listInfo['keywordcount']?></td>	
+				<td class="td_br_right left"><?php echo $listInfo['websitecount']?></td>
 				<td class="td_br_right left"><?php echo $listInfo['price']?></td>
 				<td class="td_br_right"><?php echo $listInfo['status'] ? $spText['common']["Active"] : $spText['common']["Inactive"];	?></td>
 				<td class="<?php echo $rightBotClass?>" width="100px">

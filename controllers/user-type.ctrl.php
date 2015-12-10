@@ -1,9 +1,7 @@
 <?php
-
-
-/***************************************************************************
- *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	   *
-*   sendtogeo@gmail.com   												   *
+/**************************************************************************
+*   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	          *
+*   sendtogeo@gmail.com   											      *
 *                                                                         *
 *   This program is free software; you can redistribute it and/or modify  *
 *   it under the terms of the GNU General Public License as published by  *
@@ -26,6 +24,8 @@
  */
 class UserTypeController extends Controller {
 	
+	public $userSpecFields = array('keywordcount','websitecount','price');
+	
 	/**
 	 * Function to list all the available user types
 	 * @params : Array of values to be passed
@@ -43,6 +43,18 @@ class UserTypeController extends Controller {
 		$this->set('pagingDiv', $pagingDiv);
 		$sql .= " limit ".$this->paging->start .",". $this->paging->per_page;				
 		$userTypeList = $this->db->select($sql);
+		
+		// Set the spec details for user type
+		foreach ($userTypeList as $key => $userType) {
+			$sql = "select * from user_specs where user_type_id=" . $userType['id'];
+			$userTypeSpecList = $this->db->select($sql);
+			
+			foreach ($userTypeSpecList as $userTypeSpec) {
+				$userType[$userTypeSpec['spec_column']] = $userTypeSpec['spec_value'];
+			}
+			$userTypeList[$key] = $userType;
+		}
+		
 		$this->set('pageNo', $info['pageno']);		
 		$this->set('list', $userTypeList);
 		$this->render('usertypes/list');
@@ -61,9 +73,9 @@ class UserTypeController extends Controller {
 				$listInfo = $this->__getUserTypeInfo($userTypeId);
 				$listInfo['old_user_type'] = $listInfo['user_type'];
 			}
-			$listInfo['num_websites'] = stripslashes($listInfo['num_websites']);
+			$listInfo['websitecount'] = stripslashes($listInfo['websitecount']);
 			$listInfo['description'] = stripslashes($listInfo['description']);
-			$listInfo['num_keywords'] = stripslashes($listInfo['num_keywords']);
+			$listInfo['keywordcount'] = stripslashes($listInfo['keywordcount']);
 			$listInfo['price'] = stripslashes($listInfo['price']);
 			$listInfo['status'] = stripslashes($listInfo['status']);
 			$this->set('post', $listInfo);
@@ -96,8 +108,8 @@ class UserTypeController extends Controller {
 		$listInfo['id'] = intval($listInfo['id']);
 		$this->set('post', $listInfo);
 		$errMsg['user_type'] = formatErrorMsg($this->validate->checkBlank(trim($listInfo['user_type'])));
-		$errMsg['num_websites'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['num_websites'])));
-		$errMsg['num_keywords'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['num_keywords'])));
+		$errMsg['websitecount'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['websitecount'])));
+		$errMsg['keywordcount'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['keywordcount'])));
 		$errMsg['price'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['price'])));
 		if (!$this->validate->flagErr){
 
@@ -112,15 +124,30 @@ class UserTypeController extends Controller {
 				$sql = "update usertypes set
 						user_type = '".addslashes($listInfo['user_type'])."',
 						description = '".addslashes($listInfo['description'])."',
-						num_websites = '".intval($listInfo['num_websites'])."',
-						num_keywords = '".intval($listInfo['num_keywords'])."',
-						price = '".floatval($listInfo['price'])."',
 						status = '".intval($listInfo['user_type_status'])."'
 						where id={$listInfo['id']}";
 				
-				$this->db->query($sql);
-				$this->listUserTypes();
-				exit;
+				if ($this->db->query($sql)) {
+					
+					// Delete the exisiting spec values
+					$sql = "delete from user_specs where user_type_id={$listInfo['id']}";
+					$this->db->query($sql);
+				
+					// Get user type id of the current request
+					$sql = "insert into user_specs(user_type_id,spec_column,spec_value) values ";
+				
+					// Loop through the data passed and create the value set
+					foreach ($this->userSpecFields as $field) {
+						$valueSet .=  "(" . $listInfo['id'] . ",'" . $field . "','" . addslashes($listInfo[$field]) . "'),";
+					}
+				
+					$valueSet = trim($valueSet, ",");
+					$sql .= $valueSet;
+				
+					$this->db->query($sql);
+					$this->listUserTypes();
+					exit;
+				}
 			}
 		}
 		$this->set('errMsg', $errMsg);
@@ -133,7 +160,7 @@ class UserTypeController extends Controller {
 	 * @return : boolean
 	 */
 	function __checkUserType($userType, $userTypeId = false) {
-		$sql = "select id from usertypes where user_type='".addslashes($userType)."'";
+		$sql = "select id from usertypes where user_type='" . addslashes($userType) . "'";
 		$sql .= empty($userTypeId) ? "" : " and id!=" . intval($userTypeId);
 		$listInfo = $this->db->select($sql, true);
 		return empty($listInfo['id']) ? false :  $listInfo['id'];
@@ -146,20 +173,40 @@ class UserTypeController extends Controller {
 	 */
 	function createUserType($listInfo) {		
 		
+		$valueSet = "";
 		$this->set('post', $listInfo);
 		$errMsg['user_type'] = formatErrorMsg($this->validate->checkBlank(trim($listInfo['user_type'])));
-		$errMsg['num_websites'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['num_websites'])));
-		$errMsg['num_keywords'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['num_keywords'])));
+		$errMsg['websitecount'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['websitecount'])));
+		$errMsg['keywordcount'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['keywordcount'])));
 		$errMsg['price'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['price'])));
+				
 		if(!$this->validate->flagErr){
 			if (!$this->__checkUserType($listInfo['user_type'])) {
-					$sql = "insert into usertypes(user_type,description,num_websites,num_keywords,price,status)
-    				values('".addslashes($listInfo['user_type'])."','".addslashes($listInfo['description'])."',
-    				'".intval($listInfo['num_websites'])."','".intval($listInfo['num_keywords'])."',
-    				'".floatval($listInfo['price'])."'," . intval($listInfo['user_type_status']) . ")";
-					$this->db->query($sql);
-					$this->listUserTypes();
-					exit;
+				
+					// Set status value and sql
+					$status = $listInfo['user_type_status'] == "" ? 1 : intval($listInfo['user_type_status']);				
+					$sql = "insert into usertypes(user_type,description,status)
+    				values('".addslashes($listInfo['user_type'])."','".addslashes($listInfo['description'])."',"
+    						 . $status . ")";
+					
+					if ($this->db->query($sql)) {
+
+						// Get user type id of the current request
+						$userTypeId = $this->db->getMaxId('usertypes');						
+						$sql = "insert into user_specs(user_type_id,spec_column,spec_value) values ";
+						
+						// Loop through the data passed and create the value set
+						foreach ($this->userSpecFields as $field) {							
+							$valueSet .=  "(" . $userTypeId . ",'" . $field . "','" . addslashes($listInfo[$field]) . "'),";
+						}
+						
+						$valueSet = trim($valueSet, ",");
+						$sql .= $valueSet;
+						
+						$this->db->query($sql);
+						$this->listUserTypes();
+						exit;
+					}
 			} else {
 				$errMsg['user_type'] = formatErrorMsg($this->spTextWeb['User Type already exist']);
 			}
@@ -208,6 +255,18 @@ class UserTypeController extends Controller {
 		$sql = "select * from usertypes where status=1";
 		$sql .= empty($includeAdmin) ? " and id!=1" : "";
 		$userTypeList = $this->db->select($sql);
+
+		// Set the spec details for user type
+		foreach ($userTypeList as $key => $userType) {
+			$sql = "select * from user_specs where user_type_id=" . $userType['id'];
+			$userTypeSpecList = $this->db->select($sql);
+				
+			foreach ($userTypeSpecList as $userTypeSpec) {
+				$userType[$userTypeSpec['spec_column']] = $userTypeSpec['spec_value'];
+			}
+			$userTypeList[$key] = $userType;
+		}
+		
 		return $userTypeList;
 	}
 }
