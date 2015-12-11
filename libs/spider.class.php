@@ -272,7 +272,6 @@ class Spider{
 		// to fix the ssl related issues
 		curl_setopt($this->_CURL_RESOURCE, CURLOPT_SSL_VERIFYHOST, 0);
 		curl_setopt($this->_CURL_RESOURCE, CURLOPT_SSL_VERIFYPEER, 0);
-		curl_setopt($this->_CURL_RESOURCE, CURLOPT_VERBOSE, 1);
 
 		// to add the curl http headers
 		if (!empty($this ->_CURL_HTTPHEADER)) {
