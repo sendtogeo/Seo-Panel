@@ -441,6 +441,9 @@ class WebsiteController extends Controller{
 			$this->set('isAdmin', 1);
 		}
 		
+		$this->set('delimiter', ',');
+		$this->set('enclosure', '"');
+		$this->set('escape', '\\');
 		$this->render('website/importwebsites');
 	}
 	
@@ -469,15 +472,24 @@ class WebsiteController extends Controller{
 			if ($fileInfo["type"] == "text/csv") {
 				$targetFile = SP_TMPPATH . "/".$fileInfo['name'];
 				if(move_uploaded_file($fileInfo['tmp_name'], $targetFile)) {
-					$handle = fopen($targetFile, 'r');
+
+					$delimiterChar = empty($info['delimiter']) ? ',' : $info['delimiter'];
+					$enclosureChar = empty($info['enclosure']) ? '"' : $info['enclosure'];
+					$escapeChar = empty($info['escape']) ? '\\' : $info['escape'];
 					
-					while (($websiteInfo = fgets($handle, 4096)) !== false) {
-						if (!empty($websiteInfo)) {
+					// open file read through csv file
+					if (($handle = fopen($targetFile, "r")) !== FALSE) {
+
+						// loop through the data row
+						while (($websiteInfo = fgetcsv($handle, 4096, $delimiterChar, $enclosureChar, $escapeChar)) !== FALSE) {
+							if (empty($websiteInfo[0])) continue;
 							$status = $this->importWebsite($websiteInfo, $userId);
 							$resultInfo[$status] += 1;
 							$resultInfo['total'] += 1;
 						}
-					}
+						
+						fclose($handle);
+					}					
 				}
 			}
 		}
@@ -492,8 +504,7 @@ class WebsiteController extends Controller{
         echo "<script type='text/javascript'>parent.document.getElementById('note').style.display='none';</script>";
 	}
 	
-	function importWebsite($info, $userId) {
-		$wInfo = explode(',', $info);
+	function importWebsite($wInfo, $userId) {
 		$status = 'invalid';
 		
 		if (!empty($wInfo[0]) && !empty($wInfo[1])) {

@@ -40,13 +40,36 @@ $scriptUrl = SP_WEBPATH . "/websites.php";
 		<td class="td_right_col">
 			<input type="file" name="website_csv_file" style="height: 22px;">
 			<br>
-			CSV format
-			name, url, meta title, meta description, meta keywords, status
-			<br>  
-			<a href="<?php echo SP_WEBPATH ?>/data/website_import_sample.csv" target="_blank"><?php echo $spText['common']['Sample CSV File']?></a>
+			<br>
+			<b>&nbsp;CSV format:</b>
+			<br>
+			&nbsp;name, url, meta title, meta description, meta keywords, status
+			<br>
+			<br>
+			<a href="<?php echo SP_WEBPATH ?>/data/website_import_sample.csv" target="_blank">
+				<?php echo $spText['common']['Sample CSV File']?>
+			</a>
+		</td>
+	</tr>
+	<tr class="blue_row">
+		<td class="td_left_col">Delimiter:</td>
+		<td class="td_right_col">
+			<input type="text" name="delimiter" value="<?php echo $delimiter; ?>" size="1" maxlength="1">
+		</td>
+	</tr>
+	<tr class="white_row">
+		<td class="td_left_col">Enclosure:</td>
+		<td class="td_right_col">
+			<input type="text" name="enclosure" value='<?php echo $enclosure; ?>' size="1" maxlength="1">
+		</td>
+	</tr>
+	<tr class="blue_row">
+		<td class="td_left_col">Escape:</td>
+		<td class="td_right_col">
+			<input type="text" name="escape" value='<?php echo $escape; ?>' size="1" maxlength="1">
 		</td>
 	</tr>		
-	<tr class="blue_row">
+	<tr class="white_row">
 		<td class="tab_left_bot_noborder"></td>
 		<td class="tab_right_bot"></td>
 	</tr>

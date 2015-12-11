@@ -17,12 +17,6 @@ VALUES  ('en', 'subscription', 'Term', 'Term');
 INSERT INTO texts(`lang_code`, `category`, `label`, `content`) 
 VALUES  ('en', 'subscription', 'Currency', 'Currency');
 
-
--- commented for next version
--- ALTER TABLE usertypes ADD num_websites int(4), ADD num_keywords int(4), ADD price float, ADD status tinyint(4) DEFAULT 1;
---
-
-
 --
 -- Table structure for table `currency`
 --
