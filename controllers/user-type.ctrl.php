@@ -95,6 +95,15 @@ class UserTypeController extends Controller {
 		$userTypeId = intval($userTypeId);
 		$sql = "select * from usertypes where id=$userTypeId";
 		$listInfo = $this->db->select($sql, true);
+
+		// Set the spec details for user type
+		$sql = "select * from user_specs where user_type_id=" . $listInfo['id'];
+		$userTypeSpecList = $this->db->select($sql);
+			
+		foreach ($userTypeSpecList as $userTypeSpec) {
+			$listInfo[$userTypeSpec['spec_column']] = $userTypeSpec['spec_value'];
+		}
+		
 		return empty($listInfo['id']) ? false :  $listInfo;		
 	}
 
