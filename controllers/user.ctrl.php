@@ -558,5 +558,30 @@ class UserController extends Controller{
 		$this->set('errMsg', $errMsg);
 		$this->forgotPasswordForm();
 	}
+	
+	# function to check whether user expired
+	function isUserExpired($userId) {
+		$excluseSecList = array('myprofile');
+		
+		// if not admin user and not in section pages
+		if (!isAdmin() && !in_array($_REQUEST['sec'], $excluseSecList)) {
+			$userInfo = $this->__getUserInfo($userId);
+			
+			// if expiry date set for user
+			if (!empty($userInfo['expiry_date'])) {
+				$today = date("Y-m-d");
+				$todayTime = strtotime($today);
+				$expireTime = strtotime($userInfo['expiry_date']);
+				
+				// current date greater than expiry date
+				if ($todayTime > $expireTime) {
+					return false;
+				}
+			}
+		}
+		
+		return true;
+		
+	}
 }
 ?>

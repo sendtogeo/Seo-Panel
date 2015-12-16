@@ -29,6 +29,7 @@ class IndexController extends Controller{
 		$spTextHome = $this->getLanguageTexts('home', $_SESSION['lang_code']);
 		$this->set('spTextHome', $spTextHome);
 		if(isLoggedIn()){
+			checkLoggedIn();
 		    isHavingWebsite();
 			$userId = isLoggedIn();
 			$exportVersion = false;

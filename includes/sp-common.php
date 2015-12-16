@@ -96,6 +96,12 @@ function checkLoggedIn() {
 		redirectUrlByScript(SP_WEBPATH."/login.php");
 		exit;
 	}
+	
+	// check whethere user expired, then redirect to subscribe page
+	$userCtrl = New UserController();
+	if (!$userCtrl->isUserExpired($userInfo['userId'])) {
+		redirectUrl(SP_WEBPATH."/admin-panel.php?sec=myprofile");
+	}
 }
 
 # function to check whether admin logged in

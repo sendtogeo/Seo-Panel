@@ -110,13 +110,13 @@ class AdminPanelController extends Controller{
             			'name' => $this->spTextPanel['System Settings'],
             			'url_section' => 'settings'						
 						);
-		
-		    $menuList[] = array(
-						'id' => 13,
-            			'name' => $this->spTextPanel['My Profile'],
-            			'url_section' => 'my-profile'						
-						);
 		}
+
+		$menuList[] = array(
+				'id' => 13,
+				'name' => $this->spTextPanel['My Profile'],
+				'url_section' => 'my-profile'
+		);
 		
 		$menuList[] = array(
 						'id' => 14,
