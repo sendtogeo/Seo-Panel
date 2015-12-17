@@ -266,7 +266,7 @@ class KeywordController extends Controller{
 			$userTypeDetails = $userTypeCtrlr->getUserTypeSpecByUser($userId); 
 			
 			if (count($keywordList) > ($userTypeDetails['keywordcount'] - $userKeywordCount)) {
-				$validationMsg = str_replace("keywordcount", $userTypeDetails['keywordcount'] - $userKeywordCount, $this->spTextKeyword['You can add only keywordcount keywords more']);
+				$validationMsg = str_replace("[keywordcount]", $userTypeDetails['keywordcount'] - $userKeywordCount, $this->spTextKeyword['You can add only keywordcount keywords more']);
 				$this->set('validationMsg', $validationMsg);
 				$keyExist = true;
 			}

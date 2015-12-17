@@ -37,7 +37,6 @@
 		<td class="td_left_col"><?php echo $spText['login']['User Type']?>:</td>
 		<td class="td_right_col">
 			<select name="userType">
-				<option value="">Select</option>
 				<?php foreach ($userTypeList as $key => $val) {?>
 					<?php if ($post['userType'] == $val['id']) {?>
 						<option value="<?php echo $val['id']?>" selected><?php echo $val['user_type']?></option>

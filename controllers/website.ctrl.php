@@ -26,8 +26,7 @@ class WebsiteController extends Controller{
 	# func to show websites
 	function listWebsites($info=''){		
 		
-		$userId = isLoggedIn();
-		$info['stscheck'] = isset($info['stscheck']) ? intval($info['stscheck']) : 1;
+		$userId = isLoggedIn();		
 		$info['pageno'] = intval($info['pageno']);
 		$pageScriptPath = 'websites.php?stscheck=' . $info['stscheck'];
 		
@@ -56,9 +55,14 @@ class WebsiteController extends Controller{
 			or w.url like '%".addslashes($info['search_name'])."%')";
 			$pageScriptPath .= "&search_name=" . $info['search_name'];
 		}
-
-		$sql .= " and w.status='{$info['stscheck']}' order by w.name"; 
 		
+		// if status set
+		if (isset($info['stscheck'])) {
+			$info['stscheck'] = intval($info['stscheck']);
+			$sql .= " and w.status='{$info['stscheck']}'";
+		}
+
+		echo $sql .= " order by w.name";
 		$this->set('userId', empty($info['userid']) ? 0 : $info['userid']);		
 		
 		# pagination setup		
@@ -519,7 +523,7 @@ class WebsiteController extends Controller{
 					$userTypeDetails = $userTypeCtrlr->getUserTypeSpecByUser($userId);
 					
 					if ($count > ($userTypeDetails['websitecount'] - $userWebsiteCount)) {
-						$displayErr = str_replace("websitecount", $userTypeDetails['websitecount'] - $userWebsiteCount, $this->spTextWeb['You can add only websitecount websites more']);
+						$displayErr = str_replace("[websitecount]", $userTypeDetails['websitecount'] - $userWebsiteCount, $this->spTextWeb['You can add only websitecount websites more']);
 						print "<script>alert('".$displayErr."')</script>";
 						return False;
 					}

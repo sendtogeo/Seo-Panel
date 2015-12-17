@@ -24,7 +24,9 @@ VALUES  ('en', 'website', 'Your website count already reached the limit', 'Your 
 INSERT INTO texts(`lang_code`, `category`, `label`, `content`)
 VALUES  ('en', 'keyword', 'Your keyword count already reached the limit', 'Your keyword count already reached the limit!');
 INSERT INTO texts(`lang_code`, `category`, `label`, `content`)
-VALUES  ('en', 'keyword', 'You can add only keywordcount keywords more', 'You can add only keywordcount keywords more!');
+VALUES  ('en', 'keyword', 'You can add only keywordcount keywords more', 'You can add only [keywordcount] keywords more!');
+INSERT INTO texts(`lang_code`, `category`, `label`, `content`)
+VALUES  ('en', 'website', 'You can add only websitecount websites more', 'You can add only [websitecount] websites more!');
 
 --
 -- Table structure for table `currency`

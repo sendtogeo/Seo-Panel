@@ -191,9 +191,14 @@ class UserController extends Controller{
 	function listUsers($info=''){
 		
 	    $info['pageno'] = intval($info['pageno']);
-		$info['stscheck'] = isset($info['stscheck']) ? intval($info['stscheck']) : 1;
 		$pageScriptPath = 'users.php?stscheck=' . $info['stscheck'];
-		$sql = "select * from users where utype_id!=1 and status='{$info['stscheck']}'";
+		$sql = "select * from users where utype_id!=1";
+
+		// if status set
+		if (isset($info['stscheck'])) {
+			$info['stscheck'] = intval($info['stscheck']);
+			$sql .= " and status='{$info['stscheck']}'";
+		}
 		
 		// search for user name
 		if (!empty($info['user_name'])) {

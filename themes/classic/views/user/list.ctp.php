@@ -10,8 +10,9 @@
 		<th><?php echo $spText['common']['Status']?>: </th>
 		<td width="100px">
 			<select name="stscheck" onchange="<?php echo $submitLink?>">
+				<option value="select">-- <?php echo $spText['common']['Select']?> --</option>
 				<?php foreach($statusList as $key => $val){?>
-					<?php if($info['stscheck'] == $val){?>
+					<?php if(isset($info['stscheck']) && $info['stscheck'] == $val){?>
 						<option value="<?php echo $val?>" selected><?php echo $key?></option>
 					<?php }else{?>
 						<option value="<?php echo $val?>"><?php echo $key?></option>
