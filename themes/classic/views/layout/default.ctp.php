@@ -48,6 +48,7 @@ var wantproceed = '<?php  echo $spText['label']['wantproceed']; ?>';
                     <?php
                     $userInfo = @Session::readSession('userInfo');
                     $userType = empty($userInfo['userType']) ? "guest" : $userInfo['userType'];
+                    $userType = (!isAdmin() && $userType != 'guest') ? "user" :  $userType;
                     include(SP_VIEWPATH.'/menu/'.$userType.'menu.ctp.php');
                     ?>
                 </ul>

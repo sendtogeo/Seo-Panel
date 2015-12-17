@@ -6,6 +6,13 @@
 	</p>
 	<? 
 	}
+	if(!empty($validationMsg)){
+		?>
+		<p class="dirmsg">
+			<font class="error"><?php echo $validationMsg?></font>
+		</p>
+		<? 
+		}
 ?>
 <?php $post['url'] = empty($post['url']) ? "http://" : $post['url']; ?>
 <form id="newWebsite">

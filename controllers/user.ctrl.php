@@ -193,7 +193,7 @@ class UserController extends Controller{
 	    $info['pageno'] = intval($info['pageno']);
 		$info['stscheck'] = isset($info['stscheck']) ? intval($info['stscheck']) : 1;
 		$pageScriptPath = 'users.php?stscheck=' . $info['stscheck'];
-		$sql = "select * from users where utype_id=2 and status='{$info['stscheck']}'";
+		$sql = "select * from users where utype_id!=1 and status='{$info['stscheck']}'";
 		
 		// search for user name
 		if (!empty($info['user_name'])) {
@@ -259,8 +259,12 @@ class UserController extends Controller{
 		}
 	}
 	
-	function newUser(){		
-		
+	function newUser(){	
+			
+		// Get the user types
+		$userTypeCtlr = new UserTypeController();
+		$userTypeList = $userTypeCtlr->getAllUserTypes();
+		$this->set('userTypeList', $userTypeList);
 		$this->render('user/new', 'ajax');
 	}
 	
@@ -318,7 +322,7 @@ class UserController extends Controller{
 		$errMsg['firstName'] = formatErrorMsg($this->validate->checkBlank($userInfo['firstName']));
 		$errMsg['lastName'] = formatErrorMsg($this->validate->checkBlank($userInfo['lastName']));
 		$errMsg['email'] = formatErrorMsg($this->validate->checkEmail($userInfo['email']));
-		$userTypeId = empty($userInfo['type_id']) ? 2 : intval($userInfo['user_type_id']);
+		$userTypeId = empty($userInfo['userType']) ? 2 : intval($userInfo['userType']);
 		$userStatus = isset($userInfo['status']) ? intval($userInfo['status']) : 1;
 		
 		// check error flag is on
@@ -364,10 +368,16 @@ class UserController extends Controller{
 				$userInfo['lastName'] = $userInfo['last_name'];
 				$userInfo['oldName'] = $userInfo['username'];
 				$userInfo['oldEmail'] = $userInfo['email'];
+				$userInfo['userType'] = $userInfo['utype_id'];
 			}
+
+			// Get the user types
+			$userTypeCtlr = new UserTypeController();
+			$userTypeList = $userTypeCtlr->getAllUserTypes();
 			
 			$userInfo['password'] = '';					
-			$this->set('post', $userInfo);			
+			$this->set('post', $userInfo);		
+			$this->set('userTypeList', $userTypeList);
 			$this->render('user/edit', 'ajax');
 			exit;
 		}
@@ -418,7 +428,8 @@ class UserController extends Controller{
 						last_name = '".addslashes($userInfo['lastName'])."',
 						$passStr
 						$activeStr
-						email = '".addslashes($userInfo['email'])."'
+						email = '".addslashes($userInfo['email'])."',
+						utype_id = ".addslashes($userInfo['userType'])."
 						where id={$userInfo['id']}";
 				$this->db->query($sql);
 				

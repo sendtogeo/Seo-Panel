@@ -17,6 +17,15 @@ VALUES  ('en', 'subscription', 'Term', 'Term');
 INSERT INTO texts(`lang_code`, `category`, `label`, `content`) 
 VALUES  ('en', 'subscription', 'Currency', 'Currency');
 
+INSERT INTO texts(`lang_code`, `category`, `label`, `content`)
+VALUES  ('en', 'login', 'User Type', 'User Type');
+INSERT INTO texts(`lang_code`, `category`, `label`, `content`)
+VALUES  ('en', 'website', 'Your website count already reached the limit', 'Your website count already reached the limit!');
+INSERT INTO texts(`lang_code`, `category`, `label`, `content`)
+VALUES  ('en', 'keyword', 'Your keyword count already reached the limit', 'Your keyword count already reached the limit!');
+INSERT INTO texts(`lang_code`, `category`, `label`, `content`)
+VALUES  ('en', 'keyword', 'You can add only keywordcount keywords more', 'You can add only keywordcount keywords more!');
+
 --
 -- Table structure for table `currency`
 --

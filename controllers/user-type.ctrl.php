@@ -278,5 +278,36 @@ class UserTypeController extends Controller {
 		
 		return $userTypeList;
 	}
+	
+	/**
+	 * Function to get the user type spec details
+	 */
+	function getUserTypeSpec($userTypeId) {
+		$sql = "select * from user_specs where user_type_id=" . $userTypeId;
+		$userTypeSpecList = $this->db->select($sql);
+			
+		foreach ($userTypeSpecList as $userTypeSpec) {
+			$userTypeSpecData[$userTypeSpec['spec_column']] = $userTypeSpec['spec_value'];
+		}
+		
+		return $userTypeSpecData;		
+	}
+	
+	/**
+	 * Function to get the user type spec details by user
+	 */
+	function getUserTypeSpecByUser($userId) {
+		$sql = "select * from users where id=" . $userId;
+		$userDetails = $this->db->select($sql);
+		
+		$sql = "select * from user_specs where user_type_id=" . $userDetails[0]['utype_id'];
+		$userTypeSpecList = $this->db->select($sql);
+			
+		foreach ($userTypeSpecList as $userTypeSpec) {
+			$userTypeSpecData[$userTypeSpec['spec_column']] = $userTypeSpec['spec_value'];
+		}
+		
+		return $userTypeSpecData;		
+	}
 }
 ?>

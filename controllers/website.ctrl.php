@@ -101,9 +101,15 @@ class WebsiteController extends Controller{
 	}
 	
 	# func to get all Websites
-	function __getCountAllWebsites($userId=''){
-		$sql = "select count(*) count from websites where status=1";
-		if(!empty($userId)) $sql .= " and user_id=" . intval($userId);
+	function __getCountAllWebsites($userId='', $statusCheck = true, $statusVal = 1){
+
+		$sql = "select count(*) count from websites where 1=1";
+		$sql .= $statusCheck ? " and status=" . $statusVal : "";
+		
+		if (!empty($userId)) {
+			$sql .= " and user_id=" . intval($userId);
+		}
+		
 		$countInfo = $this->db->select($sql, true);
 		$count = empty($countInfo['count']) ? 0 : $countInfo['count']; 
 		return $count;
@@ -182,6 +188,11 @@ class WebsiteController extends Controller{
 			$this->set('msg', $this->spTextWeb['plscrtwebsite'].'<br>Please <a href="javascript:void(0);" onclick="scriptDoLoad(\'websites.php\', \'content\')">'.strtolower($_SESSION['text']['common']['Activate']).'</a> '.$this->spTextWeb['yourwebalreday']);
 		}
 		
+		# Validate website count
+		if (! $this->validateWebsiteCount($userId)) {
+			$this->set('validationMsg', $this->spTextWeb['Your website count already reached the limit']);
+		}
+		
 		# get all users
 		if(isAdmin()){
 			$userCtrler = New UserController();
@@ -222,6 +233,11 @@ class WebsiteController extends Controller{
 		$errMsg['url'] = formatErrorMsg($this->validate->checkBlank($listInfo['url']));
 		$listInfo['url'] = addHttpToUrl($listInfo['url']);
 		$statusVal = isset($listInfo['status']) ? intval($listInfo['status']) : 1;
+		
+		if (! $this->validateWebsiteCount($userId)) {
+			$this->set('validationMsg', "'" . $this->spTextWeb["Your website count already reached the limit"] . "'");
+			$this->validate->flagErr = true;
+		}
 		
 		// validate website creation
 		if(!$this->validate->flagErr){
@@ -440,6 +456,16 @@ class WebsiteController extends Controller{
 			$this->set('userSelected', empty($info['userid']) ? $userId : $info['userid']);
 			$this->set('isAdmin', 1);
 		}
+
+		// Check the user website count for validation
+		if (!isAdmin()) {
+			$userTypeCtrlr = new UserTypeController();
+			$userWebsiteCount = $this->__getCountAllWebsites($userId, false);
+			$userTypeDetails = $userTypeCtrlr->getUserTypeSpecByUser($userId);
+			
+			$validationMsg = str_replace("websitecount", $userTypeDetails['websitecount'] - $userWebsiteCount, $this->spTextWeb['You can add only websitecount websites more']);
+			$this->set('validationMsg', $validationMsg);
+		}
 		
 		$this->set('delimiter', ',');
 		$this->set('enclosure', '"');
@@ -456,15 +482,13 @@ class WebsiteController extends Controller{
 		}
 		
 		$userId = isAdmin() ? intval($info['userid']) : isLoggedIn();
-		$text = "<p class=\'note\' id=\'note\'><b>Website import process started. It will take some time depends on the number of websites needs to be imported!</b></p><div id=\'subcontmed\'></div>";
-		print "<script type='text/javascript'>parent.document.getElementById('import_website_div').innerHTML = '$text';</script>";
-		print "<script>parent.showLoadingIcon('subcontmed', 0)</script>";
 		
 		$resultInfo = array(
 			'total' => 0,
 			'valid' => 0,
 			'invalid' => 0,
 		);
+		$count = 0;
 				 
 		// process file upload option
 		$fileInfo = $_FILES['website_csv_file'];
@@ -476,6 +500,29 @@ class WebsiteController extends Controller{
 					$delimiterChar = empty($info['delimiter']) ? ',' : $info['delimiter'];
 					$enclosureChar = empty($info['enclosure']) ? '"' : $info['enclosure'];
 					$escapeChar = empty($info['escape']) ? '\\' : $info['escape'];
+					
+					// open file read through csv file
+					if (($handle = fopen($targetFile, "r")) !== FALSE) {
+					
+						// loop through the data row
+						while (($websiteInfo = fgetcsv($handle, 4096, $delimiterChar, $enclosureChar, $escapeChar)) !== FALSE) {
+							if (empty($websiteInfo[0])) continue;
+							$count++;
+						}
+					
+						fclose($handle);
+					}
+					
+					// Check the user website count for validation
+					$userTypeCtrlr = new UserTypeController();
+					$userWebsiteCount = $this->__getCountAllWebsites($userId, false);
+					$userTypeDetails = $userTypeCtrlr->getUserTypeSpecByUser($userId);
+					
+					if ($count > ($userTypeDetails['websitecount'] - $userWebsiteCount)) {
+						$displayErr = str_replace("websitecount", $userTypeDetails['websitecount'] - $userWebsiteCount, $this->spTextWeb['You can add only websitecount websites more']);
+						print "<script>alert('".$displayErr."')</script>";
+						return False;
+					}
 					
 					// open file read through csv file
 					if (($handle = fopen($targetFile, "r")) !== FALSE) {
@@ -493,7 +540,11 @@ class WebsiteController extends Controller{
 				}
 			}
 		}
-					 
+
+
+		$text = "<p class=\'note\' id=\'note\'><b>Website import process started. It will take some time depends on the number of websites needs to be imported!</b></p><div id=\'subcontmed\'></div>";
+		print "<script type='text/javascript'>parent.document.getElementById('import_website_div').innerHTML = '$text';</script>";
+		print "<script>parent.showLoadingIcon('subcontmed', 0)</script>";
 		$spText = $_SESSION['text'];
 		$resText = '<table width="40%" border="0" cellspacing="0" cellpadding="0px" class="summary_tab" align="center">'.
 		'<tr><td class="topheader" colspan="10">Import Summary</td></tr>'.
@@ -524,6 +575,24 @@ class WebsiteController extends Controller{
 		}
 		
 		return $status;
+	}
+	
+	// Function to check / validate the user type website count
+	function validateWebsiteCount($userId) {
+
+		if ($userId == 1) {
+			return true;	
+		}
+		
+		$userTypeCtrlr = new UserTypeController();
+		$userWebsiteCount = $this->__getCountAllWebsites($userId, false);
+		$userTypeDetails = $userTypeCtrlr->getUserTypeSpecByUser($userId);
+		
+		if ($userWebsiteCount < $userTypeDetails['websitecount']) {
+			return true;	
+		} else {
+			return false;	
+		}
 	}
 		
 }

@@ -10,6 +10,15 @@ if (!empty($msg)) {
 }
 	
 $scriptUrl = SP_WEBPATH . "/websites.php";	
+
+if(!empty($validationMsg)){
+		?>
+		<p class="dirmsg">
+			<font class="error"><?php echo $validationMsg?></font>
+		</p>
+		<? 
+		}
+
 ?>
 <div id='import_website_div'>
 <form id="projectform" name="projectform" target="website_import_frame" action="<?php echo $scriptUrl; ?>" method="post" enctype="multipart/form-data">

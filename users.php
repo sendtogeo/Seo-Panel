@@ -29,6 +29,7 @@ if( ($_GET['sec'] == 'my-profile') || ($_POST['sec'] == 'updatemyprofile')){
 include_once(SP_CTRLPATH."/user.ctrl.php");
 include_once(SP_CTRLPATH."/website.ctrl.php");
 include_once(SP_CTRLPATH."/keyword.ctrl.php");
+include_once(SP_CTRLPATH."/user-type.ctrl.php");
 $controller = New UserController();
 $controller->view->menu = 'users';
 $controller->layout = 'ajax';
