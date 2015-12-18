@@ -67,7 +67,7 @@
 						<?php
 					} else {
 						?>
-						<input type="hidden" name="utype_id" value="2">
+						<input type="hidden" name="utype_id" value="<?php echo $defaultUserTypeId; ?>">
 						<?php
 					}
                 	?>

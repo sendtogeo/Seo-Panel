@@ -263,6 +263,7 @@ class UserTypeController extends Controller {
 	function getAllUserTypes($includeAdmin = false) {
 		$sql = "select * from usertypes where status=1";
 		$sql .= empty($includeAdmin) ? " and id!=1" : "";
+		$sql .= " order by id";
 		$userTypeList = $this->db->select($sql);
 
 		// Set the spec details for user type
@@ -309,5 +310,20 @@ class UserTypeController extends Controller {
 		
 		return $userTypeSpecData;		
 	}
+	
+	# function to get default user type
+	function getDefaultUserTypeId() {
+		$userTypeList = $this->getAllUserTypes();
+		$defaultUserTypeId = !empty($userTypeList[0]['id']) ? $userTypeList[0]['id'] : false;
+		return  $defaultUserTypeId;	
+	}
+	
+	# function to get admin user ype id
+	function getAdminUserTypeId() {
+		$sql = "select id from usertypes where user_type='admin'"; 
+		$userTypeInfo = $this->db->select($sql, true);
+		return $userTypeInfo['id'];
+	}
+	
 }
 ?>

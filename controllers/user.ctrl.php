@@ -94,11 +94,11 @@ class UserController extends Controller{
 		
 		$seopluginCtrler =  new SeoPluginsController();
 		$subscriptionActive = false;
+		$utypeCtrler = new UserTypeController();
 		
 		// check whetehr plugin installed or not
 		if ($seopluginCtrler->isPluginActive("Subscription")) {
 			$subscriptionActive = true;
-			$utypeCtrler = new UserTypeController();
 			$userTypeList = $utypeCtrler->getAllUserTypes();
 			$this->set('userTypeList', $userTypeList);
 			
@@ -110,6 +110,8 @@ class UserController extends Controller{
 			$this->set('defaultPgId', $pgCtrler->__getDefaultPaymentGateway());
 			$this->set('spTextSubscription', $this->getLanguageTexts('subscription', $_SESSION['lang_code']));
 			
+		} else {
+			$this->set('defaultUserTypeId', $utypeCtrler->getDefaultUserTypeId());	
 		}
 		
 		$this->set('subscriptionActive', $subscriptionActive);
@@ -118,10 +120,12 @@ class UserController extends Controller{
 	
 	# function to start registration
 	function startRegistration(){
+		$utypeCtrler = New UserTypeController();
 	    $_POST = sanitizeData($_POST);
 		$this->set('post', $_POST);
 		$userInfo = $_POST;
 		$subscriptionActive = false;
+		
 		$errMsg['userName'] = formatErrorMsg($this->validate->checkUname($userInfo['userName']));
 		$errMsg['password'] = formatErrorMsg($this->validate->checkPasswords($userInfo['password'], $userInfo['confirmPassword']));
 		$errMsg['firstName'] = formatErrorMsg($this->validate->checkBlank($userInfo['firstName']));
@@ -129,6 +133,13 @@ class UserController extends Controller{
 		$errMsg['email'] = formatErrorMsg($this->validate->checkEmail($userInfo['email']));
 		$errMsg['code'] = formatErrorMsg($this->validate->checkCaptcha($userInfo['code']));
 		$errMsg['utype_id'] = formatErrorMsg($this->validate->checkNumber($userInfo['utype_id']));
+		
+		// if admin user type selected, show error
+		$adminTypeId = $utypeCtrler->getAdminUserTypeId();
+		if ($adminTypeId == $userInfo['utype_id']) {
+			$this->validate->flagErr = true;
+			$errMsg['userName'] = formatErrorMsg("You can not register as admin!!");
+		}
 		
 		// if payment plugin installed check whether valid payment gateway found
 		$seopluginCtrler =  new SeoPluginsController();
@@ -153,7 +164,6 @@ class UserController extends Controller{
 					
 					// check whether subscription is active
 					if ($subscriptionActive and $userId) {
-						$utypeCtrler = New UserTypeController();
 						$utypeInfo = $utypeCtrler->__getUserTypeInfo($utypeId);
 						
 						// if it is paid subscription, proceed with payment
