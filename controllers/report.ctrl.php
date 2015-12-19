@@ -133,11 +133,53 @@ class ReportController extends Controller {
 		    $orderCol = $this->seLIst[0]['id'];
 		    $orderVal = 'ASC';    
 		}
+		
 		$this->set('orderCol', $orderCol);
 		$this->set('orderVal', $orderVal);
-		
+		$scriptPath = SP_WEBPATH."/reports.php?sec=reportsum&website_id=$websiteId";
+		$scriptPath .= "&from_time=$fromTimeTxt&to_time=$toTimeTxt&search_name=" . $searchInfo['search_name'];
+		$scriptPath .= "&order_col=$orderCol&order_val=$orderVal";
 		$keywordController = New KeywordController();
-		$list = $keywordController->__getAllKeywords($userId, $websiteId, true, true, $orderVal, $searchInfo['search_name']);
+		
+		if (in_array($searchInfo['doc_type'], array("pdf", "export"))) {
+			$list = $keywordController->__getAllKeywords($userId, $websiteId, true, true, $orderVal, $searchInfo['search_name']);
+		} else {
+			
+			$conditions = " and w.status=1 and k.status=1";
+			$conditions .= isAdmin() ? "" : " and w.user_id=$userId";
+			$conditions .= !empty($websiteId) ? " and w.id=$websiteId" : "";
+			$conditions .= !empty($searchInfo['search_name']) ? " and k.name like '%".addslashes($searchInfo['search_name'])."%'" : "";
+			
+			// order col is keyword
+			if ($orderCol == "keyword") {
+				$sql = "select k.* from keywords k,websites w where k.website_id=w.id";
+				$sql .= " $conditions order by k.name $orderVal";				
+			} else {
+				
+				$leftSql = "select [col] from keywords k,searchresults r, websites w 
+				where k.id=r.keyword_id and k.website_id=w.id $conditions
+				and r.searchengine_id=".intval($orderCol)." and r.result_date='" . addslashes($toTimeTxt) . "'
+				group by k.id";
+				
+				$sql = "(". str_replace("[col]", "k.id,k.name,min(rank) rank", $leftSql) .") 
+				UNION 
+				(select id,name,1000 from keywords where id not in(". str_replace("[col]", "distinct(k.id)", $leftSql) ."))
+				order by rank $orderVal";
+			}
+			
+			# pagination setup
+			$this->db->query($sql, true);
+			$this->paging->setDivClass('pagingdiv');
+			$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
+			$pagingDiv = $this->paging->printPages($scriptPath, '', 'scriptDoLoad', 'content', "");
+			$this->set('pagingDiv', $pagingDiv);
+			$sql .= " limit ".$this->paging->start .",". $this->paging->per_page;
+				
+			# set keywords list
+			$list = $this->db->select($sql);
+			
+		}
+				
 		$indexList = array();
 		foreach($list as $keywordInfo){
 			$positionInfo = $this->__getKeywordSearchReport($keywordInfo['id'], $fromTime, $toTime);
