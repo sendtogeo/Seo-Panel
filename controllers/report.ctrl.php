@@ -152,18 +152,20 @@ class ReportController extends Controller {
 			
 			// order col is keyword
 			if ($orderCol == "keyword") {
-				$sql = "select k.* from keywords k,websites w where k.website_id=w.id";
+				$sql = "select k.id,k.name,w.name website,w.url weburl from keywords k,websites w where k.website_id=w.id";
 				$sql .= " $conditions order by k.name $orderVal";				
-			} else {
-				
+			} else {				
 				$leftSql = "select [col] from keywords k,searchresults r, websites w 
 				where k.id=r.keyword_id and k.website_id=w.id $conditions
 				and r.searchengine_id=".intval($orderCol)." and r.result_date='" . addslashes($toTimeTxt) . "'
 				group by k.id";
-				
-				$sql = "(". str_replace("[col]", "k.id,k.name,min(rank) rank", $leftSql) .") 
+								
+				$sql = "(". str_replace("[col]", "k.id,k.name,min(rank) rank,w.name website,w.url weburl", $leftSql) .") 
 				UNION 
-				(select id,name,1000 from keywords where id not in(". str_replace("[col]", "distinct(k.id)", $leftSql) ."))
+				(select k.id,k.name,1000,w.name website,w.url weburl 
+				from keywords k, websites w  
+				where w.id=k.website_id $conditions and k.id not in
+				(". str_replace("[col]", "distinct(k.id)", $leftSql) ."))
 				order by rank $orderVal";
 			}
 			
