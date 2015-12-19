@@ -20,13 +20,13 @@ VALUES  ('en', 'subscription', 'Currency', 'Currency');
 INSERT INTO texts(`lang_code`, `category`, `label`, `content`)
 VALUES  ('en', 'login', 'User Type', 'User Type');
 INSERT INTO texts(`lang_code`, `category`, `label`, `content`)
-VALUES  ('en', 'website', 'Your website count already reached the limit', 'Your website count already reached the limit!');
+VALUES  ('en', 'website', 'Your website count already reached the limit', 'Website count already reached the limit for this user!');
 INSERT INTO texts(`lang_code`, `category`, `label`, `content`)
-VALUES  ('en', 'keyword', 'Your keyword count already reached the limit', 'Your keyword count already reached the limit!');
+VALUES  ('en', 'keyword', 'Your keyword count already reached the limit', 'Keyword count already reached the limit for this user!');
 INSERT INTO texts(`lang_code`, `category`, `label`, `content`)
-VALUES  ('en', 'keyword', 'You can add only keywordcount keywords more', 'You can add only [keywordcount] keywords more!');
+VALUES  ('en', 'keyword', 'You can add only keywordcount keywords more', 'You can add only [keywordcount] keywords for this user!');
 INSERT INTO texts(`lang_code`, `category`, `label`, `content`)
-VALUES  ('en', 'website', 'You can add only websitecount websites more', 'You can add only [websitecount] websites more!');
+VALUES  ('en', 'website', 'You can add only websitecount websites more', 'You can add only [websitecount] websites for this user!');
 
 --
 -- Table structure for table `currency`

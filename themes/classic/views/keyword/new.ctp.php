@@ -1,11 +1,12 @@
 <?php echo showSectionHead($spTextKeyword['New Keyword']); ?>
-<? if(!empty($validationMsg)){
-		?>
-		<p class="dirmsg">
-			<font class="error"><?php echo $validationMsg?></font>
-		</p>
-		<? 
-		}
+<?php 
+if(!empty($validationMsg)){
+	?>
+	<p class="dirmsg">
+		<font class="error"><?php echo $validationMsg?></font>
+	</p>
+	<? 
+}
 ?>
 <form id="newKeyword">
 <input type="hidden" name="sec" value="create"/>

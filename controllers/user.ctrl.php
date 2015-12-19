@@ -609,5 +609,28 @@ class UserController extends Controller{
 		return true;
 		
 	}
+	
+	# function to get admin user id
+	function getAdminUserId() {
+		$userTypeCtrlr = new UserTypeController();
+		$adminUserTypeId = $userTypeCtrlr->getAdminUserTypeId();
+		$sql = "select * from users where utype_id=" . $adminUserTypeId;
+		$userInfo = $this->db->select($sql, true);
+		return $userInfo['id'];
+	}
+	
+	# function to check passed user id is admin user id
+	function isAdminUserId($userId) {
+		$adminUserId = $this->getAdminUserId();
+		
+		// if admin user id return true
+		if ($userId == $adminUserId) {
+			return true;
+		} else {
+			return false;
+		}
+		
+	}
+	
 }
 ?>

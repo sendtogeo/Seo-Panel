@@ -62,7 +62,7 @@ class WebsiteController extends Controller{
 			$sql .= " and w.status='{$info['stscheck']}'";
 		}
 
-		echo $sql .= " order by w.name";
+		$sql .= " order by w.name";
 		$this->set('userId', empty($info['userid']) ? 0 : $info['userid']);		
 		
 		# pagination setup		
@@ -193,7 +193,7 @@ class WebsiteController extends Controller{
 		}
 		
 		# Validate website count
-		if (! $this->validateWebsiteCount($userId)) {
+		if (!$this->validateWebsiteCount($userId)) {
 			$this->set('validationMsg', $this->spTextWeb['Your website count already reached the limit']);
 		}
 		
@@ -238,9 +238,11 @@ class WebsiteController extends Controller{
 		$listInfo['url'] = addHttpToUrl($listInfo['url']);
 		$statusVal = isset($listInfo['status']) ? intval($listInfo['status']) : 1;
 		
-		if (! $this->validateWebsiteCount($userId)) {
-			$this->set('validationMsg', "'" . $this->spTextWeb["Your website count already reached the limit"] . "'");
+		// verify the limit for the user
+		if (!$this->validateWebsiteCount($userId)) {
+			$this->set('validationMsg', $this->spTextWeb["Your website count already reached the limit"]);
 			$this->validate->flagErr = true;
+			$errMsg['limit_error'] = $this->spTextWeb["Your website count already reached the limit"];
 		}
 		
 		// validate website creation
@@ -327,6 +329,22 @@ class WebsiteController extends Controller{
 		$errMsg['url'] = formatErrorMsg($this->validate->checkBlank($listInfo['url']));
 		$listInfo['url'] = addHttpToUrl($listInfo['url']);
 		$statusVal = isset($listInfo['status']) ? "status = " . intval($listInfo['status']) ."," : "";		
+		
+		// check limit
+		if(!$this->validate->flagErr && !empty($listInfo['user_id'])){
+			$websiteInfo = $this->__getWebsiteInfo($listInfo['id']);
+			
+			// if user is changed for editing
+			if ($websiteInfo['user_id'] != $listInfo['user_id']) {
+				
+				// verify the limit for the user
+				if (!$this->validateWebsiteCount($listInfo['user_id'])) {
+					$this->set('validationMsg', $this->spTextWeb["Your website count already reached the limit"]);
+					$this->validate->flagErr = true;
+					$errMsg['limit_error'] = $this->spTextWeb["Your website count already reached the limit"];
+				}	
+			}
+		}
 		
 		// verify the form
 		if(!$this->validate->flagErr){
@@ -463,18 +481,28 @@ class WebsiteController extends Controller{
 
 		// Check the user website count for validation
 		if (!isAdmin()) {
-			$userTypeCtrlr = new UserTypeController();
-			$userWebsiteCount = $this->__getCountAllWebsites($userId, false);
-			$userTypeDetails = $userTypeCtrlr->getUserTypeSpecByUser($userId);
-			
-			$validationMsg = str_replace("websitecount", $userTypeDetails['websitecount'] - $userWebsiteCount, $this->spTextWeb['You can add only websitecount websites more']);
-			$this->set('validationMsg', $validationMsg);
+			$this->setValidationMessageForLimit($userId);
 		}
 		
 		$this->set('delimiter', ',');
 		$this->set('enclosure', '"');
 		$this->set('escape', '\\');
 		$this->render('website/importwebsites');
+	}
+
+	# function to set validation message for the limit
+	function setValidationMessageForLimit($userId) {
+	
+		// Check the user website count for validation
+		$userTypeCtrlr = new UserTypeController();
+		$userWebsiteCount = $this->__getCountAllWebsites($userId, false);
+		$userTypeDetails = $userTypeCtrlr->getUserTypeSpecByUser($userId);
+		$validCount = $userTypeDetails['websitecount'] - $userWebsiteCount;
+		$validCount = $validCount > 0 ? $validCount : 0;
+		$validationMsg = str_replace("[websitecount]", "<b>$validCount</b>", $this->spTextWeb['You can add only websitecount websites more']);
+		$this->set('validationMsg', $validationMsg);
+		return $validationMsg;
+			
 	}
 	
 	function importWebsiteFromCsv($info) {
@@ -518,13 +546,9 @@ class WebsiteController extends Controller{
 					}
 					
 					// Check the user website count for validation
-					$userTypeCtrlr = new UserTypeController();
-					$userWebsiteCount = $this->__getCountAllWebsites($userId, false);
-					$userTypeDetails = $userTypeCtrlr->getUserTypeSpecByUser($userId);
-					
-					if ($count > ($userTypeDetails['websitecount'] - $userWebsiteCount)) {
-						$displayErr = str_replace("[websitecount]", $userTypeDetails['websitecount'] - $userWebsiteCount, $this->spTextWeb['You can add only websitecount websites more']);
-						print "<script>alert('".$displayErr."')</script>";
+					if (!$this->validateWebsiteCount($userId, $count)) {
+						$validationMag = strip_tags($this->setValidationMessageForLimit($userId));
+						print "<script>alert('$validationMag')</script>";
 						return False;
 					}
 					
@@ -582,17 +606,21 @@ class WebsiteController extends Controller{
 	}
 	
 	// Function to check / validate the user type website count
-	function validateWebsiteCount($userId) {
+	function validateWebsiteCount($userId, $newCount = 1) {
+		$userCtrler = new UserController();
 
-		if ($userId == 1) {
-			return true;	
+		// if admin user id return true
+		if ($userCtrler->isAdminUserId($userId)) {
+			return true;
 		}
 		
 		$userTypeCtrlr = new UserTypeController();
 		$userWebsiteCount = $this->__getCountAllWebsites($userId, false);
+		$userWebsiteCount += $newCount;
 		$userTypeDetails = $userTypeCtrlr->getUserTypeSpecByUser($userId);
 		
-		if ($userWebsiteCount < $userTypeDetails['websitecount']) {
+		// check whether count greater than limit
+		if ($userWebsiteCount <= $userTypeDetails['websitecount']) {
 			return true;	
 		} else {
 			return false;	

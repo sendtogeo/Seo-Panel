@@ -66,7 +66,8 @@
 	<tr class="white_row">
 		<td class="td_left_col"><?php echo $spText['common']['Keywords']?>:</td>
 		<td class="td_right_col">
-			<textarea name="keywords" rows="10" id="webkeywords"><?php echo $post['keywords']?></textarea><?php echo $errMsg['keywords']?>
+			<textarea name="keywords" rows="10" id="webkeywords"><?php echo $post['keywords']?></textarea>
+			<p><?php echo $errMsg['keywords']?></p>
 			<p style="font-size: 12px;"><?php echo $spTextKeyword['Insert keywords separated with comma']?></p>
 			<P><b>Eg:</b> google seo tools,seo tools,seo</P>
 		</td>

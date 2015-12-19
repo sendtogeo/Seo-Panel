@@ -1,4 +1,14 @@
-<?php echo showSectionHead($spTextWeb['Edit Website']); ?>
+<?php 
+echo showSectionHead($spTextWeb['Edit Website']);
+
+if(!empty($validationMsg)){
+	?>
+	<p class="dirmsg">
+		<font class="error"><?php echo $validationMsg?></font>
+	</p>
+	<?php 
+}
+?>
 <form id="editWebsite">
 <input type="hidden" name="sec" value="update"/>
 <input type="hidden" name="oldName" value="<?php echo $post['oldName']?>"/>
