@@ -961,7 +961,7 @@ class ReportController extends Controller {
     			group by k.id";
     		
     			$unionOrderCol = ($orderCol == "keyword") ? "name" : "rank";
-				echo $sql = "(". str_replace("[col]", "k.id,k.name,min(rank) rank,w.name website,w.url weburl", $subSql) .")
+				$sql = "(". str_replace("[col]", "k.id,k.name,min(rank) rank,w.name website,w.url weburl", $subSql) .")
     			UNION
     			(select k.id,k.name,1000,w.name website,w.url weburl
     			from keywords k, websites w
