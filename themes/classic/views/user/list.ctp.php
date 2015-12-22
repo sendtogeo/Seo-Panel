@@ -35,11 +35,12 @@
 		<td><?php echo $spText['login']['Username']?></td>
 		<td><?php echo $spText['common']['Name']?></td>
 		<td><?php echo $spText['login']['Email']?></td>
+		<td><?php echo $spTextUser['Expiry Date']?></td>
 		<td><?php echo $spText['common']['Status']?></td>
 		<td class="right"><?php echo $spText['common']['Action']?></td>
 	</tr>
 	<?php
-	$colCount = 7; 
+	$colCount = 8; 
 	if(count($userList) > 0){
 		$catCount = count($userList);
 		foreach($userList as $i => $userInfo){
@@ -59,6 +60,7 @@
 				<td class="td_br_right left"><?php echo $usernameLink?></td>
 				<td class="td_br_right left"><?php echo $userInfo['first_name']." ".$userInfo['last_name']?></td>
 				<td class="td_br_right left"><?php echo $userInfo['email']?></td>
+				<td class="td_br_right left"><?php echo formatDate($userInfo['expiry_date']); ?></td>
 				<td class="td_br_right"><?php echo $userInfo['status'] ? $spText['common']["Active"] : $spText['common']["Inactive"];	?></td>
 				<td class="<?php echo $rightBotClass?>" width="100px">
 					<?php

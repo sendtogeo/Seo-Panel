@@ -183,6 +183,11 @@ function formatUrl( $url, $removeWWW=true ) {
 	return $url;
 }
 
+function formatDate($date) {
+	$date = str_replace("0000-00-00", "", $date);
+	return $date;
+}
+
 function addHttpToUrl($url){
 	if(!stristr($url, 'http://') && !stristr($url, 'https://')){
 		$url = 'http://'.$url;

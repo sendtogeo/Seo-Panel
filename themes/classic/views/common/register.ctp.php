@@ -10,6 +10,16 @@
                 		<td>&nbsp;</td>
                 		<th class="main_header"><?php echo $spText['login']['Create New Account']?></th>
                 	</tr>
+                	<?php if (!empty($_GET['failed'])) {?>
+	                	<tr>
+	                		<td colspan="2"><?php showErrorMsg("Internal error occured during payment processing!", false);?></td>
+	                	<tr>
+                	<?php }?>
+                	<?php if (!empty($_GET['cancel'])) {?>
+	                	<tr>
+	                		<td colspan="2"><?php showErrorMsg("Payment process cancelled!", false);?></td>
+	                	<tr>
+                	<?php }?>
                 	
                 	<?php
                 	// if subscription plugin is active

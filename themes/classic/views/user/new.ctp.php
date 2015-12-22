@@ -43,7 +43,15 @@
 				<?php }?>
 			</select>
 		</td>
-	</tr>			
+	</tr>
+	<tr class="blue_row">
+		<td class="td_left_col"><?php echo $spTextUser['Expiry Date']?>:</td>
+		<td class="td_right_col">
+			<input type="text" name="expiry_date" value="<?php echo $post['expiry_date']?>" class="date_fld">
+    		<img align="bottom" onclick="displayDatePicker('expiry_date', false, 'ymd', '-');" src="<?php echo SP_IMGPATH?>/cal.gif"/>
+    		<p><?php echo $errMsg['expiry_date']?></p>
+		</td>
+	</tr>				
 	<tr class="blue_row">
 		<td class="tab_left_bot_noborder"></td>
 		<td class="tab_right_bot"></td>

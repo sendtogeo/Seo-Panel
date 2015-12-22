@@ -28,6 +28,10 @@ VALUES  ('en', 'keyword', 'You can add only keywordcount keywords more', 'You ca
 INSERT INTO texts(`lang_code`, `category`, `label`, `content`)
 VALUES  ('en', 'website', 'You can add only websitecount websites more', 'You can add only [websitecount] websites for this user!');
 
+INSERT INTO texts(`lang_code`, `category`, `label`, `content`)
+VALUES  ('en', 'user', 'Expiry Date', 'Expiry Date');
+
+
 --
 -- Table structure for table `currency`
 --

@@ -235,5 +235,22 @@ class Validation{
 		}		
 		return $msg;
 	}
+	
+	# func to check date
+	function checkDate($date, $delimiter = '-') {
+		$msg = '';
+		$dateElements = explode($delimiter, $date);
+		
+		// explode and check the number of elements
+		if (count($dateElements) == 3) {
+			if (checkdate($dateElements[1], $dateElements[2], $dateElements[0])) {
+				return $msg;
+			}
+		}
+		
+		$msg = $_SESSION['text']['common']['Invalid characters'];
+		$this->flagErr = true;
+		return $msg;
+	}
 }
 ?>

@@ -406,6 +406,7 @@ class SeoPluginsController extends Controller{
 	function createPluginObject($pluginName) {
 		$pluginInfo = $this->__getSeoPluginInfo($pluginName, 'name');
 		$info['pid'] = $pluginInfo['id'];
+		$info['action'] = "get_plugin_object";
 		$pluginCtrler = $this->manageSeoPlugins($info);
 		return $pluginCtrler;
 	}

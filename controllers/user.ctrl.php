@@ -34,6 +34,13 @@ class UserController extends Controller{
 		$this->render('common/login');
 	}
 	
+	# function to set login session items
+	function setLoginSession($userInfo) {
+		@Session::setSession('userInfo', $userInfo);
+		@Session::setSession('lang_code', $userInfo['lang_code']);
+		@Session::setSession('text', '');
+	}
+	
 	# login function
 	function login(){	    
 	    
@@ -66,15 +73,16 @@ class UserController extends Controller{
                 	    }
 					    
 						$uInfo['userId'] = $userInfo['id'];
-						$uInfo['userType'] = $userInfo['user_type']; 
-						@Session::setSession('userInfo', $uInfo);
-						@Session::setSession('lang_code', $userInfo['lang_code']);
-                	    @Session::setSession('text', '');
+						$uInfo['userType'] = $userInfo['user_type'];
+						$uInfo['lang_code'] = $userInfo['lang_code'];
+						$this->setLoginSession($uInfo);
+						
 						if ($referer = isValidReferer($_POST['referer'])) {
 							redirectUrl($referer);
 						} else {
 							redirectUrl(SP_WEBPATH."/");	
-						}						
+						}
+												
 					}else{
 						$errMsg['userName'] = formatErrorMsg($_SESSION['text']['login']["User inactive"]);
 					}
@@ -125,6 +133,7 @@ class UserController extends Controller{
 		$this->set('post', $_POST);
 		$userInfo = $_POST;
 		$subscriptionActive = false;
+		$userStatus = 1;
 		
 		$errMsg['userName'] = formatErrorMsg($this->validate->checkUname($userInfo['userName']));
 		$errMsg['password'] = formatErrorMsg($this->validate->checkPasswords($userInfo['password'], $userInfo['confirmPassword']));
@@ -146,6 +155,7 @@ class UserController extends Controller{
 		if ($seopluginCtrler->isPluginActive("Subscription")) {
 			$subscriptionActive = true;
 			$errMsg['pg_id'] = formatErrorMsg($this->validate->checkNumber($userInfo['pg_id']));
+			$userStatus = 0;
 		}
 		
 		if(!$this->validate->flagErr){
@@ -156,7 +166,7 @@ class UserController extends Controller{
 					(utype_id,username,password,first_name,last_name,email,created,status) 
 					values ($utypeId,'".addslashes($userInfo['userName'])."','".md5($userInfo['password'])."',
 					'".addslashes($userInfo['firstName'])."','".addslashes($userInfo['lastName'])."',
-					'".addslashes($userInfo['email'])."',UNIX_TIMESTAMP(),1)";
+					'".addslashes($userInfo['email'])."',UNIX_TIMESTAMP(),$userStatus)";
 					$this->db->query($sql);
 					
 					// get user id created
@@ -340,13 +350,19 @@ class UserController extends Controller{
 		$userTypeId = empty($userInfo['userType']) ? 2 : intval($userInfo['userType']);
 		$userStatus = isset($userInfo['status']) ? intval($userInfo['status']) : 1;
 		
+		// if expiry date is not empty
+		if (!empty($userInfo['expiry_date'])) {
+			$errMsg['expiry_date'] = formatErrorMsg($this->validate->checkDate($userInfo['expiry_date']));
+		}
+		
 		// check error flag is on
 		if(!$this->validate->flagErr){
 			if (!$this->__checkUserName($userInfo['userName'])) {
 				if (!$this->__checkEmail($userInfo['email'])) {
-					$sql = "insert into users(utype_id,username,password,first_name,last_name,email,created,status) 
-						values($userTypeId,'".addslashes($userInfo['userName'])."','".md5($userInfo['password'])."','".addslashes($userInfo['firstName'])."',
-						'".addslashes($userInfo['lastName'])."','".addslashes($userInfo['email'])."',UNIX_TIMESTAMP(),$userStatus)";
+					$sql = "insert into users(utype_id,username,password,first_name,last_name,email,created,status, expiry_date) 
+						values($userTypeId,'".addslashes($userInfo['userName'])."','".md5($userInfo['password'])."'
+						,'".addslashes($userInfo['firstName'])."', '".addslashes($userInfo['lastName'])."'
+						,'".addslashes($userInfo['email'])."',UNIX_TIMESTAMP(),$userStatus, '".addslashes($userInfo['expiry_date'])."')";
 					$this->db->query($sql);
 					
 					// if render results
@@ -384,6 +400,7 @@ class UserController extends Controller{
 				$userInfo['oldName'] = $userInfo['username'];
 				$userInfo['oldEmail'] = $userInfo['email'];
 				$userInfo['userType'] = $userInfo['utype_id'];
+				$userInfo['expiry_date'] = formatDate($userInfo['expiry_date']);
 			}
 
 			// Get the user types
@@ -404,6 +421,11 @@ class UserController extends Controller{
 		$userInfo['id'] = intval($userInfo['id']);
 		$this->set('post', $userInfo);
 		$errMsg['userName'] = formatErrorMsg($this->validate->checkUname($userInfo['userName']));
+		
+		// if expiry date is not empty
+		if (!empty($userInfo['expiry_date'])) {
+			$errMsg['expiry_date'] = formatErrorMsg($this->validate->checkDate($userInfo['expiry_date']));
+		}
 		
 		// if password needs to be reset
 		if(!empty($userInfo['password'])){
@@ -444,7 +466,8 @@ class UserController extends Controller{
 						$passStr
 						$activeStr
 						email = '".addslashes($userInfo['email'])."',
-						utype_id = ".addslashes($userInfo['userType'])."
+						utype_id = ".addslashes($userInfo['userType']).",
+						expiry_date='".addslashes($userInfo['expiry_date'])."'
 						where id={$userInfo['id']}";
 				$this->db->query($sql);
 				
@@ -587,11 +610,12 @@ class UserController extends Controller{
 	
 	# function to check whether user expired
 	function isUserExpired($userId) {
-		$excluseSecList = array('myprofile');
+		$excludeSecList = array('myprofile');
 		
 		// if not admin user and not in section pages
-		if (!isAdmin() && !in_array($_REQUEST['sec'], $excluseSecList)) {
+		if (!isAdmin() && !in_array($_REQUEST['sec'], $excludeSecList)) {
 			$userInfo = $this->__getUserInfo($userId);
+			$userInfo['expiry_date'] = formatDate($userInfo['expiry_date']);
 			
 			// if expiry date set for user
 			if (!empty($userInfo['expiry_date'])) {
@@ -630,6 +654,12 @@ class UserController extends Controller{
 			return false;
 		}
 		
+	}
+	
+	# function to update user info
+	function updateUserInfo($userId, $col, $value) {
+		$sql = "update users set $col='".addslashes($value)."' where id=" . intval($userId);
+		$this->db->query($sql);
 	}
 	
 }
