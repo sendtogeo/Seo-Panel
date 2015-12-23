@@ -134,7 +134,7 @@ class AdminPanelController extends Controller{
 		
 		$arguments = "";
 		foreach ($info as $key => $value) {
-		    if (!in_array($key, array('menu_selected', 'start_script'))) {
+		    if (!in_array($key, array('menu_selected', 'start_script', "sec"))) {
 		        $arguments .= "&$key=".urldecode($value);    
 		    }
 		}

@@ -98,11 +98,12 @@ class UserController extends Controller{
 	}
 	
 	# register function
-	function register(){
+	function register($info = ""){
 		
 		$seopluginCtrler =  new SeoPluginsController();
 		$subscriptionActive = false;
 		$utypeCtrler = new UserTypeController();
+		$this->set('post', $info);
 		
 		// check whetehr plugin installed or not
 		if ($seopluginCtrler->isPluginActive("Subscription")) {
@@ -124,6 +125,24 @@ class UserController extends Controller{
 		
 		$this->set('subscriptionActive', $subscriptionActive);
 		$this->render('common/register');
+	}
+	
+	# function to show pricing
+	function showPricing(){
+		
+		$seopluginCtrler =  new SeoPluginsController();
+		$utypeCtrler = new UserTypeController();
+		
+		// check whetehr plugin installed or not
+		if ($seopluginCtrler->isPluginActive("Subscription")) {
+			$userTypeList = $utypeCtrler->getAllUserTypes();
+			$this->set('list', $userTypeList);
+			$this->set('spTextSubscription', $this->getLanguageTexts('subscription', $_SESSION['lang_code']));
+			$this->render('common/pricing');
+		} else {
+			redirectUrl(SP_WEBPATH . "/register.php");
+		}	
+		
 	}
 	
 	# function to start registration
@@ -492,7 +511,108 @@ class UserController extends Controller{
 		
 	}
 	
-	function showMyProfile($userInfo=''){
+	function showMyProfile($info = ''){
+		$userId = isLoggedIn();		
+		if(!empty($userId)){
+			$userInfo = $this->__getUserInfo($userId);
+			$this->set('userInfo', $userInfo);			
+			$userTypeCtrler = new UserTypeController();
+			$userTypeInfo = $userTypeCtrler->__getUserTypeInfo($userInfo['utype_id']);
+			$this->set('userTypeInfo', $userTypeInfo);
+			$seopluginCtrler =  new SeoPluginsController();
+			$this->set('subscriptionActive', $seopluginCtrler->isPluginActive("Subscription"));			
+			$spTextSubscription = $this->getLanguageTexts('subscription', $_SESSION['lang_code']);
+			$this->set('spTextSubscription', $spTextSubscription);
+			$this->render('user/showmyprofile', 'ajax');
+		}	
+	}
+	
+	# function to renew membership subscription
+	function renewMyProfile($info = ''){
+		$userId = isLoggedIn();
+		$seopluginCtrler =  new SeoPluginsController();
+		
+		// if logged in and plugin is active
+		if(!empty($userId) && $seopluginCtrler->isPluginActive("Subscription") && !isAdmin()){
+			$userInfo = $this->__getUserInfo($userId);
+			$this->set('userInfo', $userInfo);
+			
+			$userTypeCtrler = new UserTypeController();
+			$userTypeInfo = $userTypeCtrler->__getUserTypeInfo($userInfo['utype_id']);
+			$this->set('userTypeInfo', $userTypeInfo);
+			
+			$spTextSubscription = $this->getLanguageTexts('subscription', $_SESSION['lang_code']);
+			$this->set('spTextSubscription', $spTextSubscription);
+			
+			include_once(SP_PLUGINPATH . "/Subscription/paymentgateway.ctrl.php");
+			$userTypeList = $userTypeCtrler->getAllUserTypes();
+			$this->set('userTypeList', $userTypeList);
+				
+			// include available payment gateways
+			$pgCtrler = new PaymentGateway();
+			$pgList = $pgCtrler->__getAllPaymentGateway();
+			$this->set('pgList', $pgList);
+			$this->set('defaultPgId', $pgCtrler->__getDefaultPaymentGateway());
+			$this->render('user/renewmyprofile', 'ajax');
+		} else {
+			redirectUrlByScript(SP_WEBPATH . "/admin-panel.php?sec=myprofile");
+		}
+	}
+	
+	# function to update membership subscription
+	function updateSubscription($userInfo = ''){
+		$userId = isLoggedIn();
+		$seopluginCtrler =  new SeoPluginsController();
+		
+		// if logged in and plugin is active
+		if(!empty($userId) && $seopluginCtrler->isPluginActive("Subscription") && !isAdmin()){
+			$utypeCtrler = New UserTypeController();
+			$_POST = sanitizeData($_POST);
+			$errMsg['utype_id'] = formatErrorMsg($this->validate->checkNumber($userInfo['utype_id']));
+			$errMsg['pg_id'] = formatErrorMsg($this->validate->checkNumber($userInfo['pg_id']));
+			
+			// if admin user type selected, show error
+			$adminTypeId = $utypeCtrler->getAdminUserTypeId();
+			if ($adminTypeId == $userInfo['utype_id']) {
+				$this->validate->flagErr = true;
+				$errMsg['userName'] = formatErrorMsg("You can not register as admin!!");
+			}
+			
+			// if all form inputs are valid
+			if (!$this->validate->flagErr) {
+				$utypeId = intval($userInfo['utype_id']);
+				$userId = isLoggedIn();
+				$utypeInfo = $utypeCtrler->__getUserTypeInfo($utypeId);
+		
+				// if it is paid subscription, proceed with payment
+				if ($utypeInfo['price'] > 0) {
+					$paymentPluginId = intval($userInfo['pg_id']);
+					@Session::setSession('payment_plugin_id', $paymentPluginId);
+					$quantity = intval($userInfo['quantity']);
+					$pluginCtrler = $seopluginCtrler->createPluginObject("Subscription");
+					$paymentForm = $pluginCtrler->pgCtrler->getPaymentForm($paymentPluginId, $userId, $utypeInfo, $quantity, "renew");
+					$this->set('paymentForm', $paymentForm);
+				} else {
+					$this->updateUserInfo($userId, 'utype_id', $userInfo['utype_id']);
+					$expiryDate = $this->calculateUserExpiryDate($userInfo['quantity']);
+					$this->updateUserInfo($userId, 'expiry_date', $expiryDate);
+					redirectUrlByScript(SP_WEBPATH . "/admin-panel.php?sec=myprofile");
+					exit;
+				}
+				
+				$this->render('user/renewmyprofile', 'ajax');
+				
+			} else {
+				$this->set('errMsg', $errMsg);
+				$this->renewMyProfile($_POST);
+			}
+			
+		} else {
+			redirectUrlByScript(SP_WEBPATH . "/admin-panel.php?sec=myprofile");
+		}
+	}
+	
+	function editMyProfile($userInfo=''){
 		$userId = isLoggedIn();		
 		if(!empty($userId)){
 			if(empty($userInfo)){
@@ -610,7 +730,7 @@ class UserController extends Controller{
 	
 	# function to check whether user expired
 	function isUserExpired($userId) {
-		$excludeSecList = array('myprofile');
+		$excludeSecList = array("myprofile", "renew-profile", "update-subscription");
 		
 		// if not admin user and not in section pages
 		if (!isAdmin() && !in_array($_REQUEST['sec'], $excludeSecList)) {
@@ -660,6 +780,14 @@ class UserController extends Controller{
 	function updateUserInfo($userId, $col, $value) {
 		$sql = "update users set $col='".addslashes($value)."' where id=" . intval($userId);
 		$this->db->query($sql);
+	}
+	
+	# function to calculate user expiry date
+	function calculateUserExpiryDate($quantity) {
+		$month = date('m') + $quantity;
+		$expiryTimeStamp = mktime(23, 59, 59, $month, date('d'), date('Y'));
+		$expiryDate = date('Y-m-d', $expiryTimeStamp);
+		return $expiryDate;
 	}
 	
 }

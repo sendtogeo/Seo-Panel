@@ -12,12 +12,12 @@
                 	</tr>
                 	<?php if (!empty($_GET['failed'])) {?>
 	                	<tr>
-	                		<td colspan="2"><?php showErrorMsg("Internal error occured during payment processing!", false);?></td>
+	                		<td colspan="2"><?php showErrorMsg($spTextSubscription['internal-error-payment'], false);?></td>
 	                	<tr>
                 	<?php }?>
                 	<?php if (!empty($_GET['cancel'])) {?>
 	                	<tr>
-	                		<td colspan="2"><?php showErrorMsg("Payment process cancelled!", false);?></td>
+	                		<td colspan="2"><?php showErrorMsg($spTextSubscription["Your transaction cancelled."], false);?></td>
 	                	<tr>
                 	<?php }?>
                 	

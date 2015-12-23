@@ -27,9 +27,13 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	
 }else{
 	switch($_GET['sec']){
+		
+		case "pricing":
+			$controller->showPricing();
+			break;
 
 		default:
-			$controller->register();
+			$controller->register($_GET);
 			break;
 	}
 }

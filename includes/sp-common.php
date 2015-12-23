@@ -100,7 +100,7 @@ function checkLoggedIn() {
 	// check whethere user expired, then redirect to subscribe page
 	$userCtrl = New UserController();
 	if (!$userCtrl->isUserExpired($userInfo['userId'])) {
-		redirectUrl(SP_WEBPATH."/admin-panel.php?sec=myprofile");
+		redirectUrl(SP_WEBPATH."/admin-panel.php?sec=myprofile&expired=1");
 	}
 }
 

@@ -14,6 +14,25 @@ VALUES  ('en', 'common', 'Sample CSV File', 'Sample CSV File');
 
 INSERT INTO texts(`lang_code`, `category`, `label`, `content`) 
 VALUES  ('en', 'subscription', 'Term', 'Term');
+
+INSERT INTO texts(`lang_code`, `category`, `label`, `content`) 
+VALUES  ('en', 'subscription', 'Renew Subscription', 'Renew Subscription');
+
+INSERT INTO texts(`lang_code`, `category`, `label`, `content`) 
+VALUES  ('en', 'subscription', 'Your transaction cancelled.', 'Your transaction cancelled.');
+
+INSERT INTO texts(`lang_code`, `category`, `label`, `content`) 
+VALUES  ('en', 'subscription', 'internal-error-payment', 'Internal error occured during payment processing.');
+
+INSERT INTO texts(`lang_code`, `category`, `label`, `content`) 
+VALUES  ('en', 'subscription', 'account-expired', 'Your account expired. Please renew your subscription.');
+
+INSERT INTO texts(`lang_code`, `category`, `label`, `content`) 
+VALUES  ('en', 'subscription', 'transaction-success', 'Your transaction processed successfully.');
+
+INSERT INTO texts(`lang_code`, `category`, `label`, `content`) 
+VALUES  ('en', 'subscription', 'Plans and Pricing', 'Plans and Pricing');
+
 INSERT INTO texts(`lang_code`, `category`, `label`, `content`) 
 VALUES  ('en', 'subscription', 'Currency', 'Currency');
 
