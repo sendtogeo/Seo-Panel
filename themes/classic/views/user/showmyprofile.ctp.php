@@ -47,11 +47,11 @@ if(!empty($msg)){ showSuccessMsg($msg, false);}
 		<td class="td_right_col"><?php echo $userInfo['email']; ?></td>
 	</tr>
 	<tr class="white_row">
-		<th class="td_left_col"><?php echo $spText['common']['Keywords Count']?>:</th>
+		<th class="td_left_col"><?php echo $spTextSubscription['Keyword Limit']?>:</th>
 		<td class="td_right_col"><?php echo $userTypeInfo['keywordcount']; ?></td>
 	</tr>
 	<tr class="white_row">
-		<th class="td_left_col"><?php echo $spText['common']['Websites Count']?>:</th>
+		<th class="td_left_col"><?php echo $spTextSubscription['Website Limit']?>:</th>
 		<td class="td_right_col"><?php echo $userTypeInfo['websitecount']; ?></td>
 	</tr>
 	<tr class="white_row">

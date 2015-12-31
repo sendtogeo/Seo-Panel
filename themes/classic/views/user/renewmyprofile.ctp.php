@@ -22,7 +22,14 @@ if (!empty($paymentForm)) {
 					<?php
 					foreach ($userTypeList as $uTypeInfo) {
 						$typeLabel = ucfirst($uTypeInfo['user_type']) . " - ";
-						$typeLabel .= ($uTypeInfo['price'] > 0) ? "$" . $uTypeInfo['price'] . "/Monthly" : "Free";
+						
+						// if user type have price
+						if ($uTypeInfo['price'] > 0) {
+							$typeLabel .= $currencyList[SP_PAYMENT_CURRENCY]['symbol'] . $uTypeInfo['price'] . "/" . $spText['label']['Monthly'];
+						} else {
+							$typeLabel .= $spText['label']['Free'];
+						}						
+						
 						$selected = ($uTypeInfo['id'] == $userTypeInfo['id']) ? "selected" : "";
 	 					?>
 						<option value="<?php echo $uTypeInfo['id']?>" <?php echo $selected; ?>><?php echo $typeLabel?></option>

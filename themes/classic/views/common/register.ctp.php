@@ -31,14 +31,23 @@
 								<select name="utype_id">
 									<?php
 									foreach ($userTypeList as $userTypeInfo) {
+										$selected = ($post['utype_id'] == $userTypeInfo['id']) ? "selected" : "";
 										$typeLabel = ucfirst($userTypeInfo['user_type']) . " - ";
-										$typeLabel .= ($userTypeInfo['price'] > 0) ? $currencyList[SP_PAYMENT_CURRENCY]['symbol'] . $userTypeInfo['price'] . "/Monthly" : "Free";
+										
+										// if user type have price
+										if ($userTypeInfo['price'] > 0) {
+											$typeLabel .= $currencyList[SP_PAYMENT_CURRENCY]['symbol'] . $userTypeInfo['price'] . "/" . $spText['label']['Monthly'];
+										} else {
+											$typeLabel .= $spText['label']['Free'];
+										}										
 										?>
-										<option value="<?php echo $userTypeInfo['id']?>"><?php echo $typeLabel?></option>
+										<option value="<?php echo $userTypeInfo['id']?>" <?php echo $selected;?>><?php echo $typeLabel?></option>
 										<?php
 									}
 									?>
 								</select>
+								<a class="bold_link" href="<?php echo SP_WEBPATH . "/register.php?sec=pricing"; ?>"><?php echo $spTextSubscription['Plans and Pricing']?> &gt;&gt;</a>
+								<br>
 								<?php echo $errMsg['utype_id']?>
 							</td>
 						</tr>

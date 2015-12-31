@@ -10,34 +10,32 @@ INSERT INTO texts(`lang_code`, `category`, `label`, `content`)
 VALUES  ('en', 'website', 'Please enter CSV file', 'Please enter CSV file');
 INSERT INTO texts(`lang_code`, `category`, `label`, `content`) 
 VALUES  ('en', 'common', 'Sample CSV File', 'Sample CSV File');
-
-
+INSERT INTO texts(`lang_code`, `category`, `label`, `content`) 
+VALUES  ('en', 'label', 'Free', 'Free');
 INSERT INTO texts(`lang_code`, `category`, `label`, `content`) 
 VALUES  ('en', 'subscription', 'Term', 'Term');
-
 INSERT INTO texts(`lang_code`, `category`, `label`, `content`) 
 VALUES  ('en', 'subscription', 'Renew Subscription', 'Renew Subscription');
-
 INSERT INTO texts(`lang_code`, `category`, `label`, `content`) 
 VALUES  ('en', 'subscription', 'Your transaction cancelled.', 'Your transaction cancelled.');
-
 INSERT INTO texts(`lang_code`, `category`, `label`, `content`) 
 VALUES  ('en', 'subscription', 'internal-error-payment', 'Internal error occured during payment processing.');
-
 INSERT INTO texts(`lang_code`, `category`, `label`, `content`) 
 VALUES  ('en', 'subscription', 'account-expired', 'Your account expired. Please renew your subscription.');
-
 INSERT INTO texts(`lang_code`, `category`, `label`, `content`) 
 VALUES  ('en', 'subscription', 'transaction-success', 'Your transaction processed successfully.');
-
 INSERT INTO texts(`lang_code`, `category`, `label`, `content`) 
 VALUES  ('en', 'subscription', 'Plans and Pricing', 'Plans and Pricing');
-
 INSERT INTO texts(`lang_code`, `category`, `label`, `content`) 
 VALUES  ('en', 'subscription', 'click-activate-pay-plugin', 'Click here to activate payment plugin');
-
 INSERT INTO texts(`lang_code`, `category`, `label`, `content`) 
 VALUES  ('en', 'subscription', 'Currency', 'Currency');
+INSERT INTO texts(`lang_code`, `category`, `label`, `content`) 
+VALUES  ('en', 'subscription', 'Website Limit', 'Website Limit');
+INSERT INTO texts(`lang_code`, `category`, `label`, `content`) 
+VALUES  ('en', 'subscription', 'Keyword Limit', 'Keyword Limit');
+INSERT INTO texts(`lang_code`, `category`, `label`, `content`) 
+VALUES  ('en', 'subscription', 'Subscribe', 'Subscribe');
 
 INSERT INTO texts(`lang_code`, `category`, `label`, `content`)
 VALUES  ('en', 'login', 'User Type', 'User Type');
@@ -49,7 +47,6 @@ INSERT INTO texts(`lang_code`, `category`, `label`, `content`)
 VALUES  ('en', 'keyword', 'You can add only keywordcount keywords more', 'You can add only [keywordcount] keywords for this user!');
 INSERT INTO texts(`lang_code`, `category`, `label`, `content`)
 VALUES  ('en', 'website', 'You can add only websitecount websites more', 'You can add only [websitecount] websites for this user!');
-
 INSERT INTO texts(`lang_code`, `category`, `label`, `content`)
 VALUES  ('en', 'user', 'Expiry Date', 'Expiry Date');
 

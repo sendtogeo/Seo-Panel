@@ -1018,4 +1018,10 @@ A.graphicon{
 #powered A {color: #0033CC; font-size: 12px; text-decoration: underline;}
 
 input.long{width: 280px;}
-input.date_fld{width: 80px} 
+input.date_fld{width: 80px}
+
+a.bold_link{
+	text-decoration: none;
+	font-weight: bold;
+	font-size: 13px;
+} 

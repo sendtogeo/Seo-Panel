@@ -283,20 +283,37 @@ class UserTypeController extends Controller {
 		$sql = "select * from usertypes where status=1";
 		$sql .= empty($includeAdmin) ? " and id!=1" : "";
 		$sql .= " order by id";
-		$userTypeList = $this->db->select($sql);
-
+		$uTypeList = $this->db->select($sql);
+		$userTypeList = array();
+		$priceList = array();
+		
 		// Set the spec details for user type
-		foreach ($userTypeList as $key => $userType) {
+		foreach ($uTypeList as $userType) {
 			$sql = "select * from user_specs where user_type_id=" . $userType['id'];
 			$userTypeSpecList = $this->db->select($sql);
 				
 			foreach ($userTypeSpecList as $userTypeSpec) {
 				$userType[$userTypeSpec['spec_column']] = $userTypeSpec['spec_value'];
+				
+				// if price column
+				if ($userTypeSpec['spec_column'] == 'price') {
+					$priceList[$userType['id']] = $userTypeSpec['spec_value'];
+				}
+				
 			}
-			$userTypeList[$key] = $userType;
+			
+			$userTypeList[$userType['id']] = $userType;
 		}
 		
-		return $userTypeList;
+		// sort and create new array
+		asort($priceList);
+		$sortUserTypeList = array();
+		
+		foreach ($priceList as $usertTypeId => $price) {
+			$sortUserTypeList[] = $userTypeList[$usertTypeId];
+		}
+		
+		return $sortUserTypeList;
 	}
 	
 	/**

@@ -32,8 +32,10 @@
 								</td>
 								<td class="td_br_right"><?php echo $listInfo['keywordcount']?></td>
 								<td class="td_br_right"><?php echo $listInfo['websitecount']?></td>
-								<td class="td_br_right"><?php echo $listInfo['price']?></td>
-								<td class="td_br_right"><?php echo "Subscribe"; ?></td>
+								<td class="td_br_right" style="font-weight: bold;"><?php echo $currencyList[SP_PAYMENT_CURRENCY]['symbol'] . $listInfo['price']?></td>
+								<td class="td_br_right">
+									<a class="bold_link" href="<?php echo $orderLink; ?>"><?php echo $spTextSubscription['Subscribe']; ?> &gt;&gt;</a>
+								</td>
 							</tr>
 							<?php
 						}

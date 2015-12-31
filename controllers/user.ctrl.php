@@ -140,7 +140,9 @@ class UserController extends Controller{
 		if ($seopluginCtrler->isPluginActive("Subscription")) {
 			$userTypeList = $utypeCtrler->getAllUserTypes();
 			$this->set('list', $userTypeList);
-			$this->set('spTextSubscription', $this->getLanguageTexts('subscription', $_SESSION['lang_code']));
+			$this->set('spTextSubscription', $this->getLanguageTexts('subscription', $_SESSION['lang_code']));			
+			$currencyCtrler = new CurrencyController();
+			$this->set('currencyList', $currencyCtrler->getCurrencyCodeMapList());
 			$this->render('common/pricing');
 		} else {
 			redirectUrl(SP_WEBPATH . "/register.php");
@@ -550,6 +552,9 @@ class UserController extends Controller{
 			include_once(SP_PLUGINPATH . "/Subscription/paymentgateway.ctrl.php");
 			$userTypeList = $userTypeCtrler->getAllUserTypes();
 			$this->set('userTypeList', $userTypeList);
+			
+			$currencyCtrler = new CurrencyController();
+			$this->set('currencyList', $currencyCtrler->getCurrencyCodeMapList());
 				
 			// include available payment gateways
 			$pgCtrler = new PaymentGateway();
