@@ -57,7 +57,7 @@ class WebsiteController extends Controller{
 		}
 		
 		// if status set
-		if (isset($info['stscheck'])) {
+		if (isset($info['stscheck']) && $info['stscheck'] != 'select') {
 			$info['stscheck'] = intval($info['stscheck']);
 			$sql .= " and w.status='{$info['stscheck']}'";
 		}

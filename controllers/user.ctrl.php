@@ -234,7 +234,7 @@ class UserController extends Controller{
 		$sql = "select * from users where utype_id!=1";
 
 		// if status set
-		if (isset($info['stscheck'])) {
+		if (isset($info['stscheck']) && $info['stscheck'] != 'select') {
 			$info['stscheck'] = intval($info['stscheck']);
 			$sql .= " and status='{$info['stscheck']}'";
 		}
