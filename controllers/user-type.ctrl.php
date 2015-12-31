@@ -55,8 +55,14 @@ class UserTypeController extends Controller {
 			$userTypeList[$key] = $userType;
 		}
 		
+		// if subscription plugin active
+		if ($this->isPluginSubsActive) {
+			$currencyCtrler = new CurrencyController();
+			$this->set('currencyList', $currencyCtrler->getCurrencyCodeMapList());
+		}
+		
 		$this->set('pageNo', $info['pageno']);		
-		$this->set('list', $userTypeList);
+		$this->set('list', $userTypeList);		
 		$this->render('usertypes/list');
 	}
 	
@@ -79,6 +85,12 @@ class UserTypeController extends Controller {
 			$listInfo['price'] = stripslashes($listInfo['price']);
 			$listInfo['status'] = stripslashes($listInfo['status']);
 			$this->set('post', $listInfo);
+		
+			// if subscription plugin active
+			if ($this->isPluginSubsActive) {
+				$currencyCtrler = new CurrencyController();
+				$this->set('currencyList', $currencyCtrler->getCurrencyCodeMapList());
+			}
 			
 			$this->render('usertypes/edit');
 			exit;
@@ -229,7 +241,14 @@ class UserTypeController extends Controller {
 	 * @params : $info - data values array
 	 * @return : returns the data
 	 */
-	function newUserType($info='') {	
+	function newUserType($info='') {
+		
+		// if subscription plugin active
+		if ($this->isPluginSubsActive) {
+			$currencyCtrler = new CurrencyController();
+			$this->set('currencyList', $currencyCtrler->getCurrencyCodeMapList());
+		}
+			
 		$this->render('usertypes/new');
 	}
 

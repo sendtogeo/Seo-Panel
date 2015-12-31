@@ -34,6 +34,9 @@ INSERT INTO texts(`lang_code`, `category`, `label`, `content`)
 VALUES  ('en', 'subscription', 'Plans and Pricing', 'Plans and Pricing');
 
 INSERT INTO texts(`lang_code`, `category`, `label`, `content`) 
+VALUES  ('en', 'subscription', 'click-activate-pay-plugin', 'Click here to activate payment plugin');
+
+INSERT INTO texts(`lang_code`, `category`, `label`, `content`) 
 VALUES  ('en', 'subscription', 'Currency', 'Currency');
 
 INSERT INTO texts(`lang_code`, `category`, `label`, `content`)
@@ -140,6 +143,9 @@ INSERT INTO `currency` (`id`, `name`, `iso_code`, `symbol`, `unicode`, `position
 (65, 'Vietnamese Dong', 'VND', '₫', '&#x20AB;', 'before', 0, 1),
 (66, 'East Caribbean Dollar', 'XCD', '$', '&#36;', 'before', 0, 1),
 (67, 'South African Rand', 'ZAR', 'R', 'R', 'before', 0, 1);
+
+INSERT INTO `settings` (`set_label`, `set_name`, `set_val`, `set_category`, `set_type`, `display`)  
+VALUES ('Currency', 'SP_PAYMENT_CURRENCY', 'USD', 'system', 'medium', '1');
 
 --
 -- Table structure for table `user_specs`

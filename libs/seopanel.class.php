@@ -54,7 +54,8 @@ class Seopanel{
 		include_once(SP_CTRLPATH."/crawllog.ctrl.php");
 		include_once(SP_CTRLPATH.'/timezone.ctrl.php');
 		include_once(SP_CTRLPATH.'/searchengine.ctrl.php');	
-		include_once(SP_CTRLPATH.'/currency.ctrl.php');
+		include_once(SP_CTRLPATH.'/currency.ctrl.php');	
+		include_once(SP_CTRLPATH.'/seoplugins.ctrl.php');
 		
 	}	
 	

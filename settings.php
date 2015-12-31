@@ -33,6 +33,8 @@ $controller = New SettingsController();
 $controller->set('spTextPanel', $controller->getLanguageTexts('panel', $_SESSION['lang_code']));
 $controller->spTextSettings = $controller->getLanguageTexts('settings', $_SESSION['lang_code']);
 $controller->set('spTextSettings', $controller->spTextSettings);
+$controller->spTextSubscription = $controller->getLanguageTexts('subscription', $_SESSION['lang_code']);
+$controller->set('spTextSubscription', $controller->spTextSubscription);
 
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	

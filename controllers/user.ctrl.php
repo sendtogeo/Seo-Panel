@@ -118,6 +118,9 @@ class UserController extends Controller{
 			$this->set('pgList', $pgList);
 			$this->set('defaultPgId', $pgCtrler->__getDefaultPaymentGateway());
 			$this->set('spTextSubscription', $this->getLanguageTexts('subscription', $_SESSION['lang_code']));
+    		
+    		$currencyCtrler = new CurrencyController();
+    		$this->set('currencyList', $currencyCtrler->getCurrencyCodeMapList());
 			
 		} else {
 			$this->set('defaultUserTypeId', $utypeCtrler->getDefaultUserTypeId());	

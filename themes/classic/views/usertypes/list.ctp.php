@@ -1,5 +1,18 @@
 <form name="listform" id="listform">
 <?php echo showSectionHead($spTextPanel['User Type Manager']); ?>
+<?php 
+if ($isPluginSubsActive) { 
+	$currencySymbol = $currencyList[SP_PAYMENT_CURRENCY]['symbol'];
+} else {
+	?>
+	<div id="topnewsbox">
+		<a style="text-decoration: none;font-weight: bold;" href="http://www.seopanel.in/plugin/l/65/membership-subscription/" target="_blank">
+			<?php echo $spTextSubscription['click-activate-pay-plugin']; ?> &gt;&gt;
+		</a>
+	</div>
+	<?php 
+}
+?>
 <?php echo $pagingDiv?>
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
 	<tr class="listHead">
@@ -9,12 +22,14 @@
 		<td><?php echo $spText['label']['Description']?></td>
 		<td><?php echo $spText['common']['Keywords Count']?></td>
 		<td><?php echo $spText['common']['Websites Count']?></td>
-		<td><?php echo $spText['common']['Price']?></td>
+		<?php if ($isPluginSubsActive) {?>
+			<td><?php echo $spText['common']['Price']?></td>
+		<?php }?>
 		<td><?php echo $spText['common']['Status']?></td>
 		<td class="right"><?php echo $spText['common']['Action']?></td>
 	</tr>
 	<?php
-	$colCount = 9; 
+	$colCount = $isPluginSubsActive ? 9 : 8; 
 	if(count($list) > 0){
 		$catCount = count($list);
 		foreach($list as $i => $listInfo){
@@ -36,7 +51,9 @@
 				<td class="td_br_right left"><?php echo $listInfo['description']?></td>		
 				<td class="td_br_right left"><?php echo $listInfo['keywordcount']?></td>	
 				<td class="td_br_right left"><?php echo $listInfo['websitecount']?></td>
-				<td class="td_br_right left"><?php echo $listInfo['price']?></td>
+				<?php if ($isPluginSubsActive) {?>
+					<td class="td_br_right left"><?php echo $currencySymbol . $listInfo['price']; ?></td>
+				<?php }?>
 				<td class="td_br_right"><?php echo $listInfo['status'] ? $spText['common']["Active"] : $spText['common']["Inactive"];	?></td>
 				<td class="<?php echo $rightBotClass?>" width="100px">
 					<?php

@@ -30,10 +30,9 @@
 							<td>
 								<select name="utype_id">
 									<?php
-									// loop through the subscription types
 									foreach ($userTypeList as $userTypeInfo) {
 										$typeLabel = ucfirst($userTypeInfo['user_type']) . " - ";
-										$typeLabel .= ($userTypeInfo['price'] > 0) ? "$" . $userTypeInfo['price'] . "/Monthly" : "Free";
+										$typeLabel .= ($userTypeInfo['price'] > 0) ? $currencyList[SP_PAYMENT_CURRENCY]['symbol'] . $userTypeInfo['price'] . "/Monthly" : "Free";
 										?>
 										<option value="<?php echo $userTypeInfo['id']?>"><?php echo $typeLabel?></option>
 										<?php
