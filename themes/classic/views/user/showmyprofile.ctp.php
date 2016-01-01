@@ -38,7 +38,7 @@ if(!empty($msg)){ showSuccessMsg($msg, false);}
 		<th class="td_left_col"><?php echo $spText['login']['User Type']?>:</th>
 		<td class="td_right_col"><?php echo $userTypeInfo['description']?></td>
 	</tr>
-	<tr class="white_row">
+	<tr class="blue_row">
 		<th class="td_left_col"><?php echo $spText['login']['Username']?>:</th>
 		<td class="td_right_col"><?php echo $userInfo['username']?></td>
 	</tr>
@@ -46,7 +46,7 @@ if(!empty($msg)){ showSuccessMsg($msg, false);}
 		<th class="td_left_col"><?php echo $spText['login']['Email']?>:</th>
 		<td class="td_right_col"><?php echo $userInfo['email']; ?></td>
 	</tr>
-	<tr class="white_row">
+	<tr class="blue_row">
 		<th class="td_left_col"><?php echo $spTextSubscription['Keyword Limit']?>:</th>
 		<td class="td_right_col"><?php echo $userTypeInfo['keywordcount']; ?></td>
 	</tr>
@@ -54,11 +54,11 @@ if(!empty($msg)){ showSuccessMsg($msg, false);}
 		<th class="td_left_col"><?php echo $spTextSubscription['Website Limit']?>:</th>
 		<td class="td_right_col"><?php echo $userTypeInfo['websitecount']; ?></td>
 	</tr>
-	<tr class="white_row">
+	<tr class="blue_row">
 		<th class="td_left_col"><?php echo $spTextUser['Expiry Date']?>:</th>
 		<td class="td_right_col"><?php echo date("d M Y", strtotime($userInfo['expiry_date'])); ?></td>
 	</tr>
-	<tr class="blue_row">
+	<tr class="white_row">
 		<td class="tab_left_bot_noborder" style="text-align: right; padding: 12px;">
 			<?php if ($subscriptionActive && !isAdmin()) {?>
 	         	<a onclick="scriptDoLoad('users.php?sec=renew-profile', 'content', 'layout=ajax')" href="javascript:void(0);" class="actionbut">

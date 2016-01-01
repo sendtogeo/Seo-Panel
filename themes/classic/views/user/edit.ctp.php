@@ -55,7 +55,7 @@
     		<p><?php echo $errMsg['expiry_date']?></p>
 		</td>
 	</tr>
-	<tr class="blue_row">
+	<tr class="white_row">
 		<td class="tab_left_bot_noborder"></td>
 		<td class="tab_right_bot"></td>
 	</tr>

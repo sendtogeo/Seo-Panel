@@ -36,6 +36,25 @@ INSERT INTO texts(`lang_code`, `category`, `label`, `content`)
 VALUES  ('en', 'subscription', 'Keyword Limit', 'Keyword Limit');
 INSERT INTO texts(`lang_code`, `category`, `label`, `content`) 
 VALUES  ('en', 'subscription', 'Subscribe', 'Subscribe');
+INSERT INTO texts(`lang_code`, `category`, `label`, `content`) 
+VALUES  ('en', 'subscription', 'Quantity', 'Quantity');
+INSERT INTO texts(`lang_code`, `category`, `label`, `content`) 
+VALUES  ('en', 'subscription', 'Amount', 'Amount');
+
+INSERT INTO texts(`lang_code`, `category`, `label`, `content`) 
+VALUES  ('en', 'subscription', 'View Order', 'View Order');
+
+INSERT INTO texts(`lang_code`, `category`, `label`, `content`) 
+VALUES  ('en', 'subscription', 'Paid By', 'Paid By');
+
+INSERT INTO texts(`lang_code`, `category`, `label`, `content`) 
+VALUES  ('en', 'subscription', 'Transaction Log', 'Transaction Log');
+
+INSERT INTO texts(`lang_code`, `category`, `label`, `content`) 
+VALUES  ('en', 'subscription', 'Transaction Id', 'Transaction Id');
+
+INSERT INTO texts(`lang_code`, `category`, `label`, `content`) 
+VALUES  ('en', 'subscription', 'Order Id', 'Order Id');
 
 INSERT INTO texts(`lang_code`, `category`, `label`, `content`)
 VALUES  ('en', 'login', 'User Type', 'User Type');

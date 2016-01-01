@@ -4,7 +4,7 @@
         <div id="round_content">
     		<div class="Block">
     			<?php echo showSectionHead($spTextSubscription['Plans and Pricing']); ?>
-    			<table width="100%" border="0" cellspacing="0" cellpadding="0" class="list" style="<?php echo $borderCollapseVal; ?>">
+    			<table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
 					<tr class="plainHead">
 						<td class="left" style="width: 30%;"><?php echo $spText['common']['User Type']; ?></td>
 						<td><?php echo $spText['common']['Keywords Count']?></td>
