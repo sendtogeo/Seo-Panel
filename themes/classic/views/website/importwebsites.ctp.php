@@ -45,7 +45,7 @@ if(!empty($validationMsg)){
 		</tr>
 	<?php }?>
 	<tr class="white_row">
-		<td class="td_left_col"><?=$spTextWeb['Website CSV File']?>:</td>
+		<td class="td_left_col"><?php echo $spTextWeb['Website CSV File']?>:</td>
 		<td class="td_right_col">
 			<input type="file" name="website_csv_file" style="height: 22px;">
 			<br>

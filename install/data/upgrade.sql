@@ -196,3 +196,7 @@ ALTER TABLE `rankresults` ADD `id` BIGINT( 20 ) UNSIGNED NOT NULL AUTO_INCREMENT
 ALTER TABLE `saturationresults` ADD `id` BIGINT( 20 ) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
 
 ALTER TABLE `users` ADD `expiry_date` DATE NULL DEFAULT NULL ;
+
+
+INSERT INTO `translators` (`lang_code`, `trans_name`, `trans_company`, `trans_website`) VALUES
+('pt-BR', 'Edson Medeiros', 'We Marketing Digital', 'http://wemarketingdigital.com.br/');

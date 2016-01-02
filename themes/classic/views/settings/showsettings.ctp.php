@@ -99,7 +99,7 @@ if (!empty($errorMsg)) {
 								?>
 							</select>
 						<?php } else if ($listInfo['set_name'] == 'SP_PAYMENT_CURRENCY') {?>
-							<select  name="<?=$listInfo['set_name']?>">
+							<select  name="<?php echo $listInfo['set_name']?>">
 								<?php						
 								foreach ($currencyList as $currencyInfo) {
 									$selectedVal = ($listInfo['set_val'] == $currencyInfo['iso_code']) ? "selected" : "";
