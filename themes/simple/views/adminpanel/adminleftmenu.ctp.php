@@ -33,6 +33,7 @@ foreach($menuList as $i => $menuInfo){
 			<ul id='subui'>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('websites.php', 'content')"><?php echo $spTextPanel['Website Manager']?></a></li>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('websites.php', 'content', 'sec=new')"><?php echo $spTextPanel['New Website']?></a></li>
+				<li><a href="javascript:void(0);" onclick="scriptDoLoad('websites.php', 'content', 'sec=import')"><?php echo $spTextPanel['Import Websites']?></a></li>
 			</ul>
 			<?php
 			break;
@@ -159,7 +160,7 @@ foreach($menuList as $i => $menuInfo){
 			?>
 			<script type="text/javascript">scriptList[<?php echo $i?>] = 'users.php?sec=my-profile';</script>			
 			<ul id='subui'>
-				<li><a href="javascript:void(0);" onclick="scriptDoLoad('users.php?sec=my-profile', 'content')"><?php echo $spTextPanel['Edit My Profile']?></a></li>
+				<li><a href="javascript:void(0);" onclick="scriptDoLoad('users.php?sec=my-profile', 'content')"><?php echo $spTextPanel['My Profile']?></a></li>
 			</ul>
 			<?php
 			break;
