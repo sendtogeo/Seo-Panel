@@ -41,9 +41,8 @@
 		<td class="td_left_col"><?php echo $spText['common']['Status']?>:</td>
 		<td class="td_right_col">
 			<select name="user_type_status" id="user_type_status">
-				<option value="">-- Select Status --</option>
-					<option value="1">Active</option>
-					<option value="0">Inactive</option>
+				<option value="1">Active</option>
+				<option value="0">Inactive</option>
 			</select>
 		</td>
 	</tr>		

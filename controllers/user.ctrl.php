@@ -208,6 +208,8 @@ class UserController extends Controller{
 							$pluginCtrler = $seopluginCtrler->createPluginObject("Subscription");
 							$paymentForm = $pluginCtrler->pgCtrler->getPaymentForm($paymentPluginId, $userId, $utypeInfo, $quantity);
 							$this->set('paymentForm', $paymentForm);							
+						} else {
+							$this->__changeStatus($userId, 1);
 						}						
 					}
 					
@@ -235,7 +237,8 @@ class UserController extends Controller{
 	function listUsers($info=''){
 		
 	    $info['pageno'] = intval($info['pageno']);
-		$pageScriptPath = 'users.php?stscheck=' . $info['stscheck'];
+		$pageScriptPath = 'users.php?stscheck=';
+		$pageScriptPath .= isset($info['stscheck']) ? $info['stscheck'] : "select";
 		$sql = "select * from users where utype_id!=1";
 
 		// if status set
@@ -682,8 +685,9 @@ class UserController extends Controller{
 				exit;
 			}
 		}
+		
 		$this->set('errMsg', $errMsg);
-		$this->showMyProfile($userInfo);
+		$this->editMyProfile($userInfo);
 	}
 	
 	# forgot password function

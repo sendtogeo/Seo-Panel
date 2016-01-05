@@ -28,7 +28,8 @@ class WebsiteController extends Controller{
 		
 		$userId = isLoggedIn();		
 		$info['pageno'] = intval($info['pageno']);
-		$pageScriptPath = 'websites.php?stscheck=' . $info['stscheck'];
+		$pageScriptPath = 'websites.php?stscheck=';
+		$pageScriptPath .= isset($info['stscheck']) ? $info['stscheck'] : "select";
 		
 		// if admin add user filter
 		if(isAdmin()){

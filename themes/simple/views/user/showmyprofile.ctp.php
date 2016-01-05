@@ -56,7 +56,7 @@ if(!empty($msg)){ showSuccessMsg($msg, false);}
 	</tr>
 	<tr class="blue_row">
 		<th class="td_left_col"><?php echo $spTextUser['Expiry Date']?>:</th>
-		<td class="td_right_col"><?php echo date("d M Y", strtotime($userInfo['expiry_date'])); ?></td>
+		<td class="td_right_col"><?php echo empty($userInfo['expiry_date']) ? "" : date("d M Y", strtotime($userInfo['expiry_date'])); ?></td>
 	</tr>
 	<tr class="white_row">
 		<td class="tab_left_bot_noborder" style="text-align: right; padding: 12px;">

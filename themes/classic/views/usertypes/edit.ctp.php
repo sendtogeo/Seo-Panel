@@ -36,7 +36,6 @@
 		<td class="td_left_col"><?php echo $spText['common']['Status']?>:</td>
 		<td class="td_right_col">
 			<select name="user_type_status" id="user_type_status">
-				<option value="">-- Select Status --</option>
 				<?php if ($post['status']) { ?>
 					<option value="1" selected="selected">Active</option>
 					<option value="0">Inactive</option>

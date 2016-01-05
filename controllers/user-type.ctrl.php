@@ -131,7 +131,13 @@ class UserTypeController extends Controller {
 		$errMsg['user_type'] = formatErrorMsg($this->validate->checkBlank(trim($listInfo['user_type'])));
 		$errMsg['websitecount'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['websitecount'])));
 		$errMsg['keywordcount'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['keywordcount'])));
-		$errMsg['price'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['price'])));
+		
+		// if subscription plugin active
+		if ($this->isPluginSubsActive) {
+			$errMsg['price'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['price'])));
+		}		
+		
+		// if no errors occured
 		if (!$this->validate->flagErr){
 
 			if($listInfo['user_type'] != $listInfo['old_user_type']){
@@ -199,7 +205,11 @@ class UserTypeController extends Controller {
 		$errMsg['user_type'] = formatErrorMsg($this->validate->checkBlank(trim($listInfo['user_type'])));
 		$errMsg['websitecount'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['websitecount'])));
 		$errMsg['keywordcount'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['keywordcount'])));
-		$errMsg['price'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['price'])));
+		
+		// if subscription plugin active
+		if ($this->isPluginSubsActive) {
+			$errMsg['price'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['price'])));
+		}
 				
 		if(!$this->validate->flagErr){
 			if (!$this->__checkUserType($listInfo['user_type'])) {
