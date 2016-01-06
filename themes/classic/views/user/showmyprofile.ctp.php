@@ -3,7 +3,7 @@ echo showSectionHead($spTextPanel['My Profile']);
 
 // if payment cancelled
 if (!empty($_GET['cancel'])) {
-	showErrorMsg($spTextSubscription["Your transaction cancelled."], false);
+	showErrorMsg($spTextSubscription["Your transaction cancelled"], false);
 }
 
 // if payment error

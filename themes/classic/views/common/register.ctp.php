@@ -17,7 +17,7 @@
                 	<?php }?>
                 	<?php if (!empty($_GET['cancel'])) {?>
 	                	<tr>
-	                		<td colspan="2"><?php showErrorMsg($spTextSubscription["Your transaction cancelled."], false);?></td>
+	                		<td colspan="2"><?php showErrorMsg($spTextSubscription["Your transaction cancelled"], false);?></td>
 	                	<tr>
                 	<?php }?>
                 	

@@ -50,6 +50,7 @@ class Seopanel{
 		include_once(SP_CTRLPATH.'/language.ctrl.php');
 		include_once(SP_CTRLPATH.'/website.ctrl.php');
 		include_once(SP_CTRLPATH.'/user.ctrl.php');
+		include_once(SP_CTRLPATH.'/user-type.ctrl.php');
 		include_once(SP_CTRLPATH.'/settings.ctrl.php');
 		include_once(SP_CTRLPATH."/crawllog.ctrl.php");
 		include_once(SP_CTRLPATH.'/timezone.ctrl.php');
