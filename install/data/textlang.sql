@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS `texts` (
   `changed` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `language_id` (`lang_code`,`category`,`label`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=12686 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=12691 ;
 
 INSERT INTO `texts` (`id`, `lang_code`, `category`, `label`, `content`, `changed`) VALUES
 (1, 'en', 'common', 'lang', 'Language', '2010-09-08 07:37:53'),
@@ -12616,6 +12616,8 @@ INSERT INTO `texts` (`id`, `lang_code`, `category`, `label`, `content`, `changed
 (12608, 'fr', 'subscription', 'transaction-success', 'La transaction a été effectuée.', '2016-01-03 17:03:03'),
 (12609, 'fr', 'subscription', 'View Order', 'Voir la commande', '2016-01-03 17:03:03'),
 (12610, 'fr', 'subscription', 'Website Limit', 'Limite sites web', '2016-01-03 17:03:03'),
+(12686, 'en', 'panel', 'Settings', 'Settings', '2016-01-05 21:19:45'),
+(12687, 'en', 'subscription', 'Orders', 'Orders', '2016-01-05 21:19:45'),
 (12612, 'fr', 'user', 'Expiry Date', 'Expiration', '2016-01-02 18:14:56'),
 (12613, 'de', 'common', 'Sample CSV File', 'Beispiel CSV-Datei', '2016-01-02 23:21:04'),
 (12614, 'de', 'keyword', 'You can add only keywordcount keywords more', 'Maximal [keywordcount] keywords erlaubt für diesen Benutzer', '2016-01-02 23:22:50'),
@@ -12641,6 +12643,7 @@ INSERT INTO `texts` (`id`, `lang_code`, `category`, `label`, `content`, `changed
 (12634, 'de', 'subscription', 'transaction-success', 'Transaktion erfolgreich durchgeführt.', '2016-01-04 19:38:03'),
 (12635, 'de', 'subscription', 'View Order', 'Bestellung ansehen', '2016-01-04 19:38:03'),
 (12636, 'de', 'subscription', 'Website Limit', 'Webseiten Limit', '2016-01-04 19:38:03'),
+(12688, 'en', 'subscription', 'Payment Gateway Manager', 'Payment Gateway Manager', '2016-01-05 21:19:45'),
 (12638, 'de', 'user', 'Expiry Date', 'Ablaufdatum', '2016-01-02 23:30:39'),
 (12639, 'de', 'website', 'Please enter CSV file', 'Bitte CSV Datei auswählen', '2016-01-02 23:32:29'),
 (12640, 'de', 'website', 'Website CSV File', 'Webseiten CSV Datei', '2016-01-02 23:32:29'),
@@ -12688,7 +12691,9 @@ INSERT INTO `texts` (`id`, `lang_code`, `category`, `label`, `content`, `changed
 (12682, 'pt-br', 'panel', 'Import Websites', 'Importar Sites', '2016-01-04 11:42:42'),
 (12683, 'pt-br', 'login', 'User Type', 'Tipo de Usuário', '2016-01-04 11:42:58'),
 (12684, 'pt-br', 'label', 'Free', 'Livre', '2016-01-04 11:44:07'),
-(12685, 'de', 'subscription', 'Your transaction cancelled', 'Transaktion abgebrochen.', '2016-01-04 19:38:03');
+(12685, 'de', 'subscription', 'Your transaction cancelled', 'Transaktion abgebrochen.', '2016-01-04 19:38:03'),
+(12689, 'en', 'label', 'Type', 'Type', '2016-01-05 21:25:42'),
+(12690, 'en', 'api', 'API Guide', 'API Guide', '2016-01-06 18:25:18');
 
 DROP TABLE IF EXISTS `translators`;
 CREATE TABLE IF NOT EXISTS `translators` (
