@@ -1109,3 +1109,7 @@ ALTER TABLE `rankresults` ADD `id` BIGINT( 20 ) UNSIGNED NOT NULL AUTO_INCREMENT
 ALTER TABLE `saturationresults` ADD `id` BIGINT( 20 ) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
 
 ALTER TABLE `users` ADD `expiry_date` DATE NULL DEFAULT NULL ;
+
+UPDATE `searchengines` SET `regex` = '<li.*?class="?g.*?><h3 class="r"><a href="\\/url\\?q=(.*?)&amp;sa=U.*?>(.*?)<\\/a>.*?<\\/div><span.*?>(.*?)<\\/span>'  WHERE `url` LIKE '%google%';
+
+delete from featured_directories where id in (2,3);
