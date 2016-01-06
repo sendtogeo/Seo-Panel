@@ -23,7 +23,7 @@
 include_once("includes/sp-load.php");
 
 // check the sections can accessed by user
-$userIncludeList = array("my-profile", "edit-profile", "renew-profile", "updatemyprofile", "update-subscription");
+$userIncludeList = array("my-profile", "myprofile", "edit-profile", "renew-profile", "updatemyprofile", "update-subscription");
 if ( in_array($_GET['sec'], $userIncludeList) || in_array($_POST['sec'], $userIncludeList) ) {
 	isLoggedIn();
 } else {
@@ -121,6 +121,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			break;
 			
 		case "my-profile":
+		case "myprofile":
 			$controller->showMyProfile($_GET);
 			break;
 			
