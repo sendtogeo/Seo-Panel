@@ -108,6 +108,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			break;		
 		
 		case "new":
+		case "newweb":
 			$controller->newWebsite($_GET);
 			break;		
 		
