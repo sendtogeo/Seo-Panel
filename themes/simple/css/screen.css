@@ -104,6 +104,7 @@ pre { width: 100%; overflow: hidden; }
 }
 .round_border_layer1, .round_border_layer2, .round_border_layer3  {
 	border-left:1px solid #C4C4C4;
+        border-right:1px solid #C4C4C4;
 }	
 
 .round_border_layer1 { margin:0 1px; }
