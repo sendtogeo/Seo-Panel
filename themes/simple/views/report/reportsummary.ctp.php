@@ -72,14 +72,15 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 	$mainLink = SP_WEBPATH."/reports.php?sec=reportsum&website_id=$websiteId&from_time=$fromTime&to_time=$toTime&search_name=" . $searchInfo['search_name'];
 	$directLink = $mainLink . "&order_col=$orderCol&order_val=$orderVal";
 	?>
-	<div style="float:right;margin-right: 10px;">
+	<div style="float:left;margin-right: 10px;">
 		<a href="<?php echo $directLink?>&doc_type=pdf"><img src="<?php echo SP_IMGPATH?>/icon_pdf.png"></a> &nbsp;
 		<a href="<?php echo $directLink?>&doc_type=export"><img src="<?php echo SP_IMGPATH?>/icoExport.gif"></a> &nbsp;
 		<a target="_blank" href="<?php echo $directLink?>&doc_type=print"><img src="<?php echo SP_IMGPATH?>/print_button.gif?1"></a>
 	</div>
+	
 <?php }?>
-
-<div id='subcontent' style="margin-top: 20px;">
+<?php echo $pagingDiv?>
+<div id='subcontent' style="margin-top: 0px;">
 <table width="100%" border="0" cellspacing="0" cellpadding="2px;" class="list">
 	<tr>
 	<td width='33%'>

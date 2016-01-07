@@ -18,21 +18,24 @@
 	</tr>
 	<tr class="white_row">
 		<td class="td_left_col"><?php echo $spText['common']['Keywords Count']?>:</td>
-		<td class="td_right_col"><input type="text" name="num_keywords" id="keywordcount" value="<?php echo $post['num_keywords']?>"><?php echo $errMsg['num_keywords']?></td>
+		<td class="td_right_col"><input type="text" name="keywordcount" id="keywordcount" value="<?php echo $post['keywordcount']?>"><?php echo $errMsg['keywordcount']?></td>
 	</tr>
 	<tr class="blue_row">
 		<td class="td_left_col"><?php echo $spText['common']['Websites Count']?>:</td>
-		<td class="td_right_col"><input type="text" name="num_websites" id="websitecount" value="<?php echo $post['num_websites']?>"><?php echo $errMsg['num_websites']?></td>
+		<td class="td_right_col"><input type="text" name="websitecount" id="websitecount" value="<?php echo $post['websitecount']?>"><?php echo $errMsg['websitecount']?></td>
 	</tr>
-	<tr class="white_row">
-		<td class="td_left_col"><?php echo $spText['common']['Price']?>:</td>
-		<td class="td_right_col"><input type="text" name="price" id="price" value="<?php echo $post['price']?>"><?php echo $errMsg['price']?></td>
-	</tr>
+	<?php if ($isPluginSubsActive) {?>
+		<tr class="white_row">
+			<td class="td_left_col"><?php echo $spText['common']['Price']?>:</td>
+			<td class="td_right_col">
+				<?php echo $currencyList[SP_PAYMENT_CURRENCY]['symbol']; ?><input type="text" name="price" id="price" value="<?php echo $post['price']?>"><?php echo $errMsg['price']?>
+			</td>
+		</tr>
+	<?php }?>
 	<tr class="blue_row">
 		<td class="td_left_col"><?php echo $spText['common']['Status']?>:</td>
 		<td class="td_right_col">
 			<select name="user_type_status" id="user_type_status">
-				<option value="">-- Select Status --</option>
 				<?php if ($post['status']) { ?>
 					<option value="1" selected="selected">Active</option>
 					<option value="0">Inactive</option>

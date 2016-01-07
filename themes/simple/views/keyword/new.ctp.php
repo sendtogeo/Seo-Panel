@@ -1,4 +1,13 @@
 <?php echo showSectionHead($spTextKeyword['New Keyword']); ?>
+<?php 
+if(!empty($validationMsg)){
+	?>
+	<p class="dirmsg">
+		<font class="error"><?php echo $validationMsg?></font>
+	</p>
+	<? 
+}
+?>
 <form id="newKeyword">
 <input type="hidden" name="sec" value="create"/>
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">

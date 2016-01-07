@@ -58,7 +58,15 @@ if (!empty($errorMsg)) {
 		
 		?>
 		<tr class="<?php echo $class?>">
-			<td class="td_left_col"><?php echo $spTextSettings[$listInfo['set_name']]?>:</td>
+			<td class="td_left_col">
+				<?php
+				if ($listInfo['set_name'] == 'SP_PAYMENT_CURRENCY') {
+					echo $spTextSubscription["Currency"] . ":";
+				} else {
+					echo $spTextSettings[$listInfo['set_name']] . ":";
+				}
+				?>
+			</td>
 			<td class="td_right_col">
 				<?php if($listInfo['set_type'] != 'text'){?>
 					<?php if($listInfo['set_type'] == 'bool'){?>
@@ -86,6 +94,17 @@ if (!empty($errorMsg)) {
 									$selected = ($timezoneInfo['timezone_name'] == $listInfo['set_val']) ? "selected" : "";
 									?>			
 									<option value="<?php echo $timezoneInfo['timezone_name']?>" <?php echo $selected?>><?php echo $timezoneInfo['timezone_label']?></option>
+									<?php
+								}
+								?>
+							</select>
+						<?php } else if ($listInfo['set_name'] == 'SP_PAYMENT_CURRENCY') {?>
+							<select  name="<?php echo $listInfo['set_name']?>">
+								<?php						
+								foreach ($currencyList as $currencyInfo) {
+									$selectedVal = ($listInfo['set_val'] == $currencyInfo['iso_code']) ? "selected" : "";
+									?>
+									<option value="<?php echo $currencyInfo['iso_code']; ?>" <?php echo $selectedVal; ?>><?php echo $currencyInfo['name']; ?></option>
 									<?php
 								}
 								?>

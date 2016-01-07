@@ -179,6 +179,11 @@ class PHPMailer
      *  @var bool
      */
     var $SMTPDebug    = false;
+    
+    /**
+     * SMTP Class to SSL/TLS
+     */
+    var $SMTPSecure = "";
 
     /**
      * Prevents the SMTP connection from being closed after each mail 
@@ -524,13 +529,15 @@ class PHPMailer
                 $port = $this->Port;
             }
 
-            if($this->smtp->Connect($host, $port, $this->Timeout))
+            // if($this->smtp->Connect($host, $port, $this->Timeout))
+            if($this->smtp->Connect(((!empty($this->SMTPSecure))?$this->SMTPSecure.'://':'').$host, $port, $this->Timeout))
             {
                 if ($this->Helo != '')
                     $this->smtp->Hello($this->Helo);
                 else
                     $this->smtp->Hello($this->ServerHostname());
         
+                $connection = true;
                 if($this->SMTPAuth)
                 {
                     if(!$this->smtp->Authenticate($this->Username, 

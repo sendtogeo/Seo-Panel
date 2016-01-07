@@ -104,8 +104,9 @@ pre { width: 100%; overflow: hidden; }
 }
 .round_border_layer1, .round_border_layer2, .round_border_layer3  {
 	border-left:1px solid #C4C4C4;
-	border-right:1px solid #C4C4C4;
-}
+        border-right:1px solid #C4C4C4;
+}	
+
 .round_border_layer1 { margin:0 1px; }
 .round_border_layer2 { margin:0 2px; padding:0; }
 .round_border_layer3 {
@@ -1016,4 +1017,11 @@ A.graphicon{
 #powered {margin-top: 6px;}
 #powered A {color: #0033CC; font-size: 12px; text-decoration: underline;}
 
-input.long{width: 280px;} 
+input.long{width: 280px;}
+input.date_fld{width: 80px}
+
+a.bold_link{
+	text-decoration: none;
+	font-weight: bold;
+	font-size: 13px;
+}

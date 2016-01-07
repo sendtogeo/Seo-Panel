@@ -180,5 +180,31 @@ class UserAPI extends Seopanel{
 		
 	}
 	
+	/**
+	 * function added by Rex, 2020Media.com
+	 * function to get user id from username
+	 * @param Array $info			The input details to process the api
+	 * 		$info['username']    	The username of the user  - Mandatory
+	 * @return Array $returnInfo    Contains id of user
+	 */
+	function getUserName($info) {
+	 	
+ 		$username = $info['username'];
+		$returnInfo = array();
+	
+		// validate the user ifd and user info
+		if (!empty($username)) {
+			if ($userInfo = $this->ctrler->__checkUserName($username)) {
+				$returnInfo['response'] = 'success';
+				$returnInfo['result'] = $userInfo;
+				return $returnInfo;
+			}
+		}
+	
+		$returnInfo['response'] = 'Error';
+		$returnInfo['error_msg'] = "Invalid username provided";
+		return  $returnInfo;
+	}
+	
 }
 ?>

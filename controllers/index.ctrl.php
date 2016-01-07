@@ -29,6 +29,7 @@ class IndexController extends Controller{
 		$spTextHome = $this->getLanguageTexts('home', $_SESSION['lang_code']);
 		$this->set('spTextHome', $spTextHome);
 		if(isLoggedIn()){
+			checkLoggedIn();
 		    isHavingWebsite();
 			$userId = isLoggedIn();
 			$exportVersion = false;
@@ -48,16 +49,20 @@ class IndexController extends Controller{
 					break;
 			}
 			
+			$sql = "select * from websites w where 1=1";
+			
+			// if admin user
 			if (isAdmin()) {
 			    $userCtrler = New UserController();
 			    $userList = $userCtrler->__getAllUsersHavingWebsite();
-    			if (isset($_POST['user_id']) || isset($_GET['user_id']) ) {
-    			    $webUserId = intval($_POST['user_id']) ? intval($_POST['user_id']) : intval($_GET['user_id']);
-    			} else {
-    			    $webUserId = $userList[0]['id'];
-    			}			    
 			    $this->set('userList', $userList);
-
+			    $webUserId = isset($searchInfo['user_id']) ? intval($searchInfo['user_id']) : $userList[0]['id'];
+    			
+    			// if user id is passed
+    			if (!empty($webUserId)) {
+    				$sql .= " and user_id=$webUserId";
+    			}
+    			
 			    // if print method called
 			    if ( ($searchInfo['doc_type'] == 'print') && !empty($webUserId)) {
 				    $userInfo = $userCtrler->__getUserInfo($webUserId);
@@ -66,12 +71,34 @@ class IndexController extends Controller{
 			    
 			} else {
 			    $webUserId = $userId;
+			    $sql = "select * from websites w where user_id=$webUserId";
 			}
-			$this->set('webUserId', $webUserId);			
+
+			$pageScriptPath = "index.php?user_id=$webUserId";
+			$this->set('webUserId', $webUserId);
+			$info['pageno'] = intval($info['pageno']);
 			
-			$websiteCtrler = New WebsiteController();
-			$adminCheck = (isAdmin() && empty($webUserId)) ? true : false;
-			$list = $websiteCtrler->__getAllWebsites($webUserId, $adminCheck, $searchInfo['search_name']);
+			// search for user name
+			if (!empty($searchInfo['search_name'])) {
+				$sql .= " and (w.name like '%".addslashes($searchInfo['search_name'])."%'
+				or w.url like '%".addslashes($searchInfo['search_name'])."%')";
+				$pageScriptPath .= "&search_name=" . $searchInfo['search_name'];
+			}
+			
+			$sql .= " order by w.name";
+			
+			// pagination setup
+			if (!in_array($searchInfo['doc_type'], array('export', 'pdf'))) {
+				$this->db->query($sql, true);
+				$this->paging->setDivClass('pagingdiv');
+				$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
+				$pagingDiv = $this->paging->printPages($pageScriptPath, "", "link");
+				$this->set('pagingDiv', $pagingDiv);
+				$sql .= " limit ".$this->paging->start .",". $this->paging->per_page;
+				$this->set('pageNo', $info['pageno']);
+			}
+			
+			$list = $this->db->select($sql);
 			
 			include_once(SP_CTRLPATH."/saturationchecker.ctrl.php");
 			include_once(SP_CTRLPATH."/rank.ctrl.php");

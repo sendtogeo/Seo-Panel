@@ -3,7 +3,6 @@ $homeClass = "";
 $adminClass = "";
 $seoToolsClass = "";
 $seoPluginsClass = "";
-$supportClass = "";
 switch($this->menu){
 	
 	case "support":

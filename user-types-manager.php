@@ -30,6 +30,13 @@ $controller->spTextPanel = $controller->getLanguageTexts('panel', $_SESSION['lan
 $controller->set('spTextPanel', $controller->spTextPanel);
 $controller->spTextWeb = $controller->getLanguageTexts('website', $_SESSION['lang_code']);
 $controller->set('spTextWeb', $controller->spTextWeb);
+$controller->spTextSubscription = $controller->getLanguageTexts('subscription', $_SESSION['lang_code']);
+$controller->set('spTextSubscription', $controller->spTextSubscription);
+
+// check subscription plugin active
+$seopluginCtrler =  new SeoPluginsController();
+$controller->isPluginSubsActive = $seopluginCtrler->isPluginActive("Subscription");
+$controller->set('isPluginSubsActive', $controller->isPluginSubsActive);
 
 if($_SERVER['REQUEST_METHOD'] == 'POST') {
 	

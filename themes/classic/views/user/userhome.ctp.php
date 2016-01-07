@@ -58,6 +58,7 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 	<?php
 	$colSpan = 11; 
 	?>
+	<?php echo $pagingDiv?>
 	<table width="100%" cellspacing="0" cellpadding="0" class="summary" style="<?php echo $borderCollapseVal; ?>">
 		<tr><td class="topheader" colspan="<?php echo $colSpan?>"><?php echo $spTextHome['Website Statistics']?></td></tr>
 		<tr>

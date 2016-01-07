@@ -39,6 +39,9 @@ class SettingsController extends Controller{
     		$timezoneList = $timezoneCtrler->__getAllTimezones();
     		$this->set('timezoneList', $timezoneList);
     		
+    		$currencyCtrler = new CurrencyController();
+	    	$this->set('currencyList', $currencyCtrler->__getAllCurrency(" and paypal=1 and status=1 and name!=''"));
+			
 		}
 		
 		$this->set('category', $category);

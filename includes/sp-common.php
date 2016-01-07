@@ -96,6 +96,12 @@ function checkLoggedIn() {
 		redirectUrlByScript(SP_WEBPATH."/login.php");
 		exit;
 	}
+	
+	// check whethere user expired, then redirect to subscribe page
+	$userCtrl = New UserController();
+	if (!$userCtrl->isUserExpired($userInfo['userId'])) {
+		redirectUrl(SP_WEBPATH."/admin-panel.php?sec=myprofile&expired=1");
+	}
 }
 
 # function to check whether admin logged in
@@ -175,6 +181,11 @@ function formatUrl( $url, $removeWWW=true ) {
 	$url = str_replace('https://', '', $url);
 	if ($removeWWW) $url = str_replace('www.', '', $url);
 	return $url;
+}
+
+function formatDate($date) {
+	$date = str_replace("0000-00-00", "", $date);
+	return $date;
 }
 
 function addHttpToUrl($url){

@@ -26,11 +26,33 @@
 		<td class="td_left_col"><?php echo $spText['login']['Last Name']?>:</td>
 		<td class="td_right_col"><input type="text" name="lastName" value="<?php echo $post['lastName']?>"><?php echo $errMsg['lastName']?></td>
 	</tr>
-	<tr class="white_row">
+	<tr class="blue_row">
 		<td class="td_left_col"><?php echo $spText['login']['Email']?>:</td>
 		<td class="td_right_col"><input type="text" name="email" value="<?php echo $post['email']?>"><?php echo $errMsg['email']?></td>
-	</tr>		
+	</tr>	
+	<tr class="white_row">
+		<td class="td_left_col"><?php echo $spText['login']['User Type']?>:</td>
+		<td class="td_right_col">
+			<select name="userType">
+				<?php foreach ($userTypeList as $key => $val) {?>
+					<?php if ($post['userType'] == $val['id']) {?>
+						<option value="<?php echo $val['id']?>" selected><?php echo $val['user_type']?></option>
+					<?php } else {?>
+						<option value="<?php echo $val['id']?>"><?php echo $val['user_type']?></option>
+					<?php }?>
+				<?php }?>
+			</select>
+		</td>
+	</tr>
 	<tr class="blue_row">
+		<td class="td_left_col"><?php echo $spTextUser['Expiry Date']?>:</td>
+		<td class="td_right_col">
+			<input type="text" name="expiry_date" value="<?php echo $post['expiry_date']?>" class="date_fld">
+    		<img align="bottom" onclick="displayDatePicker('expiry_date', false, 'ymd', '-');" src="<?php echo SP_IMGPATH?>/cal.gif"/>
+    		<p><?php echo $errMsg['expiry_date']?></p>
+		</td>
+	</tr>				
+	<tr class="white_row">
 		<td class="tab_left_bot_noborder"></td>
 		<td class="tab_right_bot"></td>
 	</tr>

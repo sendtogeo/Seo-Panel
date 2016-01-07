@@ -40,6 +40,7 @@ class Spider{
 	var $_CURL_sleep = 1;
 	var $_CURLOPT_COOKIE = "";
 	var $_CURLOPT_HEADER = 0;
+	var $_CURL_HTTPHEADER = array();
 	var $userAgentList = array();
 
 	# spider constructor
@@ -267,6 +268,16 @@ class Spider{
 		curl_setopt( $this -> _CURL_RESOURCE , CURLOPT_COOKIEJAR , $this -> _CURLOPT_COOKIEJAR );
 		curl_setopt( $this -> _CURL_RESOURCE , CURLOPT_COOKIEFILE , $this -> _CURLOPT_COOKIEFILE );
 		curl_setopt( $this -> _CURL_RESOURCE , CURLOPT_HEADER , $this -> _CURLOPT_HEADER);
+		
+		// to fix the ssl related issues
+		curl_setopt($this->_CURL_RESOURCE, CURLOPT_SSL_VERIFYHOST, 0);
+		curl_setopt($this->_CURL_RESOURCE, CURLOPT_SSL_VERIFYPEER, 0);
+
+		// to add the curl http headers
+		if (!empty($this ->_CURL_HTTPHEADER)) {
+			curl_setopt($this->_CURL_RESOURCE, CURLOPT_HTTPHEADER, $this ->_CURL_HTTPHEADER);
+		}
+		
 		if(!empty($this -> _CURLOPT_COOKIE)) curl_setopt( $this -> _CURL_RESOURCE, CURLOPT_COOKIE , $this -> _CURLOPT_COOKIE );
 		if(!empty($this-> _CURLOPT_REFERER)){
 			curl_setopt($this -> _CURL_RESOURCE, CURLOPT_REFERER, $this-> _CURLOPT_REFERER); 

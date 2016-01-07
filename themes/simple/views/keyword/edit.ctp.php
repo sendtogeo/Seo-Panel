@@ -1,4 +1,13 @@
 <?php echo showSectionHead($spTextKeyword['Edit Keyword']); ?>
+<?php 
+if(!empty($validationMsg)){
+	?>
+	<p class="dirmsg">
+		<font class="error"><?php echo $validationMsg?></font>
+	</p>
+	<? 
+}
+?>
 <form id="editKeyword">
 <input type="hidden" name="sec" value="update"/>
 <input type="hidden" name="oldName" value="<?php echo $post['oldName']?>"/>

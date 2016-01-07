@@ -26,14 +26,20 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 	<?php echo showSectionHead($sectionHead); ?>
 	<form id='search_form'>
 	<table width="100%" border="0" cellspacing="0" cellpadding="0" class="search">		
-		<tr>			
+		<tr>
+			<th><?php echo $spText['common']['Name']?>: </th>
+			<td>
+				<input type="text" name="search_name" value="<?php echo htmlentities($searchInfo['search_name'], ENT_QUOTES)?>" onblur="<?php echo $submitLink?>">
+			</td>			
 			<th><?php echo $spText['common']['Period']?>:</th>
-    		<td>
+    		<td colspan="2">
     			<input type="text" style="width: 80px;margin-right:0px;" value="<?php echo $fromTime?>" name="from_time"/> 
     			<img align="bottom" onclick="displayDatePicker('from_time', false, 'ymd', '-');" src="<?php echo SP_IMGPATH?>/cal.gif"/> 
     			<input type="text" style="width: 80px;margin-right:0px;" value="<?php echo $toTime?>" name="to_time"/> 
     			<img align="bottom" onclick="displayDatePicker('to_time', false, 'ymd', '-');" src="<?php echo SP_IMGPATH?>/cal.gif"/>
     		</td>
+    	<tr>
+    	<tr>
 		    <th><?php echo $spText['common']['Website']?>: </th>
 			<td>
     			<select name="website_id" id="website_id"  onchange="scriptDoLoadPost('archive.php', 'search_form', 'content')" style="width: 120px;">
@@ -48,7 +54,7 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
     			</select>				
 			</td>
 			<th><?php echo $spText['label']['Report Type']?>: </th>
-			<td width="200px">
+			<td>
 				<select name="report_type" id="report_type" onchange="scriptDoLoadPost('archive.php', 'search_form', 'content')" style="width: 150px;">
 					<option value="">-- Select --</option>
     				<?php foreach($reportTypes as $type => $info){?>
@@ -72,7 +78,7 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 	$mainLink = SP_WEBPATH."/archive.php?$urlarg";
 	$directLink = $mainLink . "&order_col=$orderCol&order_val=$orderVal"; 
 	?>
-	<div style="float:right;margin-right: 10px;margin-top: 20px; clear: both;">
+	<div style="float:left;margin-right: 10px;margin-top: 20px; clear: both;">
 		<a href="<?php echo $directLink?>&doc_type=pdf"><img src="<?php echo SP_IMGPATH?>/icon_pdf.png"></a> &nbsp;
 		<a href="<?php echo $directLink?>&doc_type=export"><img src="<?php echo SP_IMGPATH?>/icoExport.gif"></a> &nbsp;
 		<a target="_blank" href="<?php echo $directLink?>&doc_type=print"><img src="<?php echo SP_IMGPATH?>/print_button.gif"></a>
@@ -84,6 +90,7 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 if (!empty($keywordPos)) {
 	?>
 	<div>
+	<?php echo $keywordPagingDiv?>
 	<table width="100%" border="0" cellspacing="0" cellpadding="2px;" class="list">
     	<tr>
     	<td width='33%'>
@@ -227,6 +234,7 @@ if (!empty($keywordPos)) {
 	if (!empty($websiteStats)) {
     	$colSpan = 11; 
     	?>
+    	<?php echo $websitePagingDiv?>
     	<table width="100%" cellspacing="0" cellpadding="0" class="summary" style="<?php echo $borderCollapseVal; ?>">
     		<tr><td class="topheader" colspan="<?php echo $colSpan?>"><?php echo $spTextHome['Website Statistics']?></td></tr>
     		<tr>

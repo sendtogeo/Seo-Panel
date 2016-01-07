@@ -39,15 +39,15 @@ class AdminPanelController extends Controller{
 						);
 		}		
 		
-		/* disabled to release in next version
+		// user type manager
 		if (isAdmin()) {
 			$menuList[] = array(
-						'id' => 15,
-            			'name' => $this->spTextPanel['User Type Manager'],
-            			'url_section' => 'user-types-manager'						
-						);
-		}*/
-
+				'id' => 15,
+				'name' => $this->spTextPanel['User Type Manager'],
+            	'url_section' => 'user-types-manager'						
+			);
+		}
+		
 		if (isLoggedIn()) {
 			$menuList[] = array(
 						'id' => 3,
@@ -110,13 +110,13 @@ class AdminPanelController extends Controller{
             			'name' => $this->spTextPanel['System Settings'],
             			'url_section' => 'settings'						
 						);
-		
-		    $menuList[] = array(
-						'id' => 13,
-            			'name' => $this->spTextPanel['My Profile'],
-            			'url_section' => 'my-profile'						
-						);
 		}
+
+		$menuList[] = array(
+				'id' => 13,
+				'name' => $this->spTextPanel['My Profile'],
+				'url_section' => 'my-profile'
+		);
 		
 		$menuList[] = array(
 						'id' => 14,

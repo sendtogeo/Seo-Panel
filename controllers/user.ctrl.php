@@ -34,6 +34,13 @@ class UserController extends Controller{
 		$this->render('common/login');
 	}
 	
+	# function to set login session items
+	function setLoginSession($userInfo) {
+		@Session::setSession('userInfo', $userInfo);
+		@Session::setSession('lang_code', $userInfo['lang_code']);
+		@Session::setSession('text', '');
+	}
+	
 	# login function
 	function login(){	    
 	    
@@ -66,15 +73,16 @@ class UserController extends Controller{
                 	    }
 					    
 						$uInfo['userId'] = $userInfo['id'];
-						$uInfo['userType'] = $userInfo['user_type']; 
-						@Session::setSession('userInfo', $uInfo);
-						@Session::setSession('lang_code', $userInfo['lang_code']);
-                	    @Session::setSession('text', '');
+						$uInfo['userType'] = $userInfo['user_type'];
+						$uInfo['lang_code'] = $userInfo['lang_code'];
+						$this->setLoginSession($uInfo);
+						
 						if ($referer = isValidReferer($_POST['referer'])) {
 							redirectUrl($referer);
 						} else {
 							redirectUrl(SP_WEBPATH."/");	
-						}						
+						}
+												
 					}else{
 						$errMsg['userName'] = formatErrorMsg($_SESSION['text']['login']["User inactive"]);
 					}
@@ -90,15 +98,16 @@ class UserController extends Controller{
 	}
 	
 	# register function
-	function register(){
+	function register($info = ""){
 		
 		$seopluginCtrler =  new SeoPluginsController();
 		$subscriptionActive = false;
+		$utypeCtrler = new UserTypeController();
+		$this->set('post', $info);
 		
 		// check whetehr plugin installed or not
 		if ($seopluginCtrler->isPluginActive("Subscription")) {
 			$subscriptionActive = true;
-			$utypeCtrler = new UserTypeController();
 			$userTypeList = $utypeCtrler->getAllUserTypes();
 			$this->set('userTypeList', $userTypeList);
 			
@@ -109,19 +118,47 @@ class UserController extends Controller{
 			$this->set('pgList', $pgList);
 			$this->set('defaultPgId', $pgCtrler->__getDefaultPaymentGateway());
 			$this->set('spTextSubscription', $this->getLanguageTexts('subscription', $_SESSION['lang_code']));
+    		
+    		$currencyCtrler = new CurrencyController();
+    		$this->set('currencyList', $currencyCtrler->getCurrencyCodeMapList());
 			
+		} else {
+			$this->set('defaultUserTypeId', $utypeCtrler->getDefaultUserTypeId());	
 		}
 		
 		$this->set('subscriptionActive', $subscriptionActive);
 		$this->render('common/register');
 	}
 	
+	# function to show pricing
+	function showPricing(){
+		
+		$seopluginCtrler =  new SeoPluginsController();
+		$utypeCtrler = new UserTypeController();
+		
+		// check whetehr plugin installed or not
+		if ($seopluginCtrler->isPluginActive("Subscription")) {
+			$userTypeList = $utypeCtrler->getAllUserTypes();
+			$this->set('list', $userTypeList);
+			$this->set('spTextSubscription', $this->getLanguageTexts('subscription', $_SESSION['lang_code']));			
+			$currencyCtrler = new CurrencyController();
+			$this->set('currencyList', $currencyCtrler->getCurrencyCodeMapList());
+			$this->render('common/pricing');
+		} else {
+			redirectUrl(SP_WEBPATH . "/register.php");
+		}	
+		
+	}
+	
 	# function to start registration
 	function startRegistration(){
+		$utypeCtrler = New UserTypeController();
 	    $_POST = sanitizeData($_POST);
 		$this->set('post', $_POST);
 		$userInfo = $_POST;
 		$subscriptionActive = false;
+		$userStatus = 1;
+		
 		$errMsg['userName'] = formatErrorMsg($this->validate->checkUname($userInfo['userName']));
 		$errMsg['password'] = formatErrorMsg($this->validate->checkPasswords($userInfo['password'], $userInfo['confirmPassword']));
 		$errMsg['firstName'] = formatErrorMsg($this->validate->checkBlank($userInfo['firstName']));
@@ -130,11 +167,19 @@ class UserController extends Controller{
 		$errMsg['code'] = formatErrorMsg($this->validate->checkCaptcha($userInfo['code']));
 		$errMsg['utype_id'] = formatErrorMsg($this->validate->checkNumber($userInfo['utype_id']));
 		
+		// if admin user type selected, show error
+		$adminTypeId = $utypeCtrler->getAdminUserTypeId();
+		if ($adminTypeId == $userInfo['utype_id']) {
+			$this->validate->flagErr = true;
+			$errMsg['userName'] = formatErrorMsg("You can not register as admin!!");
+		}
+		
 		// if payment plugin installed check whether valid payment gateway found
 		$seopluginCtrler =  new SeoPluginsController();
 		if ($seopluginCtrler->isPluginActive("Subscription")) {
 			$subscriptionActive = true;
 			$errMsg['pg_id'] = formatErrorMsg($this->validate->checkNumber($userInfo['pg_id']));
+			$userStatus = 0;
 		}
 		
 		if(!$this->validate->flagErr){
@@ -145,7 +190,7 @@ class UserController extends Controller{
 					(utype_id,username,password,first_name,last_name,email,created,status) 
 					values ($utypeId,'".addslashes($userInfo['userName'])."','".md5($userInfo['password'])."',
 					'".addslashes($userInfo['firstName'])."','".addslashes($userInfo['lastName'])."',
-					'".addslashes($userInfo['email'])."',UNIX_TIMESTAMP(),1)";
+					'".addslashes($userInfo['email'])."',UNIX_TIMESTAMP(),$userStatus)";
 					$this->db->query($sql);
 					
 					// get user id created
@@ -153,15 +198,18 @@ class UserController extends Controller{
 					
 					// check whether subscription is active
 					if ($subscriptionActive and $userId) {
-						$utypeCtrler = New UserTypeController();
 						$utypeInfo = $utypeCtrler->__getUserTypeInfo($utypeId);
 						
 						// if it is paid subscription, proceed with payment
 						if ($utypeInfo['price'] > 0) {
-							include SP_PLUGINPATH . "/Subscription/paymentgateway.ctrl.php";
-							$pgCtrler = new PaymentGateway();
-							$paymentForm = $pgCtrler->getPaymentForm(intval($userInfo['pg_id']), $userId, $utypeInfo);
-							$this->set('paymentForm', $paymentForm);
+							$paymentPluginId = intval($userInfo['pg_id']);
+							@Session::setSession('payment_plugin_id', $paymentPluginId);
+							$quantity = intval($userInfo['quantity']);
+							$pluginCtrler = $seopluginCtrler->createPluginObject("Subscription");
+							$paymentForm = $pluginCtrler->pgCtrler->getPaymentForm($paymentPluginId, $userId, $utypeInfo, $quantity);
+							$this->set('paymentForm', $paymentForm);							
+						} else {
+							$this->__changeStatus($userId, 1);
 						}						
 					}
 					
@@ -189,9 +237,15 @@ class UserController extends Controller{
 	function listUsers($info=''){
 		
 	    $info['pageno'] = intval($info['pageno']);
-		$info['stscheck'] = isset($info['stscheck']) ? intval($info['stscheck']) : 1;
-		$pageScriptPath = 'users.php?stscheck=' . $info['stscheck'];
-		$sql = "select * from users where utype_id=2 and status='{$info['stscheck']}'";
+		$pageScriptPath = 'users.php?stscheck=';
+		$pageScriptPath .= isset($info['stscheck']) ? $info['stscheck'] : "select";
+		$sql = "select * from users where utype_id!=1";
+
+		// if status set
+		if (isset($info['stscheck']) && $info['stscheck'] != 'select') {
+			$info['stscheck'] = intval($info['stscheck']);
+			$sql .= " and status='{$info['stscheck']}'";
+		}
 		
 		// search for user name
 		if (!empty($info['user_name'])) {
@@ -257,8 +311,12 @@ class UserController extends Controller{
 		}
 	}
 	
-	function newUser(){		
-		
+	function newUser(){	
+			
+		// Get the user types
+		$userTypeCtlr = new UserTypeController();
+		$userTypeList = $userTypeCtlr->getAllUserTypes();
+		$this->set('userTypeList', $userTypeList);
 		$this->render('user/new', 'ajax');
 	}
 	
@@ -316,16 +374,22 @@ class UserController extends Controller{
 		$errMsg['firstName'] = formatErrorMsg($this->validate->checkBlank($userInfo['firstName']));
 		$errMsg['lastName'] = formatErrorMsg($this->validate->checkBlank($userInfo['lastName']));
 		$errMsg['email'] = formatErrorMsg($this->validate->checkEmail($userInfo['email']));
-		$userTypeId = empty($userInfo['type_id']) ? 2 : intval($userInfo['user_type_id']);
+		$userTypeId = empty($userInfo['userType']) ? 2 : intval($userInfo['userType']);
 		$userStatus = isset($userInfo['status']) ? intval($userInfo['status']) : 1;
+		
+		// if expiry date is not empty
+		if (!empty($userInfo['expiry_date'])) {
+			$errMsg['expiry_date'] = formatErrorMsg($this->validate->checkDate($userInfo['expiry_date']));
+		}
 		
 		// check error flag is on
 		if(!$this->validate->flagErr){
 			if (!$this->__checkUserName($userInfo['userName'])) {
 				if (!$this->__checkEmail($userInfo['email'])) {
-					$sql = "insert into users(utype_id,username,password,first_name,last_name,email,created,status) 
-						values($userTypeId,'".addslashes($userInfo['userName'])."','".md5($userInfo['password'])."','".addslashes($userInfo['firstName'])."',
-						'".addslashes($userInfo['lastName'])."','".addslashes($userInfo['email'])."',UNIX_TIMESTAMP(),$userStatus)";
+					$sql = "insert into users(utype_id,username,password,first_name,last_name,email,created,status, expiry_date) 
+						values($userTypeId,'".addslashes($userInfo['userName'])."','".md5($userInfo['password'])."'
+						,'".addslashes($userInfo['firstName'])."', '".addslashes($userInfo['lastName'])."'
+						,'".addslashes($userInfo['email'])."',UNIX_TIMESTAMP(),$userStatus, '".addslashes($userInfo['expiry_date'])."')";
 					$this->db->query($sql);
 					
 					// if render results
@@ -362,10 +426,17 @@ class UserController extends Controller{
 				$userInfo['lastName'] = $userInfo['last_name'];
 				$userInfo['oldName'] = $userInfo['username'];
 				$userInfo['oldEmail'] = $userInfo['email'];
+				$userInfo['userType'] = $userInfo['utype_id'];
+				$userInfo['expiry_date'] = formatDate($userInfo['expiry_date']);
 			}
+
+			// Get the user types
+			$userTypeCtlr = new UserTypeController();
+			$userTypeList = $userTypeCtlr->getAllUserTypes();
 			
 			$userInfo['password'] = '';					
-			$this->set('post', $userInfo);			
+			$this->set('post', $userInfo);		
+			$this->set('userTypeList', $userTypeList);
 			$this->render('user/edit', 'ajax');
 			exit;
 		}
@@ -377,6 +448,11 @@ class UserController extends Controller{
 		$userInfo['id'] = intval($userInfo['id']);
 		$this->set('post', $userInfo);
 		$errMsg['userName'] = formatErrorMsg($this->validate->checkUname($userInfo['userName']));
+		
+		// if expiry date is not empty
+		if (!empty($userInfo['expiry_date'])) {
+			$errMsg['expiry_date'] = formatErrorMsg($this->validate->checkDate($userInfo['expiry_date']));
+		}
 		
 		// if password needs to be reset
 		if(!empty($userInfo['password'])){
@@ -416,7 +492,9 @@ class UserController extends Controller{
 						last_name = '".addslashes($userInfo['lastName'])."',
 						$passStr
 						$activeStr
-						email = '".addslashes($userInfo['email'])."'
+						email = '".addslashes($userInfo['email'])."',
+						utype_id = ".addslashes($userInfo['userType']).",
+						expiry_date='".addslashes($userInfo['expiry_date'])."'
 						where id={$userInfo['id']}";
 				$this->db->query($sql);
 				
@@ -441,7 +519,111 @@ class UserController extends Controller{
 		
 	}
 	
-	function showMyProfile($userInfo=''){
+	function showMyProfile($info = ''){
+		$userId = isLoggedIn();		
+		if(!empty($userId)){
+			$userInfo = $this->__getUserInfo($userId);
+			$this->set('userInfo', $userInfo);			
+			$userTypeCtrler = new UserTypeController();
+			$userTypeInfo = $userTypeCtrler->__getUserTypeInfo($userInfo['utype_id']);
+			$this->set('userTypeInfo', $userTypeInfo);
+			$seopluginCtrler =  new SeoPluginsController();
+			$this->set('subscriptionActive', $seopluginCtrler->isPluginActive("Subscription"));			
+			$spTextSubscription = $this->getLanguageTexts('subscription', $_SESSION['lang_code']);
+			$this->set('spTextSubscription', $spTextSubscription);
+			$this->render('user/showmyprofile', 'ajax');
+		}	
+	}
+	
+	# function to renew membership subscription
+	function renewMyProfile($info = ''){
+		$userId = isLoggedIn();
+		$seopluginCtrler =  new SeoPluginsController();
+		
+		// if logged in and plugin is active
+		if(!empty($userId) && $seopluginCtrler->isPluginActive("Subscription") && !isAdmin()){
+			$userInfo = $this->__getUserInfo($userId);
+			$this->set('userInfo', $userInfo);
+			
+			$userTypeCtrler = new UserTypeController();
+			$userTypeInfo = $userTypeCtrler->__getUserTypeInfo($userInfo['utype_id']);
+			$this->set('userTypeInfo', $userTypeInfo);
+			
+			$spTextSubscription = $this->getLanguageTexts('subscription', $_SESSION['lang_code']);
+			$this->set('spTextSubscription', $spTextSubscription);
+			
+			include_once(SP_PLUGINPATH . "/Subscription/paymentgateway.ctrl.php");
+			$userTypeList = $userTypeCtrler->getAllUserTypes();
+			$this->set('userTypeList', $userTypeList);
+			
+			$currencyCtrler = new CurrencyController();
+			$this->set('currencyList', $currencyCtrler->getCurrencyCodeMapList());
+				
+			// include available payment gateways
+			$pgCtrler = new PaymentGateway();
+			$pgList = $pgCtrler->__getAllPaymentGateway();
+			$this->set('pgList', $pgList);
+			$this->set('defaultPgId', $pgCtrler->__getDefaultPaymentGateway());
+			$this->render('user/renewmyprofile', 'ajax');
+		} else {
+			redirectUrlByScript(SP_WEBPATH . "/admin-panel.php?sec=myprofile");
+		}
+	}
+	
+	# function to update membership subscription
+	function updateSubscription($userInfo = ''){
+		$userId = isLoggedIn();
+		$seopluginCtrler =  new SeoPluginsController();
+		
+		// if logged in and plugin is active
+		if(!empty($userId) && $seopluginCtrler->isPluginActive("Subscription") && !isAdmin()){
+			$utypeCtrler = New UserTypeController();
+			$_POST = sanitizeData($_POST);
+			$errMsg['utype_id'] = formatErrorMsg($this->validate->checkNumber($userInfo['utype_id']));
+			$errMsg['pg_id'] = formatErrorMsg($this->validate->checkNumber($userInfo['pg_id']));
+			
+			// if admin user type selected, show error
+			$adminTypeId = $utypeCtrler->getAdminUserTypeId();
+			if ($adminTypeId == $userInfo['utype_id']) {
+				$this->validate->flagErr = true;
+				$errMsg['userName'] = formatErrorMsg("You can not register as admin!!");
+			}
+			
+			// if all form inputs are valid
+			if (!$this->validate->flagErr) {
+				$utypeId = intval($userInfo['utype_id']);
+				$userId = isLoggedIn();
+				$utypeInfo = $utypeCtrler->__getUserTypeInfo($utypeId);
+		
+				// if it is paid subscription, proceed with payment
+				if ($utypeInfo['price'] > 0) {
+					$paymentPluginId = intval($userInfo['pg_id']);
+					@Session::setSession('payment_plugin_id', $paymentPluginId);
+					$quantity = intval($userInfo['quantity']);
+					$pluginCtrler = $seopluginCtrler->createPluginObject("Subscription");
+					$paymentForm = $pluginCtrler->pgCtrler->getPaymentForm($paymentPluginId, $userId, $utypeInfo, $quantity, "renew");
+					$this->set('paymentForm', $paymentForm);
+				} else {
+					$this->updateUserInfo($userId, 'utype_id', $userInfo['utype_id']);
+					$expiryDate = $this->calculateUserExpiryDate($userInfo['quantity']);
+					$this->updateUserInfo($userId, 'expiry_date', $expiryDate);
+					redirectUrlByScript(SP_WEBPATH . "/admin-panel.php?sec=myprofile");
+					exit;
+				}
+				
+				$this->render('user/renewmyprofile', 'ajax');
+				
+			} else {
+				$this->set('errMsg', $errMsg);
+				$this->renewMyProfile($_POST);
+			}
+			
+		} else {
+			redirectUrlByScript(SP_WEBPATH . "/admin-panel.php?sec=myprofile");
+		}
+	}
+	
+	function editMyProfile($userInfo=''){
 		$userId = isLoggedIn();		
 		if(!empty($userId)){
 			if(empty($userInfo)){
@@ -503,8 +685,9 @@ class UserController extends Controller{
 				exit;
 			}
 		}
+		
 		$this->set('errMsg', $errMsg);
-		$this->showMyProfile($userInfo);
+		$this->editMyProfile($userInfo);
 	}
 	
 	# forgot password function
@@ -556,5 +739,68 @@ class UserController extends Controller{
 		$this->set('errMsg', $errMsg);
 		$this->forgotPasswordForm();
 	}
+	
+	# function to check whether user expired
+	function isUserExpired($userId) {
+		$excludeSecList = array("myprofile", "renew-profile", "update-subscription");
+		
+		// if not admin user and not in section pages
+		if (!isAdmin() && !in_array($_REQUEST['sec'], $excludeSecList)) {
+			$userInfo = $this->__getUserInfo($userId);
+			$userInfo['expiry_date'] = formatDate($userInfo['expiry_date']);
+			
+			// if expiry date set for user
+			if (!empty($userInfo['expiry_date'])) {
+				$today = date("Y-m-d");
+				$todayTime = strtotime($today);
+				$expireTime = strtotime($userInfo['expiry_date']);
+				
+				// current date greater than expiry date
+				if ($todayTime > $expireTime) {
+					return false;
+				}
+			}
+		}
+		
+		return true;
+		
+	}
+	
+	# function to get admin user id
+	function getAdminUserId() {
+		$userTypeCtrlr = new UserTypeController();
+		$adminUserTypeId = $userTypeCtrlr->getAdminUserTypeId();
+		$sql = "select * from users where utype_id=" . $adminUserTypeId;
+		$userInfo = $this->db->select($sql, true);
+		return $userInfo['id'];
+	}
+	
+	# function to check passed user id is admin user id
+	function isAdminUserId($userId) {
+		$adminUserId = $this->getAdminUserId();
+		
+		// if admin user id return true
+		if ($userId == $adminUserId) {
+			return true;
+		} else {
+			return false;
+		}
+		
+	}
+	
+	# function to update user info
+	function updateUserInfo($userId, $col, $value) {
+		$sql = "update users set $col='".addslashes($value)."' where id=" . intval($userId);
+		$this->db->query($sql);
+	}
+	
+	# function to calculate user expiry date
+	function calculateUserExpiryDate($quantity) {
+		$month = date('m') + $quantity;
+		$expiryTimeStamp = mktime(23, 59, 59, $month, date('d'), date('Y'));
+		$expiryDate = date('Y-m-d', $expiryTimeStamp);
+		return $expiryDate;
+	}
+	
 }
 ?>
