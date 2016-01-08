@@ -61,7 +61,7 @@
     		<a onclick="scriptDoLoad('user-types-manager.php', 'content')" href="javascript:void(0);" class="actionbut">
          		<?php echo $spText['button']['Cancel']?>
          	</a> &nbsp;
-         	<?php $actFun = "confirmSubmit('user-types-manager.php', 'editUserType', 'content')"; ?>         		
+         	<?php $actFun = SP_DEMO ? "alertDemoMsg()" : "confirmSubmit('user-types-manager.php', 'editUserType', 'content')"; ?>         		
          	<a onclick="<?php echo $actFun?>" href="javascript:void(0);" class="actionbut">
          		<?php echo $spText['button']['Proceed']?>
          	</a>
