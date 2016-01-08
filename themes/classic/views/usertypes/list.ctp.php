@@ -85,10 +85,13 @@ if ($isPluginSubsActive) {
 	</tr>
 </table>
 <?php
-// Creating the action links
-$actFun = "confirmSubmit('user-types-manager.php', 'listform', 'content', '&sec=activateall&pageno=$pageNo')";
-$inactFun = "confirmSubmit('user-types-manager.php', 'listform', 'content', '&sec=inactivateall&pageno=$pageNo')";
-$delFun = "confirmSubmit('user-types-manager.php', 'listform', 'content', '&sec=deleteall&pageno=$pageNo')";
+if (SP_DEMO) {
+	$actFun = $inactFun = $delFun = "alertDemoMsg()";
+} else {
+	$actFun = "confirmSubmit('user-types-manager.php', 'listform', 'content', '&sec=activateall&pageno=$pageNo')";
+	$inactFun = "confirmSubmit('user-types-manager.php', 'listform', 'content', '&sec=inactivateall&pageno=$pageNo')";
+	$delFun = "confirmSubmit('user-types-manager.php', 'listform', 'content', '&sec=deleteall&pageno=$pageNo')";
+}
 ?>
 <table width="100%" cellspacing="0" cellpadding="0" border="0" class="actionSec">
 	<tr>
