@@ -1083,9 +1083,9 @@ VALUES ('Currency', 'SP_PAYMENT_CURRENCY', 'USD', 'system', 'medium', '1');
 CREATE TABLE IF NOT EXISTS `user_specs` (
 `id` int(11) NOT NULL,
   `user_type_id` int(11) NOT NULL,
-  `spec_column` varchar(120) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `spec_value` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `spec_column` varchar(120) COLLATE utf8_unicode_ci NOT NULL,
+  `spec_value` varchar(255) COLLATE utf8_unicode_ci NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Indexes for table `user_specs`
