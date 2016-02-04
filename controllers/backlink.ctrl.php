@@ -45,7 +45,9 @@ class BacklinkController extends Controller{
 			if (SP_DEMO) {
 			    if ($i++ > 10) break;
 			}
-			if(!stristr($url, 'http://')) $url = "http://".$url;
+
+			$url = addHttpToUrl($url);
+			print $url;
 			$list[] = str_replace(array("\n", "\r", "\r\n", "\n\r"), "", trim($url));
 		}
 

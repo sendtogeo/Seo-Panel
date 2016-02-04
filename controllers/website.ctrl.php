@@ -399,7 +399,7 @@ class WebsiteController extends Controller{
 	function crawlMetaData($websiteUrl, $keyInput='', $pageContent='', $returVal=false) {
 	    if (empty($pageContent)) {
     		if(!preg_match('/\w+/', $websiteUrl)) return;
-    		if(!stristr($websiteUrl, 'http://')) $websiteUrl = "http://".$websiteUrl;
+    		$websiteUrl = addHttpToUrl($websiteUrl);
     		$spider = New Spider();
     		$ret = $spider->getContent($websiteUrl);
 	    } else {

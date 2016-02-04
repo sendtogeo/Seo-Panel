@@ -99,7 +99,7 @@ class DirectoryController extends Controller{
 				return;
 			}
 		
-			if(!stristr($submitInfo['url'], 'http://')) $submitInfo['url'] = "http://".$submitInfo['url'];
+			$submitInfo['url'] = addHttpToUrl($submitInfo['url']);
 			$recUrl = formatUrl($submitInfo['reciprocal_url']);
 			$submitInfo['reciprocal_url'] = empty($recUrl) ? "" : addHttpToUrl($submitInfo['reciprocal_url']);
 		
