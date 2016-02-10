@@ -182,7 +182,12 @@ class DirectoryController extends Controller{
 		if(!empty($_SESSION['no_captcha'])) $sql .= " and is_captcha=0";
 		if(!empty($_SESSION['dirsub_pr'])) $sql .= " and google_pagerank={$_SESSION['dirsub_pr']}";
 		if(!empty($_SESSION['dirsub_lang'])) $sql .= " and lang_code='{$_SESSION['dirsub_lang']}'";
-		if(!empty($_SESSION['no_reciprocal'])) $sql .= " and extra_val not like '%LINK_TYPE=reciprocal%'";
+		
+		// if reciprocal directory needs to be filtered
+		if(!empty($_SESSION['no_reciprocal'])) {
+			$sql .= " and extra_val not like '%LINK_TYPE=reciprocal%' and is_reciprocal=0";
+		}		
+		
 		if(!empty($dirId)) $sql .= " and id=$dirId";
 		if(count($dirList) > 0) $sql .= " and id not in (".implode(',', $dirList).")";
 		$sql .= " order by rank DESC, extra_val ASC, id ASC";
