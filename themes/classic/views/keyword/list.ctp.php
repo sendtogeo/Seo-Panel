@@ -88,7 +88,7 @@ $searchFun = "scriptDoLoadPost('keywords.php', 'listform', 'content')";
 					?>
 					<select name="action" id="action<?php echo $listInfo['id']?>" onchange="doAction('keywords.php', 'content', 'keywordId=<?php echo $listInfo['id']?>&pageno=<?php echo $pageNo?>&website_id=<?php echo $websiteId?>', 'action<?php echo $listInfo['id']?>')">
 						<option value="select">-- <?php echo $spText['common']['Select']?> --</option>
-						<?if($listInfo['webstatus'] && $listInfo['status']){?>
+						<?php if($listInfo['webstatus'] && $listInfo['status']){?>
 							<option value="reports"><?php echo $spText['common']['Reports']?></option>
 						<?php }?>
 						<option value="<?php echo $statVal?>"><?php echo $statLabel?></option>

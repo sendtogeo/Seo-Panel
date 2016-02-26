@@ -199,7 +199,7 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 		    <td class="td_bottom_border" colspan="<?php echo ($colCount-2)?>"><?php echo $spText['common']['No Records Found']?>!</td>
 		    <td class="tab_right_bot">&nbsp;</td>
 		</tr>
-		<?		
+		<?php		
 	} 
 	?>
 	<tr class="listBot">
