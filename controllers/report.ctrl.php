@@ -677,7 +677,9 @@ class ReportController extends Controller {
 			    // to update cron that report executed for akeyword on a search engine
 			    if (SP_MULTIPLE_CRON_EXEC && $cron) $this->saveCronTrackInfo($keywordInfo['id'], $seInfoId, $time);
 			    
-			    if(preg_match_all($this->seList[$seInfoId]['regex'], $pageContent, $matches)){
+			    // verify the urls existing in the result
+			    preg_match_all($this->seList[$seInfoId]['regex'], $pageContent, $matches);
+			    if (!empty($matches[$this->seList[$seInfoId]['url_index']])) {
 			    	
 					$urlList = $matches[$this->seList[$seInfoId]['url_index']];
 					$crawlResult[$seInfoId]['matched'] = array();
