@@ -60,7 +60,11 @@ class RankController extends Controller{
 	}
 
 	function __getGooglePageRank ($url) {
+		
+		return 0;
 
+		// commented due to gooogle stops this service
+		/*
 	    if (SP_DEMO && !empty($_SERVER['REQUEST_METHOD'])) return 0;	
 	    $websiteUrl =  $url;   
 		$url = "http://toolbarqueries.google.com/tbr?client=navclient-auto&ch=".$this->CheckHash($this->hashURL($url))."&features=Rank&q=info:".$url."&num=100&filter=0";
@@ -85,6 +89,7 @@ class RankController extends Controller{
 		$crawlLogCtrl->updateCrawlLog($ret['log_id'], $crawlInfo);
 		
 		return $rank;
+		*/
 	}
 
 	function printAlexaRank($url){
