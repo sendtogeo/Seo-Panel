@@ -49,7 +49,7 @@ class IndexController extends Controller{
 					break;
 			}
 			
-			$sql = "select * from websites w where 1=1";
+			$sql = "select * from websites w where status=1";
 			
 			// if admin user
 			if (isAdmin()) {
