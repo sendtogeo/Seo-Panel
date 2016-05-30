@@ -38,7 +38,7 @@ class ReportController extends Controller {
 		$fromTimeLabel = date('Y-m-d', $fromTime);
 		$toTimeLabel = date('Y-m-d', $toTime);
 		foreach($this->seLIst as $seInfo){
-			$sql = "select min(rank) as rank from searchresults 
+			$sql = "select min(rank) as rank,result_date from searchresults 
 			where keyword_id=$keywordId and searchengine_id=".$seInfo['id']."
 			and (result_date='$fromTimeLabel' or result_date='$toTimeLabel')
 			group by result_date order by result_date DESC limit 0, 2";
@@ -59,6 +59,7 @@ class ReportController extends Controller {
 				}
 				$positionInfo[$seInfo['id']]['rank_diff'] = empty ($rankDiff) ? '' : $rankDiff;
 				$positionInfo[$seInfo['id']]['rank'] = $repInfo['rank'];
+				$positionInfo[$seInfo['id']]['result_date'] = $repInfo['result_date'];
 				$prevRank = $repInfo['rank'];
 				$i++;
 			}			
@@ -186,7 +187,7 @@ class ReportController extends Controller {
 				
 		$indexList = array();
 		foreach($list as $keywordInfo){
-			$positionInfo = $this->__getKeywordSearchReport($keywordInfo['id'], $fromTime, $toTime);
+			$positionInfo = $this->__getKeywordSearchReport($keywordInfo['id'], $fromTime, $toTime, true);
 			
 			// check whether the sorting search engine is there
 		    $indexList[$keywordInfo['id']] = empty($positionInfo[$orderCol]) ? 10000 : $positionInfo[$orderCol]['rank'];
@@ -226,7 +227,6 @@ class ReportController extends Controller {
 			}
 			exportToCsv('keyword_report_summary', $exportContent);
 		} else {
-			
 			$this->set('list', $keywordList);
 			
 			// if pdf export
