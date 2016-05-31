@@ -70,7 +70,7 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 
 	// url parameters
 	$mainLink = SP_WEBPATH."/reports.php?sec=reportsum&website_id=$websiteId&from_time=$fromTime&to_time=$toTime&search_name=" . $searchInfo['search_name'];
-	$directLink = $mainLink . "&order_col=$orderCol&order_val=$orderVal";
+	$directLink = $mainLink . "&order_col=$orderCol&order_val=$orderVal&pageno=$pageNo";
 	?>
 	<br><br>
 	<div style="float:left;margin-right: 10px;">
@@ -200,7 +200,7 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 				    ?>
 					<td class="td_br_right"><?php echo $currRankLink; ?></td>
 					<td class="td_br_right"><?php echo $prevRankLink; ?></td>
-					<td class='td_br_right left' style="border-right:2px solid #B0C2CC; width: 50px;"><?php echo $graphLink . " " . $rankDiffTxt; ?></td>
+					<td class='td_br_right left' style="border-right:2px solid #B0C2CC; width: 50px;" nowrap><?php echo $graphLink . " " . $rankDiffTxt; ?></td>
 					<?php					
 				}
 				?>				

@@ -178,6 +178,7 @@ class ReportController extends Controller {
 			$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
 			$pagingDiv = $this->paging->printPages($scriptPath, '', 'scriptDoLoad', 'content', "");
 			$this->set('pagingDiv', $pagingDiv);
+			$this->set('pageNo', $searchInfo['pageno']);
 			$sql .= " limit ".$this->paging->start .",". $this->paging->per_page;
 				
 			# set keywords list
@@ -931,19 +932,26 @@ class ReportController extends Controller {
 			'website-stats' => $spTextHome["Website Statistics"],
 		);
 		$this->set('reportTypes', $reportTypes);
-		$urlarg .= "&report_type=".$searchInfo['report_type'];
+		$urlarg .= "&report_type=".$searchInfo['report_type'];		
+		
+		// verify reports generated for user or not
+		$repSetInfo = $this->getUserReportSettings($userId);
+		$repGenerated = (date('y-m-d') === date("y-m-d", $repSetInfo['last_generated'])) ? true : false;
 		
 		if (!empty ($searchInfo['from_time'])) {
 			$fromTime = strtotime($searchInfo['from_time'] . ' 00:00:00');
 		} else {
-			$fromTime = mktime(0, 0, 0, date('m'), date('d') - 1, date('Y'));
+			$intervalDays = $repGenerated ? 7 : 8;
+			$fromTime = mktime(0, 0, 0, date('m'), date('d') - $intervalDays, date('Y'));
 		}
 		
 		if (!empty ($searchInfo['to_time'])) {
 			$toTime = strtotime($searchInfo['to_time'] . ' 00:00:00');
 		} else {
-			$toTime = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
-		}
+			$intervalDays = $repGenerated ? 0 : 1;
+			$toTime = mktime(0, 0, 0, date('m'), date('d') - $intervalDays, date('Y'));
+		}		
+		
 		$fromTimeShort = date('Y-m-d', $fromTime);
 		$this->set('fromTime', $fromTimeShort);
 		$toTimeShort = date('Y-m-d', $toTime);
@@ -1006,6 +1014,7 @@ class ReportController extends Controller {
 				$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
     			$pagingDiv = $this->paging->printPages($scriptPath, '', 'scriptDoLoad', 'content', "");
     			$this->set('keywordPagingDiv', $pagingDiv);
+    			$this->set('pageNo', $searchInfo['pageno']);
     			$sql .= " limit ".$this->paging->start .",". $this->paging->per_page;
     		
     			# set keywords list
@@ -1015,10 +1024,10 @@ class ReportController extends Controller {
     		
     		$indexList = array();
     		foreach($list as $keywordInfo){
-    			$positionInfo = $this->__getKeywordSearchReport($keywordInfo['id'], $fromTime, $toTime);
+    			$positionInfo = $this->__getKeywordSearchReport($keywordInfo['id'], $fromTime, $toTime, true);
     			
     			// check whether the sorting search engine is there
-    		    $indexList[$keywordInfo['id']] = empty($positionInfo[$orderCol]) ? 10000 : $positionInfo[$orderCol]['rank'];
+    		    $indexList[$keywordInfo['id']] = empty($positionInfo[$orderCol][$toTimeShort]) ? 10000 : $positionInfo[$orderCol][$toTimeShort];
     			
     			$keywordInfo['position_info'] = $positionInfo;
     			$keywordList[$keywordInfo['id']] = $keywordInfo;
@@ -1040,19 +1049,44 @@ class ReportController extends Controller {
     			$exportContent .= createExportContent( array('', $reportHeading, ''));
     			$exportContent .= createExportContent( array());
     			$headList = array($spText['common']['Website'], $spText['common']['Keyword']);
-    			foreach ($this->seLIst as $seInfo) $headList[] = $seInfo['domain'];
+    			
+    			$pTxt = str_replace("-", "/", substr($fromTimeShort, -5));
+    			$cTxt = str_replace("-", "/", substr($toTimeShort, -5));
+    			foreach ($this->seLIst as $seInfo) {
+    				$domainTxt = str_replace("www.", "", $seInfo['domain']);
+    				$headList[] = $domainTxt . "($cTxt)";
+    				$headList[] = $domainTxt . "($pTxt)";
+    				$headList[] = $domainTxt . "(+/-)";
+    			}
+    			
     			$exportContent .= createExportContent( $headList);
+    			
+    			
     			foreach($indexList as $keywordId => $rankValue){
-    			    $listInfo = $keywordList[$keywordId];
+    				$listInfo = $keywordList[$keywordId];
     				$positionInfo = $listInfo['position_info'];
+    			
     				$valueList = array($listInfo['weburl'], $listInfo['name']);
     				foreach ($this->seLIst as $index => $seInfo){
-    					$rank = empty($positionInfo[$seInfo['id']]['rank']) ? '-' : $positionInfo[$seInfo['id']]['rank'];
-    					$rankDiff = empty($positionInfo[$seInfo['id']]['rank_diff']) ? '' : $positionInfo[$seInfo['id']]['rank_diff'];
-    					$valueList[] = $rank. strip_tags($rankDiff);
+    						
+    					$rankInfo = $positionInfo[$seInfo['id']];
+    					$prevRank = isset($rankInfo[$fromTimeShort]) ? $rankInfo[$fromTimeShort] : "";
+    					$currRank = isset($rankInfo[$toTimeShort]) ? $rankInfo[$toTimeShort] : "";
+    					$rankDiff = "";
+    			
+    					// if both ranks are existing
+    					if ($prevRank != '' && $currRank != '') {
+    						$rankDiff = $prevRank - $currRank;
+    					}
+    						
+    					$valueList[] = $currRank;
+    					$valueList[] = $prevRank;
+    					$valueList[] = $rankDiff;
     				}
+    			
     				$exportContent .= createExportContent( $valueList);
     			}
+    			
     		} else {
 				$this->set('list', $keywordList);
 				$this->set('keywordPos', true);	
@@ -1084,7 +1118,7 @@ class ReportController extends Controller {
 				$pagingDiv = $this->paging->printPages($scriptPath, '', 'scriptDoLoad', 'content', "");
 				$this->set('websitePagingDiv', $pagingDiv);
 				$sql .= " limit ".$this->paging->start .",". $this->paging->per_page;
-				$this->set('pageNo', $info['pageno']);
+				$this->set('pageNo', $searchInfo['pageno']);
 				$websiteList = $this->db->select($sql);
 			}
 		    
