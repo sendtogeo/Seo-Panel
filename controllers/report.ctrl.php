@@ -59,7 +59,7 @@ class ReportController extends Controller {
 				}
 				$positionInfo[$seInfo['id']]['rank_diff'] = empty ($rankDiff) ? '' : $rankDiff;
 				$positionInfo[$seInfo['id']]['rank'] = $repInfo['rank'];
-				$positionInfo[$seInfo['id']]['result_date'] = $repInfo['result_date'];
+				$positionInfo[$seInfo['id']][$repInfo['result_date']] = $repInfo['rank'];
 				$prevRank = $repInfo['rank'];
 				$i++;
 			}			
@@ -190,12 +190,12 @@ class ReportController extends Controller {
 			$positionInfo = $this->__getKeywordSearchReport($keywordInfo['id'], $fromTime, $toTime, true);
 			
 			// check whether the sorting search engine is there
-		    $indexList[$keywordInfo['id']] = empty($positionInfo[$orderCol]) ? 10000 : $positionInfo[$orderCol]['rank'];
-			
+		    $indexList[$keywordInfo['id']] = empty($positionInfo[$orderCol][$toTimeTxt]) ? 10000 : $positionInfo[$orderCol][$toTimeTxt];
+		    
 			$keywordInfo['position_info'] = $positionInfo;
 			$keywordList[$keywordInfo['id']] = $keywordInfo;
-		}
-
+		}		
+		
 		// sort array according the value
 		if ($orderCol != 'keyword') { 
     		if ($orderVal == 'DESC') {
@@ -212,17 +212,39 @@ class ReportController extends Controller {
 			$exportContent .= createExportContent( array('', $reportHeading, ''));
 			$exportContent .= createExportContent( array());
 			$headList = array($spText['common']['Website'], $spText['common']['Keyword']);
-			foreach ($this->seLIst as $seInfo) $headList[] = $seInfo['domain'];
+
+			$pTxt = str_replace("-", "/", substr($fromTimeTxt, -5));
+			$cTxt = str_replace("-", "/", substr($toTimeTxt, -5));
+			foreach ($this->seLIst as $seInfo) {
+				$domainTxt = str_replace("www.", "", $seInfo['domain']);
+				$headList[] = $domainTxt . "($cTxt)";
+				$headList[] = $domainTxt . "($pTxt)";
+				$headList[] = $domainTxt . "(+/-)";
+			}
+						
 			$exportContent .= createExportContent( $headList);
 			foreach($indexList as $keywordId => $rankValue){
 			    $listInfo = $keywordList[$keywordId];
 				$positionInfo = $listInfo['position_info'];
+				
 				$valueList = array($listInfo['weburl'], $listInfo['name']);
 				foreach ($this->seLIst as $index => $seInfo){
-					$rank = empty($positionInfo[$seInfo['id']]['rank']) ? '-' : $positionInfo[$seInfo['id']]['rank'];
-					$rankDiff = empty($positionInfo[$seInfo['id']]['rank_diff']) ? '' : $positionInfo[$seInfo['id']]['rank_diff'];
-					$valueList[] = $rank. strip_tags($rankDiff);
+					
+					$rankInfo = $positionInfo[$seInfo['id']];
+					$prevRank = isset($rankInfo[$fromTimeTxt]) ? $rankInfo[$fromTimeTxt] : "";
+					$currRank = isset($rankInfo[$toTimeTxt]) ? $rankInfo[$toTimeTxt] : "";
+					$rankDiff = "";
+						
+					// if both ranks are existing
+					if ($prevRank != '' && $currRank != '') {
+						$rankDiff = $prevRank - $currRank;
+					}
+					
+					$valueList[] = $currRank;
+					$valueList[] = $prevRank;
+					$valueList[] = $rankDiff;
 				}
+				
 				$exportContent .= createExportContent( $valueList);
 			}
 			exportToCsv('keyword_report_summary', $exportContent);

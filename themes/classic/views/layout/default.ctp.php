@@ -38,7 +38,7 @@ var wantproceed = '<?php  echo $spText['label']['wantproceed']; ?>';
     
             <?php include_once(SP_VIEWPATH."/menu/topmenu.ctp.php");?>
             
-            <div style="width:300px;">
+            <div style="width:300px;display: none;">
             	<a href="<?php echo SP_WEBPATH; ?>" style="text-decoration: none; padding: 0px;"><h1 style="width:200px;">Seo Panel</h1></a>
             </div>
         

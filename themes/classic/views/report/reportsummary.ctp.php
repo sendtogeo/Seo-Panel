@@ -132,10 +132,12 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 	</tr>	
 	<tr class="squareSubHead">
 		<?php
+		$pTxt = str_replace("-", "/", substr($fromTime, -5));
+		$cTxt = str_replace("-", "/", substr($toTime, -5));
 		foreach ($seList as $i => $seInfo) {
 			?>
-			<td>05/23</td>
-			<td>05/30</td>
+			<td><?php echo $cTxt; ?></td>
+			<td><?php echo $pTxt; ?></td>
 			<td style="border-right:2px solid #B0C2CC;">+ / -</td>
 			<?php
 		}
@@ -143,7 +145,8 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 	</tr>
 	<?php
 	$colCount = empty($websiteId) ? ($seCount * 3) + 2 : ($seCount * 3) + 1; 
-	if(count($list) > 0){
+	if (count($list) > 0) {
+		
 		$catCount = count($list);
 		$i = 0;
 		foreach($indexList as $keywordId => $rankValue){
@@ -166,35 +169,38 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 				<?php }?>				
 				<?php
 				foreach ($seList as $index => $seInfo){
-				    $rank = empty($positionInfo[$seInfo['id']]['rank']) ? '-' : $positionInfo[$seInfo['id']]['rank'];
-					$rankDiff = empty($positionInfo[$seInfo['id']]['rank_diff']) ? '' : $positionInfo[$seInfo['id']]['rank_diff'];
-					$rankDate = empty($positionInfo[$seInfo['id']]['result_date']) ? '' : $positionInfo[$seInfo['id']]['result_date'];
-				    $rankPadding = "";
-				    
-				    $prevRank = ($rankDate == $fromTime) ? $rank : "";
-				    $currRank = ($rankDate == $toTime) ? $rank : "-";
-				    
-				    if ($currRank != '-') {
-				        $rankLink = scriptAJAXLinkHrefDialog('reports.php', 'content', $scriptLink."&se_id=".$seInfo['id'], $currRank);
-				        $graphLink = scriptAJAXLinkHrefDialog('graphical-reports.php', 'content', $scriptLink."&se_id=".$seInfo['id'], '&nbsp;', 'graphicon');
-					    $rankPadding = empty($rankDiff) ? "" : "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
-					    $rankLink = $rankPadding . $rankLink;
-					    $prevRank = $currRank + intval($rankDiff);
-					    
-					    // if pdf report remove links
-					    if ($pdfVersion) {
-							$rankLink = str_replace("href='javascript:void(0);'", "", $rankLink);
-							$graphLink = str_replace("href='javascript:void(0);'", "", $graphLink);
-						}
-					    
-				    } else {
-				        $rankDiff = $graphLink = "";
-				        $rankLink = $rank;
-				    }
+					$rankInfo = $positionInfo[$seInfo['id']];
+					$prevRank = isset($rankInfo[$fromTime]) ? $rankInfo[$fromTime] : "";
+					$currRank = isset($rankInfo[$toTime]) ? $rankInfo[$toTime] : "";
+					$rankDiffTxt = "";
+					
+					// if both ranks are existing
+					if ($prevRank != '' && $currRank != '') {
+						$rankDiff = $prevRank - $currRank;
+						
+						if ($rankDiff > 0) {
+							$rankDiffTxt = "<font class='green'>($rankDiff)</font>";
+						} else if ($rankDiff < 0) {
+							$rankDiffTxt = "<font class='red'>($rankDiff)</font>";
+						} else {
+							$rankDiffTxt = "0";
+						}													
+					}
+
+					$prevRankLink = scriptAJAXLinkHrefDialog('reports.php', 'content', $scriptLink."&se_id=".$seInfo['id'], $prevRank);
+					$currRankLink = scriptAJAXLinkHrefDialog('reports.php', 'content', $scriptLink."&se_id=".$seInfo['id'], $currRank);
+					$graphLink = scriptAJAXLinkHrefDialog('graphical-reports.php', 'content', $scriptLink."&se_id=".$seInfo['id'], '&nbsp;', 'graphicon');
+					
+					// if pdf report remove links
+					if ($pdfVersion) {
+						$prevRankLink = str_replace("href='javascript:void(0);'", "", $prevRankLink);
+						$currRankLink = str_replace("href='javascript:void(0);'", "", $currRankLink);
+						$graphLink = str_replace("href='javascript:void(0);'", "", $graphLink);
+					}
 				    ?>
-					<td class="td_br_right"><?php echo $prevRank; ?></td>
-					<td class="td_br_right"><?php echo $rankLink; ?></td>
-					<td class='td_br_right' style="border-right:2px solid #B0C2CC;"><?php echo $rankDiff.$graphLink; ?></td>
+					<td class="td_br_right"><?php echo $currRankLink; ?></td>
+					<td class="td_br_right"><?php echo $prevRankLink; ?></td>
+					<td class='td_br_right left' style="border-right:2px solid #B0C2CC; width: 50px;"><?php echo $graphLink . " " . $rankDiffTxt; ?></td>
 					<?php					
 				}
 				?>				
@@ -205,153 +211,6 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 	}
 	?>
 </table>
-
-
-<?php /*?>
-<table width="100%" border="0" cellspacing="0" cellpadding="2px;" class="list">
-	<tr>
-	<td width='33%'>
-	<table width="100%" border="0" cellspacing="0" cellpadding="0" class="list" style="<?php echo $borderCollapseVal; ?>">
-	<tr class="listHead">
-		<?php
-		$linkClass = "";
-        if ($orderCol == 'keyword') {
-            $oVal = ($orderVal == 'DESC') ? "ASC" : "DESC";
-            $linkClass .= "sort_".strtolower($orderVal);
-        } else {
-            $oVal = 'ASC';
-        }
-        
-        $hrefAttr = $pdfVersion ? "" : "href='javascript:void(0)'";
-        
-		$linkName = "<a id='sortLink' class='$linkClass' $hrefAttr onclick=\"scriptDoLoad('$mainLink&order_col=keyword&order_val=$oVal', 'content')\">{$spText['common']['Keyword']}</a>"; 
-		?>		
-		<?php if (empty($websiteId)) {?>
-			<td class="left"><?php echo $spText['common']['Website']?></td>
-			<td><?php echo $linkName?></td>
-		<?php } else { ?>
-			<td class="left"><?php echo $linkName?></td>
-		<?php }?>
-		<?php
-		$seCount = count($seList);
-		foreach ($seList as $i => $seInfo){
-		    
-		    $linkClass = "";
-            if ($seInfo['id'] == $orderCol) {
-                $oVal = ($orderVal == 'DESC') ? "ASC" : "DESC";
-                $linkClass .= "sort_".strtolower($oVal);
-            } else {
-                $oVal = 'ASC';
-            }
-            $linkName = "<a id='sortLink' class='$linkClass' $hrefAttr onclick=\"scriptDoLoad('$mainLink&order_col={$seInfo['id']}&order_val=$oVal', 'content')\">{$seInfo['domain']}</a>";
-		    
-			if( ($i+1) == $seCount){			
-				?>
-				<td class="right" colspan="3"><?php echo $linkName; ?></td>
-				<?php	
-			}else{
-				?>
-				<td colspan="3"><?php echo $linkName; ?></td>
-				<?php
-			}
-			
-		}
-		?>		
-	</tr>
-	<tr class="listHead">
-	</tr>
-	<?php
-	$colCount = empty($websiteId) ? ($seCount * 3) + 2 : ($seCount * 3) + 1; 
-	if(count($list) > 0){
-		$catCount = count($list);
-		$i = 0;
-		foreach($indexList as $keywordId => $rankValue){
-		    $listInfo = $list[$keywordId];
-			$positionInfo = $listInfo['position_info'];
-			$class = ($i % 2) ? "blue_row" : "white_row";
-            if($catCount == ($i + 1)){
-                $leftBotClass = "tab_left_bot";
-                $rightBotClass = "tab_right_bot";
-            }else{
-                $leftBotClass = "td_left_border td_br_right";
-                $rightBotClass = "td_br_right";
-            }
-            $scriptLink = "website_id={$listInfo['website_id']}&keyword_id={$listInfo['id']}&rep=1&from_time=$fromTime&to_time=$toTime";          
-			?>
-			<tr class="<?php echo $class?>">				
-				<?php if (empty($websiteId)) {?>
-					<td class="<?php echo $leftBotClass?> left" width='250px;'><?php echo $listInfo['weburl']; ?></td>
-					<td class='td_br_right left'><?php echo $listInfo['name'] ?></td>
-				<?php } else { ?>
-					<td class="<?php echo $leftBotClass?> left" width='100px;'><?php echo $listInfo['name']; ?></td>
-				<?php }?>				
-				<?php
-				foreach ($seList as $index => $seInfo){
-				    $rank = empty($positionInfo[$seInfo['id']]['rank']) ? '-' : $positionInfo[$seInfo['id']]['rank'];
-					$rankDiff = empty($positionInfo[$seInfo['id']]['rank_diff']) ? '' : $positionInfo[$seInfo['id']]['rank_diff'];
-					$rankDate = empty($positionInfo[$seInfo['id']]['result_date']) ? '' : $positionInfo[$seInfo['id']]['result_date'];
-				    $rankPadding = "";
-				    
-				    $prevRank = ($rankDate == $fromTime) ? $rank : "";
-				    $currRank = ($rankDate == $toTime) ? $rank : "-";
-				    
-				    if ($currRank != '-') {
-				        $rankLink = scriptAJAXLinkHrefDialog('reports.php', 'content', $scriptLink."&se_id=".$seInfo['id'], $currRank);
-				        $graphLink = scriptAJAXLinkHrefDialog('graphical-reports.php', 'content', $scriptLink."&se_id=".$seInfo['id'], '&nbsp;', 'graphicon');
-					    $rankPadding = empty($rankDiff) ? "" : "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
-					    $rankLink = $rankPadding . $rankLink;
-					    $prevRank = $currRank + intval($rankDiff);
-					    
-					    // if pdf report remove links
-					    if ($pdfVersion) {
-							$rankLink = str_replace("href='javascript:void(0);'", "", $rankLink);
-							$graphLink = str_replace("href='javascript:void(0);'", "", $graphLink);
-						}
-					    
-				    } else {
-				        $rankDiff = $graphLink = "";
-				        $rankLink = $rank;
-				    }
-
-				    
-				    
-					if( ($index+1) == $seCount){			
-						?>
-						<td colspan="3" class="<?php echo $rightBotClass?>" style='width:100px' nowrap><?php echo "$rankLink $graphLink $rankDiff"; ?></td>	
-						<?php	
-					}else{
-						?>
-						<td><?php echo $prevRank; ?></td>
-						<td><?php echo "$rankLink $graphLink"; ?></td>
-						<td class='td_br_right' style='width:100px' nowrap><?php echo $rankDiff; ?></td>
-						<?php
-					}					
-				}
-				?>				
-			</tr>
-			<?php
-			$i++;
-		}
-	}else{
-		?>
-		<tr class="blue_row">
-		    <td class="tab_left_bot_noborder">&nbsp;</td>
-		    <td class="td_bottom_border" colspan="<?php echo ($colCount-2)?>"><?php echo $spText['common']['No Records Found']?>!</td>
-		    <td class="tab_right_bot">&nbsp;</td>
-		</tr>
-		<?php		
-	} 
-	?>
-	<tr class="listBot">
-		<td class="left" colspan="<?php echo ($colCount-1)?>"></td>
-		<td class="right"></td>
-	</tr>
-	</table>
-	</td>
-	</tr>
-</table>
-<?php */ ?>
-
 </div>
 <?php
 if(!empty($printVersion) || !empty($pdfVersion)) {
