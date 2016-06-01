@@ -1218,6 +1218,7 @@ class ReportController extends Controller {
 			
 			// if execution through cron job then just return the content to send through mail
 			if (!empty($cronUserId)) {
+				$this->set('cronUserId', $cronUserId);
 			    return $this->getViewContent('report/archive');
 			} else {
 				

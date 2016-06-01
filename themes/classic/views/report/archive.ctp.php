@@ -144,8 +144,8 @@ if (!empty($keywordPos)) {
 			$cTxt = str_replace("-", "/", substr($toTime, -5));
 			foreach ($seList as $i => $seInfo) {
 				?>
-				<td><?php echo $cTxt; ?></td>
 				<td><?php echo $pTxt; ?></td>
+				<td><?php echo $cTxt; ?></td>
 				<td style="border-right:2px solid #B0C2CC;">+ / -</td>
 				<?php
 			}
@@ -205,10 +205,12 @@ if (!empty($keywordPos)) {
 							$currRankLink = str_replace("href='javascript:void(0);'", "", $currRankLink);
 							$graphLink = str_replace("href='javascript:void(0);'", "", $graphLink);
 						}
+						
+						$diffOut = empty($cronUserId) ? $graphLink . " " . $rankDiffTxt : $rankDiffTxt;
 					    ?>
-						<td class="td_br_right"><?php echo $currRankLink; ?></td>
 						<td class="td_br_right"><?php echo $prevRankLink; ?></td>
-						<td class='td_br_right left' style="border-right:2px solid #B0C2CC; width: 50px;" nowrap><?php echo $graphLink . " " . $rankDiffTxt; ?></td>
+						<td class="td_br_right"><?php echo $currRankLink; ?></td>
+						<td class='td_br_right left' style="border-right:2px solid #B0C2CC; width: 50px;" nowrap><?php echo $diffOut; ?></td>
 						<?php					
 					}
 					?>				
