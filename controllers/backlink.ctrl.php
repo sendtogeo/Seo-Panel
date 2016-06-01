@@ -47,7 +47,6 @@ class BacklinkController extends Controller{
 			}
 
 			$url = addHttpToUrl($url);
-			print $url;
 			$list[] = str_replace(array("\n", "\r", "\r\n", "\n\r"), "", trim($url));
 		}
 

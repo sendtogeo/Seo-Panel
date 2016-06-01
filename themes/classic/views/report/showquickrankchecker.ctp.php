@@ -40,7 +40,7 @@
 			<td class="tab_left_bot_noborder"></td>
 			<td class="tab_right_bot" colspan="2" style="text-align: left;"><?php echo $spText['common']['No Records Found']?>!</td>
 		</tr>
-		<?		
+		<?php		
 	} 
 	?>
 	<tr class="listBot">

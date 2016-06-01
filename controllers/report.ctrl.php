@@ -513,7 +513,9 @@ class ReportController extends Controller {
 		$chart->drawRoundedRectangle(5, 5, 715, 515, 5, 230, 230, 230);
 
 		$chart->drawGraphArea(255, 255, 255, TRUE);
-		$chart->drawScale($dataSet->GetData(), $dataSet->GetDataDescription(), SCALE_NORMAL, 150, 150, 150, TRUE, 90, 2);
+		$getData = $dataSet->GetData();
+		$getDataDes = $dataSet->GetDataDescription();
+		$chart->drawScale($getData, $getDataDes, SCALE_NORMAL, 150, 150, 150, TRUE, 90, 2);
 		$chart->drawGrid(4, TRUE, 230, 230, 230, 50);
 
 		# Draw the 0 line   
@@ -521,18 +523,25 @@ class ReportController extends Controller {
 		$chart->drawTreshold(0, 143, 55, 72, TRUE, TRUE);
 
 		# Draw the line graph
-		$chart->drawLineGraph($dataSet->GetData(), $dataSet->GetDataDescription());
-		$chart->drawPlotGraph($dataSet->GetData(), $dataSet->GetDataDescription(), 3, 2, 255, 255, 255);
+		$getData = $dataSet->GetData();
+		$getDataDes = $dataSet->GetDataDescription();
+		$chart->drawLineGraph($getData, $getDataDes);
+		$getData = $dataSet->GetData();
+		$getDataDes = $dataSet->GetDataDescription();
+		$chart->drawPlotGraph($getData, $getDataDes, 3, 2, 255, 255, 255);
 		
 		$j = 1;
 		$chart->setFontProperties($fontFile, 10);
 		foreach($seList as $seDomain){
-			$chart->writeValues($dataSet->GetData(), $dataSet->GetDataDescription(), "Serie".$j++);
+			$getData = $dataSet->GetData();
+			$getDataDes = $dataSet->GetDataDescription();
+			$chart->writeValues($getData, $getDataDes, "Serie".$j++);
 		}
 
 		# Finish the graph
 		$chart->setFontProperties("fonts/tahoma.ttf", 8);
-		$chart->drawLegend(90, 35, $dataSet->GetDataDescription(), 255, 255, 255);
+		$getDataDes = $dataSet->GetDataDescription();
+		$chart->drawLegend(90, 35, $getDataDes, 255, 255, 255);
 		$chart->setFontProperties($fontFile, 10);
 		$kpText = ($_SESSION['lang_code'] == 'ja') ? $this->spTextKeyword["Keyword Position Report"] : "Keyword Position Report"; 
 		$chart->drawTitle(60, 22, $kpText, 50, 50, 50, 585);

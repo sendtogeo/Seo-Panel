@@ -200,7 +200,7 @@ class Spider{
 	}
 	
     # function to remove last trailing slash
-	function addTrailingSlash($url) {
+	static function addTrailingSlash($url) {
 	    if (!stristr($url, '?') && !stristr($url, '#')) {
 	        if (!preg_match("/\.([^\/]+)$/", $url)) {		
         		if (!preg_match('/\/$/', $url)) {
