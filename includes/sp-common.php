@@ -393,7 +393,7 @@ function sendMail($from, $fromName, $to ,$subject,$content, $attachment = ''){
 
 	$mail->From = $from;
 	$mail->FromName = $fromName;
-	$mail->AddAddress($to, "");
+	$mail->AddAddress($to);
 	$mail->WordWrap = 70;                              
 	$mail->IsHTML(true);
 
