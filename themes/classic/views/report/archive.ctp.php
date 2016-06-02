@@ -256,16 +256,10 @@ if (!empty($keywordPos)) {
     			<td class="subheader"><?php echo $spText['common']['Total']?></td>
     			<td class="subheader"><?php echo $spText['common']['Active']?></td>
     		</tr>
-    		<?php if(count($websiteRankList) > 0){
-    		    $mainLink = SP_WEBPATH."/seo-tools.php?menu_sec="; 
-    		    ?> 
-    			<?php foreach($websiteRankList as $websiteInfo){
-//     			    $rankLink = $mainLink."rank-checker&default_args=".urlencode("sec=reports&website_id=".$websiteInfo['id']); 
-//     			    $backlinkLink = $mainLink."backlink-checker&default_args=".urlencode("sec=reports&website_id=".$websiteInfo['id']);
-//     			    $indexedLink = $mainLink."saturation-checker&default_args=".urlencode("sec=reports&website_id=".$websiteInfo['id']);
-//     			    $totaldirLink = $mainLink."directory-submission&default_args=".urlencode("sec=reports&website_id=".$websiteInfo['id']);
-//     			    $activeDirLink = $mainLink."directory-submission&default_args=".urlencode("sec=reports&active=approved&&website_id=".$websiteInfo['id']);
+    		<?php 
+    		if(count($websiteRankList) > 0){
 
+				foreach($websiteRankList as $websiteInfo){
     				$timeArg = "&from_time=$fromTime&to_time=$toTime";
     				$googleRankLink = scriptAJAXLinkHrefDialog('rank.php', 'content', "sec=reports&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['googlerank']);
     				$alexaRankLink = scriptAJAXLinkHrefDialog('rank.php', 'content', "sec=reports&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['alexarank']);
@@ -292,8 +286,6 @@ if (!empty($keywordPos)) {
 						<td class="content"><?php echo $bingIndexLInk; ?></td>
 						<td class="contentmid"><?php echo $totaldirLink?></td>					
 						<td class="contentmid"><?php echo $activeDirLink?></td>
-    					
-    					
     				</tr> 
     			<?php } ?>
     		<?php }else{ ?>
