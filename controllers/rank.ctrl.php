@@ -59,6 +59,17 @@ class RankController extends Controller{
 		print "<img src='$imageUrl'>";
 	}
 
+	function printMOZRank($url){
+		$pageRank = $this->__getMozRank($url);
+		if($pageRank >= 0){
+			$imageUrl = SP_IMGPATH."/pr/pr".$pageRank.".gif";
+		}else{
+			$imageUrl = SP_IMGPATH."/pr/pr.gif";
+		}
+
+		print "<img src='$imageUrl'>";
+	}
+
 	function __getGooglePageRank ($url) {
 		
 		return 0;
@@ -143,6 +154,83 @@ class RankController extends Controller{
 		
 		return $rank;
 	}
+	
+	// dunction to get moz rank
+	function __getMozRank ($url) {
+		if (SP_DEMO && !empty($_SERVER['REQUEST_METHOD'])) return 0;
+		
+		$websiteUrl =  $url;
+		
+		// Get your access id and secret key here: https://moz.com/products/api/keys
+		$accessID = SP_MOZ_API_ACCESS_ID;
+		$secretKey = SP_MOZ_API_SECRET;
+		
+		// Set your expires times for several minutes into the future.
+		// An expires time excessively far in the future will not be honored by the Mozscape API.
+		$expires = time() + 300;
+		
+		// Put each parameter on a new line.
+		$stringToSign = $accessID."\n".$expires;
+		
+		// Get the "raw" or binary output of the hmac hash.
+		$binarySignature = hash_hmac('sha1', $stringToSign, $secretKey, true);
+		
+		// Base64-encode it and then url-encode that.
+		$urlSafeSignature = urlencode(base64_encode($binarySignature));
+		
+		// Add up all the bit flags you want returned.
+		// Learn more here: https://moz.com/help/guides/moz-api/mozscape/api-reference/url-metrics
+		$cols = "16384";
+		
+		// Put it all together and you get your request URL.
+		$requestUrl = SP_MOZ_API_LINK . "/url-metrics/?Cols=".$cols."&AccessID=".$accessID."&Expires=".$expires."&Signature=".$urlSafeSignature;
+		
+		// Put your URLS into an array and json_encode them.
+		$batchedDomains = array($websiteUrl);
+		$encodedDomains = json_encode($batchedDomains);
+		
+		$this->spider->_CURLOPT_POSTFIELDS = $encodedDomains;
+		$ret = $this->spider->getContent($requestUrl);
+		
+		// parse rank from teh page
+		if (!empty($ret['page'])) {
+			$rankInfo = json_decode($ret['page']);
+			
+			debugVar($rankInfo);exit;
+			
+		} else {
+			$crawlInfo['crawl_status'] = 0;
+			$crawlInfo['log_message'] = "moz rank check failed";
+		}
+		
+		exit;
+		
+		
+		$url = 'http://data.alexa.com/data?cli=10&dat=snbamz&url=' . urlencode($url);
+		$ret = $this->spider->getContent($url);
+		$rank = 0;
+	
+		// parse rank from teh page
+		if(!empty($ret['page'])){
+			if (preg_match('/\<popularity url\="(.*?)" TEXT\="([0-9]+)"/si', $ret['page'], $matches) ) {
+				$rank = empty($matches[2]) ? 0 : $matches[2];
+			} else {
+				$crawlInfo['crawl_status'] = 0;
+				$crawlInfo['log_message'] = SearchEngineController::isCaptchInSearchResults($ret['page']) ? "<font class=error>Captcha found</font> in search result page" : "Regex not matched error occured while parsing search results!";
+			}
+				
+		}
+	
+		// update crawl log
+		$crawlLogCtrl = new CrawlLogController();
+		$crawlInfo['crawl_type'] = 'rank';
+		$crawlInfo['ref_id'] = $websiteUrl;
+		$crawlInfo['subject'] = "moz";
+		$crawlLogCtrl->updateCrawlLog($ret['log_id'], $crawlInfo);
+	
+		return $rank;
+	}
+	
 
 	function strToNum($Str, $Check, $Magic) {
 		$Int32Unit = 4294967296;

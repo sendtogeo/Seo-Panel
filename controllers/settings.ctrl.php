@@ -73,6 +73,10 @@ class SettingsController extends Controller{
 				case "api":
 					$this->set('headLabel', 'API Settings');					
 					break;
+				
+				case "moz":
+					$this->set('headLabel', 'MOZ Settings');					
+					break;
 					
 				default:					
 					break;

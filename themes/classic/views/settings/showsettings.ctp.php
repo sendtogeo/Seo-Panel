@@ -12,6 +12,16 @@ if (!empty($errorMsg)) {
     echo showErrorMsg($errorMsg, false);
 }
 
+// help text to get MOZ account
+if ($category == "moz") {
+	?>
+	<div id="topnewsbox" style="margin-bottom: 20px;">
+		<a class="bold_link" href="https://moz.com/help/guides/moz-api/mozscape/getting-started-with-mozscape/create-and-manage-your-account" target="_blank">
+			<?php echo $spTextSettings['click-to-get-moz-account']; ?> &gt;&gt;
+		</a>
+	</div>
+	<?php
+}
 ?>
 <form id="updateSettings">
 <input type="hidden" value="update" name="sec">

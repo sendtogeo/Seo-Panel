@@ -2,7 +2,7 @@
 	<tr class="listHead">
 		<td class="left"><?php echo $spText['common']['Id']?></td>
 		<td><?php echo $spText['common']['Url']?></td>		
-		<td><?php echo $spText['common']['Google Pagerank']?></td>
+		<td><?php echo $spText['common']['MOZ Rank']?></td>
 		<td class="right"><?php echo $spText['common']['Alexa Rank']?></td>
 	</tr>
 	<?php
@@ -27,9 +27,9 @@
 			<tr class="<?php echo $class?>">
 				<td class="<?php echo $leftBotClass?>"><?php echo ($i+1)?></td>
 				<td class="td_br_right" style="text-align: left;"><?php echo $url?></td>
-				<td width="150px" id='googlerank<?php echo $i?>' class='td_br_right rankarea'>
+				<td width="150px" id='mozrank<?php echo $i?>' class='td_br_right rankarea'>
 					<script type="text/javascript">
-						scriptDoLoadPost('rank.php', 'tmp', 'googlerank<?php echo $i?>', 'sec=showpr&url=<?php echo urlencode($url); ?><?php echo $debugVar?>');
+						scriptDoLoadPost('rank.php', 'tmp', 'mozrank<?php echo $i?>', 'sec=showmozrank&url=<?php echo urlencode($url); ?><?php echo $debugVar?>');
 					</script>
 				</td>
 				<td class="<?php echo $rightBotClass?>" width="150px" id='alexarank<?php echo $i?>' class='rankarea'>
