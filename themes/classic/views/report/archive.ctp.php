@@ -246,7 +246,7 @@ if (!empty($keywordPos)) {
     			<td class="subheaderdark" colspan="2"><?php echo $spTextHome['Directory Submission']?></td>
     		</tr>		
     		<tr>
-    			<td class="subheader">Google</td>
+    			<td class="subheader">Moz</td>
     			<td class="subheader">Alexa</td>
     			<td class="subheader">Google</td>
     			<td class="subheader">Alexa</td>
@@ -261,7 +261,7 @@ if (!empty($keywordPos)) {
 
 				foreach($websiteRankList as $websiteInfo){
     				$timeArg = "&from_time=$fromTime&to_time=$toTime";
-    				$googleRankLink = scriptAJAXLinkHrefDialog('rank.php', 'content', "sec=reports&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['googlerank']);
+    				$googleRankLink = scriptAJAXLinkHrefDialog('rank.php', 'content', "sec=reports&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['mozrank']);
     				$alexaRankLink = scriptAJAXLinkHrefDialog('rank.php', 'content', "sec=reports&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['alexarank']);
     				$googleBackLInk = scriptAJAXLinkHrefDialog('backlinks.php', 'content', "sec=reports&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['google']['backlinks']);
     				$alexaBackLInk = scriptAJAXLinkHrefDialog('backlinks.php', 'content', "sec=reports&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['alexa']['backlinks']);

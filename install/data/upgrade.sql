@@ -7,6 +7,8 @@ VALUES ('Seo Panel version', 'SP_VERSION_NUMBER', '3.9.0', 'system', 'medium', '
 
 UPDATE `searchengines` SET `regex` = '<div.*?class="?g.*?><h3 class="r"><a href="\\/url\\?q=(.*?)&amp;sa=U.*?>(.*?)<\\/a>.*?<\\/div><span.*?>(.*?)<\\/span>' WHERE `url` LIKE '%google%';
 
+ALTER TABLE `rankresults`  ADD `moz_rank` FLOAT NOT NULL  AFTER `alexa_rank`;
+
 
 INSERT INTO `settings` (`set_label`, `set_name`, `set_val`, `set_category`, `set_type`, `display`)  
 VALUES ('Moz API Link', 'SP_MOZ_API_LINK', 'http://lsapi.seomoz.com/linkscape', 'moz', 'medium', '0');
@@ -19,7 +21,8 @@ VALUES ('Moz API Link', 'SP_MOZ_API_SECRET', '', 'moz', 'large', '1');
 
 
 
-
+INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
+('en', 'panel', 'MOZ Settings', 'MOZ Settings');
 
 INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 ('en', 'proxy', 'click-to-get-proxy', 'Click here to get proxy');

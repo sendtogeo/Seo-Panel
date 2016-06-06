@@ -118,7 +118,7 @@ class IndexController extends Controller{
 				$report = $rankCtrler->__getWebsiteRankReport($listInfo['id'], $fromTime, $toTime);
 				$report = $report[0];
 				$listInfo['alexarank'] = empty($report['alexa_rank']) ? "-" : $report['alexa_rank']." ".$report['rank_diff_alexa'];
-				$listInfo['googlerank'] = empty($report['google_pagerank']) ? "-" : $report['google_pagerank']." ".$report['rank_diff_google'];
+				$listInfo['mozrank'] = empty($report['moz_rank']) ? "-" : $report['moz_rank']." ".$report['rank_diff_moz'];
 				
 				# back links reports
 				$report = $backlinlCtrler->__getWebsitebacklinkReport($listInfo['id'], $fromTime, $toTime);
@@ -155,8 +155,8 @@ class IndexController extends Controller{
 				$headList = array(
 					$_SESSION['text']['common']['Id'],
 					$_SESSION['text']['common']['Website'],
-					'Google Pagerank',
-					'Alexa Rank',
+					$_SESSION['text']['common']['MOZ Rank'],
+					$_SESSION['text']['common']['Alexa Rank'],
 					'Google '.$spTextHome['Backlinks'],
 					'alexa '.$spTextHome['Backlinks'],
 					'Bing '.$spTextHome['Backlinks'],
@@ -170,7 +170,7 @@ class IndexController extends Controller{
 					$valueList = array(
 						$websiteInfo['id'],
 						$websiteInfo['url'],
-						strip_tags($websiteInfo['googlerank']),
+						strip_tags($websiteInfo['mozrank']),
 						strip_tags($websiteInfo['alexarank']),
 						strip_tags($websiteInfo['google']['backlinks']),
 						strip_tags($websiteInfo['alexa']['backlinks']),

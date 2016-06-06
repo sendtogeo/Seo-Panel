@@ -70,7 +70,7 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 			<td class="subheaderdark" colspan="2"><?php echo $spTextHome['Directory Submission']?></td>
 		</tr>		
 		<tr>
-			<td class="subheader">Google</td>
+			<td class="subheader">Moz</td>
 			<td class="subheader">Alexa</td>
 			<td class="subheader">Google</td>
 			<td class="subheader">Alexa</td>
@@ -84,7 +84,7 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 		if(count($websiteList) > 0){
 			
 			foreach($websiteList as $websiteInfo){
-			    $googleRankLink = scriptAJAXLinkHrefDialog('rank.php', 'content', "sec=reports&website_id=".$websiteInfo['id'], $websiteInfo['googlerank']);
+			    $mozRankLink = scriptAJAXLinkHrefDialog('rank.php', 'content', "sec=reports&website_id=".$websiteInfo['id'], $websiteInfo['mozrank']);
 			    $alexaRankLink = scriptAJAXLinkHrefDialog('rank.php', 'content', "sec=reports&website_id=".$websiteInfo['id'], $websiteInfo['alexarank']);
 			    $googleBackLInk = scriptAJAXLinkHrefDialog('backlinks.php', 'content', "sec=reports&website_id=".$websiteInfo['id'], $websiteInfo['google']['backlinks']);
 			    $alexaBackLInk = scriptAJAXLinkHrefDialog('backlinks.php', 'content', "sec=reports&website_id=".$websiteInfo['id'], $websiteInfo['alexa']['backlinks']);
@@ -100,7 +100,7 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 						<?php echo $websiteInfo['name'];?><br>
 						<a href="<?php echo $websiteInfo['url'];?>" target="_blank"><?php echo $websiteInfo['url'];?></a>
 					</td>
-					<td class="content"><?php echo $googleRankLink;?></td>
+					<td class="content"><?php echo $mozRankLink;?></td>
 					<td class="content"><?php echo $alexaRankLink; ?></td>
 					<td class="content"><?php echo $googleBackLInk; ?></td>
 					<td class="content"><?php echo $alexaBackLInk; ?></td>
