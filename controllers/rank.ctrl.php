@@ -196,8 +196,9 @@ class RankController extends Controller{
 		// Put your URLS into an array and json_encode them.
 		$encodedDomains = json_encode($urlList);
 		
-		$this->spider->_CURLOPT_POSTFIELDS = $encodedDomains;
-		$ret = $this->spider->getContent($requestUrl);
+		$spider = new Spider();
+		$spider->_CURLOPT_POSTFIELDS = $encodedDomains;
+		$ret = $spider->getContent($requestUrl);
 
 		// debugging code
 		/*$fileName = SP_TMPPATH . "/data_success.txt";
@@ -333,14 +334,14 @@ class RankController extends Controller{
 			$urlList[] = addHttpToUrl($websiteInfo['url']);
 		}
 		
-		// gte moz ranks
+		// get moz ranks
 		$mozRankList = $this->__getMozRank($urlList);
 				
 		// loop through each websites			
 		foreach ( $websiteList as $i => $websiteInfo ) {
 			$websiteUrl = addHttpToUrl($websiteInfo['url']);
-			$websiteInfo['moz_rank'] = !empty($mozRankList[$i]) ? $mozRankList[$i] : 0;
 			$websiteInfo['alexaRank'] = $this->__getAlexaRank($websiteUrl);
+			$websiteInfo['moz_rank'] = !empty($mozRankList[$i]) ? $mozRankList[$i] : 0;
 			
 			$this->saveRankResults($websiteInfo, true);			
 			echo "<p class='note notesuccess'>".$this->spTextRank['Saved rank results of']." <b>$websiteUrl</b>.....</p>";

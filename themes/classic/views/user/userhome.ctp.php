@@ -1,4 +1,15 @@
+<div class="Center" style='width:100%;'>
+	<?php echo getRoundTabTop(); ?>
+	<div id="content">
+    	<script type="text/javascript">
+        	scriptDoLoad('archive.php', 'content');
+		</script>
+	</div>
+    <?php echo getRoundTabBot(); ?>	
+</div>	
+
 <?php
+/*
 $borderCollapseVal = $pdfVersion ? "border-collapse: collapse;" : ""; 
 if(!empty($printVersion) || !empty($pdfVersion)) {
     $pdfVersion ? showPdfHeader($spTextHome['Account Summary']) : showPrintHeader($spTextHome['Account Summary']);
@@ -128,4 +139,5 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
     </div>
     <?php   
 }
+*/
 ?>
