@@ -159,7 +159,7 @@ class RankController extends Controller{
 	}
 	
 	// function to get moz rank
-	function __getMozRank ($urlList = array()) {
+	function __getMozRank ($urlList = array(), $accessID = "", $secretKey = "", $returnLog = false) {
 		$mozRankList = array();
 		
 		if (SP_DEMO && !empty($_SERVER['REQUEST_METHOD'])) return $mozRankList;
@@ -167,8 +167,8 @@ class RankController extends Controller{
 		if (empty($urlList)) return $mozRankList;
 		
 		// Get your access id and secret key here: https://moz.com/products/api/keys
-		$accessID = SP_MOZ_API_ACCESS_ID;
-		$secretKey = SP_MOZ_API_SECRET;
+		$accessID = !empty($accessID) ? $accessID : SP_MOZ_API_ACCESS_ID;
+		$secretKey = !empty($secretKey) ? $secretKey : SP_MOZ_API_SECRET;
 		
 		// if empty no need to crawl
 		if (empty($accessID) || empty($secretKey)) return $mozRankList;
@@ -199,18 +199,8 @@ class RankController extends Controller{
 		$spider = new Spider();
 		$spider->_CURLOPT_POSTFIELDS = $encodedDomains;
 		$ret = $spider->getContent($requestUrl);
-
-		// debugging code
-		/*$fileName = SP_TMPPATH . "/data_success.txt";
-		$fp = fopen($fileName, 'w');
-		fwrite($fp, $ret['page']);
 		
-		$fileName = SP_TMPPATH . "/data.txt";
-		$fp = fopen($fileName, 'r');
-		$ret['page'] = fread($fp, filesize($fileName));
-		fclose($fp);*/		
-		
-		// parse rank from teh page
+		// parse rank from the page
 		if (!empty($ret['page'])) {
 			$rankList = json_decode($ret['page']);
 			
@@ -239,7 +229,7 @@ class RankController extends Controller{
 		$crawlInfo['subject'] = "moz";
 		$crawlLogCtrl->updateCrawlLog($ret['log_id'], $crawlInfo);
 	
-		return $mozRankList;
+		return $returnLog ? array($mozRankList, $crawlInfo) : $mozRankList;
 	}
 	
 

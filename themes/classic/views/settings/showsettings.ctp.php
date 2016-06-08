@@ -124,6 +124,13 @@ if ($category == "moz") {
 						    $type = in_array($listInfo['set_name'], $passTypeList) ? "password" : "text";
 						    ?>
 							<input type="<?php echo $type?>" name="<?php echo $listInfo['set_name']?>" value="<?php echo stripslashes($listInfo['set_val'])?>" style='width:<?php echo $width?>px'>
+							<?php if ($listInfo['set_name'] == 'SP_MOZ_API_SECRET') {?>
+								<div style="padding: 10px 6px;">
+									<a href="javascript:void(0);" onclick="checkMozConnection('settings.php?sec=checkMozCon', 'show_conn_res')" style="text-decoration: none;"><?php echo $spTextSettings['Verify connection']; ?> &gt;&gt;</a>
+								</div>
+								<div id="show_conn_res" style="padding: 10px 6px;"></div>
+							<?php }?>
+							
 						<?php }?>
 					<?php }?>
 				<?php }else{?>

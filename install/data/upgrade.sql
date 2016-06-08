@@ -25,6 +25,10 @@ INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 ('en', 'panel', 'MOZ Settings', 'MOZ Settings');
 
 INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
+('en', 'settings', 'Verify connection', 'Verify connection');
+
+
+INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 ('en', 'proxy', 'click-to-get-proxy', 'Click here to get proxy');
 INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 ('en', 'settings', 'SP_MOZ_API_ACCESS_ID', 'Access ID');
