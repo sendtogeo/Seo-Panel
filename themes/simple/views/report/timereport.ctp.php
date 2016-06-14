@@ -41,7 +41,7 @@
 		    <td class="td_bottom_border" colspan="1">No Records Found!</td>
 		    <td class="tab_right_bot">&nbsp;</td>
 		</tr>
-		<?		
+		<?php		
 	} 
 	?>
 	<tr class="listBot">

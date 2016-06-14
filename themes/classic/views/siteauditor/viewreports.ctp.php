@@ -46,7 +46,7 @@ $submitJsFunc = "scriptDoLoadPost('siteauditor.php', 'search_form', 'subcontent'
 		</td>			
 		<th><?php echo $spText['common']['MOZ Rank']?>: </th>
 		<td>
-			<select name="google_pagerank" onchange="<?php echo $submitJsFunc?>">
+			<select name="pagerank" onchange="<?php echo $submitJsFunc?>">
 				<option value="-1">-- <?php echo $spText['common']['Select']?> --</option>
 				<?php for($i=0;$i<=10;$i++) {?>
 					<option value="<?php echo $i?>">PR<?php echo $i?></option>

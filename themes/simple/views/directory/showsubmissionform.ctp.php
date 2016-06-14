@@ -27,8 +27,8 @@
 		<td class="td_right_col"><a href="<?php echo $dirInfo['submit_url']?>" target="_blank"><?php echo $dirInfo['domain']?></a></td>
 	</tr>		
 	<tr class="blue_row">
-		<td class="td_left_col"><?php echo $spText['common']['Google Pagerank']?>:</td>
-		<td class="td_right_col"><?php echo $dirInfo['google_pagerank']?></td>
+		<td class="td_left_col"><?php echo $spText['common']['Pagerank']?>:</td>
+		<td class="td_right_col"><?php echo $dirInfo['pagerank']?></td>
 	</tr>		
 	<tr class="white_row">
 		<td class="td_left_col"><?php echo $spText['common']['Category']?>:</td>

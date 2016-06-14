@@ -508,11 +508,11 @@ class SiteAuditorController extends Controller{
 		$filter = "";
 		
 		// check for page rank
-		if(isset($data['google_pagerank']) && ($data['google_pagerank'] != -1)) {
-			$prMax = intval($data['google_pagerank']) + 0.5;
-			$prMin = intval($data['google_pagerank']) - 0.5;
+		if(isset($data['pagerank']) && ($data['pagerank'] != -1)) {
+			$prMax = intval($data['pagerank']) + 0.5;
+			$prMin = intval($data['pagerank']) - 0.5;
 			$sql .= " and pagerank<$prMax and pagerank>=$prMin";
-			$filter .= "&google_pagerank=".$data['google_pagerank'];
+			$filter .= "&pagerank=".$data['pagerank'];
 		}	
 		
 		// check for page url
