@@ -638,9 +638,9 @@ class ReportController extends Controller {
 	# func to crawl keyword
 	function crawlKeyword( $keywordInfo, $seId='', $cron=false, $removeDuplicate=true) {
 		$crawlResult = array();
-		$websiteUrl = $keywordInfo['url'];
+		$websiteUrl = formatUrl($keywordInfo['url'], false);
 		if(empty($websiteUrl)) return $crawlResult;
-		if(empty($keywordInfo['name'])) return $crawlResult;	
+		if(empty($keywordInfo['name'])) return $crawlResult;
 		
 		$time = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
 		$seList = explode(':', $keywordInfo['searchengines']);
@@ -690,6 +690,7 @@ class ReportController extends Controller {
 			$seStart = $this->seList[$seInfoId]['start'] + $this->seList[$seInfoId]['start_offset'];
 			while(empty($result['error']) && ($seStart < $this->seList[$seInfoId]['max_results']) ){
 				$logId = $result['log_id'];
+				$crawlInfo['log_message'] = "Started at: $seStart";
 				$crawlLogCtrl->updateCrawlLog($logId, $crawlInfo);
 				sleep(SP_CRAWL_DELAY);
 				$seUrl = str_replace('[--start--]', $seStart, $searchUrl);
@@ -782,7 +783,7 @@ class ReportController extends Controller {
 		}
 		
 		// if proxy enabled if crawl failed try to check next item
-		if (SP_ENABLE_PROXY && CHECK_WITH_ANOTHER_PROXY_IF_FAILED) {
+		if (!$crawlResult[$seInfoId]['status'] && SP_ENABLE_PROXY && CHECK_WITH_ANOTHER_PROXY_IF_FAILED) {
 			
 			// max proxy checked in one execution is exeeded
 			if ($this->proxyCheckCount < CHECK_MAX_PROXY_COUNT_IF_FAILED) {
@@ -792,7 +793,7 @@ class ReportController extends Controller {
 				if ($proxyInfo = $proxyCtrler->getRandomProxy()) {
 					$this->proxyCheckCount++;
 					sleep(SP_CRAWL_DELAY);
-					$crawlResult = $this->crawlKeyword($keywordInfo, $seId, $cron, $removeDuplicate);		
+					$crawlResult = $this->crawlKeyword($keywordInfo, $seInfoId, $cron, $removeDuplicate);		
 				}
 				
 			} else {
