@@ -73,16 +73,22 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			break;
 		
 		case "checkMozCon":
-			include_once(SP_CTRLPATH."/rank.ctrl.php");
-			$rankObj = new RankController();
-			$urlList = array("http://moz.com");
-			list($rankInfo, $logInfo) = $rankObj->__getMozRank($urlList, $_GET['access_id'], $_GET['secret_key'], true);
 			
-			// if error occured
-			if (isset($logInfo['crawl_status']) && ($logInfo['crawl_status'] == 0)) {
-				print "<span class='error'>{$logInfo['log_message']}</span>";
+			if (empty($_GET['access_id']) || empty($_GET['secret_key'])) {
+				print "<span class='error'>{$_SESSION['text']['label']['Fail']}</span>";
 			} else {
-				print "<span class='success'>{$_SESSION['text']['label']['Success']}</span>";
+			
+				include_once(SP_CTRLPATH."/rank.ctrl.php");
+				$rankObj = new RankController();
+				$urlList = array("http://moz.com");
+				list($rankInfo, $logInfo) = $rankObj->__getMozRank($urlList, $_GET['access_id'], $_GET['secret_key'], true);
+				
+				// if error occured
+				if (isset($logInfo['crawl_status']) && ($logInfo['crawl_status'] == 0)) {
+					print "<span class='error'>{$logInfo['log_message']}</span>";
+				} else {
+					print "<span class='success'>{$_SESSION['text']['label']['Success']}</span>";
+				}
 			}
 			
 			break;
