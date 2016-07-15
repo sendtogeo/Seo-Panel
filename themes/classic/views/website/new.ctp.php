@@ -1,13 +1,23 @@
 <?php echo showSectionHead($spTextPanel['New Website']); ?>
-<? if(!empty($msg)){
+<?php 
+if(!empty($msg)){
 	?>
 	<p class="dirmsg">
 		<font class="success"><?php echo $msg?></font>
 	</p>
-	<? 
-	}
+	<?php 
+}
+
+if(!empty($validationMsg)){
+	?>
+	<p class="dirmsg">
+		<font class="error"><?php echo $validationMsg?></font>
+	</p>
+	<?php 
+}
+
+$post['url'] = empty($post['url']) ? "http://" : $post['url'];
 ?>
-<?php $post['url'] = empty($post['url']) ? "http://" : $post['url']; ?>
 <form id="newWebsite">
 <input type="hidden" name="sec" value="create"/>
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">

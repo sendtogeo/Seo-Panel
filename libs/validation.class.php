@@ -35,7 +35,7 @@ class Validation{
 		$this->Filters['name']= "/^[a-zA-Z\'\-\s]+$/";
 		$this->Filters['startName'] = "/^[a-zA-Z]$/";
 		$this->Filters['nameGen'] = "/^[0-9a-zA-Z\-\s\'\!\@\#\$\%\^\&\*\(\)\-\_\+\?\.\:\;\[\]\/\,\"\=]+$/";
-		$this->Filters['startGenName'] = $Filters['nameGen'];
+		$this->Filters['startGenName'] = $this->Filters['nameGen'];
 		$this->Filters['uname'] = "/^[0-9a-zA-Z\-\_\.]+$/";
 	}
 
@@ -233,6 +233,23 @@ class Validation{
 			$msg = $_SESSION['text']['common']["Invalid code entered"];
 			$this->flagErr = true;
 		}		
+		return $msg;
+	}
+	
+	# func to check date
+	function checkDate($date, $delimiter = '-') {
+		$msg = '';
+		$dateElements = explode($delimiter, $date);
+		
+		// explode and check the number of elements
+		if (count($dateElements) == 3) {
+			if (checkdate($dateElements[1], $dateElements[2], $dateElements[0])) {
+				return $msg;
+			}
+		}
+		
+		$msg = $_SESSION['text']['common']['Invalid characters'];
+		$this->flagErr = true;
 		return $msg;
 	}
 }

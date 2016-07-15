@@ -40,6 +40,7 @@ class Spider{
 	var $_CURL_sleep = 1;
 	var $_CURLOPT_COOKIE = "";
 	var $_CURLOPT_HEADER = 0;
+	var $_CURL_HTTPHEADER = array();
 	var $userAgentList = array();
 
 	# spider constructor
@@ -61,7 +62,7 @@ class Spider{
 	}	
 	
 	# func to format urls
-	function formatUrl($url){	    
+	public static function formatUrl($url){	    
 	    $scheme = "";
 		if(stristr($url,'http://')){
 			$scheme = "http://";
@@ -193,13 +194,13 @@ class Spider{
 	}
 	
 	# function to remove last trailing slash
-	function removeTrailingSlash($url) {		
+	public static function removeTrailingSlash($url) {		
 		$url = preg_replace('/\/$/', '', $url);
 		return $url;
 	}
 	
     # function to remove last trailing slash
-	function addTrailingSlash($url) {
+	public static function addTrailingSlash($url) {
 	    if (!stristr($url, '?') && !stristr($url, '#')) {
 	        if (!preg_match("/\.([^\/]+)$/", $url)) {		
         		if (!preg_match('/\/$/', $url)) {
@@ -267,6 +268,16 @@ class Spider{
 		curl_setopt( $this -> _CURL_RESOURCE , CURLOPT_COOKIEJAR , $this -> _CURLOPT_COOKIEJAR );
 		curl_setopt( $this -> _CURL_RESOURCE , CURLOPT_COOKIEFILE , $this -> _CURLOPT_COOKIEFILE );
 		curl_setopt( $this -> _CURL_RESOURCE , CURLOPT_HEADER , $this -> _CURLOPT_HEADER);
+		
+		// to fix the ssl related issues
+		curl_setopt($this->_CURL_RESOURCE, CURLOPT_SSL_VERIFYHOST, 0);
+		curl_setopt($this->_CURL_RESOURCE, CURLOPT_SSL_VERIFYPEER, 0);
+
+		// to add the curl http headers
+		if (!empty($this ->_CURL_HTTPHEADER)) {
+			curl_setopt($this->_CURL_RESOURCE, CURLOPT_HTTPHEADER, $this ->_CURL_HTTPHEADER);
+		}
+		
 		if(!empty($this -> _CURLOPT_COOKIE)) curl_setopt( $this -> _CURL_RESOURCE, CURLOPT_COOKIE , $this -> _CURLOPT_COOKIE );
 		if(!empty($this-> _CURLOPT_REFERER)){
 			curl_setopt($this -> _CURL_RESOURCE, CURLOPT_REFERER, $this-> _CURLOPT_REFERER); 
@@ -392,7 +403,7 @@ class Spider{
 	}
 	
 	// function to get the header of url
-    function getHeader($url){
+    public static function getHeader($url){
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($ch, CURLOPT_URL, $url);
@@ -411,7 +422,7 @@ class Spider{
 	}
 	
 	// function to check whether link is brocke
-	function isLInkBrocken($url) {
+	public static function isLInkBrocken($url) {
 	    $header = Spider::getHeader($url);
 	    if (stristr($header, '404 Not Found')) {
 	        return true;

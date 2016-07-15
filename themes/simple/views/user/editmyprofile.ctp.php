@@ -1,5 +1,5 @@
 <?php echo showSectionHead($spTextPanel['Edit My Profile']); ?>
-<? if(!empty($msg)){ showSuccessMsg($msg, false);} ?>
+<?php if(!empty($msg)){ showSuccessMsg($msg, false);} ?>
 <form id="updateUser">
 <input type="hidden" name="sec" value="updatemyprofile"/>
 <input type="hidden" name="oldName" value="<?php echo $post['oldName']?>"/>
@@ -30,11 +30,11 @@
 		<td class="td_left_col"><?php echo $spText['login']['Last Name']?>:</td>
 		<td class="td_right_col"><input type="text" name="lastName" value="<?php echo $post['lastName']?>"><?php echo $errMsg['lastName']?></td>
 	</tr>
-	<tr class="white_row">
+	<tr class="blue_row">
 		<td class="td_left_col"><?php echo $spText['login']['Email']?>:</td>
 		<td class="td_right_col"><input type="text" name="email" value="<?php echo $post['email']?>"><?php echo $errMsg['email']?></td>
 	</tr>		
-	<tr class="blue_row">
+	<tr class="white_row">
 		<td class="tab_left_bot_noborder"></td>
 		<td class="tab_right_bot"></td>
 	</tr>

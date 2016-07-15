@@ -29,6 +29,8 @@ class IndexController extends Controller{
 		$spTextHome = $this->getLanguageTexts('home', $_SESSION['lang_code']);
 		$this->set('spTextHome', $spTextHome);
 		if(isLoggedIn()){
+			
+			/*checkLoggedIn();
 		    isHavingWebsite();
 			$userId = isLoggedIn();
 			$exportVersion = false;
@@ -48,16 +50,20 @@ class IndexController extends Controller{
 					break;
 			}
 			
+			$sql = "select * from websites w where status=1";
+			
+			// if admin user
 			if (isAdmin()) {
 			    $userCtrler = New UserController();
 			    $userList = $userCtrler->__getAllUsersHavingWebsite();
-    			if (isset($_POST['user_id']) || isset($_GET['user_id']) ) {
-    			    $webUserId = intval($_POST['user_id']) ? intval($_POST['user_id']) : intval($_GET['user_id']);
-    			} else {
-    			    $webUserId = $userList[0]['id'];
-    			}			    
 			    $this->set('userList', $userList);
-
+			    $webUserId = isset($searchInfo['user_id']) ? intval($searchInfo['user_id']) : $userList[0]['id'];
+    			
+    			// if user id is passed
+    			if (!empty($webUserId)) {
+    				$sql .= " and user_id=$webUserId";
+    			}
+    			
 			    // if print method called
 			    if ( ($searchInfo['doc_type'] == 'print') && !empty($webUserId)) {
 				    $userInfo = $userCtrler->__getUserInfo($webUserId);
@@ -66,12 +72,34 @@ class IndexController extends Controller{
 			    
 			} else {
 			    $webUserId = $userId;
+			    $sql = "select * from websites w where user_id=$webUserId";
 			}
-			$this->set('webUserId', $webUserId);			
+
+			$pageScriptPath = "index.php?user_id=$webUserId";
+			$this->set('webUserId', $webUserId);
+			$info['pageno'] = intval($info['pageno']);
 			
-			$websiteCtrler = New WebsiteController();
-			$adminCheck = (isAdmin() && empty($webUserId)) ? true : false;
-			$list = $websiteCtrler->__getAllWebsites($webUserId, $adminCheck, $searchInfo['search_name']);
+			// search for user name
+			if (!empty($searchInfo['search_name'])) {
+				$sql .= " and (w.name like '%".addslashes($searchInfo['search_name'])."%'
+				or w.url like '%".addslashes($searchInfo['search_name'])."%')";
+				$pageScriptPath .= "&search_name=" . $searchInfo['search_name'];
+			}
+			
+			$sql .= " order by w.name";
+			
+			// pagination setup
+			if (!in_array($searchInfo['doc_type'], array('export', 'pdf'))) {
+				$this->db->query($sql, true);
+				$this->paging->setDivClass('pagingdiv');
+				$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
+				$pagingDiv = $this->paging->printPages($pageScriptPath, "", "link");
+				$this->set('pagingDiv', $pagingDiv);
+				$sql .= " limit ".$this->paging->start .",". $this->paging->per_page;
+				$this->set('pageNo', $info['pageno']);
+			}
+			
+			$list = $this->db->select($sql);
 			
 			include_once(SP_CTRLPATH."/saturationchecker.ctrl.php");
 			include_once(SP_CTRLPATH."/rank.ctrl.php");
@@ -91,7 +119,7 @@ class IndexController extends Controller{
 				$report = $rankCtrler->__getWebsiteRankReport($listInfo['id'], $fromTime, $toTime);
 				$report = $report[0];
 				$listInfo['alexarank'] = empty($report['alexa_rank']) ? "-" : $report['alexa_rank']." ".$report['rank_diff_alexa'];
-				$listInfo['googlerank'] = empty($report['google_pagerank']) ? "-" : $report['google_pagerank']." ".$report['rank_diff_google'];
+				$listInfo['mozrank'] = empty($report['moz_rank']) ? "-" : $report['moz_rank']." ".$report['rank_diff_moz'];
 				
 				# back links reports
 				$report = $backlinlCtrler->__getWebsitebacklinkReport($listInfo['id'], $fromTime, $toTime);
@@ -128,8 +156,8 @@ class IndexController extends Controller{
 				$headList = array(
 					$_SESSION['text']['common']['Id'],
 					$_SESSION['text']['common']['Website'],
-					'Google Pagerank',
-					'Alexa Rank',
+					$_SESSION['text']['common']['MOZ Rank'],
+					$_SESSION['text']['common']['Alexa Rank'],
 					'Google '.$spTextHome['Backlinks'],
 					'alexa '.$spTextHome['Backlinks'],
 					'Bing '.$spTextHome['Backlinks'],
@@ -143,7 +171,7 @@ class IndexController extends Controller{
 					$valueList = array(
 						$websiteInfo['id'],
 						$websiteInfo['url'],
-						strip_tags($websiteInfo['googlerank']),
+						strip_tags($websiteInfo['mozrank']),
 						strip_tags($websiteInfo['alexarank']),
 						strip_tags($websiteInfo['google']['backlinks']),
 						strip_tags($websiteInfo['alexa']['backlinks']),
@@ -171,8 +199,9 @@ class IndexController extends Controller{
 					$this->render('user/userhome', $layout);
 				}
 				
-			}			
+			}*/			
 			
+			$this->render('user/userhome');
 		}else{
 			$this->render('home');
 		}

@@ -96,6 +96,12 @@ function checkLoggedIn() {
 		redirectUrlByScript(SP_WEBPATH."/login.php");
 		exit;
 	}
+	
+	// check whethere user expired, then redirect to subscribe page
+	$userCtrl = New UserController();
+	if (!$userCtrl->isUserExpired($userInfo['userId'])) {
+		redirectUrl(SP_WEBPATH."/admin-panel.php?sec=myprofile&expired=1");
+	}
 }
 
 # function to check whether admin logged in
@@ -175,6 +181,11 @@ function formatUrl( $url, $removeWWW=true ) {
 	$url = str_replace('https://', '', $url);
 	if ($removeWWW) $url = str_replace('www.', '', $url);
 	return $url;
+}
+
+function formatDate($date) {
+	$date = str_replace("0000-00-00", "", $date);
+	return $date;
 }
 
 function addHttpToUrl($url){
@@ -318,25 +329,40 @@ function exportToCsv($fileName, $content) {
 # func to show printer hearder
 function showPrintHeader($headMsg='', $doPrint=true) {
     ?>
+    <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+	<html xmlns="http://www.w3.org/1999/xhtml">
     <head>
+    	<title></title>
     	<meta content="text/html; charset=UTF-8" http-equiv="content-type" />
+		<script type="text/javascript">
+			<?php if ($doPrint) { ?>
+				window.print();
+			<?php }?>
+		</script>		
+	    <style type="text/css">
+		    BODY{background-color:white;padding:50px 10px;}
+		    <?php echo readFileContent(SP_THEME_ABSPATH . "/css/screen.css"); ?>
+	    </style>    
     </head>
-	<script language="Javascript" src="<?php echo SP_JSPATH?>/common.js"></script>
-	<script type="text/javascript">
-		<?php if ($doPrint) { ?>
-			window.print();
-		<?php }?>
-		loadJsCssFile("<?php echo SP_CSSPATH?>/screen.css", "css");
-	</script>	
-    <style>BODY{background-color:white;padding:50px 10px;}</style>
+    <body>
 	<?php
 	if (!empty($headMsg)) echo showSectionHead($headMsg);
+}
+
+# func to read file content
+function readFileContent($fileName) {
+	$handle = fopen($fileName, "r");
+	$cfgData = fread($handle, filesize($fileName));
+	fclose($handle);
+	return $cfgData;
 }
 
 # func to show printer footer
 function showPrintFooter($spText) {
     ?>
     <div style="clear: both; margin-top: 10px;"><?php echo str_replace('[year]', date('Y'), $spText['common']['copyright'])?></div>
+    </body>
+    </html>
 	<?php
 }
 
@@ -367,7 +393,7 @@ function sendMail($from, $fromName, $to ,$subject,$content, $attachment = ''){
 
 	$mail->From = $from;
 	$mail->FromName = $fromName;
-	$mail->AddAddress($to, "");
+	$mail->AddAddress($to);
 	$mail->WordWrap = 70;                              
 	$mail->IsHTML(true);
 

@@ -21,14 +21,20 @@
  ***************************************************************************/
 
 include_once("includes/sp-load.php");
-if( ($_GET['sec'] == 'my-profile') || ($_POST['sec'] == 'updatemyprofile')){
+
+// check the sections can accessed by user
+$userIncludeList = array("my-profile", "myprofile", "edit-profile", "renew-profile", "updatemyprofile", "update-subscription");
+if ( in_array($_GET['sec'], $userIncludeList) || in_array($_POST['sec'], $userIncludeList) ) {
 	isLoggedIn();
-}else{
+} else {
 	checkAdminLoggedIn();
 }
+
 include_once(SP_CTRLPATH."/user.ctrl.php");
 include_once(SP_CTRLPATH."/website.ctrl.php");
 include_once(SP_CTRLPATH."/keyword.ctrl.php");
+include_once(SP_CTRLPATH."/user-type.ctrl.php");
+include_once(SP_CTRLPATH."/seoplugins.ctrl.php");
 $controller = New UserController();
 $controller->view->menu = 'users';
 $controller->layout = 'ajax';
@@ -50,6 +56,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			
 		case "updatemyprofile":
 			$controller->updateMyProfile($_POST);
+			break;
+			
+		case "update-subscription":
+			$controller->updateSubscription($_POST);
 			break;
 			
 		case "activateall":
@@ -111,7 +121,16 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			break;
 			
 		case "my-profile":
-			$controller->showMyProfile();
+		case "myprofile":
+			$controller->showMyProfile($_GET);
+			break;
+			
+		case "edit-profile":
+			$controller->editMyProfile();
+			break;
+			
+		case "renew-profile":
+			$controller->renewMyProfile();
 			break;
 
 		default:

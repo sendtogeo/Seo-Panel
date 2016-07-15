@@ -24,6 +24,7 @@ include_once("includes/sp-load.php");
 checkLoggedIn();
 include_once(SP_CTRLPATH."/website.ctrl.php");
 include_once(SP_CTRLPATH."/keyword.ctrl.php");
+include_once(SP_CTRLPATH."/user-type.ctrl.php");
 $controller = New WebsiteController();
 $controller->view->menu = 'seotools';
 $controller->layout = 'ajax';
@@ -73,6 +74,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		case "crawlmeta":
 		    $keyInput = empty($_POST['keyinput']) ? "" : $_POST['keyinput']; 
 			$controller->crawlMetaData(urldecode($_POST['url']), $keyInput);
+			break;		
+		
+		case "import":
+			$controller->importWebsiteFromCsv($_POST);
 			break;
 			
 		default:
@@ -103,7 +108,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			break;		
 		
 		case "new":
+		case "newweb":
 			$controller->newWebsite($_GET);
+			break;		
+		
+		case "import":
+			$controller->showImportWebsites($_GET);
 			break;
 		
 		case "crawlmeta":

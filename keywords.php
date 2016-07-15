@@ -24,6 +24,7 @@ include_once("includes/sp-load.php");
 checkLoggedIn();
 include_once(SP_CTRLPATH."/keyword.ctrl.php");
 include_once(SP_CTRLPATH."/website.ctrl.php");
+include_once(SP_CTRLPATH."/user-type.ctrl.php");
 #include_once(SP_CTRLPATH."/language.ctrl.php");
 include_once(SP_CTRLPATH."/searchengine.ctrl.php");
 $controller = New KeywordController();

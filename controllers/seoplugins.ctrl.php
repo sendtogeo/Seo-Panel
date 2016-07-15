@@ -26,6 +26,7 @@ class SeoPluginsController extends Controller{
 	var $layout = 'ajax';
 	var $info = array();
 	var $pluginText = "";
+	var $pluginCtrler = FALSE;
 	
 	# function to manage seo plugins
 	function manageSeoPlugins($info, $method='get') {
@@ -44,18 +45,29 @@ class SeoPluginsController extends Controller{
 		if(file_exists(PLUGIN_PATH."/".SP_PLUGINCONF)){
 			include_once(PLUGIN_PATH."/".SP_PLUGINCONF);
 		}
+		
 		include_once(PLUGIN_PATH."/".$pluginDirName.".ctrl.php");
 		$pluginControler = New $pluginDirName();
-		$action = empty($info['action']) ? "index" : $info['action'];
-		$data = ($method=='get') ? $_GET : $_POST;
 		
-		if (empty($data['doc_type']) || ($data['doc_type'] != 'export')) {
-			$this->loadAllPluginCss();
-			$this->loadAllPluginJs();
-		}
+		// if no action specified just initialize plugin
+		if ($info['action'] == 'get_plugin_object') {
+			$pluginControler->initPlugin($data);
+			return $pluginControler;
+		} else {
 
-		$pluginControler->initPlugin($data);
-		$pluginControler->$action($data);
+			$this->pluginCtrler = $pluginControler;
+			$action = empty($info['action']) ? "index" : $info['action'];
+			$data = ($method=='get') ? $_GET : $_POST;
+		
+			// check whethere export report type action
+			if (empty($data['doc_type']) || ($data['doc_type'] != 'export')) {
+				$this->loadAllPluginCss();
+				$this->loadAllPluginJs();
+			}
+	
+			$pluginControler->initPlugin($data);
+			$pluginControler->$action($data);
+		}
 	}
 	
 	# function to init plugin before do action
@@ -388,6 +400,15 @@ class SeoPluginsController extends Controller{
 		$sql = "select * from seoplugins where $col='".addslashes($value)."' and installed=1 and status=1";
 		$pluginInfo = $this->db->select($sql, true);
 		return empty($pluginInfo['id']) ? false : $pluginInfo;
+	}
+	
+	# function to create plugin object
+	function createPluginObject($pluginName) {
+		$pluginInfo = $this->__getSeoPluginInfo($pluginName, 'name');
+		$info['pid'] = $pluginInfo['id'];
+		$info['action'] = "get_plugin_object";
+		$pluginCtrler = $this->manageSeoPlugins($info);
+		return $pluginCtrler;
 	}
 	
 }

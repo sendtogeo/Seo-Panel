@@ -13,7 +13,7 @@
 				<select name="userid" id="userid" onchange="<?php echo $submitLink?>">
 					<option value="">-- <?php echo $spText['common']['Select']?> --</option>
 					<?php foreach($userList as $userInfo){?>
-						<?php if($userInfo['id'] == $userId){?>
+						<?php if($userInfo['id'] === $userId){?>
 							<option value="<?php echo $userInfo['id']?>" selected><?php echo $userInfo['username']?></option>
 						<?php }else{?>
 							<option value="<?php echo $userInfo['id']?>"><?php echo $userInfo['username']?></option>
@@ -25,8 +25,9 @@
 		<th><?php echo $spText['common']['Status']?>: </th>
 		<td>
 			<select name="stscheck" onchange="<?php echo $submitLink?>">
+				<option value="select">-- <?php echo $spText['common']['Select']?> --</option>
 				<?php foreach($statusList as $key => $val){?>
-					<?php if($info['stscheck'] == $val){?>
+					<?php if(isset($info['stscheck']) && $info['stscheck'] === $val){?>
 						<option value="<?php echo $val?>" selected><?php echo $key?></option>
 					<?php }else{?>
 						<option value="<?php echo $val?>"><?php echo $key?></option>

@@ -28,7 +28,7 @@
                 	<tr>
                 		<th>&nbsp;</th>
                 		<td class="actionsBox">
-                			<?php if(!isLoggedIn() && SP_USER_REGISTRATION){ ?>
+                			<?php if(!isLoggedIn()){ ?>
                 				&nbsp;<input class="button" type="submit" name="login" value="<?php echo $spText['login']['Request Password']?> &gt;&gt"/>
                 			<?php }?>
                 		</td>

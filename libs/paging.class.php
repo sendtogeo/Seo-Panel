@@ -93,7 +93,10 @@ class Paging {
 	function createPagingLink($linkText='', $linkBefore='', $linkAfter=''){
 				
 		if(!empty($this->link_class)) { $linkClass=' class="'.$this->link_class.'"'; }
-		if($this->scriptFunction == 'scriptDoLoadPost'){
+		
+		if ($this->scriptFunction == 'link') {
+			$link = "$linkBefore <a href='$this->scriptPath$this->scriptArgs' $linkClass>$linkText</a>$linkAfter";
+		} elseif($this->scriptFunction == 'scriptDoLoadPost') {
 			$link = "$linkBefore<a href='javascript:void(0);' $linkClass onclick=\"scriptDoLoadPost('$this->scriptPath', '$this->scriptForm', '$this->showArea', '$this->scriptArgs')\">$linkText</a>$linkAfter";	
 		}else{			
 			$link = "$linkBefore<a href='javascript:void(0);' $linkClass onclick=\"$this->scriptFunction('$this->scriptPath', '$this->showArea', '$this->scriptArgs')\">$linkText</a>$linkAfter";

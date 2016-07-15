@@ -23,7 +23,9 @@ echo showSectionHead($spTextPanel['API Connection']);
 	</tr>
 	<tr class="blue_row">
 		<td class="tab_left_bot_noborder"></td>
-		<td class="tab_right_bot"></td>
+		<td class="tab_right_bot left">
+			<a class="bold_link" href="http://docs.seopanel.in/api.html" target="_blank"><?php echo $spTextAPI['API Guide']?> &gt;&gt;</a>
+		</td>
 	</tr>
 	<tr class="listBot">
 		<td class="left" colspan="1"></td>

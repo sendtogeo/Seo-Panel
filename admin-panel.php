@@ -31,6 +31,7 @@ $controller->set('spDescription', 'User control panel for manage settings');
 $controller->set('spKeywords', 'Seo Panel settings,User control panel,manage seo panel settings');
 $controller->spTextPanel = $controller->getLanguageTexts('panel', $_SESSION['lang_code']);
 $controller->set('spTextPanel', $controller->spTextPanel);
+$info = $_REQUEST;
 
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	
@@ -48,7 +49,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$info['menu_selected'] = 'my-profile';
 			$info['start_script'] = 'users.php?sec=my-profile';
 			$controller->index($info);
-			break;		
+			break;
 
 		default:
 			$controller->index($_GET);

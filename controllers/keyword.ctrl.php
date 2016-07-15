@@ -117,6 +117,12 @@ class KeywordController extends Controller{
 	function newKeyword(){		
 		
 		$userId = isLoggedIn();
+		
+		# Validate keyword count
+		if (!$this->validateKeywordCount($userId)) {
+			$this->set('validationMsg', $this->spTextKeyword['Your keyword count already reached the limit']);
+		}
+		
 		$websiteController = New WebsiteController();
 		$this->set('websiteList', $websiteController->__getAllWebsites($userId, true));
 		$langController = New LanguageController();
@@ -129,43 +135,39 @@ class KeywordController extends Controller{
 		$this->set('seList', $seController->__getAllSearchEngines());
 		$this->render('keyword/new');
 	}
-	
-	# function to import keywords
-	function importKeywords(){		
-		
-		$userId = isLoggedIn();
-		$websiteController = New WebsiteController();
-		$websiteList = $websiteController->__getAllWebsites($userId, true);
-		$this->set('websiteList', $websiteList);
-		
-		if (empty($_POST['website_id'])) {
-		    $listInfo['website_id'] = $websiteList[0]['id'];
-		    $this->set('post', $listInfo);
-		}
-		
-		$langController = New LanguageController();
-		$this->set('langList', $langController->__getAllLanguages());
-		$this->set('langNull', true);
-		
-		$countryController = New CountryController();
-		$this->set('countryList', $countryController->__getAllCountries());
-		$this->set('countryNull', true);
-		
-		$seController = New SearchEngineController();
-		$this->set('seList', $seController->__getAllSearchEngines());
-		
-		$this->render('keyword/importkeywords');
-	}
 
+	# create new keyword function
 	function createKeyword($listInfo, $apiCall = false){
 		
 		$userId = isLoggedIn();
 		$this->set('post', $listInfo);
 		$errMsg['name'] = formatErrorMsg($this->validate->checkBlank($listInfo['name']));
+		$errMsg['website_id'] = formatErrorMsg($this->validate->checkBlank($listInfo['website_id']));
 		if (!is_array($listInfo['searchengines'])) $listInfo['searchengines'] = array(); 		
 		$errMsg['searchengines'] = formatErrorMsg($this->validate->checkBlank(implode('', $listInfo['searchengines'])));
 		$statusVal = isset($listInfo['status']) ? intval($listInfo['status']) : 1;
 		$seStr = is_array($listInfo['searchengines']) ? implode(':', $listInfo['searchengines']) : $listInfo['searchengines'];		
+		
+		// verify the limit count for the user
+		if (!$this->validate->flagErr) {
+			
+			// Get the website user id, if admin is logged in
+			if (isAdmin() || $apiCall) {
+				$websiteCtrler = new WebsiteController();
+				$websiteInfo = $websiteCtrler->__getWebsiteInfo($listInfo['website_id']);
+				$webUserId = $websiteInfo['user_id'];
+			} else {
+				$webUserId = $userId;
+			}
+			
+			// Validate keyword count
+			if (! $this->validateKeywordCount($webUserId)) {
+				$validationMsg = $this->spTextKeyword['Your keyword count already reached the limit'];
+				$this->set('validationMsg', $validationMsg);
+				$errMsg['limit_error'] = $validationMsg;
+				$this->validate->flagErr = true;
+			}
+		}
 		
 		// verify the form elements
 		if(!$this->validate->flagErr){
@@ -200,6 +202,52 @@ class KeywordController extends Controller{
 		
 	}
 	
+	# function to import keywords
+	function importKeywords(){		
+		
+		$userId = isLoggedIn();
+		$websiteController = New WebsiteController();
+		$websiteList = $websiteController->__getAllWebsites($userId, true);
+		$this->set('websiteList', $websiteList);
+		
+		if (empty($_POST['website_id'])) {
+		    $listInfo['website_id'] = $websiteList[0]['id'];
+		    $this->set('post', $listInfo);
+		}
+		
+		$langController = New LanguageController();
+		$this->set('langList', $langController->__getAllLanguages());
+		$this->set('langNull', true);
+		
+		$countryController = New CountryController();
+		$this->set('countryList', $countryController->__getAllCountries());
+		$this->set('countryNull', true);
+		
+		$seController = New SearchEngineController();
+		$this->set('seList', $seController->__getAllSearchEngines());
+		
+		// Check the user website count for validation
+		if (!isAdmin()) {
+			$this->setValidationMessageForLimit($userId);	
+		}
+		
+		$this->render('keyword/importkeywords');
+	}
+	
+	# function to set validation message for the limit
+	function setValidationMessageForLimit($userId) {
+		
+		// Check the user website count for validation
+		$userTypeCtrlr = new UserTypeController();
+		$userKeywordCount = count($this->__getAllKeywords($userId));
+		$userTypeDetails = $userTypeCtrlr->getUserTypeSpecByUser($userId);
+		$validCount = $userTypeDetails['keywordcount'] - $userKeywordCount;
+		$validCount = $validCount > 0 ? $validCount : 0;
+		$validationMsg = str_replace("[keywordcount]", "<b>$validCount</b>", $this->spTextKeyword['You can add only keywordcount keywords more']);
+		$this->set('validationMsg', $validationMsg);
+		
+	}
+	
 	# function to import keywords to the seo panel
 	function createImportedKeywords($listInfo){
 		
@@ -229,12 +277,28 @@ class KeywordController extends Controller{
 				}
 			}			
 			
+			// Check the user website count for validation
+			if (isAdmin()) {
+				$websiteCtrler = new WebsiteController();
+				$websiteInfo = $websiteCtrler->__getWebsiteInfo($listInfo['website_id']);
+				$webUserId = $websiteInfo['user_id'];
+			} else {
+				$webUserId = $userId;
+			}
+			
+			// check whether keyword count exeeds the limit
+			if (!$this->validateKeywordCount($webUserId, count($keywordList))) {
+				$this->setValidationMessageForLimit($webUserId);
+				$keyExist = true;
+			}
+			
+			// if no error exists save keyword
 			if (!$keyExist) {
-				
 				$listInfo['searchengines'] = is_array($listInfo['searchengines']) ? $listInfo['searchengines'] : array();
 				foreach ($keywordList as $keyword) {				
 					$sql = "insert into keywords(name,lang_code,country_code,website_id,searchengines,status)
-								values('$keyword','".$listInfo['lang_code']."','".$listInfo['country_code']."',".$listInfo['website_id'].",'".implode(':', $listInfo['searchengines'])."',1)";
+					values('$keyword','".addslashes($listInfo['lang_code'])."','".addslashes($listInfo['country_code'])."',
+					".intval($listInfo['website_id']).",'".implode(':', $listInfo['searchengines'])."',1)";
 					$this->db->query($sql);
 				}
 				
@@ -313,7 +377,7 @@ class KeywordController extends Controller{
 		$errMsg['searchengines'] = formatErrorMsg($this->validate->checkBlank(implode('', $listInfo['searchengines'])));
 		$seStr = is_array($listInfo['searchengines']) ? implode(':', $listInfo['searchengines']) : $listInfo['searchengines'];
 		$statusVal = isset($listInfo['status']) ? "status = " . intval($listInfo['status']) ."," : "";	
-				
+		
 		//validate form
 		if(!$this->validate->flagErr){
 
@@ -363,6 +427,28 @@ class KeywordController extends Controller{
 	    $keywordId = intval($keywordId);
 		$this->checkUserIsObjectOwner($keywordId, 'keyword');
 		echo "<script>scriptDoLoad('reports.php', 'content', 'keyword_id=$keywordId&rep=1')</script>";
+	}
+	
+	// Function to check / validate the user type keuword count
+	function validateKeywordCount($userId, $newCount = 1) {
+		$userCtrler = new UserController();
+
+		// if admin user id return true
+		if ($userCtrler->isAdminUserId($userId)) {
+			return true;
+		}
+		
+		$userTypeCtrlr = new UserTypeController();
+		$userKeywordCount = count($this->__getAllKeywords($userId));
+		$userKeywordCount += $newCount;
+		$userTypeDetails = $userTypeCtrlr->getUserTypeSpecByUser($userId);
+		
+		// check whether count greater than limit
+		if ($userKeywordCount <= $userTypeDetails['keywordcount']) {
+			return true;
+		} else {
+			return false;	
+		}
 	}
 	
 }
