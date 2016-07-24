@@ -79,8 +79,8 @@ class SeoPluginsController extends Controller{
             $plugin_list = $this->__getAllSeoPlugins();
             foreach($plugin_list as $k => $v){
                 $pluginDirName = $v['name'];
-		if(file_exists($pluginDirName."/".SP_PLUGINLOAD)){
-			include_once($pluginDirName."/".SP_PLUGINLOAD);
+		if(file_exists(SP_PLUGINPATH."/".$pluginDirName."/".SP_PLUGINLOAD)){
+			include_once(SP_PLUGINPATH."/".$pluginDirName."/".SP_PLUGINLOAD);
 		}
             }
         }
