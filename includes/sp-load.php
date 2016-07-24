@@ -54,11 +54,6 @@ if(file_exists(SP_ABSPATH."/config/sp-config.php")){
 		include_once(SP_ABSPATH."/config/sp-config-extra.php");
 	}
 
-	# load seo panel extra config variables
-	if(file_exists(SP_ABSPATH."/includes/hooks.php")){
-		include_once(SP_ABSPATH."/includes/hooks.php");
-	}
-
 	# debug settings
 	if (SP_DEBUG){
 		@ini_set("display_erros", "On");

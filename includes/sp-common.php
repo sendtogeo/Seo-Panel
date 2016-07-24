@@ -504,4 +504,89 @@ function showPdfFooter($spText) {
     <div style="clear: both; margin-top: 30px;font-size: 12px; text-align: center;"><?php echo str_replace('[year]', date('Y'), $copyrightTxt)?></div>
 	<?php
 }
+
+function add_filter($tag, $function_to_add, $priority = 10, $accepted_args = 1) {
+    global $hooks;
+    return $hooks->add_filter($tag, $function_to_add, $priority, $accepted_args);
+}
+
+function remove_filter( $tag, $function_to_remove, $priority = 10 ) {
+    global $hooks;
+    return $hooks->remove_filter( $tag, $function_to_remove, $priority );
+}
+
+function remove_all_filters($tag, $priority = false) {
+    global $hooks;
+    return $hooks->remove_all_filters($tag, $priority);
+}
+
+function has_filter($tag, $function_to_check = false) {
+    global $hooks;
+    return $hooks->has_filter($tag, $function_to_check);
+}
+
+function apply_filters($tag, $value) {
+    global $hooks;
+    return $hooks->apply_filters($tag, $value);
+}
+
+function apply_filters_ref_array($tag, $args) {
+    global $hooks;
+    return $hooks->apply_filters_ref_array($tag, $args);
+}
+
+function add_action($tag, $function_to_add, $priority = 10, $accepted_args = 1) {
+    global $hooks;
+    return $hooks->add_action($tag, $function_to_add, $priority, $accepted_args);
+}
+
+function has_action($tag, $function_to_check = false) {
+    global $hooks;
+    return $hooks->has_action($tag, $function_to_check);
+}
+
+function remove_action( $tag, $function_to_remove, $priority = 10 ) {
+    global $hooks;
+    return $hooks->remove_action( $tag, $function_to_remove, $priority);
+}
+
+function remove_all_actions($tag, $priority = false) {
+    global $hooks;
+    return $hooks->remove_all_actions($tag, $priority);
+}
+
+function do_action($tag, $arg = '') {
+    global $hooks;
+    return $hooks->do_action($tag, $arg);
+}
+
+function do_action_ref_array($tag, $args) {
+    global $hooks;
+    return $hooks->do_action_ref_array($tag, $args);
+}
+
+function did_action($tag) {
+    global $hooks;
+    return $hooks->did_action($tag);
+}
+
+function current_filter() {
+    global $hooks;
+    return $hooks->current_filter();
+}
+
+function current_action() {
+    global $hooks;
+    return $hooks->current_action();
+}
+
+function doing_filter( $filter = null ) {
+    global $hooks;
+    return $hooks->doing_filter( $filter);
+}
+
+function doing_action( $action = null ) {
+    global $hooks;
+    return $hooks->doing_action( $action);
+}
 ?>
