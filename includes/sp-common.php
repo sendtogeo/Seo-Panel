@@ -622,10 +622,14 @@ function get_setting($set_name){
 }
 
 function get_setting_value($set_name){
-    global $sp_db;
-    $sp_db->where ('set_name', $set_name);
-    $res = $sp_db->getValue('settings','set_val');
-    return $res;
+    if(!defined($set_name)){
+        return constant($set_name);
+    }else{
+        global $sp_db;
+        $sp_db->where ('set_name', $set_name);
+        $res = $sp_db->getValue('settings','set_val');
+        return $res;
+    }
 }
 
 ?>
