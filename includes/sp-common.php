@@ -589,4 +589,43 @@ function doing_action( $action = null ) {
     global $hooks;
     return $hooks->doing_action( $action);
 }
+
+function add_setting($set_name,$set_val,$set_label,$set_category = 'misc',$set_type = 'text',$display=1){
+    global $sp_db;
+    $data = Array ("set_val" => $set_val,
+                   "set_label" => $set_label,
+                   "set_category" => $set_category,
+                   "set_type" => $set_type,
+                   "display" => $display,
+    );
+    $sp_db->where ('set_name', $set_name);
+    $id = $sp_db->getValue('settings','id');
+    if($id){
+        $sp_db->where ('id', $id);
+        $res = $sp_db->update ('settings', $data);
+    }else{
+        $data['set_name'] = $set_name;
+        $res = $sp_db->insert ('settings', $data);
+    }
+    if($res){
+        return TRUE;
+    }else{
+        return FALSE;
+    }
+}
+
+function get_setting($set_name){
+    global $sp_db;
+    $sp_db->where ('set_name', $set_name);
+    $res = $sp_db->getOne('settings');
+    return $res;
+}
+
+function get_setting_value($set_name){
+    global $sp_db;
+    $sp_db->where ('set_name', $set_name);
+    $res = $sp_db->getValue('settings','set_val');
+    return $res;
+}
+
 ?>
