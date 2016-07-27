@@ -59,6 +59,8 @@ class Seopanel{
 		include_once(SP_CTRLPATH.'/searchengine.ctrl.php');	
 		include_once(SP_CTRLPATH.'/currency.ctrl.php');	
 		include_once(SP_CTRLPATH.'/seoplugins.ctrl.php');
+                include_once (SP_INCPATH.'/wp-includes/wp-includes.php');
+                include_once (SP_INCPATH.'/sp-load-html-parser.php');
                 $plugins_load = new SeoPluginsController();
                 $plugins_load->loadAllPlugins();
 		

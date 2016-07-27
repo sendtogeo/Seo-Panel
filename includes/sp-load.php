@@ -138,7 +138,6 @@ if(file_exists(SP_ABSPATH."/config/sp-config.php")){
             }
         }
     }
-    require_once (SP_ABSPATH.'/sp-load-html-parser.php');
 	# create super class object
 	include_once(SP_LIBPATH."/seopanel.class.php");
 	$seopanel = New Seopanel();
