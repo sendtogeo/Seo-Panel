@@ -179,17 +179,18 @@ function confirmPostAJAXLink($file, $form, $area, $trigger='OnClick'){
 }
 
 function formatUrl( $url, $removeWWW=true ) {
-    $url = trim($url);
-    if(strpos($url, 'http://') === 0){
-	$url = str_replace('http://', '', $url, 1);
+    $turl = trim($url);
+    $limit = 1;
+    if(strpos($turl, 'http://') === 0){
+	$turl = str_replace('http://', '', $turl, $limit);
     }
-    if(strpos($url, 'https://') === 0){
-	$url = str_replace('https://', '', $url, 1);
+    if(strpos($turl, 'https://') === 0){
+	$turl = str_replace('https://', '', $turl, $limit);
     }
-	if ($removeWWW && strpos($url, 'www.') === 0){
-            $url = str_replace('www.', '', $url, 1);
+	if ($removeWWW && strpos($turl, 'www.') === 0){
+            $turl = str_replace('www.', '', $turl, $limit);
         }
-	return $url;
+	return $turl;
 }
 
 function formatRelativeUrl($url,$base_url){
