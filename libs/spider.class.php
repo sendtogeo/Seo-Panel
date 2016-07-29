@@ -74,7 +74,7 @@ class Spider{
 		$url = preg_replace('/\/{2,}/', '/', $url);
 		$url = preg_replace('/&{2,}/', '&', $url);
 		$url = preg_replace('/#{2,}/', '#', $url);
-		$url = Spider::removeTrailingSlash($url);
+		//$url = Spider::removeTrailingSlash($url);
 		return $scheme.$url;
 	}
 	
@@ -196,7 +196,7 @@ class Spider{
                             $external_count += 1;
                             $external = TRUE;
                         } else {
-                            $text = str_replace($cleanUrl, $baseTagUrl, $text);
+                            $text = str_replace($cleanUrl, $baseTagUrl, $test_url);
                         }
                     } elseif (formatRelativeUrl($text, $baseTagUrl)) {
                             $text = formatRelativeUrl($text, $baseTagUrl);
