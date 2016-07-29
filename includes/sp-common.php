@@ -20,6 +20,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+include_once 'phpuri.php';
+
 # func to format error message
 function formatErrorMsg($msg, $class='error', $star="*"){
 	if(!empty($msg)){
@@ -188,6 +190,16 @@ function formatUrl( $url, $removeWWW=true ) {
             $url = str_replace('www.', '', $url, 1);
         }
 	return $url;
+}
+
+function formatRelativeUrl($url,$base_url){
+    $base = phpUri::parse($base_url);
+    $r = $base->join($url);
+    if($r == $url){
+        return FALSE;
+    }else{
+        return $r;
+    }
 }
 
 function formatDate($date) {
