@@ -103,7 +103,7 @@ class Spider{
         $ret = $this->getContent($urlWithTrailingSlash);
         $pageInfo = array();
         //$checkUrl = formatUrl($domainUrl);
-        $cleanUrl = formatUrl($domainUrl, TRUE);
+        $cleanUrl = $this->removeTrailingSlash(formatUrl($domainUrl, TRUE));
 
         // if relative links of a page needs to be checked
 //		if (SP_RELATIVE_LINK_CRAWL) {
@@ -158,16 +158,16 @@ class Spider{
             }
 
             // check whether base url tag is there
-            $baseTagUrl = "";
+            $baseTagUrlSlash = $domainHostLink;
             $hold = $dom->find('base');
             if (!empty($hold->count())) {
                 $text = $hold->href;
                 if (!empty($text)) {
-                    $baseTagUrl = $this->addTrailingSlash($text);
-                } else {
-                    $baseTagUrl = $domainHostLink;
-                }
+                    $baseTagUrlSlash = $this->addTrailingSlash($text);
+                    
+                } 
             }
+            $baseTagUrl = $this->removeTrailingSlash($baseTagUrlSlash);
 //			if (preg_match("/<base (.*?)>/is", $string, $match)) {
 //				$baseTagUrl = $this->__getTagParam("href", $match[1]);
 //				$baseTagUrl = $this->addTrailingSlash($baseTagUrl);
@@ -188,7 +188,7 @@ class Spider{
                 $external = FALSE;
                 $alternate = FALSE;
                 if (!empty($text)) {
-                    if (strpos($text, $cleanUrl) == 0) {
+                    if (strpos($text, $cleanUrl) === 0) {
                         $text = str_replace($cleanUrl, $baseTagUrl, $text);
                     } else if (strpos($text, 'http://') === 0 || strpos($text, 'https://') === 0 || strpos($text, 'www.') === 0) {
                         $test_url = formatUrl($text, TRUE);
@@ -227,7 +227,11 @@ class Spider{
                 if (!empty($title)) {
                     $linkInfo['link_title'] = $title;
                 }
-                $linkInfo = apply_filters('add_link_info', $linkInfo);
+                $internal = TRUE;
+                if($external || $alternate){
+                    $internal = FALSE;
+                }
+                $linkInfo = apply_filters('add_link_info', $linkInfo,$internal);
                 if ($returnUrls) {
                     if($external){
                         $external = apply_filters('add_external_link_info', $external, $linkInfo);
@@ -245,7 +249,7 @@ class Spider{
                         }
                     }
                 }
-                $total_links = apply_filters('link_count', $total_links, $linkInfo);
+                $total_links = apply_filters('link_count', $total_links, $linkInfo, $internal);
                 if($external){
                     $external_count = apply_filters('external_link_count', $external_count, $linkInfo);
                 }
