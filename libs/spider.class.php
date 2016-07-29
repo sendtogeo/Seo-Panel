@@ -98,10 +98,12 @@ class Spider{
     # func to get backlink page info
 
     function getPageInfo($url, $domainUrl, $returnUrls = false) {
-
+        $pageInfo = array();
+        if(empty($url)){
+            return $pageInfo;
+        }
         $urlWithTrailingSlash = Spider::addTrailingSlash($url);
         $ret = $this->getContent($urlWithTrailingSlash);
-        $pageInfo = array();
         //$checkUrl = formatUrl($domainUrl);
         $cleanUrl = $this->removeTrailingSlash(formatUrl($domainUrl, TRUE));
 
@@ -204,6 +206,10 @@ class Spider{
                         $alternate_count += 1;
                         $alternate = TRUE;
                     }
+                }
+                $rerel = str_replace($baseTagUrl, '', $text);
+                if($rerel == '\\' || $rerel == '/' ){
+                    $text = $baseTagUrl;
                 }
                 // if details of urls to be checked
                 $linkInfo['link_url'] = $text;
@@ -561,13 +567,21 @@ class Spider{
 	}
 	
 	// function to check whether link is brocke
-	public static function isLInkBrocken($url) {
-	    $header = Spider::getHeader($url);
-	    if (stristr($header, '404 Not Found')) {
-	        return true;
-	    } else {
-	        return false; 
-	    }
+	public static function isLInkBrocken($url,$fresh = FALSE) {
+            if(!$fresh){
+                global $sp_db;
+                $sp_db->where('link_url',$url);
+                $val = $sp_db->getValue('auditorpagelinks','brocken');
+                if($val != NULL){
+                    return $val;
+                }
+            }
+            $header = Spider::getHeader($url);
+            if (stristr($header, '404 Not Found')) {
+                return true;
+            } else {
+                return false; 
+            }
 	}
 }
 ?>
