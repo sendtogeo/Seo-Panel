@@ -27,35 +27,71 @@ class AuditorComponent extends Controller{
     
     // function to save report info
     function saveReportInfo($reportInfo, $action='create') {
-        if ($action == 'create') {
-			$dateTime = date('Y-m-d H:i:s');
-            $reportKeys = array_keys($reportInfo);
-            $reportValues = array_values($reportInfo);
-            $sql = "insert into auditorreports(".implode(',', $reportKeys).", updated) values('".implode("','", $reportValues)."', '$dateTime')";
-        } elseif($action == 'update') {
-            $sql = "Update auditorreports set ";
-            foreach ($reportInfo as $col => $value) {
-                if ($col != 'id') {
-                    $sql .= "$col='$value',";    
-                }
-            }
-            $sql = preg_replace('/\,$/', '', $sql);
-            $sql .= " where id=".$reportInfo['id'];
+        global $sp_db;
+        if(!is_array($reportInfo)){
+            return FALSE;
         }
-        $this->db->query($sql);
+        $data = array();
+        $insert_fields = array('project_id','page_url','page_title','page_description','page_keywords','pagerank','google_backlinks','bing_backlinks',
+            'google_indexed','bing_indexed','total_links','external_links','crawled','brocken','score');
+        foreach($insert_fields as $field){
+            if(key_exists($field, $reportInfo)){
+                $data[$field] = $reportInfo[$field];
+            }
+        }
+        $data['updated'] = date('Y-m-d H:i:s');
+        $data = apply_filters('save_report_data', $data, $reportInfo, $action);
+        if ($action == 'create') {
+//            $reportKeys = array_keys($reportInfo);
+//            $reportValues = array_values($reportInfo);
+//            $sql = "insert into auditorreports(".implode(',', $reportKeys).", updated) values('".implode("','", $reportValues)."', '$dateTime')";
+            $id = $sp_db->insert('auditorreports',$data);
+        } elseif($action == 'update') {
+            $sp_db->where('id',$reportInfo['id']);
+            $id = $sp_db->update('auditorreports',$data);
+//            $sql = "Update auditorreports set ";
+//            foreach ($reportInfo as $col => $value) {
+//                if ($col != 'id') {
+//                    $sql .= "$col='$value',";    
+//                }
+//            }
+//            $sql = preg_replace('/\,$/', '', $sql);
+//            $sql .= " where id=".$reportInfo['id'];
+        }
+        if($id !== FALSE){
+            do_action('save_report',$reportInfo,$action);
+            return $id;
+        }else{
+            return FALSE;
+        }
+        //$this->db->query($sql);
     }
     
     // func to run report for a project
     function runReport($reportUrl, $projectInfo, $totalLinks) {        
+        
+        $reportInfo = array();
         $spider = new Spider();
-        $pageInfo = $spider->getPageInfo($reportUrl, $projectInfo['url'], true);
-
-        if ($rInfo = $this->getReportInfo(" and project_id={$projectInfo['id']} and page_url='$reportUrl'") ) {
+        if ($projectInfo['check_brocken']) {
+            $reportInfo['brocken'] = $spider->isLInkBrocken($reportUrl);    
+        }
+            
+        if($reportInfo['brocken']){
+            $pageInfo = array('page_title' => '','page_description' => '','page_keywords' => '',
+            'total_links' => 0,'external' => 0,'brocken'=>TRUE);
+            $pageInfo = apply_filters('page_broken', $pageInfo);
+        }else{
+            $pageInfo = $spider->getPageInfo($reportUrl, $projectInfo['url'], true);
+        }
+        
+        $where = array('project_id'=>$projectInfo['id'],'page_url'=>$reportUrl);
+        $rInfo = $this->getReportInfo($where);
+        if ($rInfo) {
             
             $reportInfo['id'] = $rInfo['id'];
-            $reportInfo['page_title'] = addslashes($pageInfo['page_title']);
-            $reportInfo['page_description'] = addslashes($pageInfo['page_description']);
-            $reportInfo['page_keywords'] = addslashes($pageInfo['page_keywords']);
+            $reportInfo['page_title'] = $pageInfo['page_title'];
+            $reportInfo['page_description'] = $pageInfo['page_description'];
+            $reportInfo['page_keywords'] = $pageInfo['page_keywords'];
             $reportInfo['total_links'] = $pageInfo['total_links'];
             $reportInfo['external_links'] = $pageInfo['external'];
             $reportInfo['crawled'] = 1;
@@ -83,9 +119,7 @@ class AuditorComponent extends Controller{
                 $reportInfo['google_indexed'] = $saturationCtrler->__getSaturationRank('google');
             }
         
-            if ($projectInfo['check_brocken']) {
-                $reportInfo['brocken'] = Spider::isLInkBrocken($linkInfo['link_url']);    
-            }
+            $reportInfo = apply_filters('run_report_info', $reportInfo, $pageInfo);
             
             $this->saveReportInfo($reportInfo, 'update');
             
@@ -95,6 +129,9 @@ class AuditorComponent extends Controller{
             	
             	// loo through site links
                 foreach ($pageInfo['site_links'] as $linkInfo) {
+                    if ($projectInfo['check_brocken']) {
+                        $linkInfo['brocken'] = Spider::isLInkBrocken($linkInfo['link_url']);
+                    }
                     // if store links 
                     if ($projectInfo['store_links_in_page']) {
                         $delete = $i++ ? false : true;
@@ -109,14 +146,17 @@ class AuditorComponent extends Controller{
                         if(preg_match('/\.zip$|\.gz$|\.tar$|\.png$|\.jpg$|\.jpeg$|\.gif$|\.mp3$|\.flv$|\.pdf$|\.m4a$|#$/i', $linkInfo['link_url'])) continue;
                         
                         // if found any space in the link
-                        $linkInfo['link_url'] = Spider::formatUrl($linkInfo['link_url']);
+                        //$linkInfo['link_url'] = Spider::formatUrl($linkInfo['link_url']);
                         if (!preg_match('/\S+/', $linkInfo['link_url'])) continue;                        
-                        
+                       
                         // check whether url needs to be excluded
                         if ($this->isExcludeLink($linkInfo['link_url'], $projectInfo['exclude_links'])) continue;
                         
                         // save links for the project report
-                        if (!$this->getReportInfo(" and project_id={$projectInfo['id']} and page_url='{$linkInfo['link_url']}'")) {
+                        $where = array('project_id'=>$projectInfo['id'],'page_url'=>$linkInfo['link_url']);
+                        $r_exists = $this->getReportInfo($where);
+                        //if (!$this->getReportInfo(" and project_id={$projectInfo['id']} and page_url='{$linkInfo['link_url']}'")) {
+                        if (!$r_exists) {
         		            $repInfo['page_url'] = $linkInfo['link_url'];
         		            $repInfo['project_id'] = $projectInfo['id'];
         		            $this->saveReportInfo($repInfo);
@@ -147,22 +187,48 @@ class AuditorComponent extends Controller{
     }
     
     // function to get report info
-    function getReportInfo($where) {	    
-	    $sql = "SELECT * FROM auditorreports where 1=1 $where";
-		$listInfo = $this->db->select($sql, true);
-		return empty($listInfo['id']) ? false : $listInfo;
-	}
-    
+    function getReportInfo($where) {
+        global $sp_db;
+        if(is_array($where)){
+            foreach($where as $k => $v){
+                $sp_db->where($k,$v);
+            }
+            $ret = $sp_db->getOne('auditorreports');
+            if(!empty($ret['id'])){
+                return $ret;
+            }else{
+                return FALSE;
+            }
+        //For legacy accept a string as input
+        }else if (is_string($where)){
+            $sql = "SELECT * FROM auditorreports where 1=1 $where";
+            $listInfo = $this->db->select($sql, true);
+            return empty($listInfo['id']) ? false : $listInfo;
+        //For legacy if $where is empty return all reports
+        }else if(empty ($where)){
+            $ret = $sp_db->get('auditorreports');
+            if(count($ret) > 0){
+                return $ret;
+            }else{
+                return FALSE;
+            }
+        }else{
+            return false;
+        }
+    }
+
     // function to store link of page
     function storePagelLinks($linkInfo, $delete=false) {
-        
-        foreach ($linkInfo as $col => $val) {
-            $linkInfo[$col] = addslashes($val);
-        }
+        global $sp_db;
+//        foreach ($linkInfo as $col => $val) {
+//            $linkInfo[$col] = addslashes($val);
+//        }
         
         if ($delete) {
-            $sql = "Delete from auditorpagelinks where report_id=".$linkInfo['report_id'];
-            $this->db->query($sql);
+            $sp_db->where('report_id',$linkInfo['report_id']);
+            $sp_db->delete('auditorpagelinks');
+            //$sql = "Delete from auditorpagelinks where report_id=".$linkInfo['report_id'];
+            //$this->db->query($sql);
         }
         
         $linkKeys = array_keys($linkInfo);
@@ -188,11 +254,17 @@ class AuditorComponent extends Controller{
     
     // function to find the score of a report page
     function updateReportPageScore($reportId) {
-        $reportInfo = $this->getReportInfo(" and id=$reportId");
+        global $sp_db;
+        //$reportInfo = $this->getReportInfo(" and id=$reportId");
+        $reportInfo = $this->getReportInfo(array('id' => $reportId));
         $scoreInfo = $this->countReportPageScore($reportInfo);
         $score =  array_sum($scoreInfo);
-        $sql = "update auditorreports set score=$score where id=$reportId";
-        $this->db->query($sql);
+        //$sql = "update auditorreports set score=$score where id=$reportId";
+        //$this->db->query($sql);
+        $sp_db->where('id', $reportId);
+        $data = array('score'=>$score);
+         $sp_db->update('auditorreports',$data);
+         do_action('report_score_updated',$score,$reportInfo);
     }
     
     // function to count report page score
@@ -294,31 +366,56 @@ class AuditorComponent extends Controller{
                 $this->commentInfo[$label] = formatErrorMsg($msg, 'error', '');
             }   
         }
-        return $scoreInfo;
+        $filter_info = apply_filters('report_page_score', array('scoreInfo' => $scoreInfo,'commentInfo' => $this->commentInfo));
+        $this->commentInfo = $filter_info['commentInfo'];
+        return $filter_info['scoreInfo'];
     }
     
     // function to find the score of a project
-    function updateProjectPageScore($projectId) {        
-        $sql = "select sum(score)/count(*) as avgscore from auditorreports where crawled=1 and project_id=$projectId";
-        $listInfo = $this->db->select($sql, true);
-		$score = empty($listInfo['avgscore']) ? 0 : $listInfo['avgscore'];
-        
-        $sql = "update auditorprojects set score=$score where id=$projectId";
-        $this->db->query($sql); 
+    function updateProjectPageScore($projectId) {
+        global $sp_db;
+        $sp_db->where('crawled',1);
+        $sp_db->where('project_id',$projectId);
+        $avgscore = $sp_db->getValue('auditorreports','sum(score)/count(*)');
+//        $sql = "select sum(score)/count(*) as avgscore from auditorreports where crawled=1 and project_id=$projectId";
+//        $listInfo = $this->db->select($sql, true);
+//		$score = empty($listInfo['avgscore']) ? 0 : $listInfo['avgscore'];
+        if(empty($avgscore)){
+            $data = array('score'=>0);
+        }else{
+            $data = array('score'=>$avgscore);
+        }
+        $sp_db->where('id',$projectId);
+        $sp_db->update('auditorprojects',$data);
+//        $sql = "update auditorprojects set score=$score where id=$projectId";
+//        $this->db->query($sql); 
     }
     
     // function to get all links of a page
     function getAllLinksPage($reportId) {
-        $sql = "select * from auditorpagelinks where report_id=$reportId";
-        $linkList = $this->db->select($sql);
+        global $sp_db;
+        $sp_db->where('report_id',$reportId);
+        $linkList = $sp_db->get('auditorpagelinks');
+//        $sql = "select * from auditorpagelinks where report_id=$reportId";
+//        $linkList = $this->db->select($sql);
         return $linkList;        
     }
     
     // function to get duplicate meta contents info
     function getDuplicateMetaInfoCount($projectId, $col='page_title', $statusCheck=false, $statusVal=1) {
-        $crawled = $statusCheck ? " and crawled=$statusVal" : "";
-        $sql = "select $col,count(*) as count from auditorreports where project_id=$projectId and $col!='' $crawled group by $col having count>1";
-        $list = $this->db->select($sql);
+        global $sp_db;
+        $sp_db->where('project_id',$projectId);
+        $sp_db->where($col." !=''");
+        if($statusCheck){
+            $sp_db->where('crawled',$statusVal);
+        }
+        $sp_db->groupBy ($col);
+        $sp_db->having('count > 1');
+        $cols = array($col,'count(*) as count');
+        $list = $sp_db->get('auditorreports',null, $cols);
+//        $crawled = $statusCheck ? " and crawled=$statusVal" : "";
+//        $sql = "select $col,count(*) as count from auditorreports where project_id=$projectId and $col!='' $crawled group by $col having count>1";
+//        $list = $this->db->select($sql);
         $total = 0;
         foreach ($list as $info) {
             $total++;
@@ -327,9 +424,16 @@ class AuditorComponent extends Controller{
     }
     
     // function to get all report pages of a project
-    function getAllreportPages($where='', $cols='*') {        	    
-	    $sql = "SELECT $cols FROM auditorreports where 1=1 $where";
-		$list = $this->db->select($sql);
+    function getAllreportPages($where='', $cols='*') {     
+        global $sp_db;    
+        if(is_array($where)){
+                foreach ($where as $k => $v){
+                    $sp_db->where($k,$v);
+                }
+            }
+            $list = $sp_db->get('auditorreports',NULL,$cols);
+//	    $sql = "SELECT $cols FROM auditorreports where 1=1 $where";
+//		$list = $this->db->select($sql);
 		return $list;
     }
     
