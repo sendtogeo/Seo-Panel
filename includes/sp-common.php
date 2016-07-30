@@ -612,6 +612,9 @@ function doing_action( $action = null ) {
 
 function add_setting($set_name,$set_val,$set_label,$set_category = 'misc',$set_type = 'text',$display=1){
     global $sp_db;
+    if(empty($set_name) || empty($set_label) || empty($set_category)){
+        return False;
+    }
     $data = Array ("set_val" => $set_val,
                    "set_label" => $set_label,
                    "set_category" => $set_category,
@@ -621,11 +624,53 @@ function add_setting($set_name,$set_val,$set_label,$set_category = 'misc',$set_t
     $sp_db->where ('set_name', $set_name);
     $id = $sp_db->getValue('settings','id');
     if($id){
-        $sp_db->where ('id', $id);
-        $res = $sp_db->update ('settings', $data);
+        return FALSE;
     }else{
         $data['set_name'] = $set_name;
         $res = $sp_db->insert ('settings', $data);
+    }
+    if($res){
+        return TRUE;
+    }else{
+        return FALSE;
+    }
+}
+
+function update_setting($set_name,$data = array()){
+    global $sp_db;
+    if(empty($set_name) || !is_array($data)){
+        return False;
+    }
+    $data_labels = Array ("set_val" => '',
+                   "set_label" => '',
+                   "set_category" => 'misc',
+                   "set_type" => 'text',
+                   "display" => 1
+    );
+    $sp_db->where ('set_name', $set_name);
+    $id = $sp_db->getValue('settings','id');
+    $data_update = array();
+    if($id){
+        foreach($data_labels as $k => $v){
+            if(isset($data[$k]) && !empty($data[$k])){
+                $data_update[$k] = $data[$k];
+            }
+        }
+       $sp_db->where ('id', $id);
+        $res = $sp_db->update ('settings', $data_update);
+    }else{
+        if(empty($data['set_label']) || empty($data['set_category'])){
+            return False;
+        }
+        foreach($data_labels as $k => $v){
+            if(isset($data[$k]) && !empty($data[$k])){
+                $data_update[$k] = $data[$k];
+            }else{
+                $data_update[$k] = $v;
+            }
+        }
+        $data_update['set_name'] = $set_name;
+        $res = $sp_db->insert ('settings', $data_update);
     }
     if($res){
         return TRUE;
@@ -642,7 +687,7 @@ function get_setting($set_name){
 }
 
 function get_setting_value($set_name){
-    if(!defined($set_name)){
+    if(defined($set_name)){
         return constant($set_name);
     }else{
         global $sp_db;
