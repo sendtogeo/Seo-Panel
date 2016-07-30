@@ -84,7 +84,7 @@ if(file_exists(SP_ABSPATH."/config/sp-config.php")){
         include_once (SP_INCPATH.'/wp-includes/wp-includes.php');
 	
 	// set system settings variables
-	$sql = "select * from settings order by id";
+	$sql = "select * from settings WHERE `set_category` NOT REGEXP '^ign_' order by id";
 	$settingsList = $dbConn->select($sql);
 	foreach($settingsList as $settingsInfo){
 		if(!defined($settingsInfo['set_name'])){

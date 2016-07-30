@@ -610,7 +610,7 @@ function doing_action( $action = null ) {
     return $hooks->doing_action( $action);
 }
 
-function add_setting($set_name,$set_val,$set_label,$set_category = 'misc',$set_type = 'text',$display=1){
+function add_setting($set_name,$set_val,$set_label,$set_category = 'ign_misc',$set_type = 'text',$display=1){
     global $sp_db;
     if(empty($set_name) || empty($set_label) || empty($set_category)){
         return False;
@@ -649,7 +649,7 @@ function update_setting($set_name,$data = array()){
     }
     $data_labels = Array ("set_val" => '',
                    "set_label" => '',
-                   "set_category" => 'misc',
+                   "set_category" => 'ign_misc',
                    "set_type" => 'text',
                    "display" => 1
     );
