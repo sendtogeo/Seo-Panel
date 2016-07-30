@@ -615,6 +615,9 @@ function add_setting($set_name,$set_val,$set_label,$set_category = 'misc',$set_t
     if(empty($set_name) || empty($set_label) || empty($set_category)){
         return False;
     }
+    if(isset($set_val)){
+        $set_val = maybe_serialize($set_val);
+    }
     $data = Array ("set_val" => $set_val,
                    "set_label" => $set_label,
                    "set_category" => $set_category,
@@ -640,6 +643,9 @@ function update_setting($set_name,$data = array()){
     global $sp_db;
     if(empty($set_name) || !is_array($data)){
         return False;
+    }
+    if(isset($data['set_val'])){
+        $data['set_val'] = maybe_serialize($data['set_val']);
     }
     $data_labels = Array ("set_val" => '',
                    "set_label" => '',
@@ -683,17 +689,22 @@ function get_setting($set_name){
     global $sp_db;
     $sp_db->where ('set_name', $set_name);
     $res = $sp_db->getOne('settings');
+    $res['set_val'] = maybe_unserialize($res['set_val']);
     return $res;
 }
 
 function get_setting_value($set_name){
     if(defined($set_name)){
-        return constant($set_name);
+        if(version_compare(phpversion(),'5.6') >= 0){
+            return constant($set_name);
+        }else{
+            return maybe_unserialize(constant($set_name));
+        }
     }else{
         global $sp_db;
         $sp_db->where ('set_name', $set_name);
         $res = $sp_db->getValue('settings','set_val');
-        return $res;
+        return maybe_unserialize($res);
     }
 }
 

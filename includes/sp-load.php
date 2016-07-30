@@ -81,13 +81,19 @@ if(file_exists(SP_ABSPATH."/config/sp-config.php")){
 	include_once(SP_LIBPATH."/database.class.php");
 	$dbObj = New Database(DB_ENGINE);
 	$dbConn = $dbObj->dbConnect();
+        include_once (SP_INCPATH.'/wp-includes/wp-includes.php');
 	
 	// set system settings variables
 	$sql = "select * from settings order by id";
 	$settingsList = $dbConn->select($sql);
 	foreach($settingsList as $settingsInfo){
 		if(!defined($settingsInfo['set_name'])){
-			define($settingsInfo['set_name'], $settingsInfo['set_val']);
+                    if(version_compare(phpversion(),'5.6') >= 0){
+                        $set_val = maybe_unserialize($settingsInfo['set_val']);
+                    }else{
+                        $set_val = $settingsInfo['set_val'];
+                    }
+			define($settingsInfo['set_name'], $set_val);
 		}
 	}
 	
