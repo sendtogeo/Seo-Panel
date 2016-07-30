@@ -30,4 +30,5 @@ $adminClass = '';
 if($this->menu == 'adminpanel'){
     $adminClass = "current";
 } ?>
-<li style="float: right; margin-right: 12px;"><a class="<?php echo $adminClass?>" href="<?php echo SP_WEBPATH?>/admin-panel.php"><?php echo $spText['common']['User Panel']?></a></li>
+
+<li style="float: right; margin-right: 12px;"><a class="<?php echo $adminClass?>" href="<?php echo SP_WEBPATH?>/admin-panel.php"><?php echo $spText['common']['Admin Panel']?></a>

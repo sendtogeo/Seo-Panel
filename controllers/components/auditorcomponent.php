@@ -120,7 +120,7 @@ class AuditorComponent extends Controller{
             }
         
             $reportInfo = apply_filters('run_report_info', $reportInfo, $pageInfo);
-            
+
             $this->saveReportInfo($reportInfo, 'update');
             
             // to store sitelinks in page and links reports
