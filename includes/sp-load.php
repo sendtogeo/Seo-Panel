@@ -76,6 +76,7 @@ if(file_exists(SP_ABSPATH."/config/sp-config.php")){
 	define('SP_DATAPATH', SP_ABSPATH."/install/data");
 	define('SP_JSPATH', SP_WEBPATH."/js");
 	define('SP_IMGPATH', SP_WEBPATH."/images");	
+        define('SP_SCORESPATH', SP_ABSPATH."/scores");
 	
 	# create database object
 	include_once(SP_LIBPATH."/database.class.php");

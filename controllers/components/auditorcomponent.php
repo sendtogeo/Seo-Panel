@@ -255,118 +255,144 @@ class AuditorComponent extends Controller{
     // function to find the score of a report page
     function updateReportPageScore($reportId) {
         global $sp_db;
+        global $scores;
         //$reportInfo = $this->getReportInfo(" and id=$reportId");
         $reportInfo = $this->getReportInfo(array('id' => $reportId));
         $scoreInfo = $this->countReportPageScore($reportInfo);
-        $score =  array_sum($scoreInfo);
+        $score = 0;
+        foreach($scoreInfo as $k => $v){
+            $score += $scores[$k]->get_weight() * $v;
+        }
+        //$score =  array_sum($scoreInfo);
         //$sql = "update auditorreports set score=$score where id=$reportId";
         //$this->db->query($sql);
         $sp_db->where('id', $reportId);
         $data = array('score'=>$score);
-         $sp_db->update('auditorreports',$data);
-         do_action('report_score_updated',$score,$reportInfo);
+        $sp_db->update('auditorreports',$data);
+        do_action('report_score_updated',$score,$reportInfo);
     }
     
     // function to count report page score
     function countReportPageScore($reportInfo) {
-        $scoreInfo = array();
-        $this->commentInfo = array();
-        $spTextSA = $this->getLanguageTexts('siteauditor', $_SESSION['lang_code']);
-        
-        // check page title length
-        $lengTitle = strlen($reportInfo['page_title']);
-        if ( ($lengTitle <= SA_TITLE_MAX_LENGTH) && ($lengTitle >= SA_TITLE_MIN_LENGTH) ) {
-            $scoreInfo['page_title'] = 1;        
-        } else {
-            $scoreInfo['page_title'] = -1;
-            $msg = $spTextSA["The page title length is not between"]." ".SA_TITLE_MIN_LENGTH." & ".SA_TITLE_MAX_LENGTH;
-            $this->commentInfo['page_title'] = formatErrorMsg($msg, 'error', '');
+        global $scores;
+        $scoreData = array('scoreInfo' => array(),'commentInfo' => array());
+        foreach($scores['reports'] as $k => $v){
+            $temp = $v->calc_score($scoreData,$reportInfo);
+            if(isset($temp) && is_array($temp)){
+                if(isset($temp['scoreInfo'])){
+                    if(is_numeric($temp['scoreInfo'])){
+                        if($temp['scoreInfo'] > 1){
+                            $temp['scoreInfo'] = 1;
+                        }
+                        if($temp['scoreInfo'] < -1){
+                            $temp['scoreInfo'] = -1;
+                        }
+                        $scoreData['scoreInfo'][$k] = $temp['scoreInfo'];
+                        if(isset($temp['commentInfo'])){
+                             $scoreData['commentInfo'][$k] = $temp['commentInfo'];
+                        }
+                    }
+                }
+            }
         }
-        
-        // check meta description length
-        $lengDes = strlen($reportInfo['page_description']);
-        if ( ($lengDes <= SA_DES_MAX_LENGTH) && ($lengDes >= SA_DES_MIN_LENGTH) ) {
-            $scoreInfo['page_description'] = 1;
-        } else {
-            $scoreInfo['page_description'] = -1;
-            $msg = $spTextSA["The page description length is not between"]." ".SA_DES_MIN_LENGTH." and ".SA_DES_MAX_LENGTH;
-            $this->commentInfo['page_description'] = formatErrorMsg($msg, 'error', '');
-        }
-        
-        // check meta keywords length
-        $lengKey = strlen($reportInfo['page_keywords']);
-        if ( ($lengKey <= SA_KEY_MAX_LENGTH) && ($lengKey >= SA_KEY_MIN_LENGTH) ) {
-            $scoreInfo['page_keywords'] = 1;
-        } else {
-            $scoreInfo['page_keywords'] = -1;
-            $msg = $spTextSA["The page keywords length is not between"]." ".SA_KEY_MIN_LENGTH." and ".SA_KEY_MAX_LENGTH;
-            $this->commentInfo['page_keywords'] = formatErrorMsg($msg, 'error', '');
-        }
-        
-        // if link brocken
-        if ($reportInfo['brocken']) {
-            $scoreInfo['brocken'] = -1;
-            $msg = $spTextSA["The page is brocken"];
-            $this->commentInfo['brocken'] = formatErrorMsg($msg, 'error', '');
-        }
-
-        // if total links of a page
-        if ($reportInfo['total_links'] >= SA_TOTAL_LINKS_MAX) {
-            $scoreInfo['total_links'] = -1;
-            $msg = $spTextSA["The total number of links in page is greater than"]." ".SA_TOTAL_LINKS_MAX;
-            $this->commentInfo['page_keywords'] = formatErrorMsg($msg, 'error', '');
-        }
-        
-        // check google pagerank
-        if ($reportInfo['pagerank'] >= SA_PR_CHECK_LEVEL_SECOND) {
-            $scoreInfo['pagerank'] = $reportInfo['pagerank'] * 3;
-            $msg = $spTextSA["The page is having exellent pagerank"];
-            $this->commentInfo['pagerank'] = formatSuccessMsg($msg);
-        } else if ($reportInfo['pagerank'] >= SA_PR_CHECK_LEVEL_FIRST) {
-            $scoreInfo['pagerank'] = $reportInfo['pagerank'] * 2;
-            $msg = $spTextSA["The page is having very good pagerank"];
-            $this->commentInfo['pagerank'] = formatSuccessMsg($msg);
-        } else if ($reportInfo['pagerank']) {
-            $scoreInfo['pagerank'] = 1;
-            $msg = $spTextSA["The page is having good pagerank"];
-            $this->commentInfo['pagerank'] = formatSuccessMsg($msg);
-        } else {
-            $scoreInfo['pagerank'] = 0;
-            $msg = $spTextSA["The page is having poor pagerank"];
-            $this->commentInfo['pagerank'] = formatErrorMsg($msg, 'error', '');
-        }
-        
-        // check backlinks
-        $seArr = array('google', 'bing');
-        foreach ($seArr as $se) {
-            $label = $se.'_backlinks';
-            if ($reportInfo[$label] >= SA_BL_CHECK_LEVEL) {                
-                $scoreInfo[$label] = 2;
-                $msg = $spTextSA["The page is having exellent number of backlinks in"]." ".$se;
-                $this->commentInfo[$label] = formatSuccessMsg($msg);
-            } elseif($reportInfo[$label]) {
-                $scoreInfo[$label] = 1;
-                $msg = $spTextSA["The page is having good number of backlinks in"]." ".$se;
-                $this->commentInfo[$label] = formatSuccessMsg($msg);                
-            } else {
-                $scoreInfo[$label] = 0;
-                $msg = $spTextSA["The page is not having backlinks in"]." ".$se;
-                $this->commentInfo[$label] = formatErrorMsg($msg, 'error', '');
-            }     
-        }
-        
-        // check whether indexed or not    
-        foreach ($seArr as $se) {
-            $label = $se.'_indexed';
-            if($reportInfo[$label]) {
-                $scoreInfo[$label] = 1;                
-            } else {
-                $scoreInfo[$label] = -1;
-                $msg = $spTextSA["The page is not indexed in"]." ".$se;
-                $this->commentInfo[$label] = formatErrorMsg($msg, 'error', '');
-            }   
-        }
-        $filter_info = apply_filters('report_page_score', array('scoreInfo' => $scoreInfo,'commentInfo' => $this->commentInfo));
+//        $scoreInfo = array();
+//        $this->commentInfo = array();
+//        $spTextSA = $this->getLanguageTexts('siteauditor', $_SESSION['lang_code']);
+//        
+//        // check page title length
+//        $lengTitle = strlen($reportInfo['page_title']);
+//        if ( ($lengTitle <= SA_TITLE_MAX_LENGTH) && ($lengTitle >= SA_TITLE_MIN_LENGTH) ) {
+//            $scoreInfo['page_title'] = 1;        
+//        } else {
+//            $scoreInfo['page_title'] = -1;
+//            $msg = $spTextSA["The page title length is not between"]." ".SA_TITLE_MIN_LENGTH." & ".SA_TITLE_MAX_LENGTH;
+//            $this->commentInfo['page_title'] = formatErrorMsg($msg, 'error', '');
+//        }
+//        
+//        // check meta description length
+//        $lengDes = strlen($reportInfo['page_description']);
+//        if ( ($lengDes <= SA_DES_MAX_LENGTH) && ($lengDes >= SA_DES_MIN_LENGTH) ) {
+//            $scoreInfo['page_description'] = 1;
+//        } else {
+//            $scoreInfo['page_description'] = -1;
+//            $msg = $spTextSA["The page description length is not between"]." ".SA_DES_MIN_LENGTH." and ".SA_DES_MAX_LENGTH;
+//            $this->commentInfo['page_description'] = formatErrorMsg($msg, 'error', '');
+//        }
+//        
+//        // check meta keywords length
+//        $lengKey = strlen($reportInfo['page_keywords']);
+//        if ( ($lengKey <= SA_KEY_MAX_LENGTH) && ($lengKey >= SA_KEY_MIN_LENGTH) ) {
+//            $scoreInfo['page_keywords'] = 1;
+//        } else {
+//            $scoreInfo['page_keywords'] = -1;
+//            $msg = $spTextSA["The page keywords length is not between"]." ".SA_KEY_MIN_LENGTH." and ".SA_KEY_MAX_LENGTH;
+//            $this->commentInfo['page_keywords'] = formatErrorMsg($msg, 'error', '');
+//        }
+//        
+//        // if link brocken
+//        if ($reportInfo['brocken']) {
+//            $scoreInfo['brocken'] = -1;
+//            $msg = $spTextSA["The page is brocken"];
+//            $this->commentInfo['brocken'] = formatErrorMsg($msg, 'error', '');
+//        }
+//
+//        // if total links of a page
+//        if ($reportInfo['total_links'] >= SA_TOTAL_LINKS_MAX) {
+//            $scoreInfo['total_links'] = -1;
+//            $msg = $spTextSA["The total number of links in page is greater than"]." ".SA_TOTAL_LINKS_MAX;
+//            $this->commentInfo['page_keywords'] = formatErrorMsg($msg, 'error', '');
+//        }
+//        
+//        // check google pagerank
+//        if ($reportInfo['pagerank'] >= SA_PR_CHECK_LEVEL_SECOND) {
+//            $scoreInfo['pagerank'] = $reportInfo['pagerank'] * 3;
+//            $msg = $spTextSA["The page is having exellent pagerank"];
+//            $this->commentInfo['pagerank'] = formatSuccessMsg($msg);
+//        } else if ($reportInfo['pagerank'] >= SA_PR_CHECK_LEVEL_FIRST) {
+//            $scoreInfo['pagerank'] = $reportInfo['pagerank'] * 2;
+//            $msg = $spTextSA["The page is having very good pagerank"];
+//            $this->commentInfo['pagerank'] = formatSuccessMsg($msg);
+//        } else if ($reportInfo['pagerank']) {
+//            $scoreInfo['pagerank'] = 1;
+//            $msg = $spTextSA["The page is having good pagerank"];
+//            $this->commentInfo['pagerank'] = formatSuccessMsg($msg);
+//        } else {
+//            $scoreInfo['pagerank'] = 0;
+//            $msg = $spTextSA["The page is having poor pagerank"];
+//            $this->commentInfo['pagerank'] = formatErrorMsg($msg, 'error', '');
+//        }
+//        
+//        // check backlinks
+//        $seArr = array('google', 'bing');
+//        foreach ($seArr as $se) {
+//            $label = $se.'_backlinks';
+//            if ($reportInfo[$label] >= SA_BL_CHECK_LEVEL) {                
+//                $scoreInfo[$label] = 2;
+//                $msg = $spTextSA["The page is having exellent number of backlinks in"]." ".$se;
+//                $this->commentInfo[$label] = formatSuccessMsg($msg);
+//            } elseif($reportInfo[$label]) {
+//                $scoreInfo[$label] = 1;
+//                $msg = $spTextSA["The page is having good number of backlinks in"]." ".$se;
+//                $this->commentInfo[$label] = formatSuccessMsg($msg);                
+//            } else {
+//                $scoreInfo[$label] = 0;
+//                $msg = $spTextSA["The page is not having backlinks in"]." ".$se;
+//                $this->commentInfo[$label] = formatErrorMsg($msg, 'error', '');
+//            }     
+//        }
+//        
+//        // check whether indexed or not    
+//        foreach ($seArr as $se) {
+//            $label = $se.'_indexed';
+//            if($reportInfo[$label]) {
+//                $scoreInfo[$label] = 1;                
+//            } else {
+//                $scoreInfo[$label] = -1;
+//                $msg = $spTextSA["The page is not indexed in"]." ".$se;
+//                $this->commentInfo[$label] = formatErrorMsg($msg, 'error', '');
+//            }   
+//        }
+        $filter_info = apply_filters('report_page_score', $scoreData,$reportInfo);
         $this->commentInfo = $filter_info['commentInfo'];
         return $filter_info['scoreInfo'];
     }

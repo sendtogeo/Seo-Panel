@@ -708,5 +708,29 @@ function get_setting_value($set_name){
     }
 }
 
-
+function register_score($tag,$score_object){
+    global $scores;
+    $default_types = array('report','website');
+    $add_types = apply_filters('score_types', array());
+    $score_types = array_merge($default_types,$add_types);
+    if(!is_array($scores)){
+        $scores = array();
+    }
+    foreach($score_types as $k){
+        if(!isset($scores[$k]) || !is_array($scores[$k])){
+            $scores[$k] = array();
+        }
+    }
+    if(is_subclass_of($score_object,'Score',FALSE)){
+        $type = $score_object->get_type();
+        $tag = $score_object->get_tag();
+    }else{
+        return FALSE;
+    }
+    if(key_exists($type, $scores) && !key_exists($tag, $scores[$type])){
+        $scores[$type][$tag] = $score_object;
+        return TRUE;
+    }
+    return FALSE;
+}
 ?>
