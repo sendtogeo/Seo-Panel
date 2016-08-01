@@ -20,7 +20,11 @@ abstract class Score{
                 $ret['clean_settings'] = array();
             }
         }else{
-            $ret['clean_settings'] = $settings;
+            if(is_array($settings)){
+                $ret['clean_settings'] = $settings;
+            }else{
+                $ret['clean_settings'] = array();
+            }
         }
         $ret['clean_settings'] = array_merge($this->default_settings, $ret['clean_settings']);
         $ret['submitted_settings'] = $settings;
