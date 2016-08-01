@@ -259,10 +259,13 @@ class AuditorComponent extends Controller{
         //$reportInfo = $this->getReportInfo(" and id=$reportId");
         $reportInfo = $this->getReportInfo(array('id' => $reportId));
         $scoreInfo = $this->countReportPageScore($reportInfo);
-        $score = 0;
+        $total_points = 0;
+        $total_weight = 0;
         foreach($scoreInfo as $k => $v){
+            $total_weight += $scores[$k]->get_weight();
             $score += $scores[$k]->get_weight() * $v;
         }
+        $score = $total_points/$total_weight*10;
         //$score =  array_sum($scoreInfo);
         //$sql = "update auditorreports set score=$score where id=$reportId";
         //$this->db->query($sql);
