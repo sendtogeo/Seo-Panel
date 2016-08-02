@@ -280,19 +280,21 @@ class AuditorComponent extends Controller{
         global $scores;
         $scoreData = array('scoreInfo' => array(),'commentInfo' => array());
         foreach($scores['reports'] as $k => $v){
-            $temp = $v->calc_score($scoreData,$reportInfo);
-            if(isset($temp) && is_array($temp)){
-                if(isset($temp['scoreInfo'])){
-                    if(is_numeric($temp['scoreInfo'])){
-                        if($temp['scoreInfo'] > 1){
-                            $temp['scoreInfo'] = 1;
-                        }
-                        if($temp['scoreInfo'] < -1){
-                            $temp['scoreInfo'] = -1;
-                        }
-                        $scoreData['scoreInfo'][$k] = $temp['scoreInfo'];
-                        if(isset($temp['commentInfo'])){
-                             $scoreData['commentInfo'][$k] = $temp['commentInfo'];
+            if($v->is_active()){
+                $temp = $v->calc_score($scoreData,$reportInfo);
+                if(isset($temp) && is_array($temp)){
+                    if(isset($temp['scoreInfo'])){
+                        if(is_numeric($temp['scoreInfo'])){
+                            if($temp['scoreInfo'] > 1){
+                                $temp['scoreInfo'] = 1;
+                            }
+                            if($temp['scoreInfo'] < -1){
+                                $temp['scoreInfo'] = -1;
+                            }
+                            $scoreData['scoreInfo'][$k] = $temp['scoreInfo'];
+                            if(isset($temp['commentInfo'])){
+                                 $scoreData['commentInfo'][$k] = $temp['commentInfo'];
+                            }
                         }
                     }
                 }
