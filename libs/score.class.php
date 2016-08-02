@@ -2,14 +2,14 @@
 
 abstract class Score{
 
-    private $tag;
-    private $label;
-    private $weight = 1;
-    private $type = 'report';
-    private $settings = array();
-    private $default_settings = array();
-    private $default_weight = 1;
-    private $error_pre = 100000;
+    protected $tag;
+    protected $label;
+    protected $weight = 1;
+    protected $type = 'report';
+    protected $settings = array();
+    protected $default_settings = array();
+    protected $default_weight = 1;
+    protected $error_pre = 100000;
 
     abstract public function calc_score($info);
 
