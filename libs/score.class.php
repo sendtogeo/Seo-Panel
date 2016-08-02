@@ -10,6 +10,7 @@ abstract class Score{
     protected $default_settings = array();
     protected $default_weight = 1;
     protected $error_pre = 100000;
+    private $active = TRUE;
 
     abstract public function calc_score($info);
 
@@ -116,6 +117,12 @@ abstract class Score{
             $this->settings = $this->default_settings;
         }
         $this->save_setting($this->default_settings);
+        $active = get_setting_value($this->tag."_ACTIVE");
+        if($active != 2){
+            $this->active = TRUE;
+        }else{
+            $this->active = FALSE;
+        }
     }
 
    final public function save_weight($weight = FALSE){
@@ -178,6 +185,36 @@ abstract class Score{
 
     final public function get_type(){
         return $this->type;
+    }
+    
+    final public function activate(){
+        if(!$this->active){
+            $data = Array ("set_val" => 1,
+                       "set_label" => $this->label.' active',
+                       "set_category" => 'ign_score_active',
+                       "set_type" => 'small',
+                       "display" => 0
+            );
+            update_setting($this->tag.'_ACTIVE', $data);
+            $this->active = TRUE;
+        }
+    }
+    
+    final public function deactivate(){
+        if($this->active){
+            $data = Array ("set_val" => 2,
+                       "set_label" => $this->label.' active',
+                       "set_category" => 'ign_score_active',
+                       "set_type" => 'small',
+                       "display" => 0
+            );
+            update_setting($this->tag.'_ACTIVE', $data);
+            $this->active = FALSE;
+        }
+    }
+    
+    final public function is_active(){
+        return $this->active;
     }
     
 }
