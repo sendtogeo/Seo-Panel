@@ -66,7 +66,7 @@ abstract class Score{
     
     final public function save_setting($settings = NULL){
         $data = Array ("set_val" => '',
-                   "set_label" => '',
+                   "set_label" => $this->label,
                    "set_category" => 'ign_score_setting',
                    "set_type" => 'text',
                    "display" => 0
@@ -120,7 +120,7 @@ abstract class Score{
 
    final public function save_weight($weight = FALSE){
         $data = Array ("set_val" => '',
-                   "set_label" => '',
+                   "set_label" => $this->label.' weight',
                    "set_category" => 'ign_score_weight',
                    "set_type" => 'small',
                    "display" => 0
