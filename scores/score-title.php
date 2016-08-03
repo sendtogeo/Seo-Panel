@@ -98,6 +98,7 @@ class ScoreTitle extends Score{
                 $ret['error_code'] = $this->error_pre + 003;
             }
         }
+        $ret['clean_settings'] = $clean_settings;
         return parent::validate_settings($ret);
     }
     

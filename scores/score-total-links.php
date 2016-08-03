@@ -58,6 +58,7 @@ class ScoreTotalLinks extends Score{
         }else if(isset($this->settings['SA_TOTAL_LINKS_MAX']['val'])){
             $clean_settings['SA_TOTAL_LINKS_MAX']['val'] = $this->settings['SA_TOTAL_LINKS_MAX']['val'];
         }
+        $ret['clean_settings'] = $clean_settings;
         return parent::validate_settings($ret);
     }
     

@@ -89,6 +89,7 @@ abstract class Score{
                 $ret['error'] = 'Failed to update settings';
                 $ret['error_code'] = $this->error_pre + 101;
             }else{
+                $this->settings = $ret['clean_settings'];
                 do_action('save_'.$this->tag.'_settings',$ret['clean_settings']);
             }
         }else{

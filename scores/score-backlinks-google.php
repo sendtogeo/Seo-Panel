@@ -67,6 +67,7 @@ class ScoreBackLinksGoogle extends Score{
         }else if(isset($this->settings['SA_BL_CHECK_LEVEL']['val'])){
             $clean_settings['SA_BL_CHECK_LEVEL']['val'] = $this->settings['SA_BL_CHECK_LEVEL']['val'];
         }
+        $ret['clean_settings'] = $clean_settings;
         return parent::validate_settings($ret);
     }
     

@@ -66,6 +66,7 @@ class ScoreBackLinksBing extends Score{
         }else if(isset($this->settings['SA_BING_BL_CHECK_LEVEL']['val'])){
             $clean_settings['SA_BING_BL_CHECK_LEVEL']['val'] = $this->settings['SA_BING_BL_CHECK_LEVEL']['val'];
         }
+        $ret['clean_settings'] = $clean_settings;
         return parent::validate_settings($ret);
     }
     
