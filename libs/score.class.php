@@ -106,6 +106,12 @@ abstract class Score{
     }
     
      final public function load_settings(){
+        $active = get_setting_value($this->tag."_ACTIVE");
+        if($active != '2'){
+            $this->active = TRUE;
+        }else{
+            $this->active = FALSE;
+        }
         $settings = get_setting_value($this->tag);
         $ret = $this->validate_settings($settings);
         if(isset($ret['error_code']) && $ret['error_code'] > 0){
@@ -117,12 +123,6 @@ abstract class Score{
             $this->settings = $this->default_settings;
         }
         $this->save_setting($this->default_settings);
-        $active = get_setting_value($this->tag."_ACTIVE");
-        if($active != 2){
-            $this->active = TRUE;
-        }else{
-            $this->active = FALSE;
-        }
     }
 
    final public function save_weight($weight = FALSE){
@@ -195,8 +195,9 @@ abstract class Score{
                        "set_type" => 'small',
                        "display" => 0
             );
-            update_setting($this->tag.'_ACTIVE', $data);
-            $this->active = TRUE;
+            if(update_setting($this->tag.'_ACTIVE', $data)){
+                $this->active = TRUE;
+            }
         }
     }
     
@@ -208,8 +209,9 @@ abstract class Score{
                        "set_type" => 'small',
                        "display" => 0
             );
-            update_setting($this->tag.'_ACTIVE', $data);
-            $this->active = FALSE;
+            if(update_setting($this->tag.'_ACTIVE', $data)){
+                $this->active = FALSE;
+            }
         }
     }
     
