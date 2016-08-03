@@ -106,11 +106,11 @@ class ScoreDescription extends Score{
     function update_constants($settings){
         $data = array();
         $data["set_val"] = $settings['SA_DES_MAX_LENGTH']['val'];
-        if(update_setting('SA_DES_MAX_LENGTH', $data)){
+        if(update_setting('SA_DES_MAX_LENGTH', $data) && function_exists('runkit_constant_redefine')){
             runkit_constant_redefine ('SA_DES_MAX_LENGTH',$settings['SA_DES_MAX_LENGTH']['val']);
         }
         $data["set_val"] = $settings['SA_DES_MIN_LENGTH']['val'];
-        if(update_setting('SA_DES_MIN_LENGTH', $data)){
+        if(update_setting('SA_DES_MIN_LENGTH', $data) && function_exists('runkit_constant_redefine')){
             runkit_constant_redefine ('SA_DES_MIN_LENGTH',$settings['SA_TITLE_MIN_LENGTH']['val']);
         }
     }

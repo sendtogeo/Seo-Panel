@@ -104,11 +104,11 @@ class ScoreTitle extends Score{
     function update_constants($settings){
         $data = array();
         $data["set_val"] = $settings['SA_TITLE_MAX_LENGTH']['val'];
-        if(update_setting('SA_TITLE_MAX_LENGTH', $data)){
+        if(update_setting('SA_TITLE_MAX_LENGTH', $data) && function_exists('runkit_constant_redefine')){
             runkit_constant_redefine ('SA_TITLE_MAX_LENGTH',$settings['SA_TITLE_MAX_LENGTH']['val']);
         }
-        $data["set_val"] = $settings['SA_TITLE_MIN_LENGTH']['val'];
-        if(update_setting('SA_TITLE_MIN_LENGTH', $data)){
+       $data["set_val"] = $settings['SA_TITLE_MIN_LENGTH']['val'];
+        if(update_setting('SA_TITLE_MIN_LENGTH', $data) && function_exists('runkit_constant_redefine')){
             runkit_constant_redefine ('SA_TITLE_MIN_LENGTH',$settings['SA_TITLE_MIN_LENGTH']['val']);
         }
     }

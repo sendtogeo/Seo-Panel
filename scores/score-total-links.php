@@ -64,7 +64,7 @@ class ScoreTotalLinks extends Score{
     function update_constants($settings){
         $data = array();
         $data["set_val"] = $settings['SA_TOTAL_LINKS_MAX']['val'];
-        if(update_setting('SA_TOTAL_LINKS_MAX', $data)){
+        if(update_setting('SA_TOTAL_LINKS_MAX', $data) && function_exists('runkit_constant_redefine')){
             runkit_constant_redefine ('SA_TOTAL_LINKS_MAX',$settings['SA_TOTAL_LINKS_MAX']['val']);
         }
     }

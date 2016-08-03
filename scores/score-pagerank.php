@@ -9,7 +9,7 @@ class ScorePageRank extends Score{
         $this->type = 'report';
         $this->settings = array();
         $this->default_settings = array(
-            'SA_PR_CHECK_LEVEL_SECOND' => array('label' => 'MozRank check level first','type' => 'small','val' => 6),
+            'SA_PR_CHECK_LEVEL_SECOND' => array('label' => 'MozRank check level second','type' => 'small','val' => 6),
             'SA_PR_CHECK_LEVEL_FIRST' => array('label' => 'MozRank check level first','type' => 'small','val' => 3)
             );
         $this->default_weight = 10;
@@ -116,11 +116,11 @@ class ScorePageRank extends Score{
     function update_constants($settings){
         $data = array();
         $data["set_val"] = $settings['SA_PR_CHECK_LEVEL_SECOND']['val'];
-        if(update_setting('SA_PR_CHECK_LEVEL_SECOND', $data)){
+        if(update_setting('SA_PR_CHECK_LEVEL_SECOND', $data) && function_exists('runkit_constant_redefine')){
             runkit_constant_redefine ('SA_PR_CHECK_LEVEL_SECOND',$settings['SA_PR_CHECK_LEVEL_SECOND']['val']);
         }
         $data["set_val"] = $settings['SA_PR_CHECK_LEVEL_FIRST']['val'];
-        if(update_setting('SA_PR_CHECK_LEVEL_FIRST', $data)){
+        if(update_setting('SA_PR_CHECK_LEVEL_FIRST', $data) && function_exists('runkit_constant_redefine')){
             runkit_constant_redefine ('SA_PR_CHECK_LEVEL_FIRST',$settings['SA_TITLE_MIN_LENGTH']['val']);
         }
     }
