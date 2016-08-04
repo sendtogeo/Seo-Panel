@@ -11,3 +11,4 @@ include_once SP_SCORESPATH.'/score-backlinks-google.php';
 include_once SP_SCORESPATH.'/score-backlinks-bing.php';
 include_once SP_SCORESPATH.'/score-indexed-google.php';
 include_once SP_SCORESPATH.'/score-indexed-bing.php';
+include_once SP_SCORESPATH.'/score-page-avg.php';
