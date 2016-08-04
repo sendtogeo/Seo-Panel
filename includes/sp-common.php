@@ -733,4 +733,17 @@ function register_score($tag,$score_object){
     }
     return FALSE;
 }
+
+function getProjectInfo($projectId){
+    global $sp_db;
+    $sp_db->where("p.website_id=w.id");
+    $sp_db->where("p.id", $projectId);
+    $cols = array("p.*","w.url","w.name");
+    $products = $sp_db->get("websites w, auditorprojects p", null, $cols);   
+    if (!empty($products)){
+        return $products[0];
+    }else{
+        return NULL;
+    }
+}
 ?>
