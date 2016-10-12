@@ -380,6 +380,7 @@ function debugVar($value, $exitFlag = true) {
 # func to send mail
 function sendMail($from, $fromName, $to ,$subject,$content, $attachment = ''){
 	$mail = new PHPMailer();
+	$mail->CharSet = 'UTF-8';
 	
 	# check whether the mail send by smtp or not
 	if(SP_SMTP_MAIL){
