@@ -779,26 +779,26 @@ class ReportController extends Controller {
 			// update crawl log
 			$logId = $result['log_id'];
 			$crawlLogCtrl->updateCrawlLog($logId, $crawlInfo);
-			
-		}
 		
-		// if proxy enabled if crawl failed try to check next item
-		if (!$crawlResult[$seInfoId]['status'] && SP_ENABLE_PROXY && CHECK_WITH_ANOTHER_PROXY_IF_FAILED) {
-			
-			// max proxy checked in one execution is exeeded
-			if ($this->proxyCheckCount < CHECK_MAX_PROXY_COUNT_IF_FAILED) {
-			
-				// if proxy is available for execution
-				$proxyCtrler = New ProxyController();
-				if ($proxyInfo = $proxyCtrler->getRandomProxy()) {
-					$this->proxyCheckCount++;
-					sleep(SP_CRAWL_DELAY);
-					$crawlResult = $this->crawlKeyword($keywordInfo, $seInfoId, $cron, $removeDuplicate);		
-				}
+			// if proxy enabled if crawl failed try to check next item
+			if (!$crawlResult[$seInfoId]['status'] && SP_ENABLE_PROXY && CHECK_WITH_ANOTHER_PROXY_IF_FAILED) {
 				
-			} else {
-				$this->proxyCheckCount = 1;
+				// max proxy checked in one execution is exeeded
+				if ($this->proxyCheckCount < CHECK_MAX_PROXY_COUNT_IF_FAILED) {
+				
+					// if proxy is available for execution
+					$proxyCtrler = New ProxyController();
+					if ($proxyInfo = $proxyCtrler->getRandomProxy()) {
+						$this->proxyCheckCount++;
+						sleep(SP_CRAWL_DELAY);
+						$crawlResult = array_merge($crawlResult, $this->crawlKeyword($keywordInfo, $seInfoId, $cron, $removeDuplicate));
+					}
+					
+				} else {
+					$this->proxyCheckCount = 1;
+				}
 			}
+		
 		}
 		
 		return  $crawlResult;
