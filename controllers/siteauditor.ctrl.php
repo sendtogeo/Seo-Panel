@@ -373,8 +373,8 @@ class SiteAuditorController extends Controller{
 	    $errorMsg = '';	    
 	    if ($reportUrl = $this->getProjectRandomUrl($projectId)) {
 	        $auditorComp = $this->createComponent('AuditorComponent');
-	        $auditorComp->runReport($reportUrl, $projectInfo, $this->getCountcrawledLinks($projectId));
-	        $this->set('crawledUrl', $reportUrl);	        
+	        $crawledUrl = $auditorComp->runReport($reportUrl, $projectInfo, $this->getCountcrawledLinks($projectId));
+	        $this->set('crawledUrl', $crawledUrl);	        
 	        if (!$crawlUrl = $this->getProjectRandomUrl($projectId)) {
 	            $completed = 1;
 	        } else {
