@@ -57,12 +57,19 @@ class AuditorComponent extends Controller{
                 $effectiveUrl = rtrim($spider->effectiveUrl, '/'); //remove trailing slash
                 $reportId = $rInfo['id'];
 
-                if ($effectiveUrl != $reportUrl){ //redirect occurred
-                  if (stristr($effectiveUrl, $projectInfo['url'])) { //still on same domain
+                if ($effectiveUrl != $reportUrl){ //redirect occurred. Could be simply www vs. no www
+                  
+                  $parse = parse_url($effectiveUrl);
+                  $effectiveDomain = str_replace("www.", '', $parse['host']);
+                  $parse = parse_url($projectInfo['url']);
+                  $projectDomain = str_replace("www.", '', $parse['host']);
+                  
+                  if ($effectiveDomain == $projectDomain) { //still on same domain
                       //check if we already have an entry for the effective URL
                       if ($rInfoForEffectiveUrl = $this->getReportInfo(" and project_id={$projectInfo['id']} and page_url='$effectiveUrl'")){
+                          //If we already have an entry then we can delete this new one and not continue running tests on it as it's a duplicate 
                         $this->db->query("delete from auditorreports where id=$reportId");
-                        return "Redirected to existing URL";
+                        return $effectiveUrl; //Redirected to existing URL
                       }
                       else{ //if we don't already have an entry, update this one
                         $this->db->query("update auditorreports set page_url=$effectiveUrl where id=$reportId");
@@ -71,7 +78,7 @@ class AuditorComponent extends Controller{
                   }
                   else { //external link -- delete it from report
                     $this->db->query("delete from auditorreports where id=$reportId");
-                    return false;
+                    return "Error: External Link Found";
                   }
                 }
             }

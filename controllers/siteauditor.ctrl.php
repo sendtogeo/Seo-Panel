@@ -378,7 +378,7 @@ class SiteAuditorController extends Controller{
 	        if (!$crawlUrl = $this->getProjectRandomUrl($projectId)) {
 	            $completed = 1;
 	        } else {
-	            if (!$this->cron) updateJsLocation('crawling_url', $reportUrl);
+	            if (!$this->cron) updateJsLocation('crawling_url', $crawledUrl);
 	        }	        
 	    } else {
 	        $completed = 1;
@@ -395,7 +395,7 @@ class SiteAuditorController extends Controller{
     	    $this->set('projectInfo', $projectInfo);
     	    $this->render('siteauditor/runproject');
 	    } else {
-	        return $reportUrl;
+	        return $crawledUrl;
 	    }
 	}
     
