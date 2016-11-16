@@ -52,6 +52,30 @@ class AuditorComponent extends Controller{
 
         if ($rInfo = $this->getReportInfo(" and project_id={$projectInfo['id']} and page_url='$reportUrl'") ) {
             
+            // handle redirects
+            if(!empty($spider->effectiveUrl)) {
+                $effectiveUrl = rtrim($spider->effectiveUrl, '/'); //remove trailing slash
+                $reportId = $rInfo['id'];
+
+                if ($effectiveUrl != $reportUrl){ //redirect occurred
+                  if (stristr($effectiveUrl, $projectInfo['url'])) { //still on same domain
+                      //check if we already have an entry for the effective URL
+                      if ($rInfoForEffectiveUrl = $this->getReportInfo(" and project_id={$projectInfo['id']} and page_url='$effectiveUrl'")){
+                        $this->db->query("delete from auditorreports where id=$reportId");
+                        return "Redirected to existing URL";
+                      }
+                      else{ //if we don't already have an entry, update this one
+                        $this->db->query("update auditorreports set page_url=$effectiveUrl where id=$reportId");
+                        $reportUrl = $effectiveUrl;
+                      }
+                  }
+                  else { //external link -- delete it from report
+                    $this->db->query("delete from auditorreports where id=$reportId");
+                    return false;
+                  }
+                }
+            }
+            
             $reportInfo['id'] = $rInfo['id'];
             $reportInfo['page_title'] = addslashes($pageInfo['page_title']);
             $reportInfo['page_description'] = addslashes($pageInfo['page_description']);
@@ -143,7 +167,9 @@ class AuditorComponent extends Controller{
             
             // calculate score of each page and update it
             $this->updateProjectPageScore($projectInfo['id']);
-        }                     
+        }
+        
+        return $reportUrl;                 
     }
     
     // function to get report info
