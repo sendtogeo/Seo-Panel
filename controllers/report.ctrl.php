@@ -671,7 +671,7 @@ class ReportController extends Controller {
 			$isGoogle = false;
 			if (stristr($this->seList[$seInfoId]['url'], 'google')) {
 			    $isGoogle = true;
-			    $seUrl .= "&ie=utf-8&pws=0&gl=".$keywordInfo['country_code'];
+			    $seUrl .= "&nfpr=1&ie=utf-8&pws=0&gl=".$keywordInfo['country_code'];
 			}
 			
 			if(!empty($this->seList[$seInfoId]['cookie_send'])){
@@ -680,8 +680,8 @@ class ReportController extends Controller {
 			}
 			
 			$result = $this->spider->getContent($seUrl);
-			$pageContent = $this->formatPageContent($seInfoId, $result['page']);			
-
+			$pageContent = $this->formatPageContent($seInfoId, $result['page']);
+			
 			$crawlLogCtrl = new CrawlLogController();
 			$crawlInfo['crawl_type'] = 'keyword';
 			$crawlInfo['ref_id'] = empty($keywordInfo['id']) ? $keywordInfo['name'] : $keywordInfo['id'];
@@ -741,21 +741,24 @@ class ReportController extends Controller {
 						    $previousDomain = $currentDomain;
 						}
 						
-						if($this->showAll || stristr($url, $websiteUrl)){
+						if($this->showAll || (stristr($url, "http://" . $websiteUrl) || stristr($url, "https://" . $websiteUrl)) ){
 
-							if($this->showAll && stristr($url, $websiteUrl)){
+							if ($this->showAll && (stristr($url, "http://" . $websiteUrl) || stristr($url, "https://" . $websiteUrl)) ) {
 								$matchInfo['found'] = 1; 
-							}else{
+							} else {
 								$matchInfo['found'] = 0;
 							}
+							
 							$matchInfo['url'] = $url;
 							$matchInfo['title'] = strip_tags($matches[$this->seList[$seInfoId]['title_index']][$i]);
 							$matchInfo['description'] = strip_tags($matches[$this->seList[$seInfoId]['description_index']][$i]);
 							$matchInfo['rank'] = $rank;
 							$crawlResult[$seInfoId]['matched'][] = $matchInfo;
 						}
+						
 						$rank++;							
 					}
+					
 					$crawlStatus = 1;					
 					
 				} else {
