@@ -25,6 +25,8 @@ include_once("includes/sp-load.php");
 include_once(SP_CTRLPATH."/moz.ctrl.php");
 $controller = New MozController();
 
-$controller->__getMozRank(array("http://www.seopanel.in"));
+$rankInfo = $controller->__getMozRankInfo(array("http://www.seopanel.in"));
+
+debugVar($rankInfo);
 
 ?>

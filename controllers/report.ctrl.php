@@ -671,7 +671,7 @@ class ReportController extends Controller {
 			$isGoogle = false;
 			if (stristr($this->seList[$seInfoId]['url'], 'google')) {
 			    $isGoogle = true;
-			    $seUrl .= "&nfpr=1&ie=utf-8&pws=0&gl=".$keywordInfo['country_code'];
+			    $seUrl .= "&ie=utf-8&pws=0&gl=".$keywordInfo['country_code'];
 			}
 			
 			if(!empty($this->seList[$seInfoId]['cookie_send'])){

@@ -24,7 +24,7 @@
 class MozController extends Controller{
 	
 	// function to get moz rank
-	function __getMozRank ($urlList = array(), $accessID = "", $secretKey = "", $returnLog = false) {
+	function __getMozRankInfo ($urlList = array(), $accessID = "", $secretKey = "", $returnLog = false) {
 		$mozRankList = array();
 		
 		if (SP_DEMO && !empty($_SERVER['REQUEST_METHOD'])) return $mozRankList;
@@ -69,14 +69,19 @@ class MozController extends Controller{
 		if (!empty($ret['page'])) {
 			$rankList = json_decode($ret['page']);
 			
-			debugVar($rankList);
-			
 			// if no errors occured
 			if (empty($rankList->error_message)) {
 			
 				// loop through rank list
 				foreach ($rankList as $rankInfo) {
-					$mozRankList[] = round($rankInfo->umrp, 2);
+					
+					$mozRankInfo = array(
+						'moz_rank' => round($rankInfo->umrp, 2),
+						'domain_authority' => round($rankInfo->pda, 2),
+						'page_authority' => round($rankInfo->upa, 2),
+					);
+					
+					$mozRankList[] = $mozRankInfo;
 				}
 				
 			} else {
@@ -88,15 +93,15 @@ class MozController extends Controller{
 			$crawlInfo['crawl_status'] = 0;
 			$crawlInfo['log_message'] = $ret['errmsg'];
 		}
+		
+		// update crawl log
+		$crawlLogCtrl = new CrawlLogController();
+		$crawlInfo['crawl_type'] = 'rank';
+		$crawlInfo['ref_id'] = $encodedDomains;
+		$crawlInfo['subject'] = "moz";
+		$crawlLogCtrl->updateCrawlLog($ret['log_id'], $crawlInfo);
 	
-// 		// update crawl log
-// 		$crawlLogCtrl = new CrawlLogController();
-// 		$crawlInfo['crawl_type'] = 'rank';
-// 		$crawlInfo['ref_id'] = $encodedDomains;
-// 		$crawlInfo['subject'] = "moz";
-// 		$crawlLogCtrl->updateCrawlLog($ret['log_id'], $crawlInfo);
-	
-// 		return $returnLog ? array($mozRankList, $crawlInfo) : $mozRankList;
+		return $returnLog ? array($mozRankList, $crawlInfo) : $mozRankList;
 	}	
 	
 }
