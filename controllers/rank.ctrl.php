@@ -44,7 +44,9 @@ class RankController extends Controller{
 			$list[] = str_replace(array("\n", "\r", "\r\n", "\n\r"), "", trim($url));
 		}
 		
-		$mozRankList = $this->__getMozRank($list);
+		$mozCtrler = new MozController();
+		$mozRankList = $mozCtrler->__getMozRankInfo($list);
+		/*mozRankList = $this->__getMozRank($list);*/
 		$this->set('mozRankList', $mozRankList);
 
 		$this->set('list', $list);
