@@ -26,6 +26,7 @@ if(!empty($_SERVER['REQUEST_METHOD'])){
 	include_once("includes/sp-load.php");
 	checkAdminLoggedIn();
 	include_once(SP_CTRLPATH."/cron.ctrl.php");
+    include_once(SP_CTRLPATH."/moz.ctrl.php");
 	$controller = New CronController();
 	$controller->timeStamp = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
 	$controller->set('spTextTools', $controller->getLanguageTexts('seotools', $_SESSION['lang_code']));

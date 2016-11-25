@@ -29,6 +29,7 @@ if( $_GET['sec'] == 'aboutus'){
 }
 
 include_once(SP_CTRLPATH."/settings.ctrl.php");
+include_once(SP_CTRLPATH."/moz.ctrl.php");
 $controller = New SettingsController();
 $controller->set('spTextPanel', $controller->getLanguageTexts('panel', $_SESSION['lang_code']));
 $controller->spTextSettings = $controller->getLanguageTexts('settings', $_SESSION['lang_code']);
@@ -81,7 +82,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				include_once(SP_CTRLPATH."/rank.ctrl.php");
 				$rankObj = new RankController();
 				$urlList = array("http://moz.com");
-				list($rankInfo, $logInfo) = $rankObj->__getMozRank($urlList, $_GET['access_id'], $_GET['secret_key'], true);
+				/*list($rankInfo, $logInfo) = $rankObj->__getMozRank($urlList, $_GET['access_id'], $_GET['secret_key'], true);*/
+				
+				$mozCtrler = new MozController();
+				list($rankInfo, $logInfo) = $mozCtrler->__getMozRankInfo($urlList, $_GET['access_id'], $_GET['secret_key'], true);
 				
 				// if error occured
 				if (isset($logInfo['crawl_status']) && ($logInfo['crawl_status'] == 0)) {

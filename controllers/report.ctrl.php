@@ -1194,6 +1194,8 @@ class ReportController extends Controller {
 					$_SESSION['text']['common']['Id'],
 					$_SESSION['text']['common']['Website'],
 					$_SESSION['text']['common']['MOZ Rank'],
+					$_SESSION['text']['common']['Domain Authority'],
+					$_SESSION['text']['common']['Page Authority'],
 					$_SESSION['text']['common']['Alexa Rank'],
 					'Google '.$spTextHome['Backlinks'],
 					'alexa '.$spTextHome['Backlinks'],
@@ -1203,12 +1205,15 @@ class ReportController extends Controller {
 					$_SESSION['text']['common']['Total'].' Submission',
 					$_SESSION['text']['common']['Active'].' Submission',
 				);
+				
 				$exportContent .= createExportContent( $headList);
 				foreach ($websiteRankList as $websiteInfo) {
 					$valueList = array(
 						$websiteInfo['id'],
 						$websiteInfo['url'],
 						strip_tags($websiteInfo['mozrank']),
+						strip_tags($websiteInfo['domain_authority']),
+						strip_tags($websiteInfo['page_authority']),
 						strip_tags($websiteInfo['alexarank']),
 						strip_tags($websiteInfo['google']['backlinks']),
 						strip_tags($websiteInfo['alexa']['backlinks']),

@@ -247,9 +247,9 @@ if (!empty($keywordPos)) {
     		</tr>		
     		<tr>
     			<td class="subheader">Moz</td>
-    			<td class="subheader">Alexa</td>
     			<td class="subheader"><?php echo $spText['common']['Domain Authority']?></td>
     			<td class="subheader"><?php echo $spText['common']['Page Authority']?></td>
+    			<td class="subheader">Alexa</td>
     			<td class="subheader">Google</td>
     			<td class="subheader">Alexa</td>
     			<td class="subheader">Bing</td>			
@@ -282,9 +282,9 @@ if (!empty($keywordPos)) {
     						<a href="<?php echo $websiteInfo['url'];?>" target="_blank"><?php echo $websiteInfo['url'];?></a>
     					</td>
     					<td class="content"><?php echo $googleRankLink;?></td>
-						<td class="content"><?php echo $alexaRankLink; ?></td>
 						<td class="content"><?php echo $daLink; ?></td>
 						<td class="content"><?php echo $paLink; ?></td>
+						<td class="content"><?php echo $alexaRankLink; ?></td>
 						<td class="content"><?php echo $googleBackLInk; ?></td>
 						<td class="content"><?php echo $alexaBackLInk; ?></td>
 						<td class="content"><?php echo $bingBackLInk; ?></td>
