@@ -349,8 +349,11 @@ class RankController extends Controller{
 			$this->db->query($sql);
 		}
 		
-		$sql = "insert into rankresults(website_id,moz_rank,alexa_rank,result_time)
-				values({$matchInfo['id']},{$matchInfo['moz_rank']},{$matchInfo['alexaRank']},$time)";
+		$domainAuthority = floatval($matchInfo['domain_authority']);
+		$pageAuthority = floatval($matchInfo['page_authority']);
+		$sql = "insert into rankresults(website_id, moz_rank, alexa_rank, domain_authority, page_authority, result_time)
+			values({$matchInfo['id']}, {$matchInfo['moz_rank']}, {$matchInfo['alexaRank']},
+			$domainAuthority, $pageAuthority, $time)";
 		$this->db->query($sql);
 	}
 	
@@ -452,7 +455,7 @@ class RankController extends Controller{
 		$reportList = array_reverse($reportList);
 		
 		$i = 0;
-		$colList = array('moz' => 'moz_rank', 'alexa' => 'alexa_rank');
+		$colList = array('moz' => 'moz_rank', 'alexa' => 'alexa_rank', 'domain_authority' => $spText['common']['Domain Authority'], 'page_authority' => $spText['common']['Page Authority']);
 		foreach ($colList as $col => $dbCol) {
 			$prevRank[$col] = 0;
 		}
