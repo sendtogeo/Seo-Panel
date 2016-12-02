@@ -93,9 +93,10 @@ class AuditorComponent extends Controller{
         
             // gooogle pagerank check
             if ($projectInfo['check_pr']) {
-                $rankCtrler = $this->createController('Rank');
-                $rankInfo = $rankCtrler->__getMozRank(array($reportUrl));
-                $reportInfo['pagerank'] = !empty($rankInfo[0]) ? $rankInfo[0] : 0;
+            	$mozCtrler = $this->createController('Moz');
+            	$mozRankList = $mozCtrler->__getMozRankInfo(array($reportUrl));
+            	$reportInfo['pagerank'] = !empty($mozRankList[0]['moz_rank']) ? $mozRankList[0]['moz_rank'] : 0;
+            	$reportInfo['page_authority'] = !empty($mozRankList[0]['page_authority']) ? $mozRankList[0]['page_authority'] : 0;
             }
             
             // backlinks page check
@@ -297,6 +298,25 @@ class AuditorComponent extends Controller{
             $this->commentInfo['pagerank'] = formatErrorMsg($msg, 'error', '');
         }
         
+        // check page authority value
+        if ($reportInfo['page_authority'] >= SA_PA_CHECK_LEVEL_SECOND) {
+        	$scoreInfo['page_authority'] = 6;
+        	$msg = $spTextSA["The page is having excellent page authority value"];
+        	$this->commentInfo['page_authority'] = formatSuccessMsg($msg);
+        } else if ($reportInfo['page_authority'] >= SA_PA_CHECK_LEVEL_FIRST) {
+        	$scoreInfo['page_authority'] = 3;
+        	$msg = $spTextSA["The page is having very good page authority value"];
+        	$this->commentInfo['page_authority'] = formatSuccessMsg($msg);
+        } else if ($reportInfo['page_authority']) {
+        	$scoreInfo['page_authority'] = 1;
+        	$msg = $spTextSA["The page is having good page authority value"];
+        	$this->commentInfo['page_authority'] = formatSuccessMsg($msg);
+        } else {
+        	$scoreInfo['page_authority'] = 0;
+        	$msg = $spTextSA["The page is having poor page authority value"];
+        	$this->commentInfo['page_authority'] = formatErrorMsg($msg, 'error', '');
+        }
+        
         // check backlinks
         $seArr = array('google', 'bing');
         foreach ($seArr as $se) {
@@ -327,6 +347,7 @@ class AuditorComponent extends Controller{
                 $this->commentInfo[$label] = formatErrorMsg($msg, 'error', '');
             }   
         }
+        
         return $scoreInfo;
     }
     
