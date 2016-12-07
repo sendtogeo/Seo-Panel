@@ -27,7 +27,14 @@ class Database{
 	
     # constructor
     function database($dbEngine='mysql'){
-    	$this->dbEngine = $dbEngine;
+    	
+    	// if db engine is mysql
+    	if ($dbEngine == 'mysql') {
+    		$this->dbEngine = function_exists('mysqli_query') ? "mysqlihelper" : $dbEngine;
+    	} else {
+    		$this->dbEngine = $dbEngine;
+    	}
+    	
     }
     
 	# func to connect db enine

@@ -72,7 +72,7 @@ class AuditorComponent extends Controller{
                         return $effectiveUrl; //Redirected to existing URL
                       }
                       else{ //if we don't already have an entry, update this one
-                        $this->db->query("update auditorreports set page_url=$effectiveUrl where id=$reportId");
+                        $this->db->query("update auditorreports set page_url='$effectiveUrl' where id=$reportId");
                         $reportUrl = $effectiveUrl;
                       }
                   }
