@@ -38,6 +38,7 @@ class MysqliHelper extends Database{
 		    $this->connectionId =  SP_DB_CONN_ID;
 		} else {
 
+			$dbServer = SP_DB_PERSISTENT_CONNECTION ? "p:$dbServer" : $dbServer;
 			$this->connectionId = @mysqli_connect($dbServer, $dbUser, $dbPassword, $dbName);
     		
     		if (!$this->connectionId){
