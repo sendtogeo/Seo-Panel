@@ -20,7 +20,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-include_once(SP_CTRLPATH."/cron.ctrl.php");
+include_once(SP_CTRLPATH."/moz.ctrl.php");
 
 # class defines all cron controller functions
 class CronController extends Controller {
@@ -298,7 +298,7 @@ class CronController extends Controller {
 					}
 					$this->debugMsg("Successfully crawled keyword <b>{$keywordInfo['name']}</b> results from ".$reportController->seList[$sengineId]['domain'].".....<br>\n");
 				}else{
-					$this->debugMsg("Crawling keyword </b>{$keywordInfo['name']}</b> results from ".$reportController->seList[$sengineId]['domain']." failed......<br>\n");
+					$this->debugMsg("Crawling keyword <b>{$keywordInfo['name']}</b> results from ".$reportController->seList[$sengineId]['domain']." failed......<br>\n");
 				}
 			}
 			
