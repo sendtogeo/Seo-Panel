@@ -28,6 +28,8 @@ if (!file_exists($abspath."/config/sp-config.php")) {
 }
 define( 'SP_ABSPATH', $abspath );
 
+// global variable for sp db connection id
+$SP_DB_CONN_OBJ = false;
 
 if(file_exists(SP_ABSPATH."/config/sp-config.php")){
 	

@@ -31,13 +31,14 @@ class MysqliHelper extends Database{
 
 	// constructor
 	function MysqliHelper($dbServer, $dbUser, $dbPassword, $dbName, $debug){
+		global $SP_DB_CONN_OBJ;
 		$this->setDebugMode($debug);
 		
 		// check connection id existing and it is a resource
-		if (defined('SP_DB_CONN_ID') && is_resource(SP_DB_CONN_ID) ) {
-		    $this->connectionId =  SP_DB_CONN_ID;
+		if (!empty($SP_DB_CONN_OBJ) && is_object($SP_DB_CONN_OBJ) ) {
+		    $this->connectionId =  $SP_DB_CONN_OBJ;
 		} else {
-
+			
 			$dbServer = SP_DB_PERSISTENT_CONNECTION ? "p:$dbServer" : $dbServer;
 			$this->connectionId = @mysqli_connect($dbServer, $dbUser, $dbPassword, $dbName);
     		
@@ -46,8 +47,9 @@ class MysqliHelper extends Database{
     			showErrorMsg("<p style='color:red'>Database connection failed!<br>Please check your database settings!</p>");
     		} else {	
     		    $this->query( "SET NAMES utf8");
-    		    @define('SP_DB_CONN_ID', $this->connectionId);
+    		    $SP_DB_CONN_OBJ = $this->connectionId;
     		}
+    		
 		}		
 		
 	}
