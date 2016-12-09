@@ -1,4 +1,4 @@
-<?php echo showSectionHead($spTextRank['Google and Alexa Rank Reports']); ?>
+<?php echo showSectionHead($spTextTools['Rank Reports']); ?>
 <form id='search_form'>
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="search">
 	<tr>
