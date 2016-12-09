@@ -356,7 +356,7 @@ class Install {
             			<?php
             			$listInfo['set_val'] = ini_get('date.timezone');
             			foreach ($timezoneList as $timezoneInfo) {
-            				$selected = ($timezoneInfo['timezone_name'] == $listInfo['set_val']) ? 'selected="selected"' : "";
+            				$selected = (trim($timezoneInfo['timezone_name']) == $listInfo['set_val']) ? 'selected="selected"' : "";
             				?>
             				<option value="<?php echo $timezoneInfo['timezone_name']?>" <?php echo $selected?> ><?php echo $timezoneInfo['timezone_label']?></option>
             				<?php
