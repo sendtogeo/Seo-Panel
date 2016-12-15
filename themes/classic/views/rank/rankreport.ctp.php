@@ -48,7 +48,7 @@
 		<td class="right"><?php echo $spText['common']['Alexa Rank']?></td>
 	</tr>
 	<?php
-	$colCount = 3; 
+	$colCount = 4; 
 	if(count($list) > 0){
 		$catCount = count($list);
 		$i = 0;
@@ -77,7 +77,7 @@
 		?>
 		<tr class="blue_row">
 		    <td class="tab_left_bot_noborder">&nbsp;</td>
-		    <td class="td_bottom_border" colspan="1"><?php echo $spText['common']['No Records Found']?>!</td>
+		    <td class="td_bottom_border" colspan="<?php echo ($colCount-1)?>"><?php echo $spText['common']['No Records Found']?>!</td>
 		    <td class="tab_right_bot">&nbsp;</td>
 		</tr>
 		<?php		
