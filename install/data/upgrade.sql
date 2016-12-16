@@ -6,7 +6,6 @@ update `settings` set set_val='3.10.0' WHERE `set_name` LIKE 'SP_VERSION_NUMBER'
 
 UPDATE `searchengines` SET `regex` = '<div.*?class="?g.*?><h3 class="r"><a.*?href="\\/url\\?q=(.*?)&amp;sa=U.*?>(.*?)<\\/a>.*?<\\/div><span.*?>(.*?)<\\/span>', url = CONCAT(url, "&nfpr=1") WHERE `url` LIKE '%google%';
 
-
 ALTER TABLE `rankresults`  ADD `domain_authority` FLOAT NOT NULL;
 ALTER TABLE `rankresults`  ADD `page_authority` FLOAT NOT NULL;
 
@@ -15,6 +14,9 @@ ALTER TABLE `auditorreports`  ADD `page_authority` FLOAT NOT NULL;
 ALTER TABLE `directories`  ADD `domain_authority` FLOAT NOT NULL;
 ALTER TABLE `directories`  ADD `page_authority` FLOAT NOT NULL;
 
+INSERT INTO `settings` (`set_label`, `set_name`, `set_val`, `set_category`, `set_type`, `display`) VALUES
+('Page authority check level first', 'SA_PA_CHECK_LEVEL_FIRST', '40', 'siteauditor', 'small', 0),
+('Page authority check level second', 'SA_PA_CHECK_LEVEL_SECOND', '75', 'siteauditor', 'small', 0);
 
 delete  FROM `directories` WHERE `id` < 160;
 
@@ -161,23 +163,3 @@ INSERT INTO `directories` (`id`, `domain`, `submit_url`, `captcha_script`, `sear
 (156, 'http://www.sitechakra.com', 'http://www.sitechakra.com/submit.php', 'captcha.php', 'index.php?q=[--keyword--]', 'TITLE', 'URL', 'DESCRIPTION', 'OWNER_NAME', 'OWNER_EMAIL', 'CATEGORY_ID', 'CAPTCHA', 'IMAGEHASH', 'imagehash', 'RECPR_URL', 'LINK_TYPE=normal&submit=Continue&AGREERULES=on', 0, 0, 2, -1, 'en', 1, 1, 0, 0, 0, 0, 0),
 (157, 'http://www.webbacklinks.com', 'http://www.webbacklinks.com/submit.php', 'captcha.php', 'index.php?q=[--keyword--]', 'TITLE', 'URL', 'DESCRIPTION', 'OWNER_NAME', 'OWNER_EMAIL', 'CATEGORY_ID', 'CAPTCHA', 'IMAGEHASH', 'imagehash', 'RECPR_URL', 'LINK_TYPE=normal&submit=Continue&AGREERULES=on', 0, 0, 0, -1, 'en', 1, 1, 0, 0, 0, 0, 0),
 (158, 'http://www.searchnsearch.com', 'http://www.searchnsearch.com/submit.php', 'captcha.php', 'index.php?search=[--keyword--]', 'TITLE', 'URL', 'DESCRIPTION', 'OWNER_NAME', 'OWNER_EMAIL', 'CATEGORY_ID', 'CAPTCHA', 'IMAGEHASH', 'imagehash', 'RECPR_URL', 'LINK_TYPE=normal&submit=Continue&AGREERULES=on', 0, 1, 1, -1, 'en', 1, 1, 0, 0, 5.38, 29.48, 38.96);
-
-
-INSERT INTO `settings` (`set_label`, `set_name`, `set_val`, `set_category`, `set_type`, `display`) VALUES
-('Page authority check level first', 'SA_PA_CHECK_LEVEL_FIRST', '40', 'siteauditor', 'small', 0),
-('Page authority check level second', 'SA_PA_CHECK_LEVEL_SECOND', '75', 'siteauditor', 'small', 0);
-
-INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
-('en', 'common', 'Page Authority', 'Page Authority');
-INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
-('en', 'common', 'Domain Authority', 'Domain Authority');
-
-
-INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
-('en', 'siteauditor', 'The page is having excellent page authority value', 'The page is having excellent page authority value');
-INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
-('en', 'siteauditor', 'The page is having very good page authority value', 'The page is having very good page authority value');
-INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
-('en', 'siteauditor', 'The page is having good page authority valu', 'The page is having good page authority valu');
-INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
-('en', 'siteauditor', 'The page is having poor page authority value', 'The page is having poor page authority value');
