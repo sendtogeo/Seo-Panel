@@ -728,8 +728,8 @@ class ReportController extends Controller {
 						
 						if(!preg_match('/^http:\/\/|^https:\/\//i', $url)) continue;
 						
-						// check for to remove msn ad links in page
-						if(stristr($url, 'r.msn.com')) continue;
+						// check for to remove bing ad links in page
+						if(stristr($url, 'bat.bing.com')) continue;
 
 						// check to remove duplicates from same domain if google is the search engine
 						if ($removeDuplicate && $isGoogle) {
