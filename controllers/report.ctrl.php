@@ -104,8 +104,7 @@ class ReportController extends Controller {
 		if (!empty ($searchInfo['to_time'])) {
 			$toTime = strtotime($searchInfo['to_time'] . ' 00:00:00');
 		} else {
-			$intervalDays = $repGenerated ? 0 : 1;
-			$toTime = mktime(0, 0, 0, date('m'), date('d') - $intervalDays, date('Y'));
+			$toTime = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
 		}
 		
 		$fromTimeTxt = date('Y-m-d', $fromTime);		
@@ -961,8 +960,7 @@ class ReportController extends Controller {
 		if (!empty ($searchInfo['to_time'])) {
 			$toTime = strtotime($searchInfo['to_time'] . ' 00:00:00');
 		} else {
-			$intervalDays = $repGenerated ? 0 : 1;
-			$toTime = mktime(0, 0, 0, date('m'), date('d') - $intervalDays, date('Y'));
+			$toTime = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
 		}		
 		
 		$fromTimeShort = date('Y-m-d', $fromTime);
