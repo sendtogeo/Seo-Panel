@@ -400,6 +400,8 @@ function sendMail($from, $fromName, $to ,$subject,$content, $attachment = ''){
 
 	$mail->Subject = $subject;
 	$mail->Body = $content;
+	$mail->msgHTML($content); //creates plaintext alternate automatically
+	$mail->AltBody = 'To view the message, please use an HTML compatible email viewer!'; //fallback
 	
 	// if attachments are there
 	if (!empty($attachment)) {
