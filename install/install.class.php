@@ -28,7 +28,7 @@ class Install {
 		$phpClass = "red";
 		$phpSupport = "No";
 		$phpVersion = phpversion();
-		if (intval($phpVersion) >= 4 and intval($phpVersion) < 7) {			
+		if (intval($phpVersion) >= 5) {			
 			$phpClass = "green";
 			$phpSupport = "Yes";
 		}
@@ -36,7 +36,7 @@ class Install {
 		
 		$mysqlClass = "red";
 		$mysqlSupport = "No";
-		if(function_exists('mysql_query')){
+		if(function_exists('mysql_query') || function_exists('mysqli_query')){
 			$mysqlSupport = "Yes";
 			$mysqlClass = "green";
 		}
@@ -107,7 +107,7 @@ class Install {
 			<tr><th colspan="2" class="header">Installation compatibility</th></tr>
 			<tr><td colspan="2" class="error"><?php echo $errMsg;?></td></tr>
 			<tr>
-				<th>PHP version >= 4.0.0 and &lt; 7.0.0</th>
+				<th>PHP version >= 5.0.0</th>
 				<td class="<?php echo $phpClass;?>"><?php echo $phpSupport;?></td>
 			</tr>
 			<tr>
@@ -245,7 +245,9 @@ class Install {
 	
 	# func to proceed installation
 	function proceedInstallation($info) {
-		$db = New DB();
+		
+		// if mysqli function exists
+		$db = function_exists('mysqli_query') ? New DBI() : New DB();
 		
 		# checking db settings
 		$errMsg = $db->connectDatabase($info['db_host'], $info['db_user'], $info['db_pass'], $info['db_name']);
@@ -299,7 +301,7 @@ class Install {
 			$spider->getContent($installUpdateUrl, false, false);
 		}
 		
-		$db = New DB();
+		$db = function_exists('mysqli_query') ? New DBI() : New DB();
 		$db->connectDatabase($info['db_host'], $info['db_user'], $info['db_pass'], $info['db_name']);
 		
 		// update email for admin
@@ -354,7 +356,7 @@ class Install {
             			<?php
             			$listInfo['set_val'] = ini_get('date.timezone');
             			foreach ($timezoneList as $timezoneInfo) {
-            				$selected = ($timezoneInfo['timezone_name'] == $listInfo['set_val']) ? 'selected="selected"' : "";
+            				$selected = (trim($timezoneInfo['timezone_name']) == $listInfo['set_val']) ? 'selected="selected"' : "";
             				?>
             				<option value="<?php echo $timezoneInfo['timezone_name']?>" <?php echo $selected?> ><?php echo $timezoneInfo['timezone_label']?></option>
             				<?php
@@ -386,7 +388,7 @@ class Install {
 		$phpClass = "red";
 		$phpSupport = "No";
 		$phpVersion = phpversion();
-		if (intval($phpVersion) >= 4 and intval($phpVersion) < 7) {			
+		if (intval($phpVersion) >= 5) {			
 			$phpClass = "green";
 			$phpSupport = "Yes";
 		}
@@ -394,7 +396,7 @@ class Install {
 		
 		$mysqlClass = "red";
 		$mysqlSupport = "No";
-		if(function_exists('mysql_query')){
+		if(function_exists('mysql_query')|| function_exists('mysqli_query')){
 			$mysqlSupport = "Yes";
 			$mysqlClass = "green";
 		}
@@ -446,7 +448,7 @@ class Install {
 		$dbSupport = "Database config variables not defined";
 		include_once(SP_INSTALL_CONFIG_FILE);
 		if(defined('DB_HOST') && defined('DB_NAME') && defined('DB_USER') && defined('DB_PASSWORD') && defined('DB_ENGINE')){
-			$db = New DB();
+			$db = function_exists('mysqli_query') ? New DBI() : New DB();
 			
 			$errMsg = $db->connectDatabase(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
 			if($db->error ){
@@ -476,7 +478,7 @@ class Install {
 			<tr><th colspan="2" class="header">Upgrade compatibility</th></tr>
 			<tr><td colspan="2" class="error"><?php echo $errMsg;?></td></tr>
 			<tr>
-				<th>PHP version >= 4.0.0 and &lt; 7.0.0</th>
+				<th>PHP version >= 5.0.0</th>
 				<td class="<?php echo $phpClass;?>"><?php echo $phpSupport;?></td>
 			</tr>
 			<tr>
@@ -531,7 +533,7 @@ class Install {
 		}		
 		
 		include_once(SP_INSTALL_CONFIG_FILE);
-		$db = New DB();
+		$db = function_exists('mysqli_query') ? New DBI() : New DB();
 		
 		# check database connection
 		$errMsg = $db->connectDatabase(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);

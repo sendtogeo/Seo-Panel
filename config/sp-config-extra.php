@@ -76,7 +76,7 @@ define('SP_CRAWL_LOG_CLEAR_TIME', 90);
 define('SP_API_LANG_CODE', 'en');
 
 # The seo panel help page
-define('SP_HELP_LINK', 'http://help.seopanel.in/');
+define('SP_HELP_LINK', 'http://docs.seopanel.in/');
 
 # The seo panel forum page
 define('SP_FORUM_LINK', 'http://forum.seopanel.in/');

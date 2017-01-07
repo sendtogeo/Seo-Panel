@@ -53,7 +53,7 @@ b. Remove install directory of seo panel
 ##Online Seo Panel Resources:
 
 
-a) Seo Panel Help Guide: http://help.seopanel.in/
+a) Seo Panel Help Guide: http://docs.seopanel.in/
 
 b) Seo Panel Forum: http://forum.seopanel.in/
 

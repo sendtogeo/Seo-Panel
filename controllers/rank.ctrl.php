@@ -44,7 +44,9 @@ class RankController extends Controller{
 			$list[] = str_replace(array("\n", "\r", "\r\n", "\n\r"), "", trim($url));
 		}
 		
-		$mozRankList = $this->__getMozRank($list);
+		$mozCtrler = new MozController();
+		$mozRankList = $mozCtrler->__getMozRankInfo($list);
+		/*mozRankList = $this->__getMozRank($list);*/
 		$this->set('mozRankList', $mozRankList);
 
 		$this->set('list', $list);
@@ -325,13 +327,18 @@ class RankController extends Controller{
 		}
 		
 		// get moz ranks
-		$mozRankList = $this->__getMozRank($urlList);
+		/*$mozRankList = $this->__getMozRank($urlList);*/
+		
+		$mozCtrler = new MozController();
+		$mozRankList = $mozCtrler->__getMozRankInfo($urlList);
 				
 		// loop through each websites			
 		foreach ( $websiteList as $i => $websiteInfo ) {
 			$websiteUrl = addHttpToUrl($websiteInfo['url']);
 			$websiteInfo['alexaRank'] = $this->__getAlexaRank($websiteUrl);
-			$websiteInfo['moz_rank'] = !empty($mozRankList[$i]) ? $mozRankList[$i] : 0;
+			$websiteInfo['moz_rank'] = !empty($mozRankList[$i]['moz_rank']) ? $mozRankList[$i]['moz_rank'] : 0;
+			$websiteInfo['domain_authority'] = !empty($mozRankList[$i]['domain_authority']) ? $mozRankList[$i]['domain_authority'] : 0;
+			$websiteInfo['page_authority'] = !empty($mozRankList[$i]['page_authority']) ? $mozRankList[$i]['page_authority'] : 0;
 			
 			$this->saveRankResults($websiteInfo, true);			
 			echo "<p class='note notesuccess'>".$this->spTextRank['Saved rank results of']." <b>$websiteUrl</b>.....</p>";
@@ -347,8 +354,11 @@ class RankController extends Controller{
 			$this->db->query($sql);
 		}
 		
-		$sql = "insert into rankresults(website_id,moz_rank,alexa_rank,result_time)
-				values({$matchInfo['id']},{$matchInfo['moz_rank']},{$matchInfo['alexaRank']},$time)";
+		$domainAuthority = floatval($matchInfo['domain_authority']);
+		$pageAuthority = floatval($matchInfo['page_authority']);
+		$sql = "insert into rankresults(website_id, moz_rank, alexa_rank, domain_authority, page_authority, result_time)
+			values({$matchInfo['id']}, {$matchInfo['moz_rank']}, {$matchInfo['alexaRank']},
+			$domainAuthority, $pageAuthority, $time)";
 		$this->db->query($sql);
 	}
 	
@@ -391,7 +401,7 @@ class RankController extends Controller{
 		$reportList = $this->db->select($sql);
 		
 		$i = 0;
-		$colList = array('moz' => 'moz_rank', 'alexa' => 'alexa_rank');
+		$colList = array('moz' => 'moz_rank', 'alexa' => 'alexa_rank', 'domain_authority' => 'domain_authority', 'page_authority' => 'page_authority');
 		foreach ($colList as $col => $dbCol) {
 			$prevRank[$col] = 0;
 		}
@@ -450,18 +460,20 @@ class RankController extends Controller{
 		$reportList = array_reverse($reportList);
 		
 		$i = 0;
-		$colList = array('moz' => 'moz_rank', 'alexa' => 'alexa_rank');
+		$colList = array('moz' => 'moz_rank', 'alexa' => 'alexa_rank', 'domain_authority' => 'domain_authority', 'page_authority' => 'page_authority');
 		foreach ($colList as $col => $dbCol) {
 			$prevRank[$col] = 0;
 		}
 		
 		# loop throgh rank
 		foreach ($reportList as $key => $repInfo) {
+			
 			foreach ($colList as $col => $dbCol) {
 				$rankDiff[$col] = '';
 			}			
 			
 			foreach ($colList as $col => $dbCol) {
+				
 				if ($i > 0) {
 					$signVal = -1;
 					$greaterClass = 'green';
@@ -471,13 +483,16 @@ class RankController extends Controller{
 						$greaterClass = 'green';
 						$lessClass = 'red';
 					}
+					
 					$rankDiff[$col] = ($prevRank[$col] - $repInfo[$dbCol]) * $signVal;
+					
 					if ($rankDiff[$col] > 0) {
 						$rankDiff[$col] = "<font class='$greaterClass'>($rankDiff[$col])</font>";
-					}elseif ($rankDiff[$col] < 0) {
+					} elseif ($rankDiff[$col] < 0) {
 						$rankDiff[$col] = "<font class='$lessClass'>($rankDiff[$col])</font>";
 					}
 				}
+				
 				$reportList[$key]['rank_diff_'.$col] = empty ($rankDiff[$col]) ? '' : $rankDiff[$col];
 			}
 			

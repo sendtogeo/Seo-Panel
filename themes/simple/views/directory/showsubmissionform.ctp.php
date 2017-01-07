@@ -31,6 +31,14 @@
 		<td class="td_right_col"><?php echo $dirInfo['pagerank']?></td>
 	</tr>		
 	<tr class="white_row">
+		<td class="td_left_col"><?php echo $spText['common']['Domain Authority']?>:</td>
+		<td class="td_right_col"><?php echo $dirInfo['domain_authority']?></td>
+	</tr>		
+	<tr class="blue_row">
+		<td class="td_left_col"><?php echo $spText['common']['Page Authority']?>:</td>
+		<td class="td_right_col"><?php echo $dirInfo['page_authority']?></td>
+	</tr>		
+	<tr class="white_row">
 		<td class="td_left_col"><?php echo $spText['common']['Category']?>:</td>
 		<td class="td_right_col"><?php echo $categorySel?></td>
 	</tr>

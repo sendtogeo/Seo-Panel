@@ -20,6 +20,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+include_once(SP_CTRLPATH."/moz.ctrl.php");
+
 # class defines all cron controller functions
 class CronController extends Controller {
     
@@ -239,10 +241,16 @@ class CronController extends Controller {
 		if (SP_MULTIPLE_CRON_EXEC && $rankCtrler->isReportsExists($websiteInfo['id'], $this->timeStamp)) return;
 		
 		$websiteUrl = addHttpToUrl($websiteInfo['url']);
-		$mozRankInfo = $rankCtrler->__getMozRank(array($websiteUrl));
-		$websiteInfo['moz_rank'] = $mozRankInfo[0];
+		/*$mozRankInfo = $rankCtrler->__getMozRank(array($websiteUrl));*/
+		
+		$mozCtrler = new MozController();
+		$mozRankInfo = $mozCtrler->__getMozRankInfo(array($websiteUrl));
+		
+		$websiteInfo['moz_rank'] = $mozRankInfo[0]['moz_rank'];
+		$websiteInfo['page_authority'] = $mozRankInfo[0]['page_authority'];
+		$websiteInfo['domain_authority'] = $mozRankInfo[0]['domain_authority'];
+		
 		$websiteInfo['alexaRank'] = $rankCtrler->__getAlexaRank($websiteUrl);
-			
 		$rankCtrler->saveRankResults($websiteInfo, true);			
 		$this->debugMsg("Saved rank results of <b>$websiteUrl</b>.....<br>\n");
 		
@@ -290,7 +298,7 @@ class CronController extends Controller {
 					}
 					$this->debugMsg("Successfully crawled keyword <b>{$keywordInfo['name']}</b> results from ".$reportController->seList[$sengineId]['domain'].".....<br>\n");
 				}else{
-					$this->debugMsg("Crawling keyword </b>{$keywordInfo['name']}</b> results from ".$reportController->seList[$sengineId]['domain']." failed......<br>\n");
+					$this->debugMsg("Crawling keyword <b>{$keywordInfo['name']}</b> results from ".$reportController->seList[$sengineId]['domain']." failed......<br>\n");
 				}
 			}
 			

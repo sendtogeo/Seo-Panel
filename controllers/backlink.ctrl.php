@@ -27,7 +27,7 @@ class BacklinkController extends Controller{
 	var $backUrlList = array(
 		'google' => 'http://www.google.com/search?hl=en&q=link%3A',
 		'alexa' => 'http://www.alexa.com/siteinfo/',
-		'msn' => 'http://www.bing.com/search?setmkt=en-us&q=link%3A',
+		'msn' => 'http://www.bing.com/search?q=link%3A',
 	);
 	
 	function showBacklink() {
@@ -98,6 +98,7 @@ class BacklinkController extends Controller{
 				$url = $this->backUrlList[$engine] . urlencode(addHttpToUrl($url));
 				$v = $this->spider->getContent($url);
 				$pageContent = empty($v['page']) ? '' :  $v['page'];
+				
 		        if (preg_match('/([0-9\,]+) results/si', $pageContent, $r)) {
 				} elseif (preg_match('/id="count".*?>.*?\(([0-9\,]+).*?\)/si', $pageContent, $r)) {
 				} elseif (preg_match('/id="count".*?>.*?([0-9\,]+).*?/si', $pageContent, $r)) {

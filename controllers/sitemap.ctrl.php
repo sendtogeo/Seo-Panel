@@ -247,7 +247,7 @@ class SitemapController extends Controller{
 		$xmltext = 
 		'
 		<url>
-			<loc>'.$this->loc.'</loc>
+			<loc><![CDATA['.$this->loc.']]></loc>
 		   	<lastmod>'.$this->lastmod.'</lastmod>
 		    <changefreq>'.$this->changefreq.'</changefreq>
 		    <priority>'.$this->priority.'</priority>

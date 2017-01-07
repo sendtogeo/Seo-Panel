@@ -74,14 +74,16 @@
 	<tr class="listHead">
 		<td class="left"><?php echo $spText['common']['Id']?></td>		
 		<td><?php echo $spText['common']['Website']?></td>
-		<td>PR</td>
+		<td>PR</td>	
+		<td><?php echo $spText['common']['Domain Authority']?></td>	
+		<td><?php echo $spText['common']['Page Authority']?></td>
 		<td><?php echo $spTextDir['Captcha']?></td>
 		<td><?php echo $spText['common']['lang']?></td>
 		<td><?php echo $spText['common']['Status']?></td>
 		<td class="right"><?php echo $spText['common']['Action']?></td>
 	</tr>
 	<?php
-	$colCount = 7; 
+	$colCount = 9; 
 	if(count($list) > 0){
 		$catCount = count($list);
 		foreach($list as $i => $listInfo){
@@ -102,6 +104,8 @@
 				
 				<td class="td_br_right left"><a target="_blank" href="<?php echo $listInfo['submit_url']?>"><?php echo str_replace('http://', '', $listInfo['domain']); ?></a></td>
 				<td class="td_br_right" id="pr_<?php echo $listInfo['id']?>"><?php echo $listInfo['pagerank']?></td>
+				<td class="td_br_right" id="da_<?php echo $listInfo['id']?>"><?php echo $listInfo['domain_authority']?></td>
+				<td class="td_br_right" id="pa_<?php echo $listInfo['id']?>"><?php echo $listInfo['page_authority']?></td>
 				<td class="td_br_right" id="captcha_<?php echo $listInfo['id']?>"><?php echo $listInfo['is_captcha'] ? $spText['common']["Yes"] : $spText['common']["No"];	?></td>
 				<td class="td_br_right"><?php echo $listInfo['lang_name']?></td>
 				<td class="td_br_right" id="status_<?php echo $listInfo['id']?>"><?php echo $statusLink;	?></td>
