@@ -354,10 +354,11 @@ class RankController extends Controller{
 			$this->db->query($sql);
 		}
 		
+		$mozRank = floatval($matchInfo['moz_rank']);
 		$domainAuthority = floatval($matchInfo['domain_authority']);
 		$pageAuthority = floatval($matchInfo['page_authority']);
 		$sql = "insert into rankresults(website_id, moz_rank, alexa_rank, domain_authority, page_authority, result_time)
-			values({$matchInfo['id']}, {$matchInfo['moz_rank']}, {$matchInfo['alexaRank']},
+			values({$matchInfo['id']}, $mozRank, {$matchInfo['alexaRank']},
 			$domainAuthority, $pageAuthority, $time)";
 		$this->db->query($sql);
 	}
