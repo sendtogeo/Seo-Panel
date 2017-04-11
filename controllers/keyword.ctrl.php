@@ -101,6 +101,12 @@ class KeywordController extends Controller{
 		$sql = "update keywords set status=$status where id=$keywordId";
 		$this->db->query($sql);
 	}
+	
+	# func to change crawled status of keyword
+	function __changeCrawledStatus($status, $whereCond = '1=1') {
+		$sql = "update keywords set crawled=$status where $whereCond";
+		$this->db->query($sql);		
+	}
 
 	# func to change status
 	function __deleteKeyword($keywordId){

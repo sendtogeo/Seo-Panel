@@ -112,6 +112,7 @@ class CronController extends Controller {
 		    
 		    // create report controller
 		    $reportCtrler = New ReportController();
+		    $keywordCtrler = New KeywordController();
 			
 		    $lastGenerated = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
 		    
@@ -120,7 +121,8 @@ class CronController extends Controller {
 			if (!empty($repSetInfo['generate_report'])) {
 			    
 			    $websiteCtrler = New WebsiteController();
-    			$websiteList = $websiteCtrler->__getAllWebsites($userInfo['id']);
+			    $sql = "select * from websites where status=1 and user_id=" . $userInfo['id'] . " order by crawled DESC";
+			    $websiteList = $websiteCtrler->db->select($sql);
     			
     			// if websites are available
     			if (count($websiteList) > 0) {
@@ -129,6 +131,13 @@ class CronController extends Controller {
         				
         				$this->websiteInfo = $websiteInfo;
         				$this->routeCronJob($websiteInfo['id'], '', true);
+        				
+        				// change crawled status for next crawl
+        				$keywordCtrler->__changeCrawledStatus(0, 'website_id=' . $websiteInfo['id']);
+        				
+        				// change website crawl status
+        				$sql = "update websites set crawled=1 where id=" . $websiteInfo['id'];
+        				$websiteList = $websiteCtrler->db->query($sql);
         			}
         			
         			// save report generated time
@@ -138,6 +147,11 @@ class CronController extends Controller {
     				if (SP_REPORT_EMAIL_NOTIFICATION && $repSetInfo['email_notification']) {
     				    $reportCtrler->sentEmailNotificationForReportGen($userInfo, $repSetInfo['last_generated'], $lastGenerated);
     				}
+    				
+    				// change user website crawl status
+    				$sql = "update websites set crawled=0 where user_id=" . $userInfo['id'];
+    				$websiteList = $websiteCtrler->db->query($sql);
+    				
     			}
     			
 			}
@@ -263,6 +277,7 @@ class CronController extends Controller {
 		include_once(SP_CTRLPATH."/report.ctrl.php");
 		
 		$reportController = New ReportController();
+		$keywordCtrler = New KeywordController();
 		
 		$seController = New SearchEngineController();
 		$reportController->seList = $seController->__getAllCrawlFormatedSearchEngines();
@@ -278,7 +293,7 @@ class CronController extends Controller {
 		
 		// get keywords needs to be checked
 		$sql = "select k.*,w.url from keywords k,websites w where k.website_id=w.id and w.id=$websiteId and k.status=1";		
-		$sql .= " and k.id not in(".implode(",", $excludeKeyList).") order by k.name";
+		$sql .= " and k.id not in(".implode(",", $excludeKeyList).") order by k.crawled ASC";
 		$keywordList = $reportController->db->select($sql);
 		$this->debugMsg("Starting keyword position checker cron for website: {$this->websiteInfo['name']}....<br>\n");
 		
@@ -301,6 +316,8 @@ class CronController extends Controller {
 					$this->debugMsg("Crawling keyword <b>{$keywordInfo['name']}</b> results from ".$reportController->seList[$sengineId]['domain']." failed......<br>\n");
 				}
 			}
+			
+			$keywordCtrler->__changeCrawledStatus(1, 'id=' . $keywordInfo['id']);
 			
 			// to implement split cron execution feature
 			if ( (SP_NUMBER_KEYWORDS_CRON > 0) && !empty($crawlResult) ) {
