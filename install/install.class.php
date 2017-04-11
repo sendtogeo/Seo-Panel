@@ -232,8 +232,16 @@ class Install {
 				$reqUrl = preg_replace('/\/install$/i', '', $reqUrl, 1, $count);
 				if(empty($count)) return false;
 			}
+		}		
+		
+		// find protocol of the server to get seo panel installation url
+		if (isset($_SERVER['HTTPS']) &&	($_SERVER['HTTPS'] == 'on' || $_SERVER['HTTPS'] == 1) ||
+		isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') {
+			$protocol = 'https://';
+		} else {
+			$protocol = 'http://';
 		}
-		$protocol = empty($_SERVER['HTTPS']) ? "http://" : "https://";
+		
 		$port = empty($_SERVER['SERVER_PORT']) ?  "" : (int) $_SERVER['SERVER_PORT'];
 		$host =  strtolower($_SERVER['HTTP_HOST']);
 		if(!empty($port) && ($port <> 443) && ($port <> 80)){
