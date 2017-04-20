@@ -30,7 +30,8 @@ class CronController extends Controller {
 	var $debug = true;		    // to show debug message or not
 	var $layout = 'ajax';       // ajax layout or not
 	var $timeStamp;             // timestamp for storing reports
-	var $checkedKeywords = 0;   // the number of keywords checked in cron, this is used for split cron execution feature       	
+	var $checkedKeywords = 0;   // the number of keywords checked in cron, this is used for split cron execution feature 
+	var $checkedWebsites = 0;   // the number of websites checked in cron, this is used for split cron execution feature       	
 	
 	# function to load all tools required for report generation 
 	function loadReportGenerationTools($includeList=array()){
@@ -103,8 +104,8 @@ class CronController extends Controller {
 	# common cron execute function
 	function executeCron($includeList=array()) {
 		
-		$this->loadCronJobTools($includeList);		
-		$lastGenerated = date('Y-m-d 00:00:00');
+		$this->loadCronJobTools($includeList);
+		$lastGenerated = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
 		
 		$userCtrler = New UserController();
 		$userList = $userCtrler->__getAllUsers();
@@ -112,9 +113,6 @@ class CronController extends Controller {
 		    
 		    // create report controller
 		    $reportCtrler = New ReportController();
-		    $keywordCtrler = New KeywordController();
-			
-		    $lastGenerated = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
 		    
 		    // check for user report schedule
 		    $repSetInfo = $reportCtrler->isGenerateReportsForUser($userInfo['id']); 
@@ -132,12 +130,18 @@ class CronController extends Controller {
         				$this->websiteInfo = $websiteInfo;
         				$this->routeCronJob($websiteInfo['id'], '', true);
         				
-        				// change crawled status for next crawl
-        				$keywordCtrler->__changeCrawledStatus(0, 'website_id=' . $websiteInfo['id']);
-        				
         				// change website crawl status
         				$sql = "update websites set crawled=1 where id=" . $websiteInfo['id'];
         				$websiteList = $websiteCtrler->db->query($sql);
+        				
+        				// to implement split cron execution feature
+        				if ( SP_NUMBER_KEYWORDS_CRON > 0) {
+        					$this->checkedWebsites++;
+        					if ($this->checkedWebsites == SP_NUMBER_KEYWORDS_CRON) {
+        						die("Reached total number of allowed websites(" . SP_NUMBER_KEYWORDS_CRON. ") in each cron job");
+        					}
+        				}
+        				
         			}
         			
         			// save report generated time
@@ -148,14 +152,21 @@ class CronController extends Controller {
     				    $reportCtrler->sentEmailNotificationForReportGen($userInfo, $repSetInfo['last_generated'], $lastGenerated);
     				}
     				
-    				// change user website crawl status
-    				$sql = "update websites set crawled=0 where user_id=" . $userInfo['id'];
-    				$websiteList = $websiteCtrler->db->query($sql);
-    				
     			}
     			
 			}
-		}		
+		}
+		
+		// reset all keywords crawl status
+		$keywordCtrler = New KeywordController();
+		$keywordCtrler->__changeCrawledStatus(0);
+		$this->debugMsg("Reset all keywords crawl status\n");
+
+		// change all website crawl status
+		$sql = "update websites set crawled=0";
+		$keywordCtrler->db->query($sql);
+		$this->debugMsg("Change all websites crawl status\n");
+		
 	}
 	
 	# function to route the cronjobs to different methods
