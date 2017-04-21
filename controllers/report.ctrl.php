@@ -90,15 +90,10 @@ class ReportController extends Controller {
 				break;
 		}
 		
-		// verify reports generated for user or not
-		$repSetInfo = $this->getUserReportSettings($userId);
-		$repGenerated = (date('y-m-d') === date("y-m-d", $repSetInfo['last_generated'])) ? true : false;
-		
 		if (!empty ($searchInfo['from_time'])) {
 			$fromTime = strtotime($searchInfo['from_time'] . ' 00:00:00');
-		} else {
-			$intervalDays = $repGenerated ? 7 : 8; 
-			$fromTime = mktime(0, 0, 0, date('m'), date('d') - $intervalDays, date('Y'));
+		} else { 
+			$fromTime = mktime(0, 0, 0, date('m'), date('d') - 1, date('Y'));
 		}
 		
 		if (!empty ($searchInfo['to_time'])) {
@@ -945,16 +940,11 @@ class ReportController extends Controller {
 		);
 		$this->set('reportTypes', $reportTypes);
 		$urlarg .= "&report_type=".$searchInfo['report_type'];		
-		
-		// verify reports generated for user or not
-		$repSetInfo = $this->getUserReportSettings($userId);
-		$repGenerated = (date('y-m-d') === date("y-m-d", $repSetInfo['last_generated'])) ? true : false;
-		
+				
 		if (!empty ($searchInfo['from_time'])) {
 			$fromTime = strtotime($searchInfo['from_time'] . ' 00:00:00');
 		} else {
-			$intervalDays = $repGenerated ? 7 : 8;
-			$fromTime = mktime(0, 0, 0, date('m'), date('d') - $intervalDays, date('Y'));
+			$fromTime = mktime(0, 0, 0, date('m'), date('d') - 1, date('Y'));
 		}
 		
 		if (!empty ($searchInfo['to_time'])) {
