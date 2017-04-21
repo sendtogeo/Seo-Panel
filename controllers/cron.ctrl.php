@@ -119,7 +119,7 @@ class CronController extends Controller {
 			if (!empty($repSetInfo['generate_report'])) {
 			    
 			    $websiteCtrler = New WebsiteController();
-			    $sql = "select * from websites where status=1 and user_id=" . $userInfo['id'] . " order by crawled DESC";
+			    $sql = "select * from websites where status=1 and user_id=" . $userInfo['id'] . " and crawled=0 order by name";
 			    $websiteList = $websiteCtrler->db->select($sql);
     			
     			// if websites are available
@@ -303,8 +303,8 @@ class CronController extends Controller {
 		}
 		
 		// get keywords needs to be checked
-		$sql = "select k.*,w.url from keywords k,websites w where k.website_id=w.id and w.id=$websiteId and k.status=1";		
-		$sql .= " and k.id not in(".implode(",", $excludeKeyList).") order by k.crawled ASC";
+		$sql = "select k.*,w.url from keywords k,websites w where k.website_id=w.id and w.id=$websiteId and k.status=1 and k.crawled=0";		
+		$sql .= " and k.id not in(".implode(",", $excludeKeyList).") order by k.name";
 		$keywordList = $reportController->db->select($sql);
 		$this->debugMsg("Starting keyword position checker cron for website: {$this->websiteInfo['name']}....<br>\n");
 		
