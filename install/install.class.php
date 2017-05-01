@@ -536,7 +536,6 @@ class Install {
 	function getUpgradeDBFiles($db) {
 	
 		$upgradeFileList = array();
-		define("SP_UPGRADE_VERSION", '3.11.0');
 		$spVersionList = array(
 			'3.8.0',
 			'3.9.0',
