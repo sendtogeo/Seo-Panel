@@ -533,6 +533,46 @@ class Install {
 		<?php
 	}
 	
+	function getUpgradeDBFiles($db) {
+	
+		$upgradeFileList = array();
+		define("SP_UPGRADE_VERSION", '3.11.0');
+		$spVersionList = array(
+			'3.8.0',
+			'3.9.0',
+			'3.10.0',
+		);
+		
+		// get current version number
+		$sql = "Select set_val from settings where set_name='SP_VERSION_NUMBER'";
+		$versionInfo = $db->select($sql, true);
+		$currentVersion = !empty($versionInfo['set_val']) ? $versionInfo['set_val'] : '';
+		
+		// if current version is set
+		if ($currentVersion) {
+			
+			$index = array_search($currentVersion, $spVersionList);
+			$lastIndex = count($spVersionList) - 1;
+		
+			// if it is not last index value
+			if ($index != $lastIndex) {
+				$prevIndex = $index;
+			
+				// loop through the versions
+				for ($i = $index + 1; $i <= $lastIndex; $i++) {
+					$upgradeFileList[] = SP_INSTALL_DIR . "/data/upgrade_v$spVersionList[$prevIndex]_v$spVersionList[$i].sql";
+					$prevIndex = $i;
+				}
+				
+			}
+			
+		}
+		
+		$upgradeFileList[] = SP_UPGRADE_DB_FILE;
+		return $upgradeFileList;
+		
+	}
+	
 	function proceedUpgrade($info=''){ 
 		if( ($info['php_support'] == 'red') || ($info['mysql_support'] == 'red') || ($info['curl_support'] == 'red')
 		|| ($info['config'] == 'red') || ($info['db_support'] == 'red')){
@@ -543,22 +583,20 @@ class Install {
 		include_once(SP_INSTALL_CONFIG_FILE);
 		$db = function_exists('mysqli_query') ? New DBI() : New DB();
 		
-		# check database connection
+		// check database connection
 		$errMsg = $db->connectDatabase(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
 		if($db->error){
 			$this->checkUpgradeRequirements(true, $errMsg);
 			return;
 		}
 		
-		# importing data to db
-		$errMsg = $db->importDatabaseFile(SP_UPGRADE_DB_FILE, false);
-		/*if($db->error){
-			$errMsg = "Error occured while importing data: ". $errMsg;
-			$this->checkUpgradeRequirements(true, $errMsg);
-			return;
-		}*/
+		// loop through upgrade files and import data to db
+		$upgradeFileList = $this->getUpgradeDBFiles($db);
+		foreach ($upgradeFileList as $dbFile) {
+			$errMsg = $db->importDatabaseFile($dbFile, false);
+		}
 
-		# importing text file
+		// importing text file
 		$errMsg = $db->importDatabaseFile(SP_UPGRADE_DB_LANG_FILE, false);
 		$_SESSION['text'] = "";
 		
