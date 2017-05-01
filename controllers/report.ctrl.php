@@ -104,8 +104,7 @@ class ReportController extends Controller {
 		if (!empty ($searchInfo['to_time'])) {
 			$toTime = strtotime($searchInfo['to_time'] . ' 00:00:00');
 		} else {
-			$intervalDays = $repGenerated ? 0 : 1;
-			$toTime = mktime(0, 0, 0, date('m'), date('d') - $intervalDays, date('Y'));
+			$toTime = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
 		}
 		
 		$fromTimeTxt = date('Y-m-d', $fromTime);		
@@ -680,8 +679,8 @@ class ReportController extends Controller {
 			}
 			
 			$result = $this->spider->getContent($seUrl);
-			$pageContent = $this->formatPageContent($seInfoId, $result['page']);			
-
+			$pageContent = $this->formatPageContent($seInfoId, $result['page']);
+			
 			$crawlLogCtrl = new CrawlLogController();
 			$crawlInfo['crawl_type'] = 'keyword';
 			$crawlInfo['ref_id'] = empty($keywordInfo['id']) ? $keywordInfo['name'] : $keywordInfo['id'];
@@ -729,8 +728,8 @@ class ReportController extends Controller {
 						
 						if(!preg_match('/^http:\/\/|^https:\/\//i', $url)) continue;
 						
-						// check for to remove msn ad links in page
-						if(stristr($url, 'r.msn.com')) continue;
+						// check for to remove bing ad links in page
+						if(stristr($url, 'bat.bing.com')) continue;
 
 						// check to remove duplicates from same domain if google is the search engine
 						if ($removeDuplicate && $isGoogle) {
@@ -741,21 +740,24 @@ class ReportController extends Controller {
 						    $previousDomain = $currentDomain;
 						}
 						
-						if($this->showAll || stristr($url, $websiteUrl)){
+						if($this->showAll || (stristr($url, "http://" . $websiteUrl) || stristr($url, "https://" . $websiteUrl)) ){
 
-							if($this->showAll && stristr($url, $websiteUrl)){
+							if ($this->showAll && (stristr($url, "http://" . $websiteUrl) || stristr($url, "https://" . $websiteUrl)) ) {
 								$matchInfo['found'] = 1; 
-							}else{
+							} else {
 								$matchInfo['found'] = 0;
 							}
+							
 							$matchInfo['url'] = $url;
 							$matchInfo['title'] = strip_tags($matches[$this->seList[$seInfoId]['title_index']][$i]);
 							$matchInfo['description'] = strip_tags($matches[$this->seList[$seInfoId]['description_index']][$i]);
 							$matchInfo['rank'] = $rank;
 							$crawlResult[$seInfoId]['matched'][] = $matchInfo;
 						}
+						
 						$rank++;							
 					}
+					
 					$crawlStatus = 1;					
 					
 				} else {
@@ -779,26 +781,26 @@ class ReportController extends Controller {
 			// update crawl log
 			$logId = $result['log_id'];
 			$crawlLogCtrl->updateCrawlLog($logId, $crawlInfo);
-			
-		}
 		
-		// if proxy enabled if crawl failed try to check next item
-		if (!$crawlResult[$seInfoId]['status'] && SP_ENABLE_PROXY && CHECK_WITH_ANOTHER_PROXY_IF_FAILED) {
-			
-			// max proxy checked in one execution is exeeded
-			if ($this->proxyCheckCount < CHECK_MAX_PROXY_COUNT_IF_FAILED) {
-			
-				// if proxy is available for execution
-				$proxyCtrler = New ProxyController();
-				if ($proxyInfo = $proxyCtrler->getRandomProxy()) {
-					$this->proxyCheckCount++;
-					sleep(SP_CRAWL_DELAY);
-					$crawlResult = $this->crawlKeyword($keywordInfo, $seInfoId, $cron, $removeDuplicate);		
-				}
+			// if proxy enabled if crawl failed try to check next item
+			if (!$crawlResult[$seInfoId]['status'] && SP_ENABLE_PROXY && CHECK_WITH_ANOTHER_PROXY_IF_FAILED) {
 				
-			} else {
-				$this->proxyCheckCount = 1;
+				// max proxy checked in one execution is exeeded
+				if ($this->proxyCheckCount < CHECK_MAX_PROXY_COUNT_IF_FAILED) {
+				
+					// if proxy is available for execution
+					$proxyCtrler = New ProxyController();
+					if ($proxyInfo = $proxyCtrler->getRandomProxy()) {
+						$this->proxyCheckCount++;
+						sleep(SP_CRAWL_DELAY);
+						$crawlResult = array_merge($crawlResult, $this->crawlKeyword($keywordInfo, $seInfoId, $cron, $removeDuplicate));
+					}
+					
+				} else {
+					$this->proxyCheckCount = 1;
+				}
 			}
+		
 		}
 		
 		return  $crawlResult;
@@ -958,8 +960,7 @@ class ReportController extends Controller {
 		if (!empty ($searchInfo['to_time'])) {
 			$toTime = strtotime($searchInfo['to_time'] . ' 00:00:00');
 		} else {
-			$intervalDays = $repGenerated ? 0 : 1;
-			$toTime = mktime(0, 0, 0, date('m'), date('d') - $intervalDays, date('Y'));
+			$toTime = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
 		}		
 		
 		$fromTimeShort = date('Y-m-d', $fromTime);
@@ -1152,6 +1153,8 @@ class ReportController extends Controller {
 				$report = $report[0];
 				$listInfo['alexarank'] = empty($report['alexa_rank']) ? "-" : $report['alexa_rank']." ".$report['rank_diff_alexa'];
 				$listInfo['mozrank'] = empty($report['moz_rank']) ? "-" : $report['moz_rank']." ".$report['rank_diff_moz'];
+				$listInfo['domain_authority'] = empty($report['domain_authority']) ? "-" : $report['domain_authority']." ".$report['rank_diff_domain_authority'];
+				$listInfo['page_authority'] = empty($report['page_authority']) ? "-" : $report['page_authority']." ".$report['rank_diff_page_authority'];
 				
 				# back links reports
 				$report = $backlinlCtrler->__getWebsitebacklinkReport($listInfo['id'], $fromTime, $toTime);
@@ -1189,6 +1192,8 @@ class ReportController extends Controller {
 					$_SESSION['text']['common']['Id'],
 					$_SESSION['text']['common']['Website'],
 					$_SESSION['text']['common']['MOZ Rank'],
+					$_SESSION['text']['common']['Domain Authority'],
+					$_SESSION['text']['common']['Page Authority'],
 					$_SESSION['text']['common']['Alexa Rank'],
 					'Google '.$spTextHome['Backlinks'],
 					'alexa '.$spTextHome['Backlinks'],
@@ -1198,12 +1203,15 @@ class ReportController extends Controller {
 					$_SESSION['text']['common']['Total'].' Submission',
 					$_SESSION['text']['common']['Active'].' Submission',
 				);
+				
 				$exportContent .= createExportContent( $headList);
 				foreach ($websiteRankList as $websiteInfo) {
 					$valueList = array(
 						$websiteInfo['id'],
 						$websiteInfo['url'],
 						strip_tags($websiteInfo['mozrank']),
+						strip_tags($websiteInfo['domain_authority']),
+						strip_tags($websiteInfo['page_authority']),
 						strip_tags($websiteInfo['alexarank']),
 						strip_tags($websiteInfo['google']['backlinks']),
 						strip_tags($websiteInfo['alexa']['backlinks']),

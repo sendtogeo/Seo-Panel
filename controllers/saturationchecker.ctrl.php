@@ -26,7 +26,7 @@ class SaturationCheckerController extends Controller{
 	var $colList = array('google' => 'google', 'msn' => 'msn');
 	var $saturationUrlList = array(
 		'google' => 'http://www.google.com/search?hl=en&q=site%3A',
-		'msn' => 'http://www.bing.com/search?setmkt=en-us&q=site%3A',
+		'msn' => 'http://www.bing.com/search?q=site%3A',
 	);
 	
 	function showSaturationChecker() {

@@ -52,6 +52,37 @@ class AuditorComponent extends Controller{
 
         if ($rInfo = $this->getReportInfo(" and project_id={$projectInfo['id']} and page_url='$reportUrl'") ) {
             
+            // handle redirects
+            if(!empty($spider->effectiveUrl)) {
+                $effectiveUrl = rtrim($spider->effectiveUrl, '/'); //remove trailing slash
+                $reportId = $rInfo['id'];
+
+                if ($effectiveUrl != $reportUrl){ //redirect occurred. Could be simply www vs. no www
+                  
+                  $parse = parse_url($effectiveUrl);
+                  $effectiveDomain = str_replace("www.", '', $parse['host']);
+                  $parse = parse_url($projectInfo['url']);
+                  $projectDomain = str_replace("www.", '', $parse['host']);
+                  
+                  if ($effectiveDomain == $projectDomain) { //still on same domain
+                      //check if we already have an entry for the effective URL
+                      if ($rInfoForEffectiveUrl = $this->getReportInfo(" and project_id={$projectInfo['id']} and page_url='$effectiveUrl'")){
+                          //If we already have an entry then we can delete this new one and not continue running tests on it as it's a duplicate 
+                        $this->db->query("delete from auditorreports where id=$reportId");
+                        return $effectiveUrl; //Redirected to existing URL
+                      }
+                      else{ //if we don't already have an entry, update this one
+                        $this->db->query("update auditorreports set page_url='$effectiveUrl' where id=$reportId");
+                        $reportUrl = $effectiveUrl;
+                      }
+                  }
+                  else { //external link -- delete it from report
+                    $this->db->query("delete from auditorreports where id=$reportId");
+                    return "Error: External Link Found";
+                  }
+                }
+            }
+            
             $reportInfo['id'] = $rInfo['id'];
             $reportInfo['page_title'] = addslashes($pageInfo['page_title']);
             $reportInfo['page_description'] = addslashes($pageInfo['page_description']);
@@ -62,9 +93,10 @@ class AuditorComponent extends Controller{
         
             // gooogle pagerank check
             if ($projectInfo['check_pr']) {
-                $rankCtrler = $this->createController('Rank');
-                $rankInfo = $rankCtrler->__getMozRank(array($reportUrl));
-                $reportInfo['pagerank'] = !empty($rankInfo[0]) ? $rankInfo[0] : 0;
+            	$mozCtrler = $this->createController('Moz');
+            	$mozRankList = $mozCtrler->__getMozRankInfo(array($reportUrl));
+            	$reportInfo['pagerank'] = !empty($mozRankList[0]['moz_rank']) ? $mozRankList[0]['moz_rank'] : 0;
+            	$reportInfo['page_authority'] = !empty($mozRankList[0]['page_authority']) ? $mozRankList[0]['page_authority'] : 0;
             }
             
             // backlinks page check
@@ -143,7 +175,9 @@ class AuditorComponent extends Controller{
             
             // calculate score of each page and update it
             $this->updateProjectPageScore($projectInfo['id']);
-        }                     
+        }
+        
+        return $reportUrl;                 
     }
     
     // function to get report info
@@ -264,6 +298,25 @@ class AuditorComponent extends Controller{
             $this->commentInfo['pagerank'] = formatErrorMsg($msg, 'error', '');
         }
         
+        // check page authority value
+        if ($reportInfo['page_authority'] >= SA_PA_CHECK_LEVEL_SECOND) {
+        	$scoreInfo['page_authority'] = 6;
+        	$msg = $spTextSA["The page is having excellent page authority value"];
+        	$this->commentInfo['page_authority'] = formatSuccessMsg($msg);
+        } else if ($reportInfo['page_authority'] >= SA_PA_CHECK_LEVEL_FIRST) {
+        	$scoreInfo['page_authority'] = 3;
+        	$msg = $spTextSA["The page is having very good page authority value"];
+        	$this->commentInfo['page_authority'] = formatSuccessMsg($msg);
+        } else if ($reportInfo['page_authority']) {
+        	$scoreInfo['page_authority'] = 1;
+        	$msg = $spTextSA["The page is having good page authority value"];
+        	$this->commentInfo['page_authority'] = formatSuccessMsg($msg);
+        } else {
+        	$scoreInfo['page_authority'] = 0;
+        	$msg = $spTextSA["The page is having poor page authority value"];
+        	$this->commentInfo['page_authority'] = formatErrorMsg($msg, 'error', '');
+        }
+        
         // check backlinks
         $seArr = array('google', 'bing');
         foreach ($seArr as $se) {
@@ -294,6 +347,7 @@ class AuditorComponent extends Controller{
                 $this->commentInfo[$label] = formatErrorMsg($msg, 'error', '');
             }   
         }
+        
         return $scoreInfo;
     }
     

@@ -829,13 +829,16 @@ class DirectoryController extends Controller{
 				$extraValUpdate = ",extra_val='{$dirInfo['extra_val']}'";	    
 			}
 			
-			if ($this->checkPR) {				
-				include_once(SP_CTRLPATH."/rank.ctrl.php");
-				$rankCtrler = New RankController();
-				$rankInfo = $rankCtrler->__getMozRank(array($dirInfo['domain']));
-				$pagerank = !empty($rankInfo[0]) ? $rankInfo[0] : 0;
-				$prUpdate = ",pagerank=$pagerank";
+			if ($this->checkPR) {
+				include_once(SP_CTRLPATH."/moz.ctrl.php");
+				$mozCtrler = new MozController();
+				$mozRankList = $mozCtrler->__getMozRankInfo(array($dirInfo['domain']));
+				$pagerank = !empty($mozRankList[0]['moz_rank']) ? $mozRankList[0]['moz_rank'] : 0;
+				$domainAuthority = !empty($mozRankList[0]['domain_authority']) ? $mozRankList[0]['domain_authority'] : 0;
+				$pageAuthority = !empty($mozRankList[0]['page_authority']) ? $mozRankList[0]['page_authority'] : 0;
+				$prUpdate = ",pagerank=$pagerank,domain_authority=$domainAuthority,page_authority=$pageAuthority";
 			}
+			
 		}
 		
 		$sql = "update directories set working=$active,is_captcha=$captcha,checked=1 $prUpdate $searchUpdate $extraValUpdate where id=$dirId";
@@ -852,6 +855,8 @@ class DirectoryController extends Controller{
 				?>
 				<script type="text/javascript">
 					document.getElementById('pr_<?php echo $dirId?>').innerHTML = '<?php echo $pagerank?>';
+					document.getElementById('da_<?php echo $dirId?>').innerHTML = '<?php echo $domainAuthority?>';
+					document.getElementById('pa_<?php echo $dirId?>').innerHTML = '<?php echo $pageAuthority?>';
 				</script>
 				<?php
 			}

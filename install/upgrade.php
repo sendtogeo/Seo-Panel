@@ -21,6 +21,7 @@
  ***************************************************************************/
 include_once 'install.class.php';
 include_once 'db.class.php';
+include_once 'dbi.class.php';
 
 session_start();
 @ini_set("display_erros", "Off");

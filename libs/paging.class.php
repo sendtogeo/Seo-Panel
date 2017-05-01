@@ -16,7 +16,8 @@ class Paging {
 	function loadPaging($result, $per_page=15){
 		if(is_numeric($result)) {
 		} else {
-			if(!$result or mysql_num_rows($result)<1) { return 0; }
+			$numRows = function_exists('mysqli_query') ? mysqli_num_rows($result) : mysql_num_rows($result);
+			if(!$result or $numRows<1) { return 0; }
 		}
 		$this->result = $result;
 		$this->per_page = $per_page;
@@ -29,7 +30,7 @@ class Paging {
 			$this->setCurrentPage(1);
 		}
 		if(!is_numeric($this->result)) {
-			$num_rows = mysql_num_rows($this->result);
+			$num_rows = function_exists('mysqli_query') ? mysqli_num_rows($this->result) : mysql_num_rows($this->result);
 		} else {
 			$num_rows = $this->result;
 		}

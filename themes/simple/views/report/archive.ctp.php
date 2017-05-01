@@ -232,7 +232,7 @@ if (!empty($keywordPos)) {
 <div>
 	<?php
 	if (!empty($websiteStats)) {
-    	$colSpan = 11; 
+    	$colSpan = 13; 
     	?>
     	<?php echo $websitePagingDiv?>
     	<table width="100%" cellspacing="0" cellpadding="0" class="summary" style="<?php echo $borderCollapseVal; ?>">
@@ -240,13 +240,15 @@ if (!empty($keywordPos)) {
     		<tr>
     			<td class="subheader" style="border: none;" width="5%" rowspan="2"><?php echo $spText['common']['Id']?></td>
     			<td class="subheader" rowspan="2"><?php echo $spTextHome['SiteNameUrl']?></td>
-    			<td class="subheaderdark" colspan="2"><?php echo $spTextHome['Ranks']?></td>
+    			<td class="subheaderdark" colspan="4"><?php echo $spTextHome['Ranks']?></td>
     			<td class="subheaderdark" colspan="3"><?php echo $spTextHome['Backlinks']?></td>
     			<td class="subheaderdark" colspan="2"><?php echo $spTextHome['Pages Indexed']?></td>
     			<td class="subheaderdark" colspan="2"><?php echo $spTextHome['Directory Submission']?></td>
     		</tr>		
     		<tr>
     			<td class="subheader">Moz</td>
+    			<td class="subheader"><?php echo $spText['common']['Domain Authority']?></td>
+    			<td class="subheader"><?php echo $spText['common']['Page Authority']?></td>
     			<td class="subheader">Alexa</td>
     			<td class="subheader">Google</td>
     			<td class="subheader">Alexa</td>
@@ -263,6 +265,8 @@ if (!empty($keywordPos)) {
     				$timeArg = "&from_time=$fromTime&to_time=$toTime";
     				$googleRankLink = scriptAJAXLinkHrefDialog('rank.php', 'content', "sec=reports&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['mozrank']);
     				$alexaRankLink = scriptAJAXLinkHrefDialog('rank.php', 'content', "sec=reports&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['alexarank']);
+    				$daLink = scriptAJAXLinkHrefDialog('rank.php', 'content', "sec=reports&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['domain_authority']);
+    				$paLink = scriptAJAXLinkHrefDialog('rank.php', 'content', "sec=reports&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['page_authority']);
     				$googleBackLInk = scriptAJAXLinkHrefDialog('backlinks.php', 'content', "sec=reports&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['google']['backlinks']);
     				$alexaBackLInk = scriptAJAXLinkHrefDialog('backlinks.php', 'content', "sec=reports&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['alexa']['backlinks']);
     				$bingBackLInk = scriptAJAXLinkHrefDialog('backlinks.php', 'content', "sec=reports&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['msn']['backlinks']);
@@ -278,6 +282,8 @@ if (!empty($keywordPos)) {
     						<a href="<?php echo $websiteInfo['url'];?>" target="_blank"><?php echo $websiteInfo['url'];?></a>
     					</td>
     					<td class="content"><?php echo $googleRankLink;?></td>
+						<td class="contentmid"><?php echo $daLink; ?></td>
+						<td class="contentmid"><?php echo $paLink; ?></td>
 						<td class="content"><?php echo $alexaRankLink; ?></td>
 						<td class="content"><?php echo $googleBackLInk; ?></td>
 						<td class="content"><?php echo $alexaBackLInk; ?></td>
