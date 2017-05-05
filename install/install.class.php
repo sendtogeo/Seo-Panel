@@ -545,7 +545,7 @@ class Install {
 		// get current version number
 		$sql = "Select set_val from settings where set_name='SP_VERSION_NUMBER'";
 		$versionInfo = $db->select($sql, true);
-		$currentVersion = !empty($versionInfo['set_val']) ? $versionInfo['set_val'] : '';
+		$currentVersion = !empty($versionInfo['set_val']) ? $versionInfo['set_val'] : '3.8.0';
 		
 		// if current version is set
 		if ($currentVersion) {
