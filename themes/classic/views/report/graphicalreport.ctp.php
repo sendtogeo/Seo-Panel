@@ -48,5 +48,5 @@
 ?>
 
 <div id='subcontent'>
-	<div><img src='<?php echo $graphUrl?>'></div>
+	<?php echo $graphContent; ?>
 </div>

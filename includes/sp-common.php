@@ -70,10 +70,16 @@ function showNoRecordsList($colspan, $msg='', $plain=false) {
 }
 
 # func to show error msg
-function showErrorMsg($errorMsg, $exit=true) {
+function showErrorMsg($errorMsg, $exit=true, $return = false) {
 	$data['errorMsg'] = $errorMsg;
-	print @View::fetchViewFile('common/error', $data);
-	if($exit) exit;
+	
+	// if return is set
+	if ($return && !$exit) {
+		return @View::fetchViewFile('common/error', $data);
+	} else {
+		print @View::fetchViewFile('common/error', $data);
+		if($exit) exit;
+	}
 }
 
 # func to show success msg

@@ -371,19 +371,11 @@ class ReportController extends Controller {
 	function showGraphicalReports($searchInfo = '') {		
 		
 		$userId = isLoggedIn();
-		if (!empty ($searchInfo['from_time'])) {
-			$fromTime = strtotime($searchInfo['from_time'] . ' 00:00:00');
-		} else {			
-			$fromTime = @mktime(0, 0, 0, date('m'), date('d') - 30, date('Y'));
-		}
-		if (!empty ($searchInfo['to_time'])) {
-			$toTime = strtotime($searchInfo['to_time'] . ' 23:59:59');
-		} else {
-			$toTime = @mktime();
-		}
-		$this->set('fromTime', date('Y-m-d', $fromTime));
-		$this->set('toTime', date('Y-m-d', $toTime));
-
+		$fromTime = !empty($searchInfo['from_time']) ? $searchInfo['from_time'] : date('Y-m-d', strtotime('-30 days'));
+		$toTime = !empty ($searchInfo['to_time']) ? $searchInfo['to_time'] : date("Y-m-d");
+		$this->set('fromTime', $fromTime);
+		$this->set('toTime', $toTime);
+		
 		$websiteController = New WebsiteController();
 		$websiteList = $websiteController->__getAllWebsitesWithActiveKeywords($userId, true);
 		$this->set('websiteList', $websiteList);
@@ -401,8 +393,13 @@ class ReportController extends Controller {
 		$this->set('seList', $seList);
 		$seId = empty ($searchInfo['se_id']) ? '' : intval($searchInfo['se_id']);
 		$this->set('seId', $seId);
-		$this->set('seNull', true);		
-		$this->set('graphUrl', "graphical-reports.php?sec=graph&fromTime=$fromTime&toTime=$toTime&keywordId=$keywordId&seId=$seId");
+		$this->set('seNull', true);
+		
+		// get graph content
+		$graphCtrler = new GraphController();
+		$graphCtrler->spTextKeyword = $this->spTextKeyword;
+		$graphContent = $graphCtrler->showKeywordPostionGraph($keywordId, $fromTime, $toTime, $seId);
+		$this->set('graphContent', $graphContent);
 		
 		$this->render('report/graphicalreport');
 	}
