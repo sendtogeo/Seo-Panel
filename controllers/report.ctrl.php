@@ -651,11 +651,11 @@ class ReportController extends Controller {
 			}*/			
 			
 			$searchUrl = str_replace('[--keyword--]', urlencode(stripslashes($keywordInfo['name'])), $this->seList[$seInfoId]['url']);
-			$searchUrl = str_replace('[--lang--]', $keywordInfo['lang_code'], $searchUrl);
 			$searchUrl = str_replace('[--country--]', $keywordInfo['country_code'], $searchUrl);
 			if (empty($keywordInfo['country_code']) && stristr($searchUrl, '&cr=country&')) {
 			    $searchUrl = str_replace('&cr=country&', '&cr=&', $searchUrl);
 			}
+			
 			$seUrl = str_replace('[--start--]', $this->seList[$seInfoId]['start'], $searchUrl);
 			
 			// if google add special parameters
@@ -663,6 +663,9 @@ class ReportController extends Controller {
 			if (stristr($this->seList[$seInfoId]['url'], 'google')) {
 			    $isGoogle = true;
 			    $seUrl .= "&ie=utf-8&pws=0&gl=".$keywordInfo['country_code'];
+			    $seUrl = str_replace('[--lang--]', '', $seUrl);
+			} else {
+				$seUrl = str_replace('[--lang--]', $keywordInfo['lang_code'], $seUrl);
 			}
 			
 			if(!empty($this->seList[$seInfoId]['cookie_send'])){
