@@ -76,6 +76,7 @@ class GraphController extends Controller {
 				$dataArr .= ", ['$dateVal' $valStr]";
 			}
 			
+			$this->set('reverseDir', true);
 			$this->set('dataArr', $dataArr);
 			$this->set('minValue', 1);
 			$this->set('maxValue', 100);

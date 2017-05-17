@@ -22,7 +22,9 @@
 
 # class defines all rank controller functions
 class RankController extends Controller{
-
+	
+	var $colList = array('moz' => 'moz_rank', 'alexa' => 'alexa_rank', 'domain_authority' => 'domain_authority', 'page_authority' => 'page_authority');
+	
 	# func to show quick rank checker
 	function showQuickRankChecker() {
 		
@@ -403,7 +405,7 @@ class RankController extends Controller{
 		$reportList = $this->db->select($sql);
 		
 		$i = 0;
-		$colList = array('moz' => 'moz_rank', 'alexa' => 'alexa_rank', 'domain_authority' => 'domain_authority', 'page_authority' => 'page_authority');
+		$colList = $this->colList;
 		foreach ($colList as $col => $dbCol) {
 			$prevRank[$col] = 0;
 		}
@@ -462,7 +464,7 @@ class RankController extends Controller{
 		$reportList = array_reverse($reportList);
 		
 		$i = 0;
-		$colList = array('moz' => 'moz_rank', 'alexa' => 'alexa_rank', 'domain_authority' => 'domain_authority', 'page_authority' => 'page_authority');
+		$colList = $this->colList;
 		foreach ($colList as $col => $dbCol) {
 			$prevRank[$col] = 0;
 		}
@@ -507,6 +509,92 @@ class RankController extends Controller{
 
 		$reportList = array_reverse(array_slice($reportList, count($reportList) - 1));
 		return $reportList;
+	}
+	
+	# func to show graphical reports
+	function showGraphicalReports($searchInfo = '') {
+	
+		$userId = isLoggedIn();
+		$fromTime = !empty($searchInfo['from_time']) ? $searchInfo['from_time'] : date('Y-m-d', strtotime('-30 days'));
+		$toTime = !empty ($searchInfo['to_time']) ? $searchInfo['to_time'] : date("Y-m-d");
+		$this->set('fromTime', $fromTime);
+		$this->set('toTime', $toTime);
+		
+        $websiteController = New WebsiteController();
+        $websiteList = $websiteController->__getAllWebsites($userId);
+        $this->set('websiteList', $websiteList);
+        $websiteId = empty ($searchInfo['website_id']) ? $websiteList[0]['id'] : intval($searchInfo['website_id']);
+        $this->set('websiteId', $websiteId);
+        
+        $searchEngine = !empty($searchInfo['search_engine']) ? $searchInfo['search_engine'] : "moz";
+        $this->set('searchEngine', $searchEngine);
+        
+        $conditions = empty($websiteId) ? "" : " and s.website_id=$websiteId";
+        $sql = "select s.* ,w.name from rankresults s,websites w  where s.website_id=w.id
+        and result_date >= '$fromTime' and result_date <= '$toTime' $conditions order by result_date";
+        $reportList = $this->db->select($sql);
+        
+        $colLabelList = array(
+        	'moz_rank' => $_SESSION['text']['common']['MOZ Rank'],
+        	'alexa_rank' => $_SESSION['text']['common']['Alexa Rank'],
+        	'domain_authority' => $_SESSION['text']['common']['Domain Authority'],
+        	'page_authority' => $_SESSION['text']['common']['Page Authority'],
+        );    
+        
+        // loop through col list
+        $colList = array();
+        foreach ($this->colList as $seId => $seVal) {
+        	
+        	// if slected i search engine
+        	if ($searchEngine == 'alexa') {
+        		
+        		if ($seId == 'alexa') {
+        			$colList[$seVal] = $colLabelList[$seVal];
+        		}
+        		
+        	} else {
+        		
+        		if ($seId != 'alexa') {
+        			$colList[$seVal] = $colLabelList[$seVal];
+        		}
+        		
+        	}
+        	
+        }
+		
+		// if reports not empty
+		if (!empty($reportList)) {
+			
+			$dataArr = "['Date', '" . implode("', '", array_values($colList)) . "']";
+       
+	        // loop through data list
+	        foreach ($reportList as $dataInfo) {
+	               
+	            $valStr = "";
+	            foreach ($colList as $seId => $seVal) {
+	                $valStr .= ", ";
+	                $valStr .= !empty($dataInfo[$seId])    ? $dataInfo[$seId] : 0;
+	            }
+	               
+	            $dataArr .= ", ['{$dataInfo['result_date']}' $valStr]";
+	        }
+	       
+	        // if alexa, use reverse ranking
+	        if ($searchEngine == 'alexa') {
+	        	$this->set('reverseDir', true);
+	        }
+	        
+	        $this->set('dataArr', $dataArr);
+	        $this->set('graphTitle', $this->spTextTools['Rank Reports']);
+	        $graphContent = $this->getViewContent('report/graph');
+				
+		} else {
+			$graphContent = showErrorMsg($_SESSION['text']['common']['No Records Found'], false, true);
+		}
+		
+		// get graph content
+		$this->set('graphContent', $graphContent);
+		$this->render('rank/graphicalreport');
 	}
 	
 }
