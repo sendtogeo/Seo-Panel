@@ -521,7 +521,7 @@ class RankController extends Controller{
 		$this->set('toTime', $toTime);
 		
         $websiteController = New WebsiteController();
-        $websiteList = $websiteController->__getAllWebsites($userId);
+        $websiteList = $websiteController->__getAllWebsites($userId, true);
         $this->set('websiteList', $websiteList);
         $websiteId = empty ($searchInfo['website_id']) ? $websiteList[0]['id'] : intval($searchInfo['website_id']);
         $this->set('websiteId', $websiteId);

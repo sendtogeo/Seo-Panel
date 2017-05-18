@@ -293,5 +293,56 @@ class SaturationCheckerController extends Controller{
 		return $reportList;
 	}
 	
+	# func to show graphical reports
+	function showGraphicalReports($searchInfo = '') {
+	
+		$userId = isLoggedIn();
+		$fromTime = !empty($searchInfo['from_time']) ? $searchInfo['from_time'] : date('Y-m-d', strtotime('-30 days'));
+		$toTime = !empty ($searchInfo['to_time']) ? $searchInfo['to_time'] : date("Y-m-d");
+		$this->set('fromTime', $fromTime);
+		$this->set('toTime', $toTime);
+	
+		$websiteController = New WebsiteController();
+		$websiteList = $websiteController->__getAllWebsites($userId, true);
+		$this->set('websiteList', $websiteList);
+		$websiteId = empty ($searchInfo['website_id']) ? $websiteList[0]['id'] : intval($searchInfo['website_id']);
+		$this->set('websiteId', $websiteId);
+		
+		$conditions = empty ($websiteId) ? "" : " and s.website_id=$websiteId";		
+		$sql = "select s.* ,w.name from saturationresults s,websites w where s.website_id=w.id 
+		and result_date >= '$fromTime' and result_date <= '$toTime' $conditions order by result_date";
+		$reportList = $this->db->select($sql);
+	
+		// if reports not empty
+		$colList = $this->colList;
+		if (!empty($reportList)) {
+	
+			$dataArr = "['Date', '" . implode("', '", array_values($colList)) . "']";
+	
+			// loop through data list
+			foreach ($reportList as $dataInfo) {
+	
+				$valStr = "";
+				foreach ($colList as $seId => $seVal) {
+					$valStr .= ", ";
+					$valStr .= !empty($dataInfo[$seId])    ? $dataInfo[$seId] : 0;
+				}
+	
+				$dataArr .= ", ['{$dataInfo['result_date']}' $valStr]";
+			}
+	
+			$this->set('dataArr', $dataArr);
+			$this->set('graphTitle', $this->spTextSat['Search Engine Saturation Reports']);
+			$graphContent = $this->getViewContent('report/graph');
+	
+		} else {
+			$graphContent = showErrorMsg($_SESSION['text']['common']['No Records Found'], false, true);
+		}
+	
+		// get graph content
+		$this->set('graphContent', $graphContent);
+		$this->render('saturationchecker/graphicalreport');
+	}
+	
 }
 ?>
