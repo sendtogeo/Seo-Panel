@@ -35,6 +35,7 @@ class CronController extends Controller {
 	
 	# function to load all tools required for report generation 
 	function loadReportGenerationTools($includeList=array()){
+		$includeList = formatSQLParamList($includeList);
 		$sql = "select * from seotools where status=1 and reportgen=1";
 		if(count($includeList) > 0) $sql .= " and id in (".implode(',', $includeList).")";
 		$this->repTools = $this->db->select($sql);

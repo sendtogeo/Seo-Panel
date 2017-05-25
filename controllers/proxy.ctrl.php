@@ -148,7 +148,7 @@ class ProxyController extends Controller{
 
 		$where = "";
 		if (isset($info['status'])) {
-			$status = $info['status'];
+			$status = intval($info['status']);
 			$where = " and status=$status";
 			$this->set('status', $status);
 		}
@@ -273,7 +273,7 @@ class ProxyController extends Controller{
 	}
 
 	function updateProxy($listInfo){
-		
+		$listInfo['id'] = intval($listInfo['id']);
 		$this->set('post', $listInfo);
 		$errMsg['proxy'] = formatErrorMsg($this->validate->checkBlank($listInfo['proxy']));
 		$errMsg['port'] = formatErrorMsg($this->validate->checkNumber($listInfo['port']));

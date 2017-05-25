@@ -260,7 +260,8 @@ class KeywordController extends Controller{
 		$userId = isLoggedIn();
 		$this->set('post', $listInfo);
 		$errMsg['keywords'] = formatErrorMsg($this->validate->checkBlank($listInfo['keywords']));
-		if (!is_array($listInfo['searchengines'])) $listInfo['searchengines'] = array(); 		
+		$listInfo['searchengines'] = addslashes($listInfo['searchengines']);
+		if (!is_array($listInfo['searchengines'])) $listInfo['searchengines'] = array();
 		$errMsg['searchengines'] = formatErrorMsg($this->validate->checkBlank(implode('', $listInfo['searchengines'])));
 		
 		if(!$this->validate->flagErr){
@@ -318,7 +319,8 @@ class KeywordController extends Controller{
 	}
 
 	function __checkName($name, $websiteId){
-		
+		$websiteId = intval($websiteId);
+		$name = addslashes($name);
 		$sql = "select id from keywords where name='$name' and website_id=$websiteId";
 		$listInfo = $this->db->select($sql, true);
 		return empty($listInfo['id']) ? false :  $listInfo['id'];
@@ -326,6 +328,7 @@ class KeywordController extends Controller{
 
 	# func to get all keywords
 	function __getAllKeywords($userId='', $websiteId='', $isAdminCheck=false, $orderByWeb=false, $orderByValue='ASC', $searchName = ''){
+		$websiteId = intval($websiteId);
 		$sql = "select k.*,w.name website,w.url weburl from keywords k,websites w where k.website_id=w.id and k.status=1";		
 		if(!$isAdminCheck || !isAdmin() ){
 			if(!empty($userId)) $sql .= " and w.user_id=$userId";
@@ -337,6 +340,7 @@ class KeywordController extends Controller{
 			$sql .= " and k.name like '%".addslashes($searchName)."%'";
 		}
 		
+		$orderByValue = getOrderByVal($orderByValue);
 		$sql .= $orderByWeb ? " order by w.id, k.name $orderByValue" : " order by k.name $orderByValue";
 		$keywordList = $this->db->select($sql);
 		return $keywordList;

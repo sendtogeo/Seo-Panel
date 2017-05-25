@@ -518,4 +518,22 @@ function showPdfFooter($spText) {
     <div style="clear: both; margin-top: 30px;font-size: 12px; text-align: center;"><?php echo str_replace('[year]', date('Y'), $copyrightTxt)?></div>
 	<?php
 }
+
+# function to loop through the array values and change it to int or string
+function formatSQLParamList($paramList, $type = 'int') {
+	
+	foreach ($paramList as $key => $value) {
+		$paramList[$key] = ($type == 'int') ? intval($value) : addslashes($value);
+	}
+	
+	return $paramList;
+	
+}
+
+# function to find order by value to prevent sql injection
+function getOrderByVal($orderByVal) {
+	$orderByVal = (strtolower($orderByVal) == 'desc') ? "DESC" : "ASC";
+	return $orderByVal;
+}
+
 ?>

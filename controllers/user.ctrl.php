@@ -57,6 +57,7 @@ class UserController extends Controller{
 					    
     					// if login after first installation
                 	    if (!empty($_POST['lang_code']) && ($_POST['lang_code'] != 'en')) {
+                	    	$_POST['lang_code'] = addslashes($_POST['lang_code']);
                 	        $sql = "UPDATE `settings` SET set_val='".addslashes($_POST['lang_code'])."' WHERE set_name='SP_DEFAULTLANG'";
                 	        $this->db->query($sql);
                 	        
