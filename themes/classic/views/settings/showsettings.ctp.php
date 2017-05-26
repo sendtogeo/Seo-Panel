@@ -21,6 +21,14 @@ if ($category == "moz") {
 		</a>
 	</div>
 	<?php
+} else if ($category == "google") {
+	?>
+	<div id="topnewsbox" style="margin-bottom: 20px;">
+		<a class="bold_link" href="https://console.developers.google.com/projectselector/apis/credentials?pli=1" target="_blank">
+			<?php echo $spTextSettings['click-to-get-google-api-key']; ?> &gt;&gt;
+		</a>
+	</div>
+	<?php
 }
 ?>
 <form id="updateSettings">

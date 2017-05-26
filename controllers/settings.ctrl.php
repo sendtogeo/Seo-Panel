@@ -79,6 +79,10 @@ class SettingsController extends Controller{
 				case "moz":
 					$this->set('headLabel', $spTextPanel['MOZ Settings']);					
 					break;
+				
+				case "google":
+					$this->set('headLabel', $spTextPanel['Google Settings']);					
+					break;
 					
 				default:					
 					break;
