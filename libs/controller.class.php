@@ -25,6 +25,7 @@ class Controller extends Seopanel{
 	var $view;
 	var $session;
 	var $validate;
+	var $dbHelper;
 	var $db;
 	var $spider;
 	var $paging;
@@ -35,6 +36,7 @@ class Controller extends Seopanel{
 		
 		# create database object
 		$dbObj = New Database(DB_ENGINE);
+		$this->dbHelper = $dbObj;
 		$this->db = $dbObj->dbConnect();
 		$this->view = New View();
 		$this->session = New Session();
