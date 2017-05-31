@@ -24,7 +24,7 @@ if ($category == "moz") {
 } else if ($category == "google") {
 	?>
 	<div id="topnewsbox" style="margin-bottom: 20px;">
-		<a class="bold_link" href="https://console.developers.google.com/projectselector/apis/credentials?pli=1" target="_blank">
+		<a class="bold_link" href="https://support.google.com/googleapi/answer/6158862?hl=en" target="_blank">
 			<?php echo $spTextSettings['click-to-get-google-api-key']; ?> &gt;&gt;
 		</a>
 	</div>
@@ -69,7 +69,7 @@ if ($category == "moz") {
 		}
 		
 		// sp demo settings
-		$demoCheckArr = array('SP_API_KEY', 'API_SECRET', 'SP_SMTP_PASSWORD', 'SP_MOZ_API_ACCESS_ID', 'SP_MOZ_API_SECRET');
+		$demoCheckArr = array('SP_API_KEY', 'API_SECRET', 'SP_SMTP_PASSWORD', 'SP_MOZ_API_ACCESS_ID', 'SP_MOZ_API_SECRET', 'SP_GOOGLE_API_KEY');
 		if (SP_DEMO && in_array($listInfo['set_name'], $demoCheckArr)) {
 			$listInfo['set_val'] = "********";
 		}
@@ -135,6 +135,11 @@ if ($category == "moz") {
 							<?php if ($listInfo['set_name'] == 'SP_MOZ_API_SECRET') {?>
 								<div style="padding: 10px 6px;">
 									<a href="javascript:void(0);" onclick="checkMozConnection('settings.php?sec=checkMozCon', 'show_conn_res')" style="text-decoration: none;"><?php echo $spTextSettings['Verify connection']; ?> &gt;&gt;</a>
+								</div>
+								<div id="show_conn_res" style="padding: 10px 6px;"></div>
+							<?php } else if ($listInfo['set_name'] == 'SP_GOOGLE_API_KEY') {?>
+								<div style="padding: 10px 6px;">
+									<a href="javascript:void(0);" onclick="checkGoogleAPIConnection('settings.php?sec=checkGoogleAPI', 'show_conn_res')" style="text-decoration: none;"><?php echo $spTextSettings['Verify connection']; ?> &gt;&gt;</a>
 								</div>
 								<div id="show_conn_res" style="padding: 10px 6px;"></div>
 							<?php }?>

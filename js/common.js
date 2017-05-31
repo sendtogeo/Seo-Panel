@@ -359,3 +359,9 @@ function checkMozConnection(scriptUrl, scriptPos, scriptArgs) {
 	scriptArgs += "&access_id=" + accessId + "&secret_key=" + secretKey;
 	scriptDoLoad(scriptUrl, scriptPos, scriptArgs);
 }
+
+function checkGoogleAPIConnection(scriptUrl, scriptPos, scriptArgs) {
+    apiKey = $('input:text[name=SP_GOOGLE_API_KEY]').val();
+    scriptArgs += "&api_key=" + apiKey;
+    scriptDoLoad(scriptUrl, scriptPos, scriptArgs);
+}
