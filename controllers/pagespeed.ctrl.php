@@ -30,24 +30,47 @@ class PageSpeedController extends Controller{
 		$crawlInfo = array();
 		
 		$client = new Google_Client();
-		$client->setApplicationName("Client_Library_Examples");
-		
-		$client->setDeveloperKey($apiKey);
-		$service = new Google_Service_Pagespeedonline($client);
+		$client->setApplicationName("SP_CHECKER");		
+		$client->setDeveloperKey($apiKey);		
 		
 		try {
+			$service = new Google_Service_Pagespeedonline($client);
 			$pageSpeedInfo = $service->pagespeedapi->runpagespeed($url, array('screenshot' => true));
 		} catch (Exception $e) {
 			$err = $e->getMessage();
 			$errData = json_decode($err);
 			$crawlInfo['crawl_status'] = 0;
 			$crawlInfo['log_message'] = $_SESSION['text']['label']['Fail'];
-			$crawlInfo['log_message'] .= !empty($errData->error->errors[0]->reason) ? ": " . $errData->error->errors[0]->reason : "";
+			$crawlInfo['log_message'] .= !empty($errData->error->errors[0]->reason) ? ": " . $errData->error->errors[0]->reason . " :: " . $errData->error->errors[0]->message : "";
 		}		
 		
 		return $returnLog ? array($pageSpeedInfo, $crawlInfo) : $pageSpeedInfo;
 		
-	}	
+	}
+	
+	// function to show pagespeed checker
+	function showQuickChecker() {
+		$this->render('pagespeed/showquickchecker');
+	}
+	
+	function findPageSpeedInfo($searchInfo) {
+		$urlList = explode("\n", $searchInfo['website_urls']);
+		$list = array();
+		$i = 1;
+		foreach ($urlList as $url) {
+			$url = sanitizeData($url);
+			if(!preg_match('/\w+/', $url)) continue;
+			if (SP_DEMO) {
+				if ($i++ > 10) break;
+			}
+				
+			$url = addHttpToUrl($url);
+			$list[] = str_replace(array("\n", "\r", "\r\n", "\n\r"), "", trim($url));
+		}
+	
+		$this->set('list', $list);
+		$this->render('pagespeed/findpagespeedinfo');
+	}
 	
 }
 ?>

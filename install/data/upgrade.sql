@@ -22,6 +22,10 @@ UPDATE `saturationresults` SET `result_date` = FROM_UNIXTIME(result_time, '%Y-%m
 INSERT INTO `settings` (`set_label`, `set_name`, `set_val`, `set_category`, `set_type`, `display`)  
 VALUES ('Google API Key', 'SP_GOOGLE_API_KEY', '', 'google', 'large', '1');
 
+INSERT INTO `seotools` (`name`, `url_section`, `user_access`, `reportgen`, `cron`, `status`) 
+VALUES ('PageSpeed Insights', 'pagespeed', '1', '1', '1', '1');
+
+
 INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 ('en', 'panel', 'Google Settings', 'Google Settings');
 
@@ -30,3 +34,19 @@ INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 
 INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 ('en', 'settings', 'click-to-get-google-api-key', 'Click here to get Google API Key');
+
+INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
+('en', 'seotools', 'pagespeed', 'PageSpeed Insights');
+
+INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
+('en', 'seotools', 'Quick PageSpeed Checker', 'Quick PageSpeed Checker');
+
+INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
+('en', 'seotools', 'PageSpeed Reports', 'PageSpeed Reports');
+
+INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
+('en', 'seotools', 'Generate Reports', 'Generate Reports');
+
+INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) 
+VALUES ('en', 'seotools', 'clickproceedaction', 'Enter URL''s <b>One per line</b>. Click on <b>Proceed</b> to check Results.');
+
