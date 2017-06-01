@@ -69,7 +69,7 @@ class SeoToolsController extends Controller{
 				$defaultScript = "saturationchecker.php";
 				break;
 				
-			case "saturation-checker":
+			case "pagespeed":
 				$defaultScript = "pagespeed.php";
 				break;
 
