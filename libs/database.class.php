@@ -96,7 +96,8 @@ class Database{
      * 								Eg: array('name' => 'Tom', 'status' => 1)
      */
     public function insertRow($table, $dataList) {
-    
+
+    	array_walk($valueList, array('self', 'escapeValue'));
     	$colList = array_keys($dataList);
     	$valueList = array_values($dataList);
     	$sql = "INSERT into $table(" . implode(',', $colList) . ") values('" . implode("', '", $valueList) . "')";
@@ -118,6 +119,7 @@ class Database{
      */
     public function updateRow($table, $dataList, $whereCond = '1=1') {
 
+    	array_walk($dataList, array('self', 'escapeValue'));
     	$whereCond = !empty($whereCond) ? $whereCond : '1=1';
     	$sql = "Update $table SET ";
     		
@@ -135,6 +137,39 @@ class Database{
     	}
     
     	return FALSE;
+    }
+
+    /**
+     * function to escape db values to be inserted
+     * @param Mixed $value		the value is to be changed
+     * @param String $key		the key of the string
+     */
+    public static function escapeValue(&$value, $key) {
+    	
+    	// check whether type passed
+    	if (stristr($key, '|')) {
+    		list($key, $type) = explode("|", $key);
+    	} else {
+    		$type = "string";
+    	}
+    	 
+    	switch ($type) {
+    
+    		case "float":
+    			$value = floatval($value);
+    			break;
+    			
+    		case "int":
+    			$value = intval($value);
+    			break;
+    
+    		case "string":
+    		default:
+    			$value = addslashes($value);
+    			break;
+    			 
+    	}
+    	 
     }
 
 }
