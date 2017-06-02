@@ -97,7 +97,7 @@ class Database{
      */
     public function insertRow($table, $dataList) {
 
-    	array_walk($valueList, array('self', 'escapeValue'));
+    	array_walk($dataList, array('self', 'escapeValue'));
     	$colList = array_keys($dataList);
     	$valueList = array_values($dataList);
     	$sql = "INSERT into $table(" . implode(',', $colList) . ") values('" . implode("', '", $valueList) . "')";
