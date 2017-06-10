@@ -104,7 +104,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				include_once(SP_CTRLPATH."/pagespeed.ctrl.php");
 				$pageSpeedCtrl = new PageSpeedController();
 				$url = "http://moz.com";
-				list($rankInfo, $logInfo) = $pageSpeedCtrl->__getPageSpeedInfo($url, $_GET['api_key'], true);
+				list($rankInfo, $logInfo) = $pageSpeedCtrl->__getPageSpeedInfo($url, array(), $_GET['api_key'], true);
 				
 				// if error occured
 				if (isset($logInfo['crawl_status']) && ($logInfo['crawl_status'] == 0)) {

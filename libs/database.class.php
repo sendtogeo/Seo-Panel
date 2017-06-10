@@ -158,11 +158,14 @@ class Database{
     		case "float":
     			$value = floatval($value);
     			break;
-    			
+
+    		case "number":
+    		case "integer":
     		case "int":
     			$value = intval($value);
     			break;
     
+    		case "text":
     		case "string":
     		default:
     			$value = addslashes($value);

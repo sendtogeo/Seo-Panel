@@ -1,8 +1,9 @@
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
 	<tr class="listHead">
 		<td class="left"><?php echo $spText['common']['Url']?></td>
-		<td>Desktop</td>
-		<td>Mobile</td>
+		<td>Desktop Speed</td>
+		<td>Mobile Speed</td>
+		<td>Mobile Usability</td>
 		<td class="right">Details</td>
 	</tr>
 	<?php
@@ -26,12 +27,9 @@
 			?>
 			<tr class="<?php echo $class?>">
 				<td class="<?php echo $leftBotClass?>" style="text-align:left;padding-left:10px;"><?php echo $url?></td>
-				<td class="td_br_right" width="<?php echo $tdWidth?>" id='googlerank<?php echo $i?>'>
-					<script type="text/javascript">
-						//scriptDoLoadPost('saturationchecker.php', 'tmp', 'googlerank<?php echo $i?>', 'sec=saturation&engine=google&url=<?php echo urlencode($url); ?><?php echo $debugVar?>');
-					</script>
-				</td>
-				<td class="td_br_right"></td>
+				<td class="td_br_right"><?php echo $reportList[$url]['desktop']['ruleGroups']['SPEED']['score'];?> / 100</td>
+				<td class="td_br_right"><?php echo $reportList[$url]['mobile']['ruleGroups']['SPEED']['score'];?> / 100</td>
+				<td class="td_br_right"><?php echo $reportList[$url]['mobile']['ruleGroups']['USABILITY']['score'];?> / 100</td>
 				<td class="<?php echo $rightBotClass?>">
 					<a href="javascript:void(0);">Details >></a>
 				</td>

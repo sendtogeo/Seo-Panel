@@ -23,26 +23,36 @@
 class PageSpeedController extends Controller{
 	
 	// function to get moz rank
-	function __getPageSpeedInfo ($url, $apiKey, $returnLog = false) {
+	function __getPageSpeedInfo ($url, $params = array(), $apiKey = '', $returnLog = false) {
 		
 		include_once(SP_LIBPATH . "/google-api-php-client/vendor/autoload.php");
 		$pageSpeedInfo = array();
 		$crawlInfo = array();
 		
-		$client = new Google_Client();
-		$client->setApplicationName("SP_CHECKER");		
-		$client->setDeveloperKey($apiKey);		
+		$apiKey = !empty($apiKey) ? $apiKey : SP_GOOGLE_API_KEY;
 		
-		try {
-			$service = new Google_Service_Pagespeedonline($client);
-			$pageSpeedInfo = $service->pagespeedapi->runpagespeed($url, array('screenshot' => true));
-		} catch (Exception $e) {
-			$err = $e->getMessage();
-			$errData = json_decode($err);
+		// if empty no need to crawl
+		if (!empty($apiKey)) {
+		
+			$client = new Google_Client();
+			$client->setApplicationName("SP_CHECKER");		
+			$client->setDeveloperKey($apiKey);		
+			
+			try {
+				$service = new Google_Service_Pagespeedonline($client);
+				$pageSpeedInfo = $service->pagespeedapi->runpagespeed($url, $params);
+			} catch (Exception $e) {
+				$err = $e->getMessage();
+				$errData = json_decode($err);
+				$crawlInfo['crawl_status'] = 0;
+				$crawlInfo['log_message'] = $_SESSION['text']['label']['Fail'];
+				$crawlInfo['log_message'] .= !empty($errData->error->errors[0]->reason) ? ": " . $errData->error->errors[0]->reason . " :: " . $errData->error->errors[0]->message : "";
+			}
+			
+		} else {
 			$crawlInfo['crawl_status'] = 0;
-			$crawlInfo['log_message'] = $_SESSION['text']['label']['Fail'];
-			$crawlInfo['log_message'] .= !empty($errData->error->errors[0]->reason) ? ": " . $errData->error->errors[0]->reason . " :: " . $errData->error->errors[0]->message : "";
-		}		
+			$crawlInfo['log_message'] = "Google api key not set.";
+		}
 		
 		return $returnLog ? array($pageSpeedInfo, $crawlInfo) : $pageSpeedInfo;
 		
@@ -56,18 +66,27 @@ class PageSpeedController extends Controller{
 	function findPageSpeedInfo($searchInfo) {
 		$urlList = explode("\n", $searchInfo['website_urls']);
 		$list = array();
+		$reportList = array();
+		
 		$i = 1;
 		foreach ($urlList as $url) {
 			$url = sanitizeData($url);
 			if(!preg_match('/\w+/', $url)) continue;
-			if (SP_DEMO) {
-				if ($i++ > 10) break;
-			}
-				
+			if ($i++ > 10) break;
 			$url = addHttpToUrl($url);
 			$list[] = str_replace(array("\n", "\r", "\r\n", "\n\r"), "", trim($url));
 		}
-	
+		
+		// loop through the list
+		foreach ($list as $url) {
+			$reportList[$url] = array();
+			$params = array('screenshot' => false, 'strategy' => 'desktop');
+			$reportList[$url]['desktop'] = $this->__getPageSpeedInfo($url, $params);
+			$params = array('screenshot' => false, 'strategy' => 'mobile');
+			$reportList[$url]['mobile'] = $this->__getPageSpeedInfo($url, $params);
+		}
+		
+		$this->set('reportList', $reportList);
 		$this->set('list', $list);
 		$this->render('pagespeed/findpagespeedinfo');
 	}
