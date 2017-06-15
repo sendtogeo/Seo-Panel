@@ -27,9 +27,9 @@
 			?>
 			<tr class="<?php echo $class?>">
 				<td class="<?php echo $leftBotClass?>" style="text-align:left;padding-left:10px;"><?php echo $url?></td>
-				<td class="td_br_right"><?php echo $reportList[$url]['desktop']['ruleGroups']['SPEED']['score'];?> / 100</td>
-				<td class="td_br_right"><?php echo $reportList[$url]['mobile']['ruleGroups']['SPEED']['score'];?> / 100</td>
-				<td class="td_br_right"><?php echo $reportList[$url]['mobile']['ruleGroups']['USABILITY']['score'];?> / 100</td>
+				<td class="td_br_right"><?php echo $reportList[$url]['desktop']['speed_score'];?> / 100</td>
+				<td class="td_br_right"><?php echo $reportList[$url]['mobile']['speed_score'];?> / 100</td>
+				<td class="td_br_right"><?php echo $reportList[$url]['mobile']['usability_score'];?> / 100</td>
 				<td class="<?php echo $rightBotClass?>">
 					<a href="javascript:void(0);">Details >></a>
 				</td>

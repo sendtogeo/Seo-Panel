@@ -41,6 +41,7 @@ class PageSpeedController extends Controller{
 			try {
 				$service = new Google_Service_Pagespeedonline($client);
 				$pageSpeedInfo = $service->pagespeedapi->runpagespeed($url, $params);
+				$pageSpeedInfo = self::formatPageSpeedData($pageSpeedInfo);
 			} catch (Exception $e) {
 				$err = $e->getMessage();
 				$errData = json_decode($err);
@@ -58,6 +59,76 @@ class PageSpeedController extends Controller{
 		
 	}
 	
+	public static function formatPageSpeedData($pageSpeedInfo) {
+
+		$pageSpeedData = array(
+			'speed_score' => !empty($pageSpeedInfo['ruleGroups']['SPEED']['score'])	? $pageSpeedInfo['ruleGroups']['SPEED']['score'] : 0,
+			'usability_score' => !empty($pageSpeedInfo['ruleGroups']['USABILITY']['score'])	? $pageSpeedInfo['ruleGroups']['USABILITY']['score'] : 0,
+		);
+		
+		$detailsInfo = array();
+		foreach ($pageSpeedInfo['formattedResults']['ruleResults'] as $ruleSet => $ruleSetInfo) {
+		
+			$detailsInfo[$ruleSet] = array(
+				'localizedRuleName' => $ruleSetInfo['localizedRuleName'],
+				'ruleImpact' => $ruleSetInfo['ruleImpact'],
+				'impactGroup' => implode(',', $ruleSetInfo['groups']),
+				'summary' => self::formatSummaryText($ruleSetInfo['summary']),
+				'urlBlocks' => self::formatUrlBlock($ruleSetInfo['urlBlocks']),
+			);		
+		
+		}
+		
+		$pageSpeedData['details'] = $detailsInfo;
+		return $pageSpeedData;
+		
+	}
+	
+	public static function formatUrlBlock($urlBlockList) {
+		$urlList = array();
+	
+		foreach ($urlBlockList as $urlBlockInfo) {
+			$info['header'] = self::formatSummaryText($urlBlockInfo['header']);
+			$info['urls'] = array();
+				
+			foreach ($urlBlockInfo['urls'] as $urlInfo) {
+				$info['urls'][] = self::formatSummaryText($urlInfo['result']);
+			}
+				
+			$urlList[] = $info;
+				
+		}
+	
+		return $urlList;
+	
+	}
+	
+	public static function formatSummaryText($summaryInfo) {
+	
+		$formatTxt = $summaryInfo['format'];
+	
+		// loop through arg information list
+		foreach ($summaryInfo['args'] as $argInfo) {
+				
+			switch ($argInfo['type']) {
+	
+				case "HYPERLINK":
+					$formatTxt = str_replace('{{BEGIN_LINK}}', "<a href='{$argInfo['value']}'>", $formatTxt);
+					$formatTxt = str_replace('{{END_LINK}}', "</a>", $formatTxt);
+					break;
+	
+				default:
+					$formatTxt = str_replace('{{' . $argInfo['key'] . '}}', $argInfo['value'], $formatTxt);
+					break;
+	
+			}
+				
+		}
+	
+		return $formatTxt;
+	
+	}	
+	
 	// function to show pagespeed checker
 	function showQuickChecker() {
 		$this->render('pagespeed/showquickchecker');
@@ -72,7 +143,7 @@ class PageSpeedController extends Controller{
 		foreach ($urlList as $url) {
 			$url = sanitizeData($url);
 			if(!preg_match('/\w+/', $url)) continue;
-			if ($i++ > 10) break;
+			if ($i++ > 5) break;
 			$url = addHttpToUrl($url);
 			$list[] = str_replace(array("\n", "\r", "\r\n", "\n\r"), "", trim($url));
 		}
@@ -89,7 +160,7 @@ class PageSpeedController extends Controller{
 		$this->set('reportList', $reportList);
 		$this->set('list', $list);
 		$this->render('pagespeed/findpagespeedinfo');
-	}
+	}	
 	
 }
 ?>
