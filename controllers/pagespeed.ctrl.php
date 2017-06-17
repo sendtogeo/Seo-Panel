@@ -148,14 +148,16 @@ class PageSpeedController extends Controller{
 			$list[] = str_replace(array("\n", "\r", "\r\n", "\n\r"), "", trim($url));
 		}
 		
-		// loop through the list
-		foreach ($list as $url) {
-			$reportList[$url] = array();
-			$params = array('screenshot' => false, 'strategy' => 'desktop');
-			$reportList[$url]['desktop'] = $this->__getPageSpeedInfo($url, $params);
-			$params = array('screenshot' => false, 'strategy' => 'mobile');
-			$reportList[$url]['mobile'] = $this->__getPageSpeedInfo($url, $params);
-		}
+// 		// loop through the list
+// 		foreach ($list as $url) {
+// 			$reportList[$url] = array();
+// 			$params = array('screenshot' => false, 'strategy' => 'desktop');
+// 			$reportList[$url]['desktop'] = $this->__getPageSpeedInfo($url, $params);
+// 			$params = array('screenshot' => false, 'strategy' => 'mobile');
+// 			$reportList[$url]['mobile'] = $this->__getPageSpeedInfo($url, $params);
+// 		}
+
+		include_once(SP_ABSPATH . "/data/pagespeed.php");
 		
 		$this->set('reportList', $reportList);
 		$this->set('list', $list);
