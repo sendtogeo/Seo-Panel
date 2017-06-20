@@ -113,7 +113,7 @@ class PageSpeedController extends Controller{
 			switch ($argInfo['type']) {
 	
 				case "HYPERLINK":
-					$formatTxt = str_replace('{{BEGIN_LINK}}', "<a href='{$argInfo['value']}'>", $formatTxt);
+					$formatTxt = str_replace('{{BEGIN_LINK}}', "<a href='{$argInfo['value']}' target='_blank'>", $formatTxt);
 					$formatTxt = str_replace('{{END_LINK}}', "</a>", $formatTxt);
 					break;
 	
@@ -159,9 +159,16 @@ class PageSpeedController extends Controller{
 
 		include_once(SP_ABSPATH . "/data/pagespeed.php");
 		
+		$url = "http://www.seopanel.in";
+		$this->set('url', $url);
+// 		debugVar($reportList);
+		
 		$this->set('reportList', $reportList);
 		$this->set('list', $list);
-		$this->render('pagespeed/findpagespeedinfo');
+// 		$this->render('pagespeed/findpagespeedinfo');
+
+		$this->render('pagespeed/pagespeeddetails');
+		
 	}	
 	
 }
