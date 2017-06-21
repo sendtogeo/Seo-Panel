@@ -33,7 +33,7 @@
 				<td class="<?php echo $rightBotClass?>">
 					<a href="javascript:void(0);" onclick="scriptDoLoadDialog('index.php', 'tmp', 'sec=showdiv&div_id=details_id<?php echo $i?>', 900, 600)">Details >></a>
 					<div id="details_id<?php echo $i?>" style="display: none;">
-						<?php include_once(SP_VIEWPATH."/pagespeed/pagespeeddetails.ctp.php");?>
+						<?php include(SP_VIEWPATH."/pagespeed/pagespeeddetails.ctp.php");?>
 					</div>
 				</td>
 			</tr>

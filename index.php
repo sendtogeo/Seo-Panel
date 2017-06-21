@@ -40,7 +40,6 @@ if($_SERVER['REQUEST_METHOD'] == 'GET'){
 			$areaId = $_GET['div_id'];
 			?>
 			<script type="text/javascript">
-			loadJsCssFile("<?php echo SP_CSSPATH; ?>/screen.css?<?php echo rand(1, 1000)?>", "css");
 			$('#dialogContent').html($("#<?php echo $areaId;?>").html());
 			</script>
 			<?php

@@ -116,6 +116,10 @@ class PageSpeedController extends Controller{
 					$formatTxt = str_replace('{{BEGIN_LINK}}', "<a href='{$argInfo['value']}' target='_blank'>", $formatTxt);
 					$formatTxt = str_replace('{{END_LINK}}', "</a>", $formatTxt);
 					break;
+					
+				case "URL":
+					$formatTxt = str_replace('{{' . $argInfo['key'] . '}}', "<a>{$argInfo['value']}</a>" , $formatTxt);
+					break;
 	
 				default:
 					$formatTxt = str_replace('{{' . $argInfo['key'] . '}}', $argInfo['value'], $formatTxt);
@@ -148,26 +152,18 @@ class PageSpeedController extends Controller{
 			$list[] = str_replace(array("\n", "\r", "\r\n", "\n\r"), "", trim($url));
 		}
 		
-// 		// loop through the list
-// 		foreach ($list as $url) {
-// 			$reportList[$url] = array();
-// 			$params = array('screenshot' => false, 'strategy' => 'desktop');
-// 			$reportList[$url]['desktop'] = $this->__getPageSpeedInfo($url, $params);
-// 			$params = array('screenshot' => false, 'strategy' => 'mobile');
-// 			$reportList[$url]['mobile'] = $this->__getPageSpeedInfo($url, $params);
-// 		}
-
-		include_once(SP_ABSPATH . "/data/pagespeed.php");
-		
-		$url = "http://www.seopanel.in";
-		$this->set('url', $url);
-// 		debugVar($reportList);
+		// loop through the list
+		foreach ($list as $url) {
+			$reportList[$url] = array();
+			$params = array('screenshot' => false, 'strategy' => 'desktop');
+			$reportList[$url]['desktop'] = $this->__getPageSpeedInfo($url, $params);
+			$params = array('screenshot' => false, 'strategy' => 'mobile');
+			$reportList[$url]['mobile'] = $this->__getPageSpeedInfo($url, $params);
+		}
 		
 		$this->set('reportList', $reportList);
 		$this->set('list', $list);
-// 		$this->render('pagespeed/findpagespeedinfo');
-
-		$this->render('pagespeed/pagespeeddetails');
+		$this->render('pagespeed/findpagespeedinfo');
 		
 	}	
 	

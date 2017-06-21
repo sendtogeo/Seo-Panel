@@ -44,8 +44,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	switch($_GET['sec']){
 		
 		default:
-			$controller->findPageSpeedInfo($_GET);
-// 			$controller->showQuickChecker();
+			$controller->showQuickChecker();
 			break;
 	}
 }

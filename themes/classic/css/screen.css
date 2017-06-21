@@ -1036,6 +1036,10 @@ a.bold_link{
 
 /* 3.11.0 changes */
 .speed_details {text-align: left;}
+.speed_details h2{margin: 0 0 10px 0; font-size: 14px;}
+.speed_details h3{margin: 10px 0px;}
+.speed_details .score{background-color: #F0F0F0; width: 200px; margin: 20px 0px; padding: 8px;}
+.speed_details .score_val, .speed_details .imapct_area, .speed_details .url_area{margin: 8px 0;}
 
 div.tab {
     overflow: hidden;
@@ -1051,6 +1055,8 @@ div.tab button {
     cursor: pointer;
     padding: 14px 16px;
     transition: 0.3s;
+    font-weight: bolder;
+    font-size: 16px;
 }
 
 div.tab button:hover {	background-color: #ddd;}

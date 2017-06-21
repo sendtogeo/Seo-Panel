@@ -3,30 +3,27 @@
 <div class="speed_details">
 
 	<div class="tab">
-		<button class="tablinks active" onclick="openTab(event, 'desktop')">Desktop</button>
-		<button class="tablinks" onclick="openTab(event, 'mobile')">Mobile</button>
+		<button class="tablinks active" onclick="openTab('desktop', true)" id="desktopLInk">Desktop</button>
+		<button class="tablinks" onclick="openTab('mobile', true)" id="mobileLink">Mobile</button>
 	</div>
-	
-	<style>
-	.speed_details h2{margin: 0 0 10px 0; }
-	.speed_details h3{margin: 10px 0px;}
-	.speed_details .score{background-color: #F0F0F0; width: 200px; margin: 20px 0px; padding: 8px;}
-	.speed_details .score_val, .speed_details .imapct_area, .speed_details .url_area{margin: 8px 0;}	
-	</style>	
 	
 	<?php 
 	foreach ($reportList[$url] as $deviceType => $deviceInfo) {
 		$divStyle = ($deviceType == 'desktop') ? "display: block;" : "";
 		
-		// chekc rule impact
-		if ($deviceInfo['speed_score'] < 85) {
+		// chekc speed rule
+		if ($deviceInfo['speed_score'] < 50) {
+			$style = "color: #DD4B3E";
+		} else if ($deviceInfo['speed_score'] < 85) {
 			$style = "color: #FDA100";
 		} else {
 			$style = "color: #009A2D";
 		}
 		
-		// chekc rule impact
-		if ($deviceInfo['usability_score'] < 85) {
+		// check usability rule
+		if ($deviceInfo['usability_score'] < 50) {
+			$usabilityStyle = "color: #DD4B3E";
+		} else if ($deviceInfo['usability_score'] < 85) {
 			$usabilityStyle = "color: #FDA100";
 		} else {
 			$usabilityStyle = "color: #009A2D";
