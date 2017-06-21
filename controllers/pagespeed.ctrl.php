@@ -155,9 +155,9 @@ class PageSpeedController extends Controller{
 		// loop through the list
 		foreach ($list as $url) {
 			$reportList[$url] = array();
-			$params = array('screenshot' => false, 'strategy' => 'desktop');
+			$params = array('screenshot' => false, 'strategy' => 'desktop', 'locale' => $_SESSION['lang_code']);
 			$reportList[$url]['desktop'] = $this->__getPageSpeedInfo($url, $params);
-			$params = array('screenshot' => false, 'strategy' => 'mobile');
+			$params = array('screenshot' => false, 'strategy' => 'mobile', 'locale' => $_SESSION['lang_code']);
 			$reportList[$url]['mobile'] = $this->__getPageSpeedInfo($url, $params);
 		}
 		
