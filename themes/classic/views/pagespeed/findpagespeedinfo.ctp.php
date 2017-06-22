@@ -31,7 +31,7 @@
 				<td class="td_br_right"><?php echo $reportList[$url]['mobile']['speed_score'];?> / 100</td>
 				<td class="td_br_right"><?php echo $reportList[$url]['mobile']['usability_score'];?> / 100</td>
 				<td class="<?php echo $rightBotClass?>">
-					<a href="javascript:void(0);" onclick="scriptDoLoadDialog('index.php', 'tmp', 'sec=showdiv&div_id=details_id<?php echo $i?>', 1200, 800)">Details >></a>
+					<a href="javascript:void(0);" onclick="scriptDoLoadDialog('index.php', 'tmp', 'sec=showdiv&div_id=details_id<?php echo $i?>', 1000, 800)">Details >></a>
 					<div id="details_id<?php echo $i?>" style="display: none;">
 						<?php include(SP_VIEWPATH."/pagespeed/pagespeeddetails.ctp.php");?>
 					</div>

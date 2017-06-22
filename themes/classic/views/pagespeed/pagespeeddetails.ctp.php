@@ -46,12 +46,12 @@
 
 				// chekc rule impact
 				if ($ruleInfo['ruleImpact']) {
-					$style = "color: #FDA100";
+					$style = "color: #FDA100;";
 				} else {
-					$style = "color: #009A2D";
+					$style = "color: #009A2D;";
 				}
 				?>
-				<h3 style="<?php echo $style?>">>> <?php echo $ruleInfo['localizedRuleName']?></h3>
+				<h3 style="<?php echo $style?> padding-top: 8px; border-top: 1px solid #ccc;">>> <?php echo $ruleInfo['localizedRuleName']?></h3>
 				<div class="imapct_area"><b>Impact:</b> <?php echo $ruleInfo['impactGroup']?></div>
 				<div><?php echo $ruleInfo['summary']?></div>
 				<?php 
