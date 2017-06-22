@@ -42,6 +42,14 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 } else {
 
 	switch($_GET['sec']){
+
+		case "reports":
+			$controller->showReports($_GET);
+			break;
+				
+		case "graphical-reports":
+			$controller->showGraphicalReports($_GET);
+			break;
 		
 		default:
 			$controller->showQuickChecker();

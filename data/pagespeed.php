@@ -5,7 +5,7 @@ $reportList = Array
         (
             'desktop' => Array
                 (
-                    'speed_score' => 82
+                    'speed_score' => 42
                     ,'usability_score' => 0
                     ,'details' => Array
                         (

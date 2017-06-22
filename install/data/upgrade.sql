@@ -26,6 +26,18 @@ INSERT INTO `seotools` (`name`, `url_section`, `user_access`, `reportgen`, `cron
 VALUES ('PageSpeed Insights', 'pagespeed', '1', '1', '1', '1');
 
 
+CREATE TABLE IF NOT EXISTS `pagespeedresults` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `website_id` int(11) NOT NULL,
+  `desktop_speed_score` smallint(6) NOT NULL,
+  `mobile_speed_score` smallint(6) NOT NULL,
+  `mobile_usability_score` smallint(6) NOT NULL,
+  `result_date` date NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `result_date` (`result_date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+
+
 INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 ('en', 'panel', 'Google Settings', 'Google Settings');
 
