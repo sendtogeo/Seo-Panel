@@ -24,9 +24,9 @@ class PageSpeedController extends Controller{
 	
 
 	var $colList = array(
-		'desktop_speed_score' => 'Desktop Speed Score',
-		'mobile_speed_score' => 'Mobile Speed Score',
-		'mobile_usability_score' => 'Mobile Usability Score',
+		'desktop_speed_score' => 'desktop_speed_score',
+		'mobile_speed_score' => 'mobile_speed_score',
+		'mobile_usability_score' => 'mobile_usability_score',
 	);
 	
 	// function to get moz rank
@@ -236,6 +236,7 @@ class PageSpeedController extends Controller{
 			}
 				
 			$i++;
+			
 		}
 	
 		$this->set('list', array_reverse($reportList, true));
@@ -243,18 +244,15 @@ class PageSpeedController extends Controller{
 	}
 	
 	# func to get backlink report for a website
-	function __getWebsitebacklinkReport($websiteId, $fromTime, $toTime) {
+	function __getWebsitePageSpeedReport($websiteId, $fromTime, $toTime) {
 	
 		$fromTimeLabel = date('Y-m-d', $fromTime);
 		$toTimeLabel = date('Y-m-d', $toTime);
 		$conditions = empty ($websiteId) ? "" : " and s.website_id=$websiteId";
-		$sql = "select s.* ,w.name
-		from pagespeedresults s,websites w
-		where s.website_id=w.id
-		and s.website_id=$websiteId
+		$sql = "select s.* ,w.name 	from pagespeedresults s,websites w
+		where s.website_id=w.id and s.website_id=$websiteId
 		and (result_date='$fromTimeLabel' or result_date='$toTimeLabel')
-		order by result_date DESC
-		Limit 0,2";
+		order by result_date DESC Limit 0,2";
 		$reportList = $this->db->select($sql);
 		$reportList = array_reverse($reportList);
 	
@@ -341,7 +339,7 @@ class PageSpeedController extends Controller{
 	
 		// get graph content
 		$this->set('graphContent', $graphContent);
-		$this->render('backlink/graphicalreport');
+		$this->render('pagespeed/graphicalreport');
 	}
 	
 }

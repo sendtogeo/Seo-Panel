@@ -1,4 +1,4 @@
-<?php echo showSectionHead($spTextTools['Backlinks Reports']); ?>
+<?php echo showSectionHead($spTextTools['PageSpeed Reports']); ?>
 <form id='search_form'>
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="search">
 	<tr>
@@ -27,12 +27,12 @@
 </form>
 
 <?php
-	if(empty($websiteId)){
-		?>
-		<p class='note error'><?php echo $spText['common']['No Records Found']?>!</p>
-		<?php
-		exit;
-	} 
+if(empty($websiteId)){
+	?>
+	<p class='note error'><?php echo $spText['common']['No Records Found']?>!</p>
+	<?php
+	exit;
+}
 ?>
 
 <div id='subcontent'>
@@ -64,9 +64,9 @@
 			?>
 			<tr class="<?php echo $class?>">
 				<td class="<?php echo $leftBotClass?>"><?php echo $listInfo['result_date']; ?></td>
-				<td class='td_br_right' style='text-align:left;padding-left:40px;'><a href="<?php echo $directLinkList['google']?>" target="_blank"><?php echo $listInfo['desktop_speed_score'].'</a> '. $listInfo['rank_diff_desktop_speed_score']?></td>
-				<td class='td_br_right' style='text-align:left;padding-left:40px;'><a href="<?php echo $directLinkList['alexa']?>" target="_blank"><?php echo $listInfo['mobile_speed_score'].'</a> '. $listInfo['rank_diff_mobile_speed_score']?></td>
-				<td class='<?php echo $rightBotClass?>' style='text-align:left;padding-left:40px;'><a href="<?php echo $directLinkList['msn']?>" target="_blank"><?php echo $listInfo['mobile_usability_score'].'</a> '. $listInfo['rank_diff_mobile_usability_score']?></td>
+				<td class='td_br_right' style='text-align:left;padding-left:40px;'><a><?php echo $listInfo['desktop_speed_score'].'</a> '. $listInfo['rank_diff_desktop_speed_score']?></td>
+				<td class='td_br_right' style='text-align:left;padding-left:40px;'><a><?php echo $listInfo['mobile_speed_score'].'</a> '. $listInfo['rank_diff_mobile_speed_score']?></td>
+				<td class='<?php echo $rightBotClass?>' style='text-align:left;padding-left:40px;'><a><?php echo $listInfo['mobile_usability_score'].'</a> '. $listInfo['rank_diff_mobile_usability_score']?></td>
 			</tr>
 			<?php
 			$i++;

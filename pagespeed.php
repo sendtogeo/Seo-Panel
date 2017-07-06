@@ -32,7 +32,15 @@ $controller->set('spTextPS', $controller->spTextPS);
 
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	
-	switch($_POST['sec']){	
+	switch($_POST['sec']){
+
+		case "reports":
+			$controller->showReports($_POST);
+			break;
+				
+		case "graphical-reports":
+			$controller->showGraphicalReports($_POST);
+			break;	
 			
 		default:
 			$controller->findPageSpeedInfo($_POST);
