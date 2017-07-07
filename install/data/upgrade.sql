@@ -35,8 +35,17 @@ CREATE TABLE IF NOT EXISTS `pagespeedresults` (
   `result_date` date NOT NULL,
   PRIMARY KEY (`id`),
   KEY `result_date` (`result_date`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
+CREATE TABLE IF NOT EXISTS `pagespeeddetails` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `website_id` int(11) NOT NULL,
+  `desktop_score_details` text NOT NULL,
+  `mobile_score_details` text NOT NULL,
+  `result_date` date NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `result_date` (`result_date`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
 
 INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 ('en', 'panel', 'Google Settings', 'Google Settings');
@@ -62,3 +71,5 @@ INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) 
 VALUES ('en', 'seotools', 'clickproceedaction', 'Enter URL''s <b>One per line</b>. Click on <b>Proceed</b> to check Results.');
 
+INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
+('en', 'pagespeed', 'Saved page speed results of', 'Saved page speed results of');

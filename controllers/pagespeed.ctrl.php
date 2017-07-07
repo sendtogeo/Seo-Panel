@@ -238,7 +238,10 @@ class PageSpeedController extends Controller{
 			$i++;
 			
 		}
-	
+		
+		$detailsInfo = $this->dbHelper->getRow("pagespeeddetails", "website_id=$websiteId");
+		$this->set('detailsInfo', $detailsInfo);
+		
 		$this->set('list', array_reverse($reportList, true));
 		$this->render('pagespeed/pagespeedreport');
 	}
@@ -340,6 +343,79 @@ class PageSpeedController extends Controller{
 		// get graph content
 		$this->set('graphContent', $graphContent);
 		$this->render('pagespeed/graphicalreport');
+	}
+	
+	# func to show genearte reports interface
+	function showGenerateReports($searchInfo = '') {
+	
+		$userId = isLoggedIn();
+		$websiteController = New WebsiteController();
+		$websiteList = $websiteController->__getAllWebsites($userId, true);
+		$this->set('websiteList', $websiteList);
+		$this->render('pagespeed/generatereport');
+		
+	}
+
+	# func to generate reports
+	function generateReports( $searchInfo='' ) {
+		$userId = isLoggedIn();
+		$websiteId = empty ($searchInfo['website_id']) ? '' : intval($searchInfo['website_id']);
+	
+		$sql = "select id,url from websites where status=1";
+		if(!empty($userId) && !isAdmin()) $sql .= " and user_id=$userId";
+		if(!empty($websiteId)) $sql .= " and id=$websiteId";
+		$sql .= " order by name";
+		$websiteList = $this->db->select($sql);
+	
+		if(count($websiteList) <= 0){
+			echo "<p class='note'>".$_SESSION['text']['common']['nowebsites']."!</p>";
+			exit;
+		}
+	
+		# loop through each websites
+		foreach ( $websiteList as $websiteInfo ) {
+			$websiteUrl = addHttpToUrl($websiteInfo['url']);
+			
+			$params = array('screenshot' => false, 'strategy' => 'desktop', 'locale' => $_SESSION['lang_code']);
+			$websiteInfo['desktop'] = $this->__getPageSpeedInfo($websiteUrl, $params);
+			$params = array('screenshot' => false, 'strategy' => 'mobile', 'locale' => $_SESSION['lang_code']);
+			$websiteInfo['mobile'] = $this->__getPageSpeedInfo($websiteUrl, $params);
+				
+			$this->savePageSpeedResults($websiteInfo, true);
+			
+			echo "<p class='note notesuccess'>".$this->spTextPS['Saved page speed results of']." <b>$websiteUrl</b>.....</p>";
+		}
+		
+	}
+
+	# function to save rank details
+	function savePageSpeedResults($matchInfo, $remove=false) {
+		$resultDate = date('Y-m-d');
+	
+		if($remove){
+			$sql = "delete from pagespeedresults where website_id={$matchInfo['id']} and result_date='$resultDate'";
+			$this->db->query($sql);
+			$sql = "delete from pagespeeddetails where website_id={$matchInfo['id']}";
+			$this->db->query($sql);
+		}
+	
+		$sql = "insert into pagespeedresults(website_id, desktop_speed_score, mobile_speed_score, mobile_usability_score, result_date)
+		values({$matchInfo['id']},{$matchInfo['desktop']['speed_score']},{$matchInfo['mobile']['speed_score']},{$matchInfo['mobile']['usability_score']}, '$resultDate')";
+		$this->db->query($sql);
+		
+		$sql = "insert into pagespeeddetails(website_id, desktop_score_details, mobile_score_details, result_date)
+		values({$matchInfo['id']},'" . addslashes(serialize($matchInfo['desktop']['details'])) . "',
+		'" . addslashes(serialize($matchInfo['mobile']['details'])) . "', '$resultDate')";
+		$this->db->query($sql);
+	
+	}
+	
+	# function check whether reports already saved
+	function isReportsExists($websiteId, $time) {
+		$resultDate = date('Y-m-d', $time);
+		$sql = "select website_id from pagespeedresults where website_id=$websiteId and result_date='$resultDate'";
+		$info = $this->db->select($sql, true);
+		return empty($info['website_id']) ? false : true;
 	}
 	
 }

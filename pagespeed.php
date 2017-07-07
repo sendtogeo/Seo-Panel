@@ -32,7 +32,11 @@ $controller->set('spTextPS', $controller->spTextPS);
 
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	
-	switch($_POST['sec']){
+	switch($_POST['sec']){	
+			
+		case "generate":
+			$controller->generateReports($_POST);
+			break;
 
 		case "reports":
 			$controller->showReports($_POST);
@@ -57,6 +61,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				
 		case "graphical-reports":
 			$controller->showGraphicalReports($_GET);
+			break;	
+			
+		case "generate":
+			$controller->showGenerateReports($_GET);
 			break;
 		
 		default:

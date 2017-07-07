@@ -97,11 +97,11 @@ class Database{
      */
     public function insertRow($table, $dataList) {
 
-    	array_walk($dataList, array('self', 'escapeValue'));
+    	$dataList = self::escapeValue($dataList);
     	$colList = array_keys($dataList);
     	$valueList = array_values($dataList);
     	$sql = "INSERT into $table(" . implode(',', $colList) . ") values('" . implode("', '", $valueList) . "')";
-    
+    	
     	// if no error occured
     	if ($this->dbConObj->query($sql)) {
     		return TRUE;
@@ -119,7 +119,7 @@ class Database{
      */
     public function updateRow($table, $dataList, $whereCond = '1=1') {
 
-    	array_walk($dataList, array('self', 'escapeValue'));
+    	$dataList = self::escapeValue($dataList);
     	$whereCond = !empty($whereCond) ? $whereCond : '1=1';
     	$sql = "Update $table SET ";
     		
@@ -141,37 +141,45 @@ class Database{
 
     /**
      * function to escape db values to be inserted
-     * @param Mixed $value		the value is to be changed
-     * @param String $key		the key of the string
+     * @param Mixed $dataList		the array contains valus as key => $value
      */
-    public static function escapeValue(&$value, $key) {
+    public static function escapeValue($dataList) {
+    	$escDataList = array();
     	
-    	// check whether type passed
-    	if (stristr($key, '|')) {
-    		list($key, $type) = explode("|", $key);
-    	} else {
-    		$type = "string";
+    	// loop through the data list
+    	foreach ($dataList as $key => $value) {
+    	
+	    	// check whether type passed
+	    	if (stristr($key, '|')) {
+	    		list($key, $type) = explode("|", $key);
+	    	} else {
+	    		$type = "string";
+	    	}
+	    	 
+	    	switch ($type) {
+	    
+	    		case "float":
+	    			$value = floatval($value);
+	    			break;
+	
+	    		case "number":
+	    		case "integer":
+	    		case "int":
+	    			$value = intval($value);
+	    			break;
+	    
+	    		case "text":
+	    		case "string":
+	    		default:
+	    			$value = addslashes($value);
+	    			break;
+	    			 
+	    	}
+	    	
+	    	$escDataList[$key] = $value;
     	}
-    	 
-    	switch ($type) {
-    
-    		case "float":
-    			$value = floatval($value);
-    			break;
-
-    		case "number":
-    		case "integer":
-    		case "int":
-    			$value = intval($value);
-    			break;
-    
-    		case "text":
-    		case "string":
-    		default:
-    			$value = addslashes($value);
-    			break;
-    			 
-    	}
+    	
+    	return $escDataList;
     	 
     }
 

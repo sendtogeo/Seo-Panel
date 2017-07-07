@@ -66,7 +66,24 @@ if(empty($websiteId)){
 				<td class="<?php echo $leftBotClass?>"><?php echo $listInfo['result_date']; ?></td>
 				<td class='td_br_right' style='text-align:left;padding-left:40px;'><a><?php echo $listInfo['desktop_speed_score'].'</a> '. $listInfo['rank_diff_desktop_speed_score']?></td>
 				<td class='td_br_right' style='text-align:left;padding-left:40px;'><a><?php echo $listInfo['mobile_speed_score'].'</a> '. $listInfo['rank_diff_mobile_speed_score']?></td>
-				<td class='<?php echo $rightBotClass?>' style='text-align:left;padding-left:40px;'><a><?php echo $listInfo['mobile_usability_score'].'</a> '. $listInfo['rank_diff_mobile_usability_score']?></td>
+				<td class='<?php echo $rightBotClass?>' style='text-align:left;padding-left:40px;'>
+					<a><?php echo $listInfo['mobile_usability_score'].'</a> '. $listInfo['rank_diff_mobile_usability_score']?>
+					<?php if ($i == 0) {?>
+						&nbsp;&nbsp;
+						<a href="javascript:void(0);" onclick="scriptDoLoadDialog('index.php', 'tmp', 'sec=showdiv&div_id=details_id', 1000, 800)"><?php echo $spText['common']['Details']?> >></a>
+						<div id="details_id" style="display: none;">
+							<?php
+							$url = "http://website:com";
+							$reportList[$url]['desktop']['details'] = unserialize($detailsInfo['desktop_score_details']);
+							$reportList[$url]['desktop']['speed_score'] = $listInfo['desktop_speed_score'];
+							$reportList[$url]['mobile']['details'] = unserialize($detailsInfo['mobile_score_details']);
+							$reportList[$url]['mobile']['speed_score'] = $listInfo['mobile_speed_score'];
+							$reportList[$url]['mobile']['usability_score'] = $listInfo['mobile_usability_score'];
+							include(SP_VIEWPATH."/pagespeed/pagespeeddetails.ctp.php");
+							?>
+						</div>
+					<?php }?>
+				</td>
 			</tr>
 			<?php
 			$i++;
