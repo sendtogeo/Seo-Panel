@@ -19,7 +19,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-# class defines all moz api controller functions
+# class defines all pagespeed api controller functions
 class PageSpeedController extends Controller{
 	
 
@@ -317,8 +317,9 @@ class PageSpeedController extends Controller{
 		// if reports not empty
 		$colList = $this->colList;
 		if (!empty($reportList)) {
-	
-			$dataArr = "['Date', '" . implode("', '", array_values($colList)) . "']";
+			
+			$colLableList = array($this->spTextPS['Desktop Speed'], $this->spTextPS['Mobile Speed'], $this->spTextPS['Mobile Usability']);
+			$dataArr = "['Date', '" . implode("', '", $colLableList) . "']";
 	
 			// loop through data list
 			foreach ($reportList as $dataInfo) {

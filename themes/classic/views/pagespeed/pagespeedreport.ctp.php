@@ -42,9 +42,9 @@ if(empty($websiteId)){
 	<table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
 	<tr class="listHead">
 		<td class="left"><?php echo $spText['common']['Date']?></td>
-		<td>Desktop Speed</td>
-		<td>Mobile Speed</td>
-		<td class="right">Mobile Usability</td>
+		<td><?php echo $spTextPS['Desktop Speed']?></td>
+		<td><?php echo $spTextPS['Mobile Speed']?></td>
+		<td class="right"><?php echo $spTextPS['Mobile Usability']?></td>
 	</tr>
 	<?php
 	$colCount = 4; 

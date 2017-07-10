@@ -1,10 +1,10 @@
-<?php echo showSectionHead('PageSpeed Details'); ?>
+<?php echo showSectionHead($spTextPS['PageSpeed Details']); ?>
 <div id='subcontent'>
 <div class="speed_details">
 
 	<div class="tab">
-		<button class="tablinks active" onclick="openTab('desktop', true)" id="desktopLInk">Desktop</button>
-		<button class="tablinks" onclick="openTab('mobile', true)" id="mobileLink">Mobile</button>
+		<button class="tablinks active" onclick="openTab('desktop', true)" id="desktopLInk"><?php echo $spText['label']['Desktop']?></button>
+		<button class="tablinks" onclick="openTab('mobile', true)" id="mobileLink"><?php echo $spText['label']['Mobile']?></button>
 	</div>
 	
 	<?php 
@@ -33,11 +33,11 @@
 		<div id="<?php echo $deviceType;?>" class="tabcontent" style="<?php echo $divStyle; ?>">
 		
 			<div class="score">
-				<h2>Score</h2>
-				<div class="score_val" style="<?php echo $style?>"><b>Speed:</b> <?php echo $deviceInfo['speed_score']?> / 100</div>	
+				<h2><?php echo $spText['label']['Score']?></h2>
+				<div class="score_val" style="<?php echo $style?>"><b><?php echo $spText['label']['Speed']?>:</b> <?php echo $deviceInfo['speed_score']?> / 100</div>	
 				
 				<?php if ($deviceType == 'mobile') {?>
-					<div class="score_val" style="<?php echo $usabilityStyle?>"><b>Usability:</b> <?php echo $deviceInfo['usability_score']?> / 100</div>
+					<div class="score_val" style="<?php echo $usabilityStyle?>"><b><?php echo $spText['label']['Usability']?>:</b> <?php echo $deviceInfo['usability_score']?> / 100</div>
 				<?php }?>
 			</div>
 			

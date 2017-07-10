@@ -1,13 +1,13 @@
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
 	<tr class="listHead">
 		<td class="left"><?php echo $spText['common']['Url']?></td>
-		<td>Desktop Speed</td>
-		<td>Mobile Speed</td>
-		<td>Mobile Usability</td>
-		<td class="right">Details</td>
+		<td><?php echo $spTextPS['Desktop Speed']?></td>
+		<td><?php echo $spTextPS['Mobile Speed']?></td>
+		<td><?php echo $spTextPS['Mobile Usability']?></td>
+		<td class="right"><?php echo $spText['common']['Details']?></td>
 	</tr>
 	<?php
-	$colCount = 4; 
+	$colCount = 5; 
 	if(count($list) > 0){
 		$catCount = count($list);
 		$i = 0;

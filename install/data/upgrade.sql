@@ -47,6 +47,13 @@ CREATE TABLE IF NOT EXISTS `pagespeeddetails` (
   KEY `result_date` (`result_date`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
 
+INSERT INTO `settings` (`set_label`, `set_name`, `set_val`, `set_category`, `set_type`, `display`) VALUES
+('Number of websites needs to be checked in each cron execution', 'SP_NUMBER_WEBSITES_CRON', '1', 'report', 'small', 0);
+
+update `settings` set set_val='1',display=0 WHERE `set_name` LIKE 'SP_NUMBER_KEYWORDS_CRON';
+
+
+
 INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 ('en', 'panel', 'Google Settings', 'Google Settings');
 
@@ -73,3 +80,27 @@ VALUES ('en', 'seotools', 'clickproceedaction', 'Enter URL''s <b>One per line</b
 
 INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 ('en', 'pagespeed', 'Saved page speed results of', 'Saved page speed results of');
+
+INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
+('en', 'pagespeed', 'Desktop Speed', 'Desktop Speed');
+
+INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
+('en', 'pagespeed', 'Mobile Speed', 'Mobile Speed');
+
+INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
+('en', 'pagespeed', 'Mobile Usability', 'Mobile Usability');
+
+INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
+('en', 'pagespeed', 'PageSpeed Details', 'PageSpeed Details');
+
+INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
+('en', 'label', 'Desktop', 'Desktop');
+
+INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
+('en', 'label', 'Mobile', 'Mobile');
+
+INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
+('en', 'label', 'Speed', 'Speed');
+
+INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
+('en', 'label', 'Usability', 'Usability');
