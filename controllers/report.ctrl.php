@@ -1127,10 +1127,15 @@ class ReportController extends Controller {
 			include_once(SP_CTRLPATH."/rank.ctrl.php");
 			include_once(SP_CTRLPATH."/backlink.ctrl.php");
 			include_once(SP_CTRLPATH."/directory.ctrl.php");
+			include_once(SP_CTRLPATH."/pagespeed.ctrl.php");
 			$rankCtrler = New RankController();
 			$backlinlCtrler = New BacklinkController();
 			$saturationCtrler = New SaturationCheckerController();			
-			$dirCtrler = New DirectoryController();
+			$dirCtrler = New DirectoryController();		
+			$pageSpeedCtrler = New PageSpeedController();
+			
+			$spTextPS = $this->getLanguageTexts('pagespeed', $_SESSION['lang_code']);
+			$this->set('spTextPS', $spTextPS);
 			
 			$websiteRankList = array();
 			foreach($websiteList as $listInfo){
@@ -1159,6 +1164,13 @@ class ReportController extends Controller {
 				$listInfo['google']['indexed'] = empty($report['google']) ? "-" : $report['google']." ".$report['rank_diff_google'];
 				$listInfo['msn']['indexed'] = empty($report['msn']) ? "-" : $report['msn']." ".$report['rank_diff_msn'];
 				
+				# pagespeed reports
+				$report = $pageSpeedCtrler->__getWebsitePageSpeedReport($listInfo['id'], $fromTime, $toTime);
+				$report = $report[0];				
+				$listInfo['desktop_speed_score'] = empty($report['desktop_speed_score']) ? "-" : $report['desktop_speed_score']." ".$report['rank_diff_desktop_speed_score'];
+				$listInfo['mobile_speed_score'] = empty($report['mobile_speed_score']) ? "-" : $report['mobile_speed_score']." ".$report['rank_diff_mobile_speed_score'];
+				$listInfo['mobile_usability_score'] = empty($report['mobile_usability_score']) ? "-" : $report['mobile_usability_score']." ".$report['rank_diff_mobile_usability_score'];
+								
 				$listInfo['dirsub']['total'] = $dirCtrler->__getTotalSubmitInfo($listInfo['id']);
 				$listInfo['dirsub']['active'] = $dirCtrler->__getTotalSubmitInfo($listInfo['id'], true);
 				$websiteRankList[] = $listInfo;
@@ -1190,6 +1202,9 @@ class ReportController extends Controller {
 					'Bing '.$spTextHome['Backlinks'],
 					'Google '.$spTextHome['Indexed'],
 					'Bing '.$spTextHome['Indexed'],
+					$spTextPS['Desktop Speed'],
+					$spTextPS['Mobile Speed'],
+					$spTextPS['Mobile Usability'],
 					$_SESSION['text']['common']['Total'].' Submission',
 					$_SESSION['text']['common']['Active'].' Submission',
 				);
@@ -1208,6 +1223,9 @@ class ReportController extends Controller {
 						strip_tags($websiteInfo['msn']['backlinks']),
 						strip_tags($websiteInfo['google']['indexed']),					
 						strip_tags($websiteInfo['msn']['indexed']),
+						strip_tags($websiteInfo['desktop_speed_score']),
+						strip_tags($websiteInfo['mobile_speed_score']),
+						strip_tags($websiteInfo['mobile_usability_score']),
 						$websiteInfo['dirsub']['total'],					
 						$websiteInfo['dirsub']['active'],
 					);

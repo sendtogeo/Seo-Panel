@@ -94,6 +94,9 @@ INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 ('en', 'pagespeed', 'PageSpeed Details', 'PageSpeed Details');
 
 INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
+('en', 'pagespeed', 'Page Speed', 'Page Speed');
+
+INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 ('en', 'label', 'Desktop', 'Desktop');
 
 INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
