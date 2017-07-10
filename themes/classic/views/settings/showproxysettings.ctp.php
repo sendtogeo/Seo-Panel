@@ -16,7 +16,6 @@ if (!empty($saved)) {
 		<td class="right">&nbsp;</td>
 	</tr>
 	<?php
-	debugVar($list, false); 
 	foreach( $list as $i => $listInfo){ 
 		$class = ($i % 2) ? "blue_row" : "white_row";
 		switch($listInfo['set_type']){
