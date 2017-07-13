@@ -260,7 +260,6 @@ class KeywordController extends Controller{
 		$userId = isLoggedIn();
 		$this->set('post', $listInfo);
 		$errMsg['keywords'] = formatErrorMsg($this->validate->checkBlank($listInfo['keywords']));
-		$listInfo['searchengines'] = addslashes($listInfo['searchengines']);
 		if (!is_array($listInfo['searchengines'])) $listInfo['searchengines'] = array();
 		$errMsg['searchengines'] = formatErrorMsg($this->validate->checkBlank(implode('', $listInfo['searchengines'])));
 		
@@ -305,7 +304,7 @@ class KeywordController extends Controller{
 				foreach ($keywordList as $keyword) {				
 					$sql = "insert into keywords(name,lang_code,country_code,website_id,searchengines,status)
 					values('$keyword','".addslashes($listInfo['lang_code'])."','".addslashes($listInfo['country_code'])."',
-					".intval($listInfo['website_id']).",'".implode(':', $listInfo['searchengines'])."',1)";
+					".intval($listInfo['website_id']).",'".addslashes(implode(':', $listInfo['searchengines']))."',1)";
 					$this->db->query($sql);
 				}
 				
