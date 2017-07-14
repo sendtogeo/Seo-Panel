@@ -33,6 +33,7 @@ function scriptDoLoadDialog(scriptUrl, scriptPos, scriptArgs, widthVal, heightVa
 	                error : function(xhr, status, error) {
 	                },
 	                complete : function() {
+	                   $("#dialogContent").append('<div id="popup_tmp"></div>');
 	                }
 	            }
 	            $.ajax(dataVals);

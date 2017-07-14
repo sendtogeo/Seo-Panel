@@ -242,6 +242,7 @@ class PageSpeedController extends Controller{
 		$detailsInfo = $this->dbHelper->getRow("pagespeeddetails", "website_id=$websiteId");
 		$this->set('detailsInfo', $detailsInfo);
 		
+		$this->set('fromPopUp', $searchInfo['fromPopUp']);
 		$this->set('list', array_reverse($reportList, true));
 		$this->render('pagespeed/pagespeedreport');
 	}

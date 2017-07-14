@@ -68,9 +68,18 @@ if(empty($websiteId)){
 				<td class='td_br_right' style='text-align:left;padding-left:40px;'><a><?php echo $listInfo['mobile_speed_score'].'</a> '. $listInfo['rank_diff_mobile_speed_score']?></td>
 				<td class='<?php echo $rightBotClass?>' style='text-align:left;padding-left:40px;'>
 					<a><?php echo $listInfo['mobile_usability_score'].'</a> '. $listInfo['rank_diff_mobile_usability_score']?>
-					<?php if ($i == 0) {?>
+					<?php 
+					if ($i == 0) {
+						
+						// if loaded through popup
+						if ($fromPopUp) {
+							$detailsLink = "scriptDoLoad('index.php', 'popup_tmp', 'sec=showdiv&div_id=details_id')";
+						} else {	
+							$detailsLink = "scriptDoLoadDialog('index.php', 'tmp', 'sec=showdiv&div_id=details_id', 1000, 800)";
+						}
+						?>
 						&nbsp;&nbsp;
-						<a href="javascript:void(0);" onclick="scriptDoLoadDialog('index.php', 'tmp', 'sec=showdiv&div_id=details_id', 1000, 800)"><?php echo $spText['common']['Details']?> >></a>
+						<a href="javascript:void(0);" onclick="<?php echo $detailsLink;?>"><?php echo $spText['common']['Details']?> >></a>
 						<div id="details_id" style="display: none;">
 							<?php
 							$url = "http://website:com";

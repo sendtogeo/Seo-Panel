@@ -3,7 +3,7 @@
 <div class="speed_details">
 
 	<div class="tab">
-		<button class="tablinks active" onclick="openTab('desktop', true)" id="desktopLInk"><?php echo $spText['label']['Desktop']?></button>
+		<button class="tablinks active" onclick="openTab('desktop', true)" id="desktopLink"><?php echo $spText['label']['Desktop']?></button>
 		<button class="tablinks" onclick="openTab('mobile', true)" id="mobileLink"><?php echo $spText['label']['Mobile']?></button>
 	</div>
 	
