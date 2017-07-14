@@ -146,6 +146,10 @@ class PageSpeedController extends Controller{
 	}
 	
 	function findPageSpeedInfo($searchInfo) {
+		
+		// check google api setup
+		SettingsController::showCheckCategorySettings('google', true);
+		
 		$urlList = explode("\n", $searchInfo['website_urls']);
 		$list = array();
 		$reportList = array();
@@ -349,7 +353,10 @@ class PageSpeedController extends Controller{
 	
 	# func to show genearte reports interface
 	function showGenerateReports($searchInfo = '') {
-	
+		
+		// check google api setup
+		SettingsController::showCheckCategorySettings('google', true);
+		
 		$userId = isLoggedIn();
 		$websiteController = New WebsiteController();
 		$websiteList = $websiteController->__getAllWebsites($userId, true);

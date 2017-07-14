@@ -107,3 +107,6 @@ INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 
 INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 ('en', 'label', 'Usability', 'Usability');
+
+INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
+('en', 'settings', 'Please update google settings to get the results', 'Please update google settings to get the results');

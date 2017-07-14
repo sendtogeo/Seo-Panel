@@ -171,5 +171,52 @@ class SettingsController extends Controller{
 	    }
 	}
 	
+
+
+	# show google api settings notification
+	public static function showCheckCategorySettings($category, $printMsg = false) {
+		$ctrler = new SettingsController();
+		$spTextSettings = $ctrler->getLanguageTexts('settings', $_SESSION['lang_code']);
+		$showMsg = '';
+		$notSet = false;
+		
+		// if category is google
+		if ($category == 'google') {
+			$settingInfo = $ctrler->__getSettingInfo('SP_GOOGLE_API_KEY');
+			
+			if (empty($settingInfo['set_val'])) {
+				$notSet = true;
+				$msgStr = $spTextSettings['Please update google settings to get the results'];
+			}
+			
+		}
+				
+		// check whether settings is empty
+		if ($notSet) {
+			$settingUrl = isAdmin() ? SP_WEBPATH . "/admin-panel.php?menu_selected=settings&start_script=settings&category=$category" : "#";
+			$showMsg = '
+			<div id="topnewsbox">
+				<a class="bold_link" href="' . $settingUrl . '">'. $msgStr .' &gt;&gt;
+				</a>
+			</div>';
+			
+			// if print message is enabled
+			if ($printMsg) {
+				echo $showMsg;
+				exit;
+			}
+			
+		}
+		
+		return $showMsg;
+		
+	}
+	
+	// function to get settings info
+	function __getSettingInfo($setName) {
+		$setInfo = $this->dbHelper->getRow('settings', "set_name='".addslashes($setName)."'");
+		return $setInfo;
+	}
+	
 }
 ?>
