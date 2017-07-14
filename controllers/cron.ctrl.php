@@ -58,7 +58,7 @@ class CronController extends Controller {
 		$websiteController = New WebsiteController();
 		$websiteList = $websiteController->__getAllWebsites($userId, true);
 		$this->set('websiteList', $websiteList);
-		$this->set('websiteNull', true);
+		$this->set('websiteNull', false);
 		
 		$this->loadReportGenerationTools();
 		$this->set('repTools', $this->repTools);

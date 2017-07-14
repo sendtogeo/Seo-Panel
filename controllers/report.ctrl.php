@@ -546,13 +546,13 @@ class ReportController extends Controller {
 		$websiteController = New WebsiteController();
 		$websiteList = $websiteController->__getAllWebsites($userId, true);
 		$this->set('websiteList', $websiteList);
-		$websiteId = empty ($searchInfo['website_id']) ? '' : intval($searchInfo['website_id']);
+		$websiteId = empty ($searchInfo['website_id']) ? $websiteList[0]['id'] : intval($searchInfo['website_id']);
 		$this->set('websiteId', $websiteId);
 
 		$keywordController = New KeywordController();
 		$keywordList = $keywordController->__getAllKeywords($userId, $websiteId, true);
 		$this->set('keywordList', $keywordList);
-		$this->set('keyNull', true);
+		$this->set('keyNull', false);
 		$keywordId = empty ($searchInfo['keyword_id']) ? '' : $searchInfo['keyword_id'];
 		$this->set('keywordId', $keywordId);		
 
