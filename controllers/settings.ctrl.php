@@ -189,6 +189,16 @@ class SettingsController extends Controller{
 				$msgStr = $spTextSettings['Please update google settings to get the results'];
 			}
 			
+		} else if ($category == 'moz') {
+
+			$accessInfo = $ctrler->__getSettingInfo('SP_MOZ_API_ACCESS_ID');
+			$secretInfo = $ctrler->__getSettingInfo('SP_MOZ_API_SECRET');
+			
+			if (empty($accessInfo['set_val']) || empty($secretInfo['set_val'])) {
+				$notSet = true;
+				$msgStr = $spTextSettings['Please update MOZ settings to get complete results'];
+			}
+			
 		}
 				
 		// check whether settings is empty

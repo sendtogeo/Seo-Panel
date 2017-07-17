@@ -110,3 +110,6 @@ INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 
 INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 ('en', 'settings', 'Please update google settings to get the results', 'Please update google settings to get the results');
+
+INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
+('en', 'settings', 'Please update MOZ settings to get complete results', 'Please update MOZ settings to get complete results');

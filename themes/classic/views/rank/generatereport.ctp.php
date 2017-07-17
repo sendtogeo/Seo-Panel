@@ -21,4 +21,8 @@
 
 <div id='subcontent'>
 	<p class='note'><?php echo $spTextTools['clickgeneratereports']?></p>
+	<?php
+	// check MOZ api setup
+	echo SettingsController::showCheckCategorySettings('moz', false);
+	?>
 </div>
