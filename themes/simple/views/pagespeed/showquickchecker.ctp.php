@@ -1,4 +1,4 @@
-<?php echo showSectionHead($spTextTools['Quick Rank Checker']); ?>
+<?php echo showSectionHead($spTextTools['Quick PageSpeed Checker']); ?>
 <form id='search_form'>
 <table width="60%" border="0" cellspacing="0" cellpadding="0" class="search">
 	<tr>				
@@ -10,16 +10,12 @@
 	<tr>
 		<th>&nbsp;</th>
 		<td style="padding-left: 9px;">
-			<?php $actFun = SP_DEMO ? "alertDemoMsg()" : "scriptDoLoadPost('rank.php', 'search_form', 'subcontent', '&sec=quickrank')"; ?>
+			<?php $actFun = SP_DEMO ? "alertDemoMsg()" : "scriptDoLoadPost('pagespeed.php', 'search_form', 'subcontent')"; ?>
 			<a href="javascript:void(0);" onclick="<?php echo $actFun?>" class="actionbut"><?php echo $spText['button']['Proceed']?></a>
 		</td>
 	</tr>
 </table>
 </form>
 <div id='subcontent'>
-	<p class='note'><?php echo $spTextRank['enterurlproceed']?></p>
-	<?php
-	// check MOZ api setup
-	echo SettingsController::showCheckCategorySettings('moz', false);
-	?>
+	<p class='note'><?php echo $spTextTools['clickproceedaction']?></p>
 </div>

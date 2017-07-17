@@ -79,6 +79,7 @@ foreach($menuList as $i => $menuInfo){
 			<ul id='subui'>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('rank.php?sec=quickrank', 'content')"><?php echo $spTextTools['Quick Rank Checker']?></a></li>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('rank.php?sec=reports', 'content')"><?php echo $spTextTools['Rank Reports']?></a></li>
+				<li><a href="javascript:void(0);" onclick="scriptDoLoad('rank.php?sec=graphical-reports', 'content')"><?php echo $spTextTools['Graphical Position Reports']?></a></li>
 				<?php if(SP_USER_GEN_REPORT || isAdmin()){ ?>
 					<?php if(SP_DEMO){?>
 		         		<li><a href="javascript:void(0);" onclick="alertDemoMsg();"><?php echo $spTextTools['Generate Rank Reports']?></a></li>
@@ -96,6 +97,7 @@ foreach($menuList as $i => $menuInfo){
 			<ul id='subui'>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('backlinks.php', 'content')"><?php echo $spTextTools['Quick Backlinks Checker']?></a></li>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('backlinks.php?sec=reports', 'content')"><?php echo $spTextTools['Backlinks Reports']?></a></li>
+				<li><a href="javascript:void(0);" onclick="scriptDoLoad('backlinks.php?sec=graphical-reports', 'content')"><?php echo $spTextTools['Graphical Position Reports']?></a></li>
 				<?php if(SP_USER_GEN_REPORT || isAdmin()){ ?>
 					<?php if(SP_DEMO){?>
 		         		<li><a href="javascript:void(0);" onclick="alertDemoMsg();"><?php echo $spTextTools['Generate Backlinks Reports']?></a></li>
@@ -132,11 +134,30 @@ foreach($menuList as $i => $menuInfo){
 			<ul id='subui'>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('saturationchecker.php', 'content')"><?php echo $spTextTools['Quick Saturation Checker']?></a></li>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('saturationchecker.php?sec=reports', 'content')"><?php echo $spTextTools['Saturation Reports']?></a></li>
+				<li><a href="javascript:void(0);" onclick="scriptDoLoad('saturationchecker.php?sec=graphical-reports', 'content')"><?php echo $spTextTools['Graphical Position Reports']?></a></li>
 				<?php if(SP_USER_GEN_REPORT || isAdmin()){ ?>				
 					<?php if(SP_DEMO){?>
 		         		<li><a href="javascript:void(0);" onclick="alertDemoMsg();"><?php echo $spTextTools['Generate Saturation Reports']?></a></li>
 		         	<?php }else{?>
 		         		<li><a href="javascript:void(0);" onclick="scriptDoLoad('saturationchecker.php?sec=generate', 'content')"><?php echo $spTextTools['Generate Saturation Reports']?></a></li>
+		         	<?php }?>
+		      	<?php }?>
+			</ul>
+			<?php
+			break;			
+			
+		case "pagespeed":
+			?>
+			<script type="text/javascript">scriptList[<?php echo $i?>] = 'pagespeed.php';</script>			
+			<ul id='subui'>
+				<li><a href="javascript:void(0);" onclick="scriptDoLoad('pagespeed.php', 'content')"><?php echo $spTextTools['Quick PageSpeed Checker']?></a></li>
+				<li><a href="javascript:void(0);" onclick="scriptDoLoad('pagespeed.php?sec=reports', 'content')"><?php echo $spTextTools['PageSpeed Reports']?></a></li>
+				<li><a href="javascript:void(0);" onclick="scriptDoLoad('pagespeed.php?sec=graphical-reports', 'content')"><?php echo $spTextTools['Graphical Position Reports']?></a></li>
+				<?php if(SP_USER_GEN_REPORT || isAdmin()){ ?>				
+					<?php if(SP_DEMO){?>
+		         		<li><a href="javascript:void(0);" onclick="alertDemoMsg();"><?php echo $spTextTools['Generate Reports']?></a></li>
+		         	<?php }else{?>
+		         		<li><a href="javascript:void(0);" onclick="scriptDoLoad('pagespeed.php?sec=generate', 'content')"><?php echo $spTextTools['Generate Reports']?></a></li>
 		         	<?php }?>
 		      	<?php }?>
 			</ul>

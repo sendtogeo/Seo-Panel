@@ -1,4 +1,4 @@
-<?php echo showSectionHead($spTextTools['Generate Rank Reports']); ?>
+<?php echo showSectionHead($spTextTools['Generate Reports']); ?>
 <form id='search_form'>
 <table width="400px" border="0" cellspacing="0" cellpadding="0" class="search">
 	<tr>
@@ -14,15 +14,11 @@
 				<?php }?>
 			</select>
 		</td>
-		<td><a href="javascript:void(0);" onclick="scriptDoLoadPost('rank.php', 'search_form', 'subcontent', '&sec=generate')" class="actionbut"><?php echo $spText['button']['Proceed']?></a></td>		
+		<td><a href="javascript:void(0);" onclick="scriptDoLoadPost('pagespeed.php', 'search_form', 'subcontent', '&sec=generate')" class="actionbut"><?php echo $spText['button']['Proceed']?></a></td>		
 	</tr>
 </table>
 </form>
 
 <div id='subcontent'>
 	<p class='note'><?php echo $spTextTools['clickgeneratereports']?></p>
-	<?php
-	// check MOZ api setup
-	echo SettingsController::showCheckCategorySettings('moz', false);
-	?>
 </div>
