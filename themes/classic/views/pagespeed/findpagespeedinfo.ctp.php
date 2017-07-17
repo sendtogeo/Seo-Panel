@@ -27,9 +27,9 @@
 			?>
 			<tr class="<?php echo $class?>">
 				<td class="<?php echo $leftBotClass?>" style="text-align:left;padding-left:10px;"><?php echo $url?></td>
-				<td class="td_br_right"><?php echo $reportList[$url]['desktop']['speed_score'];?> / 100</td>
-				<td class="td_br_right"><?php echo $reportList[$url]['mobile']['speed_score'];?> / 100</td>
-				<td class="td_br_right"><?php echo $reportList[$url]['mobile']['usability_score'];?> / 100</td>
+				<td class="td_br_right"><?php echo $reportList[$url]['desktop']['speed_score'] ? $reportList[$url]['desktop']['speed_score'] : 0;?> / 100</td>
+				<td class="td_br_right"><?php echo $reportList[$url]['mobile']['speed_score'] ? $reportList[$url]['mobile']['speed_score'] : 0;?> / 100</td>
+				<td class="td_br_right"><?php echo $reportList[$url]['mobile']['usability_score'] ? $reportList[$url]['mobile']['usability_score'] : 0;?> / 100</td>
 				<td class="<?php echo $rightBotClass?>">
 					<a href="javascript:void(0);" onclick="scriptDoLoadDialog('index.php', 'tmp', 'sec=showdiv&div_id=details_id<?php echo $i?>', 1000, 800)"><?php echo $spText['common']['Details']?> >></a>
 					<div id="details_id<?php echo $i?>" style="display: none;">

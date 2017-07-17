@@ -46,6 +46,12 @@ class PageSpeedController extends Controller{
 			$client->setDeveloperKey($apiKey);		
 			
 			try {
+				
+				// split and select main language if sub language selected
+				if (stristr($params['locale'], '-')) {
+					list($params['locale'], $tmpVar) = explode('-', $params['locale']);
+				}
+				
 				$service = new Google_Service_Pagespeedonline($client);
 				$pageSpeedInfo = $service->pagespeedapi->runpagespeed($url, $params);
 				$pageSpeedInfo = self::formatPageSpeedData($pageSpeedInfo);
