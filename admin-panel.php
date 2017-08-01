@@ -52,6 +52,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			break;
 
 		default:
+			$_GET['sec'] = addslashes($_GET['sec']);
 			$controller->index($_GET);
 			break;
 	}

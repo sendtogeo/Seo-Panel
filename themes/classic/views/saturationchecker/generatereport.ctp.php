@@ -5,7 +5,6 @@
 		<th><?php echo $spText['common']['Website']?>: </th>
 		<td>
 			<select name="website_id" style='width:170px;' id="website_id">
-				<option value="">-- Select --</option>
 				<?php foreach($websiteList as $websiteInfo){?>
 					<?php if($websiteInfo['id'] == $websiteId){?>
 						<option value="<?php echo $websiteInfo['id']?>" selected><?php echo $websiteInfo['name']?></option>

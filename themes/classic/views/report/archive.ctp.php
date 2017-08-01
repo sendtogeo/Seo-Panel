@@ -232,7 +232,7 @@ if (!empty($keywordPos)) {
 <div>
 	<?php
 	if (!empty($websiteStats)) {
-    	$colSpan = 13; 
+    	$colSpan = 16; 
     	?>
     	<?php echo $websitePagingDiv?>
     	<table width="100%" cellspacing="0" cellpadding="0" class="summary" style="<?php echo $borderCollapseVal; ?>">
@@ -243,6 +243,7 @@ if (!empty($keywordPos)) {
     			<td class="subheaderdark" colspan="4"><?php echo $spTextHome['Ranks']?></td>
     			<td class="subheaderdark" colspan="3"><?php echo $spTextHome['Backlinks']?></td>
     			<td class="subheaderdark" colspan="2"><?php echo $spTextHome['Pages Indexed']?></td>
+    			<td class="subheaderdark" colspan="3"><?php echo $spTextPS['Page Speed']?></td>
     			<td class="subheaderdark" colspan="2"><?php echo $spTextHome['Directory Submission']?></td>
     		</tr>		
     		<tr>
@@ -255,6 +256,9 @@ if (!empty($keywordPos)) {
     			<td class="subheader">Bing</td>			
     			<td class="subheader">Google</td>
     			<td class="subheader">Bing</td>
+    			<td class="subheader"><?php echo $spTextPS['Desktop Speed']?></td>
+    			<td class="subheader"><?php echo $spTextPS['Mobile Speed']?></td>
+    			<td class="subheader"><?php echo $spTextPS['Mobile Usability']?></td>
     			<td class="subheader"><?php echo $spText['common']['Total']?></td>
     			<td class="subheader"><?php echo $spText['common']['Active']?></td>
     		</tr>
@@ -274,6 +278,9 @@ if (!empty($keywordPos)) {
     				$bingIndexLInk = scriptAJAXLinkHrefDialog('saturationchecker.php', 'content', "sec=reports&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['msn']['indexed']);
     				$totaldirLink = scriptAJAXLinkHrefDialog('directories.php', 'content', "sec=reports&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['dirsub']['total']);
     				$activeDirLink = scriptAJAXLinkHrefDialog('directories.php', 'content', "sec=reports&active=approved&&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['dirsub']['active']);
+    				$desktopPageSpeedLink = scriptAJAXLinkHrefDialog('pagespeed.php', 'content', "sec=reports&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['desktop_speed_score']);
+    				$mobilePageSpeedLink = scriptAJAXLinkHrefDialog('pagespeed.php', 'content', "sec=reports&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['mobile_speed_score']);
+    				$mobileUsabilityLink = scriptAJAXLinkHrefDialog('pagespeed.php', 'content', "sec=reports&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['mobile_usability_score']);
     				?>
     				<tr>
     					<td class="content" style="border-left: none;"><?php echo $websiteInfo['id']?></td>
@@ -290,6 +297,9 @@ if (!empty($keywordPos)) {
 						<td class="content"><?php echo $bingBackLInk; ?></td>
 						<td class="content"><?php echo $googleIndexLInk; ?></td>
 						<td class="content"><?php echo $bingIndexLInk; ?></td>
+						<td class="content"><?php echo $desktopPageSpeedLink; ?></td>
+						<td class="content"><?php echo $mobilePageSpeedLink; ?></td>
+						<td class="content"><?php echo $mobileUsabilityLink; ?></td>
 						<td class="contentmid"><?php echo $totaldirLink?></td>					
 						<td class="contentmid"><?php echo $activeDirLink?></td>
     				</tr> 

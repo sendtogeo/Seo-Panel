@@ -20,6 +20,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+include_once(SP_CTRLPATH."/keyword.ctrl.php");
 include_once(SP_CTRLPATH."/moz.ctrl.php");
 
 # class defines all cron controller functions
@@ -30,10 +31,12 @@ class CronController extends Controller {
 	var $debug = true;		    // to show debug message or not
 	var $layout = 'ajax';       // ajax layout or not
 	var $timeStamp;             // timestamp for storing reports
-	var $checkedKeywords = 0;   // the number of keywords checked in cron, this is used for split cron execution feature       	
+	var $checkedKeywords = 0;   // the number of keywords checked in cron, this is used for split cron execution feature 
+	var $checkedWebsites = 0;   // the number of websites checked in cron, this is used for split cron execution feature       	
 	
 	# function to load all tools required for report generation 
 	function loadReportGenerationTools($includeList=array()){
+		$includeList = formatSQLParamList($includeList);
 		$sql = "select * from seotools where status=1 and reportgen=1";
 		if(count($includeList) > 0) $sql .= " and id in (".implode(',', $includeList).")";
 		$this->repTools = $this->db->select($sql);
@@ -43,6 +46,7 @@ class CronController extends Controller {
 	function loadCronJobTools($includeList=array()){
 		$sql = "select * from seotools where status=1 and cron=1";
 		if(count($includeList) > 0) $sql .= " and id in (".implode(',', $includeList).")";
+		$sql .= " order by id ASC";
 		$this->cronList = $this->db->select($sql);
 	}
 	
@@ -54,7 +58,7 @@ class CronController extends Controller {
 		$websiteController = New WebsiteController();
 		$websiteList = $websiteController->__getAllWebsites($userId, true);
 		$this->set('websiteList', $websiteList);
-		$this->set('websiteNull', true);
+		$this->set('websiteNull', false);
 		
 		$this->loadReportGenerationTools();
 		$this->set('repTools', $this->repTools);
@@ -103,8 +107,8 @@ class CronController extends Controller {
 	# common cron execute function
 	function executeCron($includeList=array()) {
 		
-		$this->loadCronJobTools($includeList);		
-		$lastGenerated = date('Y-m-d 00:00:00');
+		$this->loadCronJobTools($includeList);
+		$lastGenerated = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
 		
 		$userCtrler = New UserController();
 		$userList = $userCtrler->__getAllUsers();
@@ -112,23 +116,41 @@ class CronController extends Controller {
 		    
 		    // create report controller
 		    $reportCtrler = New ReportController();
-			
-		    $lastGenerated = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
 		    
 		    // check for user report schedule
 		    $repSetInfo = $reportCtrler->isGenerateReportsForUser($userInfo['id']); 
 			if (!empty($repSetInfo['generate_report'])) {
 			    
 			    $websiteCtrler = New WebsiteController();
-    			$websiteList = $websiteCtrler->__getAllWebsites($userInfo['id']);
+			    $sql = "select * from websites where status=1 and user_id=" . $userInfo['id'] . " and crawled=0 order by name";
+			    $websiteList = $websiteCtrler->db->select($sql);
+			    $websiteCount = count($websiteList);
     			
     			// if websites are available
-    			if (count($websiteList) > 0) {
+    			if ($websiteCount > 0) {
     			
         			foreach($websiteList as $websiteInfo){
         				
         				$this->websiteInfo = $websiteInfo;
         				$this->routeCronJob($websiteInfo['id'], '', true);
+        				$this->checkedWebsites++;
+        				
+        				// change website crawl status
+        				$sql = "update websites set crawled=1 where id=" . $websiteInfo['id'];
+        				$websiteList = $websiteCtrler->db->query($sql);
+        				
+        				// if all websites checked, mark as report generated for the day
+        				if ($this->checkedWebsites != $websiteCount) {
+        					        				
+	        				// to implement split cron execution feature
+	        				if ( SP_NUMBER_WEBSITES_CRON > 0) {        					
+	        					if ($this->checkedWebsites == SP_NUMBER_WEBSITES_CRON) {
+	        						die("Reached total number of allowed websites(" . SP_NUMBER_WEBSITES_CRON. ") in each cron job");
+	        					}
+	        				}
+	        				
+        				}
+        				
         			}
         			
         			// save report generated time
@@ -138,10 +160,22 @@ class CronController extends Controller {
     				if (SP_REPORT_EMAIL_NOTIFICATION && $repSetInfo['email_notification']) {
     				    $reportCtrler->sentEmailNotificationForReportGen($userInfo, $repSetInfo['last_generated'], $lastGenerated);
     				}
+    				
     			}
     			
 			}
-		}		
+		}
+		
+		// reset all keywords crawl status
+		$keywordCtrler = New KeywordController();
+		$keywordCtrler->__changeCrawledStatus(0);
+		$this->debugMsg("Reset all keywords crawl status\n");
+
+		// change all website crawl status
+		$sql = "update websites set crawled=0";
+		$keywordCtrler->db->query($sql);
+		$this->debugMsg("Change all websites crawl status\n");
+		
 	}
 	
 	# function to route the cronjobs to different methods
@@ -181,6 +215,10 @@ class CronController extends Controller {
 				case "saturation-checker":
 					$this->saturationCheckerCron($websiteId);
 					break;
+					
+				case "pagespeed":
+					$this->pageSpeedCheckerCron($websiteId);
+					break;
 			}
 		}
 	}
@@ -204,6 +242,28 @@ class CronController extends Controller {
 		$saturationCtrler->saveRankResults($websiteInfo, true);			
 		echo "Saved Search Engine Saturation results of <b>$websiteUrl</b>.....</br>\n";
 		
+	}
+	
+	# func to generate pagespeed reports from cron
+	function pageSpeedCheckerCron($websiteId){
+	
+		include_once(SP_CTRLPATH."/pagespeed.ctrl.php");
+		$this->debugMsg("Starting page speed Checker cron for website: {$this->websiteInfo['name']}....<br>\n");
+	
+		$pageSpeedCtrler = New PageSpeedController();
+		$websiteInfo = $this->websiteInfo;
+	
+		if (SP_MULTIPLE_CRON_EXEC && $pageSpeedCtrler->isReportsExists($websiteInfo['id'], $this->timeStamp)) return;
+		
+		$websiteUrl = addHttpToUrl($websiteInfo['url']);
+		$params = array('screenshot' => false, 'strategy' => 'desktop', 'locale' => $_SESSION['lang_code']);
+		$websiteInfo['desktop'] = $pageSpeedCtrler->__getPageSpeedInfo($websiteUrl, $params);
+		$params = array('screenshot' => false, 'strategy' => 'mobile', 'locale' => $_SESSION['lang_code']);
+		$websiteInfo['mobile'] = $pageSpeedCtrler->__getPageSpeedInfo($websiteUrl, $params);
+		
+		$pageSpeedCtrler->savePageSpeedResults($websiteInfo, true);
+		echo "Saved page speed results of <b>$websiteUrl</b>.....</br>\n";
+	
 	}
 	
 	
@@ -263,6 +323,7 @@ class CronController extends Controller {
 		include_once(SP_CTRLPATH."/report.ctrl.php");
 		
 		$reportController = New ReportController();
+		$keywordCtrler = New KeywordController();
 		
 		$seController = New SearchEngineController();
 		$reportController->seList = $seController->__getAllCrawlFormatedSearchEngines();
@@ -277,7 +338,7 @@ class CronController extends Controller {
 		}
 		
 		// get keywords needs to be checked
-		$sql = "select k.*,w.url from keywords k,websites w where k.website_id=w.id and w.id=$websiteId and k.status=1";		
+		$sql = "select k.*,w.url from keywords k,websites w where k.website_id=w.id and w.id=$websiteId and k.status=1 and k.crawled=0";		
 		$sql .= " and k.id not in(".implode(",", $excludeKeyList).") order by k.name";
 		$keywordList = $reportController->db->select($sql);
 		$this->debugMsg("Starting keyword position checker cron for website: {$this->websiteInfo['name']}....<br>\n");
@@ -301,6 +362,8 @@ class CronController extends Controller {
 					$this->debugMsg("Crawling keyword <b>{$keywordInfo['name']}</b> results from ".$reportController->seList[$sengineId]['domain']." failed......<br>\n");
 				}
 			}
+			
+			$keywordCtrler->__changeCrawledStatus(1, 'id=' . $keywordInfo['id']);
 			
 			// to implement split cron execution feature
 			if ( (SP_NUMBER_KEYWORDS_CRON > 0) && !empty($crawlResult) ) {

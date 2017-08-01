@@ -68,6 +68,10 @@ class SeoToolsController extends Controller{
 			case "saturation-checker":
 				$defaultScript = "saturationchecker.php";
 				break;
+				
+			case "pagespeed":
+				$defaultScript = "pagespeed.php";
+				break;
 
 			default:
 				$seoToolInfo = $this->__getSeoToolInfo('keyword-position-checker', 'url_section');

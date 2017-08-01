@@ -4,8 +4,7 @@
 	<tr>
 		<th><?php echo $spText['common']['Website']?>: </th>
 		<td>
-			<select name="website_id" style='width:170px;' id="website_id" onchange="doLoad('website_id', 'keywords.php', 'keyword_area', 'sec=keywordbox&keyNull=1')">
-				<option value="">-- <?php echo $spText['common']['Select']?> --</option>
+			<select name="website_id" style='width:170px;' id="website_id" onchange="doLoad('website_id', 'keywords.php', 'keyword_area', 'sec=keywordbox&keyNull=0')">
 				<?php foreach($websiteList as $websiteInfo){?>
 					<?php if($websiteInfo['id'] == $websiteId){?>
 						<option value="<?php echo $websiteInfo['id']?>" selected><?php echo $websiteInfo['name']?></option>

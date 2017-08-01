@@ -164,6 +164,8 @@ class DirectoryController extends Controller{
 	
 	# func to show submission page
 	function startSubmission( $websiteId, $dirId='' ) {
+		$dirId = intval($dirId);
+		$websiteId = intval($websiteId);
 		
 		# get list of already submitted directories
 		$sql = "select directory_id from dirsubmitinfo where website_id=$websiteId";
@@ -785,7 +787,7 @@ class DirectoryController extends Controller{
 		$searchInfo = array();
 		if(isset($info['stscheck']) && ($info['stscheck'] != '')){
 			$searchInfo = array(
-				'working' => $info['stscheck'],
+				'working' => intval($info['stscheck']),
 			);
 		}
 		

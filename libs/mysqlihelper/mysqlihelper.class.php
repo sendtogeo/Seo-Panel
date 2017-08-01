@@ -108,12 +108,25 @@ class MysqliHelper extends Database{
 
 	# func to Display the Mysql error
 	function showError(){
-		if ($this->debugMode && @mysqli_errno($this->connectionId) != 0) {
-			echo "Script Halted. \n Mysql Error Number: " . @mysqli_errno($this->connectionId) . "\n" . @mysqli_error($this->connectionId);
-			$this->close();
-			exit();
+		
+		// if debugmode enabled
+		if ($this->debugMode) {
+			
+			// if connection is failed
+			if (!$this->connectionId) {
+				echo "Error: Unable to connect to Database." . PHP_EOL;
+				echo "Debugging errno: " . mysqli_connect_errno() . PHP_EOL;
+				echo "Debugging error: " . mysqli_connect_error() . PHP_EOL;
+				exit;
+			} else if (@mysqli_errno($this->connectionId) != 0) {
+				echo "Script Halted. \n Mysql Error Number: " . @mysqli_errno($this->connectionId) . "\n" . @mysqli_error($this->connectionId);
+				$this->close();
+				exit;
+				
+			}
+			
 		}
-		return;
+		
 	}
 
 	# func to escape mysql string
