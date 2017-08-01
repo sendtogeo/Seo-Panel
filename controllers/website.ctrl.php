@@ -228,7 +228,7 @@ class WebsiteController extends Controller{
 		
 		// add user id when using as admin or calling api
 		if (isAdmin() || $apiCall) {
-			$userId = empty($listInfo['userid']) ? isLoggedIn() : $listInfo['userid'];	
+			$userId = empty($listInfo['userid']) ? isLoggedIn() : intval($listInfo['userid']);	
 		} else {
 			$userId = isLoggedIn();
 		}

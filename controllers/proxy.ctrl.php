@@ -148,7 +148,7 @@ class ProxyController extends Controller{
 
 		$where = "";
 		if (isset($info['status'])) {
-			$status = $info['status'];
+			$status = intval($info['status']);
 			$where = " and status=$status";
 			$this->set('status', $status);
 		}
@@ -273,7 +273,7 @@ class ProxyController extends Controller{
 	}
 
 	function updateProxy($listInfo){
-		
+		$listInfo['id'] = intval($listInfo['id']);
 		$this->set('post', $listInfo);
 		$errMsg['proxy'] = formatErrorMsg($this->validate->checkBlank($listInfo['proxy']));
 		$errMsg['port'] = formatErrorMsg($this->validate->checkNumber($listInfo['port']));
@@ -398,5 +398,48 @@ class ProxyController extends Controller{
 		
 		$this->render('proxy/proxyperfomance');
 	}
+	
+	// function to add proxy to curl handle
+	public static function addProxyToCurlHandle($curlHandle) {
+		
+		// to use proxy if proxy enabled
+		if (SP_ENABLE_PROXY) {
+		
+			$proxyCtrler = New self();
+			if ($proxyInfo = $proxyCtrler->getRandomProxy()) {
+		
+				curl_setopt($curlHandle, CURLOPT_PROXY, $proxyInfo['proxy'].":".$proxyInfo['port']);
+				curl_setopt($curlHandle, CURLOPT_HTTPPROXYTUNNEL, CURLOPT_HTTPPROXYTUNNEL_VAL);
+		
+				if (!empty($proxyInfo['proxy_auth'])) {
+					curl_setopt ($curlHandle, CURLOPT_PROXYUSERPWD, $proxyInfo['proxy_username'].":".$proxyInfo['proxy_password']);
+				}
+		
+			} else {
+				showErrorMsg("No active proxies found!! Please check your proxy settings from Admin Panel.");
+			}
+			 
+		}
+
+		return array($curlHandle, $proxyInfo['id']);
+		
+	}
+	
+	// changes for proxy after curl execute
+	public static function processProxyStatus($ret, $proxyId) {
+		
+		// disable proxy if not working
+		if (SP_ENABLE_PROXY && $proxyId && !empty($ret['error'])) {
+			$proxyCtrler = New self();
+				
+			// deactivate proxy
+			if (PROXY_DEACTIVATE_CRAWL) {
+				$proxyCtrler->__changeStatus($proxyId, 0);
+			}
+			
+		}
+		
+	}
+	
 }
 ?>

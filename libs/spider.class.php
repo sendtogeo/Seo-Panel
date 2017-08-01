@@ -330,7 +330,7 @@ class Spider{
 			$crawlInfo['crawl_cookie'] = addslashes($this -> _CURLOPT_COOKIE);
 			$crawlInfo['crawl_post_fields'] = addslashes($this -> _CURLOPT_POSTFIELDS);
 			$crawlInfo['crawl_useragent'] = addslashes($this->_CURLOPT_USERAGENT);
-			$crawlInfo['proxy_id'] = $proxyInfo['id'];
+			$crawlInfo['proxy_id'] = intval($proxyInfo['id']);
 			$crawlInfo['log_message'] = addslashes($ret['errmsg']);
 			$ret['log_id'] = $crawlLogCtrl->createCrawlLog($crawlInfo);
 		}

@@ -62,7 +62,7 @@
             }            
 			?>
 			<tr class="<?php echo $class?>">
-				<td class="<?php echo $leftBotClass?>"><?php echo date('Y-m-d', $listInfo['result_time']); ?></td>
+				<td class="<?php echo $leftBotClass?>"><?php echo $listInfo['result_date']; ?></td>
 				<td class='td_br_right' style='text-align:left;padding-left:40px;'><a href="<?php echo $directLinkList['google']?>" target="_blank"><?php echo $listInfo['google'].'</a> '. $listInfo['rank_diff_google']?></td>
 				<td class='<?php echo $rightBotClass?>' style='text-align:left;padding-left:40px;'><a href="<?php echo $directLinkList['msn']?>" target="_blank"><?php echo $listInfo['msn'].'</a> '. $listInfo['rank_diff_msn']?></td>
 			</tr>

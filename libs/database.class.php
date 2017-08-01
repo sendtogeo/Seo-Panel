@@ -24,6 +24,7 @@
 class Database{
 	
 	var $dbEngine;
+	var $dbConObj;
 	
     # constructor
     function database($dbEngine='mysql'){
@@ -40,7 +41,146 @@ class Database{
 	# func to connect db enine
     function dbConnect(){
     	include_once(SP_LIBPATH."/".$this->dbEngine."/".$this->dbEngine.".class.php");
-    	return New $this->dbEngine(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, SP_DEBUG);
+    	$this->dbConObj = New $this->dbEngine(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, SP_DEBUG);
+    	return $this->dbConObj;
+    }
+    
+    /**
+     * function get a db table row information
+     * @param String $table			The name of the table
+     * @param String $whereCond		The where condition string to get the results
+     * @param String $cols 			The db columns needs to be retrieved
+     */
+    public function getRow($table, $whereCond = '1=1', $cols = '*') {
+    	$whereCond = !empty($whereCond) ? $whereCond : '1=1';
+    	$sql = "SELECT $cols FROM $table WHERE $whereCond";
+    	$rowInfo = $this->dbConObj->select($sql, true);
+    	return $rowInfo;
+    }
+    
+    /**
+     * function get all db table rows according to where condition
+     * @param String $table			The name of the table
+     * @param String $whereCond		The where condition string to get the results
+     * @param String $cols 			The db columns needs to be retrieved
+     */
+    public function getAllRows($table, $whereCond = '1=1', $cols = '*') {
+    	$whereCond = !empty($whereCond) ? $whereCond : '1=1';
+    	$sql = "SELECT $cols FROM $table WHERE $whereCond";
+    	$rowList = $this->dbConObj->select($sql);
+    	return $rowList;
+    }
+    
+    /**
+     * Function to delete db table row according to the where condition
+     * @param String $table			The name of the table
+     * @param String $whereCond		The where condition string to get the results
+     */
+    public function deleteRows($table, $whereCond = '1=1') {
+    	
+    	$whereCond = !empty($whereCond) ? $whereCond : '1=1';
+    	$sql = "Delete FROM $table WHERE $whereCond";
+    		
+    	// if no error occured
+    	if ($this->dbConObj->query($sql)) {
+    		return TRUE;
+    	}
+    
+    	return FALSE;
+    }
+    
+    /**
+     * function to insert row to a db table
+     * @param string $table			The name of the table
+     * @param Array $dataList		The data list array with key as db column and value as db column insert value
+     * 								Eg: array('name' => 'Tom', 'status' => 1)
+     */
+    public function insertRow($table, $dataList) {
+
+    	$dataList = self::escapeValue($dataList);
+    	$colList = array_keys($dataList);
+    	$valueList = array_values($dataList);
+    	$sql = "INSERT into $table(" . implode(',', $colList) . ") values('" . implode("', '", $valueList) . "')";
+    	
+    	// if no error occured
+    	if ($this->dbConObj->query($sql)) {
+    		return TRUE;
+    	}
+    
+    	return FALSE;
+    }
+    
+    /**
+     * function to update row of a db table
+     * @param string $table			The name of the table
+     * @param Array $dataList		The data list array with key as db column and value as db column insert value
+     * 								Eg: array('name' => 'Tom', 'status' => 1)
+     * @param String $whereCond		The where condition string to get the results
+     */
+    public function updateRow($table, $dataList, $whereCond = '1=1') {
+
+    	$dataList = self::escapeValue($dataList);
+    	$whereCond = !empty($whereCond) ? $whereCond : '1=1';
+    	$sql = "Update $table SET ";
+    		
+    	// for loop through values
+    	foreach ($dataList as $key => $value) {
+    		$sql .= "$key='$value',";
+    	}
+    		
+    	$sql = rtrim($sql, ",");
+		$sql .= " $whereCond";
+    		
+    	// if no error occured
+    	if ($this->dbConObj->query($sql)) {
+    		return TRUE;
+    	}
+    
+    	return FALSE;
+    }
+
+    /**
+     * function to escape db values to be inserted
+     * @param Mixed $dataList		the array contains valus as key => $value
+     */
+    public static function escapeValue($dataList) {
+    	$escDataList = array();
+    	
+    	// loop through the data list
+    	foreach ($dataList as $key => $value) {
+    	
+	    	// check whether type passed
+	    	if (stristr($key, '|')) {
+	    		list($key, $type) = explode("|", $key);
+	    	} else {
+	    		$type = "string";
+	    	}
+	    	 
+	    	switch ($type) {
+	    
+	    		case "float":
+	    			$value = floatval($value);
+	    			break;
+	
+	    		case "number":
+	    		case "integer":
+	    		case "int":
+	    			$value = intval($value);
+	    			break;
+	    
+	    		case "text":
+	    		case "string":
+	    		default:
+	    			$value = addslashes($value);
+	    			break;
+	    			 
+	    	}
+	    	
+	    	$escDataList[$key] = $value;
+    	}
+    	
+    	return $escDataList;
+    	 
     }
 
 }

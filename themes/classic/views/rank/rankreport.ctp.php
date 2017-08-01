@@ -64,7 +64,7 @@
             }            
 			?>
 			<tr class="<?php echo $class?>">
-				<td class="<?php echo $leftBotClass?>"><?php echo date('Y-m-d', $listInfo['result_time']); ?></td>
+				<td class="<?php echo $leftBotClass?>"><?php echo $listInfo['result_date']; ?></td>
 				<td class='td_br_right left'><b><?php echo $listInfo['moz_rank'].'</b> '. $listInfo['rank_diff_moz']?></td>
 				<td class='td_br_right left'><b><?php echo $listInfo['domain_authority'].'</b> '. $listInfo['rank_diff_domain_authority']?></td>
 				<td class='td_br_right left'><b><?php echo $listInfo['page_authority'].'</b> '. $listInfo['rank_diff_page_authority']?></td>

@@ -80,10 +80,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			} else {
 			
 				include_once(SP_CTRLPATH."/rank.ctrl.php");
-				$rankObj = new RankController();
 				$urlList = array("http://moz.com");
-				/*list($rankInfo, $logInfo) = $rankObj->__getMozRank($urlList, $_GET['access_id'], $_GET['secret_key'], true);*/
-				
 				$mozCtrler = new MozController();
 				list($rankInfo, $logInfo) = $mozCtrler->__getMozRankInfo($urlList, $_GET['access_id'], $_GET['secret_key'], true);
 				
@@ -93,6 +90,29 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				} else {
 					print "<span class='success'>{$_SESSION['text']['label']['Success']}</span>";
 				}
+			}
+			
+			break;
+		
+		case "checkGoogleAPI":
+			
+			
+			if (empty($_GET['api_key'])) {
+				print "<span class='error'>{$_SESSION['text']['label']['Fail']}</span>";
+			} else {
+				
+				include_once(SP_CTRLPATH."/pagespeed.ctrl.php");
+				$pageSpeedCtrl = new PageSpeedController();
+				$url = "http://moz.com";
+				list($rankInfo, $logInfo) = $pageSpeedCtrl->__getPageSpeedInfo($url, array(), $_GET['api_key'], true);
+				
+				// if error occured
+				if (isset($logInfo['crawl_status']) && ($logInfo['crawl_status'] == 0)) {
+					print "<span class='error'>{$logInfo['log_message']}</span>";
+				} else {
+					print "<span class='success'>{$_SESSION['text']['label']['Success']}</span>";
+				}
+				
 			}
 			
 			break;

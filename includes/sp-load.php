@@ -77,7 +77,10 @@ if(file_exists(SP_ABSPATH."/config/sp-config.php")){
 	define('SP_THEMEPATH', SP_ABSPATH."/themes");
 	define('SP_DATAPATH', SP_ABSPATH."/install/data");
 	define('SP_JSPATH', SP_WEBPATH."/js");
-	define('SP_IMGPATH', SP_WEBPATH."/images");	
+	define('SP_IMGPATH', SP_WEBPATH."/images");
+
+	// include common functions
+	include_once(SP_INCPATH.'/sp-common.php');
 	
 	# create database object
 	include_once(SP_LIBPATH."/database.class.php");

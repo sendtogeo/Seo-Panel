@@ -101,6 +101,12 @@ class KeywordController extends Controller{
 		$sql = "update keywords set status=$status where id=$keywordId";
 		$this->db->query($sql);
 	}
+	
+	# func to change crawled status of keyword
+	function __changeCrawledStatus($status, $whereCond = '1=1') {
+		$sql = "update keywords set crawled=$status where $whereCond";
+		$this->db->query($sql);		
+	}
 
 	# func to change status
 	function __deleteKeyword($keywordId){
@@ -254,7 +260,7 @@ class KeywordController extends Controller{
 		$userId = isLoggedIn();
 		$this->set('post', $listInfo);
 		$errMsg['keywords'] = formatErrorMsg($this->validate->checkBlank($listInfo['keywords']));
-		if (!is_array($listInfo['searchengines'])) $listInfo['searchengines'] = array(); 		
+		if (!is_array($listInfo['searchengines'])) $listInfo['searchengines'] = array();
 		$errMsg['searchengines'] = formatErrorMsg($this->validate->checkBlank(implode('', $listInfo['searchengines'])));
 		
 		if(!$this->validate->flagErr){
@@ -298,7 +304,7 @@ class KeywordController extends Controller{
 				foreach ($keywordList as $keyword) {				
 					$sql = "insert into keywords(name,lang_code,country_code,website_id,searchengines,status)
 					values('$keyword','".addslashes($listInfo['lang_code'])."','".addslashes($listInfo['country_code'])."',
-					".intval($listInfo['website_id']).",'".implode(':', $listInfo['searchengines'])."',1)";
+					".intval($listInfo['website_id']).",'".addslashes(implode(':', $listInfo['searchengines']))."',1)";
 					$this->db->query($sql);
 				}
 				
@@ -312,7 +318,8 @@ class KeywordController extends Controller{
 	}
 
 	function __checkName($name, $websiteId){
-		
+		$websiteId = intval($websiteId);
+		$name = addslashes($name);
 		$sql = "select id from keywords where name='$name' and website_id=$websiteId";
 		$listInfo = $this->db->select($sql, true);
 		return empty($listInfo['id']) ? false :  $listInfo['id'];
@@ -320,6 +327,7 @@ class KeywordController extends Controller{
 
 	# func to get all keywords
 	function __getAllKeywords($userId='', $websiteId='', $isAdminCheck=false, $orderByWeb=false, $orderByValue='ASC', $searchName = ''){
+		$websiteId = intval($websiteId);
 		$sql = "select k.*,w.name website,w.url weburl from keywords k,websites w where k.website_id=w.id and k.status=1";		
 		if(!$isAdminCheck || !isAdmin() ){
 			if(!empty($userId)) $sql .= " and w.user_id=$userId";
@@ -331,6 +339,7 @@ class KeywordController extends Controller{
 			$sql .= " and k.name like '%".addslashes($searchName)."%'";
 		}
 		
+		$orderByValue = getOrderByVal($orderByValue);
 		$sql .= $orderByWeb ? " order by w.id, k.name $orderByValue" : " order by k.name $orderByValue";
 		$keywordList = $this->db->select($sql);
 		return $keywordList;

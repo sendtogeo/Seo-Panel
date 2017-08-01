@@ -27,7 +27,7 @@ class SiteAuditorController extends Controller{
     var $seArr = array('google', 'bing'); // the array contains search engines 
     
 	function showAuditorProjects($info="") {
-	    
+		$info['userid'] = intval($info['userid']);
 	    $userId = isLoggedIn();
 		if(isAdmin()){
 			$sql = "select ap.*,w.name,u.username from websites w,users u,auditorprojects ap where ap.website_id=w.id and u.id=w.user_id";
@@ -200,7 +200,7 @@ class SiteAuditorController extends Controller{
 	
 	// func to update project
 	function updateProject($listInfo){
-		
+		$listInfo['id'] = intval($listInfo['id']);
 		$userId = isLoggedIn();
 		$listInfo['website_id'] = intval($listInfo['website_id']);
 		$listInfo['max_links'] = intval($listInfo['max_links']);		
