@@ -126,6 +126,8 @@ class Spider{
 					
 			$pattern = "/<a(.*?)>(.*?)<\/a>/is";	
 			preg_match_all($pattern, $string, $matches, PREG_PATTERN_ORDER);
+			$pageInfo['external'] = 0;
+			$pageInfo['total_links'] = 0;
 			
 			// loop through matches
 			for($i=0; $i < count($matches[1]); $i++){
@@ -434,7 +436,7 @@ class Spider{
 	    if (stristr($header, '404 Not Found')) {
 	        return true;
 	    } else {
-	        return false; 
+	        return 0; 
 	    }
 	}
 	
@@ -445,7 +447,7 @@ class Spider{
 			if (stristr($header, '301 Moved Permanently') || stristr($header, '308 Permanent Redirect')) {
 					return true;
 			} else {
-					return false;
+					return 0;
 			}
 	}
 }
