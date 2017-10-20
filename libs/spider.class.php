@@ -101,7 +101,11 @@ class Spider{
 	    
 	    $urlWithTrailingSlash = Spider::addTrailingSlash($url);
 		$ret = $this->getContent($urlWithTrailingSlash);
-		$pageInfo = array();
+		$pageInfo = array(
+			'external' => 0,
+			'total_links' => 0,
+		);
+		
 		$checkUrl = formatUrl($domainUrl);
 		
 		// if relative links of a page needs to be checked
@@ -126,8 +130,6 @@ class Spider{
 					
 			$pattern = "/<a(.*?)>(.*?)<\/a>/is";	
 			preg_match_all($pattern, $string, $matches, PREG_PATTERN_ORDER);
-			$pageInfo['external'] = 0;
-			$pageInfo['total_links'] = 0;
 			
 			// loop through matches
 			for($i=0; $i < count($matches[1]); $i++){
