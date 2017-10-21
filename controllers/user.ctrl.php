@@ -381,6 +381,9 @@ class UserController extends Controller{
 		// if expiry date is not empty
 		if (!empty($userInfo['expiry_date'])) {
 			$errMsg['expiry_date'] = formatErrorMsg($this->validate->checkDate($userInfo['expiry_date']));
+			$userInfo['expiry_date'] = "'".addslashes($userInfo['expiry_date'])."'";
+		} else {
+			$userInfo['expiry_date'] = "NULL";
 		}
 		
 		// check error flag is on
@@ -390,7 +393,7 @@ class UserController extends Controller{
 					$sql = "insert into users(utype_id,username,password,first_name,last_name,email,created,status, expiry_date) 
 						values($userTypeId,'".addslashes($userInfo['userName'])."','".md5($userInfo['password'])."'
 						,'".addslashes($userInfo['firstName'])."', '".addslashes($userInfo['lastName'])."'
-						,'".addslashes($userInfo['email'])."',UNIX_TIMESTAMP(),$userStatus, '".addslashes($userInfo['expiry_date'])."')";
+						,'".addslashes($userInfo['email'])."',UNIX_TIMESTAMP(),$userStatus, {$userInfo['expiry_date']})";
 					$this->db->query($sql);
 					
 					// if render results
@@ -455,10 +458,12 @@ class UserController extends Controller{
 			$errMsg['expiry_date'] = formatErrorMsg($this->validate->checkDate($userInfo['expiry_date']));
 		}
 		
-		// if password needs to be reset
-		if(!empty($userInfo['password'])){
-			$errMsg['password'] = formatErrorMsg($this->validate->checkPasswords($userInfo['password'], $userInfo['confirmPassword']));
-			$passStr = "password = '".md5($userInfo['password'])."',";
+		// if expiry date is not empty
+		if (!empty($userInfo['expiry_date'])) {
+			$errMsg['expiry_date'] = formatErrorMsg($this->validate->checkDate($userInfo['expiry_date']));
+			$expiryStr = "expiry_date='".addslashes($userInfo['expiry_date'])."',";
+		} else {
+			$expiryStr = "expiry_date=NULL,";
 		}
 		
 		// if change status of user
@@ -493,9 +498,9 @@ class UserController extends Controller{
 						last_name = '".addslashes($userInfo['lastName'])."',
 						$passStr
 						$activeStr
+						$expiryStr
 						email = '".addslashes($userInfo['email'])."',
-						utype_id = ".addslashes($userInfo['userType']).",
-						expiry_date='".addslashes($userInfo['expiry_date'])."'
+						utype_id = ".addslashes($userInfo['userType'])."
 						where id={$userInfo['id']}";
 				$this->db->query($sql);
 				
