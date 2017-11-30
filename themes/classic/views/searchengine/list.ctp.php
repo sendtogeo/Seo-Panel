@@ -1,15 +1,15 @@
-<form name="listform" id="listform">
+<form name="listform" id="listform" onsubmit="return false;">
 <?php echo showSectionHead($spTextPanel['Search Engine Manager']); ?>
 <table width="88%" border="0" cellspacing="0" cellpadding="0" class="search">
 	<?php $submitLink = "scriptDoLoadPost('searchengine.php', 'listform', 'content')";?>
 	<tr>
 		<th><?php echo $spText['common']['Search Engine']?>: </th>
 		<td width="100px">
-			<input type="text" name="se_name" value="<?php echo htmlentities($info['se_name'], ENT_QUOTES)?>" onblur="<?php echo $submitLink?>">
+			<input type="text" name="se_name" value="<?php echo htmlentities($info['se_name'], ENT_QUOTES)?>">
 		</td>
 		<th><?php echo $spText['common']['Status']?>: </th>
 		<td width="100px">
-			<select name="stscheck" onchange="<?php echo $submitLink?>">
+			<select name="stscheck">
 				<?php foreach($statusList as $key => $val){?>
 					<?php if($info['stscheck'] == $val){?>
 						<option value="<?php echo $val?>" selected><?php echo $key?></option>
@@ -69,7 +69,7 @@
 							$statLabel = $spText['common']["Activate"];
 						} 
 					?>
-					<select name="action" id="action<?php echo $seInfo['id']?>" onchange="doAction('searchengine.php', 'content', 'seId=<?php echo $seInfo['id']?>&pageno=<?php echo $pageNo?>', 'action<?php echo $seInfo['id']?>')">
+					<select name="action" id="action<?php echo $seInfo['id']?>" onchange="doAction('<?php echo $pageScriptPath?>', 'content', 'seId=<?php echo $seInfo['id']?>&pageno=<?php echo $pageNo?>', 'action<?php echo $seInfo['id']?>')">
 						<option value="select">-- <?php echo $spText['common']['Select']?> --</option>
 						<option value="<?php echo $statVal?>"><?php echo $statLabel?></option>
 						<option value="delete"><?php echo $spText['common']['Delete']?></option>

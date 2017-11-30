@@ -62,7 +62,7 @@ class SearchEngineController extends Controller{
 		
 		// search for search engine name
 		if (!empty($info['se_name'])) {
-			$sql .= " and url like '%".addslashes($info['se_name'])."%'";
+			$sql .= " and domain like '%".addslashes($info['se_name'])."%'";
 			$pageScriptPath .= "&se_name=" . $info['se_name'];
 		}
 		
@@ -85,6 +85,7 @@ class SearchEngineController extends Controller{
 		
 		$this->set('statusList', $statusList);
 		$this->set('info', $info);
+		$this->set('pageScriptPath', $pageScriptPath);
 		$this->set('pageNo', $info['pageno']);		
 		$this->render('searchengine/list', 'ajax');
 	}
