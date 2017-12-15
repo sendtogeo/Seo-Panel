@@ -33,9 +33,9 @@ class SeoPluginsController extends Controller{
 		$pluginInfo = $this->__getSeoPluginInfo($info['pid']);
 
 		$pluginDirName = $pluginInfo['name'];
-		define('PLUGIN_PATH', SP_PLUGINPATH."/".$pluginDirName);
-		define('PLUGIN_VIEWPATH', PLUGIN_PATH."/views");		
+		define('PLUGIN_PATH', SP_PLUGINPATH."/".$pluginDirName);		
 		define('PLUGIN_ID', $info['pid']);
+		define('PLUGIN_VIEWPATH', $this->getPluginViewPath(PLUGIN_PATH));
 		define('PLUGIN_WEBPATH', SP_WEBPATH."/".SP_PLUGINDIR."/".$pluginDirName);
 		define('PLUGIN_IMGPATH', PLUGIN_WEBPATH."/images");
 		define('PLUGIN_CSSPATH', PLUGIN_WEBPATH."/css");
@@ -69,6 +69,29 @@ class SeoPluginsController extends Controller{
 			$pluginControler->$action($data);
 		}
 	}
+	
+	# function to get plugin view path, chekc for theme exists or not
+	function getPluginViewPath($pluginPath) {
+		$pluginViewPath = $pluginPath."/views";
+		
+		
+		# if theme compatible design for plugin
+		if (file_exists($pluginPath."/themes")) {
+			$themeInfo = $this->dbHelper->getRow("themes", "status=1 order by id");
+			
+			// if activated theme folder is existing
+			if (file_exists($pluginPath."/themes/". $themeInfo['folder'])) {
+				$pluginViewPath = $pluginPath."/themes/". $themeInfo['folder'] ."/views";
+			} else {
+				$pluginViewPath = $pluginPath."/themes/classic/views";
+			}
+			
+		}
+		
+		return $pluginViewPath;
+		
+	}
+	
 	
 	# function to init plugin before do action
 	function initPlugin($data) {
@@ -119,7 +142,9 @@ class SeoPluginsController extends Controller{
 		foreach($menuList as $i => $menuInfo){
 			@Session::setSession('plugin_id', $menuInfo['id']);
 			$pluginDirName = $menuInfo['name'];
-			$menuFile = SP_PLUGINPATH."/".$pluginDirName."/views/".SP_PLUGINMENUFILE;
+			$pluginViewPath = $this->getPluginViewPath(SP_PLUGINPATH . "/$pluginDirName");
+			$menuFile = $pluginViewPath . "/". SP_PLUGINMENUFILE;
+			
 			if(file_exists($menuFile)){
 				$menuList[$i]['menu'] = @View::fetchFile($menuFile);
 			}else{				
