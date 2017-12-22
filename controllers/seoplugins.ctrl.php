@@ -27,27 +27,50 @@ class SeoPluginsController extends Controller{
 	var $info = array();
 	var $pluginText = "";
 	var $pluginCtrler = FALSE;
+	var $pluginPath;
+	var $pluginId;
+	var $pluginViewPath;
+	var $pluginWebPath;
+	var $pluginImagePath;
+	var $pluginCssPath;
+	var $pluginJsPath;
+	var $pluginScriptUrl;
 	
 	# function to manage seo plugins
 	function manageSeoPlugins($info, $method='get') {
 		$pluginInfo = $this->__getSeoPluginInfo($info['pid']);
-
 		$pluginDirName = $pluginInfo['name'];
-		define('PLUGIN_PATH', SP_PLUGINPATH."/".$pluginDirName);		
-		define('PLUGIN_ID', $info['pid']);
-		define('PLUGIN_VIEWPATH', $this->getPluginViewPath(PLUGIN_PATH));
-		define('PLUGIN_WEBPATH', SP_WEBPATH."/".SP_PLUGINDIR."/".$pluginDirName);
-		define('PLUGIN_IMGPATH', PLUGIN_WEBPATH."/images");
-		define('PLUGIN_CSSPATH', PLUGIN_WEBPATH."/css");
-		define('PLUGIN_JSPATH', PLUGIN_WEBPATH."/js");
-		define("PLUGIN_SCRIPT_URL", SP_WEBPATH."/seo-plugins.php?pid=".PLUGIN_ID);
+		$pluginPath = SP_PLUGINPATH."/".$pluginDirName;
 		
-		if(file_exists(PLUGIN_PATH."/".SP_PLUGINCONF)){
-			include_once(PLUGIN_PATH."/".SP_PLUGINCONF);
+		if(file_exists($pluginPath."/".SP_PLUGINCONF)){
+			include_once($pluginPath."/".SP_PLUGINCONF);
 		}
 		
-		include_once(PLUGIN_PATH."/".$pluginDirName.".ctrl.php");
+		include_once($pluginPath."/".$pluginDirName.".ctrl.php");
 		$pluginControler = New $pluginDirName();
+		
+		// set plugin specific variabled
+		$pluginControlerpluginDirName = $pluginDirName;
+		$pluginControler->pluginPath = $pluginPath;
+		$pluginControler->pluginId = $info['pid'];
+		$pluginControler->pluginViewPath = $this->getPluginViewPath($pluginControler->pluginPath);
+		$pluginControler->pluginWebPath = SP_WEBPATH . "/" . SP_PLUGINDIR . "/" . $pluginDirName;
+		$pluginControler->pluginImagePath = $pluginControler->pluginWebPath . "/images";
+		$pluginControler->pluginCssPath = $pluginControler->pluginWebPath . "/css";
+		$pluginControler->pluginJsPath = $pluginControler->pluginWebPath . "/js";
+		$pluginControler->pluginScriptUrl = SP_WEBPATH . "/seo-plugins.php?pid=" . $pluginControler->pluginId;
+		
+		// if not_set_global_vars is not assigned
+		if (empty($info['not_set_global_vars']) || !$info['not_set_global_vars']) {
+			define('PLUGIN_PATH', $pluginControler->pluginPath);
+			define('PLUGIN_ID', $info['pid']);
+			define('PLUGIN_VIEWPATH', $pluginControler->pluginViewPath);
+			define('PLUGIN_WEBPATH', $pluginControler->pluginWebPath);
+			define('PLUGIN_IMGPATH', $pluginControler->pluginImagePath);
+			define('PLUGIN_CSSPATH', $pluginControler->pluginCssPath);
+			define('PLUGIN_JSPATH', $pluginControler->pluginJsPath);
+			define("PLUGIN_SCRIPT_URL", $pluginControler->pluginScriptUrl);
+		}
 		
 		// if no action specified just initialize plugin
 		if ($info['action'] == 'get_plugin_object') {
@@ -142,9 +165,12 @@ class SeoPluginsController extends Controller{
 		foreach($menuList as $i => $menuInfo){
 			@Session::setSession('plugin_id', $menuInfo['id']);
 			$pluginDirName = $menuInfo['name'];
-			$pluginViewPath = $this->getPluginViewPath(SP_PLUGINPATH . "/$pluginDirName");
-			$menuFile = $pluginViewPath . "/". SP_PLUGINMENUFILE;
 			
+			// create plugin object and access the menu file
+			$pluginObj = $this->createPluginObject($pluginDirName, array('not_set_global_vars' => true));
+			$menuFile = $pluginObj->pluginViewPath . "/". SP_PLUGINMENUFILE;
+			
+			// check for menu file exists or not
 			if(file_exists($menuFile)){
 				$menuList[$i]['menu'] = @View::fetchFile($menuFile);
 			}else{				
@@ -428,7 +454,7 @@ class SeoPluginsController extends Controller{
 	}
 	
 	# function to create plugin object
-	function createPluginObject($pluginName) {
+	function createPluginObject($pluginName, $info = array()) {
 		$pluginInfo = $this->__getSeoPluginInfo($pluginName, 'name');
 		$info['pid'] = $pluginInfo['id'];
 		$info['action'] = "get_plugin_object";

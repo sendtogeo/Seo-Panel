@@ -8,7 +8,7 @@
     $spKeywords = empty($spKeywords) ? SP_KEYWORDS : $spKeywords;
     $spKey = "v" . substr(SP_INSTALLED, 2);  
     ?>
-    <title><?php echo stripslashes($spTitle)?></title>
+    <title><?php //echo stripslashes($spTitle)?></title>
     <meta name="description" content="<?php echo $spDescription?>" />
     <meta name="keywords" content="<?php echo $spKeywords?>" />
     <link type="text/css" href="<?php echo SP_WEBPATH?>/jquery-ui-custom/css/jquery-ui-1.10.3.custom.min.css" rel="stylesheet" />
@@ -17,7 +17,7 @@
     <?php if (in_array($_SESSION['lang_code'], array('ar', 'he', 'fa'))) {?>
     	<link rel="stylesheet" type="text/css" href="<?php echo SP_CSSPATH?>/screen_rtl.css?<?php echo $spKey?>" media="all" />
     <?php }?>
-    <link rel="shortcut icon" href="<?php echo SP_IMGPATH?>/favicon.ico" />
+    <!-- <link rel="shortcut icon" href="<?php echo SP_IMGPATH?>/favicon.ico" /> -->
     <script type="text/javascript" src="<?php echo SP_JSPATH?>/jquery-1.10.1.min.js?<?php echo $spKey?>"></script>
     <script type="text/javascript" src="<?php echo SP_JSPATH?>/common.js?<?php echo $spKey?>"></script>
     <script type="text/javascript" src="<?php echo SP_JSPATH?>/popup.js?<?php echo $spKey?>"></script>
@@ -37,10 +37,10 @@ var wantproceed = '<?php  echo $spText['label']['wantproceed']; ?>';
     
     	<div id="round_content_header">
     
-            <?php include_once(SP_VIEWPATH."/menu/topmenu.ctp.php");?>
+            <?php //include_once(SP_VIEWPATH."/menu/topmenu.ctp.php");?>
             
             <div style="width:300px;">
-            	<a href="<?php echo SP_WEBPATH; ?>" style="text-decoration: none; padding: 0px;"><h1 style="width:200px;">Seo Panel</h1></a>
+            	<!-- <a href="<?php echo SP_WEBPATH; ?>" style="text-decoration: none; padding: 0px;"><h1 style="width:200px;">Seo Panel</h1></a> -->
             </div>
         
             <!-- TABS -->
@@ -50,7 +50,7 @@ var wantproceed = '<?php  echo $spText['label']['wantproceed']; ?>';
                     $userInfo = @Session::readSession('userInfo');
                     $userType = empty($userInfo['userType']) ? "guest" : $userInfo['userType'];
                     $userType = (!isAdmin() && $userType != 'guest') ? "user" :  $userType;
-                    include(SP_VIEWPATH.'/menu/'.$userType.'menu.ctp.php');
+                    //include(SP_VIEWPATH.'/menu/'.$userType.'menu.ctp.php');
                     ?>
                 </ul>
             </div>
