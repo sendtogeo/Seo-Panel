@@ -150,8 +150,8 @@ class SeoPluginsController extends Controller{
 	# index function
 	function showSeoPlugins($info=''){
 		$this->layout = "default";
-		$sql = "select * from seoplugins where status=1 and installed=1 order by id";
-		$menuList = $this->db->select($sql);
+		
+		$menuList = $this->__getAllSeoPlugins("status=1 and installed=1 ");
 		if(count($menuList) <= 0){
 		    $msg = $_SESSION['text']['label']['noactiveplugins'];
 		    $msgButton = '<a class="actionbut" href="'.SP_PLUGINSITE.'" target="_blank">'.$this->spTextPlugin['Download Seo Panel Plugins'].' &gt;&gt;</a>';
@@ -188,8 +188,9 @@ class SeoPluginsController extends Controller{
 	}
 
 	# func to get all seo tools
-	function __getAllSeoPlugins(){
-		$sql = "select * from seoplugins order by id";
+	function __getAllSeoPlugins($whereCond = ""){
+		$whereCond = !empty($whereCond) ? $whereCond : "1=1";
+		$sql = "select * from seoplugins where $whereCond order by id";
 		$seoPluginList = $this->db->select($sql);
 		return $seoPluginList;
 	}
@@ -407,10 +408,19 @@ class SeoPluginsController extends Controller{
 	}
 	
 	# function to create helpers for main controlller
-	function createHelper($helperName) {
-		
+	function createHelper($helperName) {		
 		include_once(PLUGIN_PATH."/".strtolower($helperName).".ctrl.php");
 		$helperObj = New $helperName();
+		$helperObj->pluginPath = $this->pluginPath;
+		$helperObj->pluginId = $this->pluginId;
+		$helperObj->pluginViewPath = $this->pluginViewPath;
+		$helperObj->pluginWebPath = $this->pluginWebPath;
+		$helperObj->pluginImagePath = $this->pluginImagePath;
+		$helperObj->pluginCssPath = $this->pluginCssPath;
+		$helperObj->pluginJsPath = $this->pluginJsPath;
+		$helperObj->pluginScriptUrl = $this->pluginScriptUrl;
+		$helperObj->data = $this->data;
+		$helperObj->pluginText = $this->pluginText;		
 		return $helperObj;
 	}
 	

@@ -39,6 +39,9 @@ ALTER TABLE `backlinkresults` CHANGE `result_time` `result_time` INT( 11 ) NOT N
 ALTER TABLE `rankresults` CHANGE `result_time` `result_time` INT( 11 ) NOT NULL DEFAULT '0';
 ALTER TABLE `rankresults` CHANGE `google_pagerank` `google_pagerank` INT( 8 ) NOT NULL DEFAULT '0';
 
+ALTER TABLE `user_specs` ADD `spec_category` VARCHAR(32) NOT NULL DEFAULT 'system';
+ALTER TABLE `user_specs` ADD UNIQUE( `user_type_id`, `spec_column`);
 
 
-
+INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
+('en', 'panel', 'User Type Settings', 'User Type Settings');

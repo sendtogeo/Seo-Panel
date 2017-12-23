@@ -1,11 +1,11 @@
-<?php echo showSectionHead($spTextWeb['Edit User Type']); ?>
+<?php echo showSectionHead($spText['common']['Edit User Type']); ?>
 <form id="editUserType">
 <input type="hidden" name="sec" value="update"/>
 <input type="hidden" name="old_user_type" value="<?php echo $post['old_user_type']?>"/>
 <input type="hidden" name="id" value="<?php echo $post['id']?>"/>
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
 	<tr class="listHead">
-		<td class="left" width='30%'><?php echo $spTextWeb['Edit User Type']?></td>
+		<td class="left" width='30%'><?php echo $spText['common']['Edit User Type']?></td>
 		<td class="right">&nbsp;</td>
 	</tr>
 	<tr class="white_row">

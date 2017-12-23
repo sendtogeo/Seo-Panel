@@ -299,7 +299,7 @@ class UserTypeController extends Controller {
 		
 		// Set the spec details for user type
 		foreach ($uTypeList as $userType) {
-			$sql = "select * from user_specs where user_type_id=" . $userType['id'];
+			$sql = "select * from user_specs where spec_category='system' and user_type_id=" . $userType['id'];
 			$userTypeSpecList = $this->db->select($sql);
 				
 			foreach ($userTypeSpecList as $userTypeSpec) {
@@ -329,8 +329,10 @@ class UserTypeController extends Controller {
 	/**
 	 * Function to get the user type spec details
 	 */
-	function getUserTypeSpec($userTypeId) {
+	function getUserTypeSpec($userTypeId, $specCategory = '') {
+		$specCategory = addslashes($specCategory);
 		$sql = "select * from user_specs where user_type_id=" . $userTypeId;
+		$sql .= !empty($specCategory) ? " and spec_category='$specCategory'" : "";
 		$userTypeSpecList = $this->db->select($sql);
 			
 		foreach ($userTypeSpecList as $userTypeSpec) {
@@ -369,6 +371,38 @@ class UserTypeController extends Controller {
 		$sql = "select id from usertypes where user_type='admin'"; 
 		$userTypeInfo = $this->db->select($sql, true);
 		return $userTypeInfo['id'];
+	}
+	
+	/**
+	 * Function to edit the user type plugin settings
+	 * @params : $userTypeId - user type id, $pluginId, $className
+	 * @return : Display the edit form
+	 */
+	function editPluginUserTypeSettings($userTypeId, $pluginId, $className) {
+		
+		// create plugin object
+		$basePluginObj = new SeoPluginsController();
+		$pluginInfo = $basePluginObj->__getSeoPluginInfo($pluginId);
+		$pluginObj = $basePluginObj->createPluginObject($pluginInfo['name']);
+		$pluginUserTypeObj = $pluginObj->createHelper("BRCUserType");
+	
+		$userTypeList = $this->getAllUserTypes();
+		$this->set('userTypeList', $userTypeList);		
+		$userTypeId = !empty($userTypeId) ? $userTypeId : $userTypeList[0]['id'];
+		
+		// if user type id found
+		if ($userTypeId) {
+			$userTypeSpecList = $this->getUserTypeSpec($userTypeId, $pluginUserTypeObj->specCategory);
+			$this->set('pluginId', $pluginId);
+			$this->set('className', $className);
+			$this->set('userTypeId', $userTypeId);
+			$this->set('specColList', $pluginUserTypeObj->specColList);
+			$this->set('specText', $pluginUserTypeObj->pluginText);
+			$this->set('spTextPanel', $this->getLanguageTexts('panel', $_SESSION['lang_code']));
+			$this->render('usertypes/editpluginusertypesettings');
+		}
+		
+		
 	}
 	
 }
