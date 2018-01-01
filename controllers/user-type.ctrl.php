@@ -393,10 +393,18 @@ class UserTypeController extends Controller {
 		// if user type id found
 		if ($userTypeId) {
 			$userTypeSpecList = $this->getUserTypeSpec($userTypeId, $pluginUserTypeObj->specCategory);
+			
+			// loop through the plugin spec col list and assign values
+			$specColList = array();
+			foreach ($pluginUserTypeObj->specColList as $specCol => $specColInfo) {
+				$specColList[$specCol] = $specColInfo;
+				$specColList[$specCol]['spec_value'] = isset($userTypeSpecList[$specCol]) ? $userTypeSpecList[$specCol] : $specColInfo['default'];
+			}
+			
 			$this->set('pluginId', $pluginId);
 			$this->set('className', $className);
 			$this->set('userTypeId', $userTypeId);
-			$this->set('specColList', $pluginUserTypeObj->specColList);
+			$this->set('specColList', $specColList);
 			$this->set('specText', $pluginUserTypeObj->pluginText);
 			$this->set('spTextPanel', $this->getLanguageTexts('panel', $_SESSION['lang_code']));
 			$this->render('usertypes/editpluginusertypesettings');

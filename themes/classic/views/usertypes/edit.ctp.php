@@ -37,11 +37,11 @@
 		<td class="td_right_col">
 			<select name="user_type_status" id="user_type_status">
 				<?php if ($post['status']) { ?>
-					<option value="1" selected="selected">Active</option>
-					<option value="0">Inactive</option>
+					<option value="1" selected="selected"><?php echo $_SESSION['text']['common']['Active']?></option>
+					<option value="0"><?php echo $_SESSION['text']['common']['Inactive']?></option>
 				<?php } else { ?>
-					<option value="1">Active</option>
-					<option value="0" selected="selected">Inactive</option>
+					<option value="1"><?php echo $_SESSION['text']['common']['Active']?></option>
+					<option value="0" selected="selected"><?php echo $_SESSION['text']['common']['Inactive']?></option>
 				<?php } ?>
 			</select>
 		</td>

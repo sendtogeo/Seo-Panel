@@ -25,12 +25,49 @@ $changeUserTypeAction = "doLoad('user_type_id', 'user-types-manager.php?plugin_i
 		</td>
 	</tr>
 	
-	<?php foreach ($specColList as $specCol => $specColInfo) {?>
-		<tr class="white_row">
-			<td class="td_left_col"><?php echo $specCol?>:</td>
+	<?php 
+	foreach ($specColList as $specCol => $specColInfo) {
+	
+		$styleClass = ($i++ % 2) ? "blue_row" : "white_row";
+		switch($specColInfo['type']){
+				
+			case "small":
+				$width = 40;
+				break;
+		
+			case "bool":
+				if(empty($specColInfo['spec_value'])){
+					$selectYes = "";
+					$selectNo = "selected";
+				}else{
+					$selectYes = "selected";
+					$selectNo = "";
+				}
+				break;
+		
+			case "medium":
+				$width = 200;
+				break;
+		
+			case "large":
+			case "text":
+				$width = 500;
+				break;
+		}
+		?>
+		<tr class="<?php echo $styleClass?>">
+			<td class="td_left_col"><?php echo $specText[$specCol]; ?>:</td>
 			<td class="td_right_col">
-				<input type="text" name="<?php echo $specCol?>" value="<?php echo $post['keywordcount']?>">
-				<?php echo $errMsg['keywordcount']?>
+				<?php if ($specColInfo['type'] == 'bool') {?>
+					<select  name="<?php echo $specCol?>">
+						<option value="1" <?php echo $selectYes?>><?php echo $spText['common']['Yes']?></option>
+						<option value="0" <?php echo $selectNo?>><?php echo $spText['common']['No']?></option>
+					</select>
+				<?php } else if ($specColInfo['type'] == 'text') {?>
+					<textarea name="<?php echo $specCol?>" style='width:<?php echo $width?>px'><?php echo stripslashes($specColInfo['spec_value'])?></textarea>
+				<?php } else {?>
+					<input type="<?php echo $type?>" name="<?php echo $specCol?>" value="<?php echo stripslashes($specColInfo['spec_value'])?>" style='width:<?php echo $width?>px'>
+				<?php }?>
 			</td>
 		</tr>	
 	<?php }?>
