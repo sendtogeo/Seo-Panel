@@ -384,7 +384,7 @@ class UserTypeController extends Controller {
 		$basePluginObj = new SeoPluginsController();
 		$pluginInfo = $basePluginObj->__getSeoPluginInfo($pluginId);
 		$pluginObj = $basePluginObj->createPluginObject($pluginInfo['name']);
-		$pluginUserTypeObj = $pluginObj->createHelper("BRCUserType");
+		$pluginUserTypeObj = $pluginObj->createHelper($className);
 	
 		$userTypeList = $this->getAllUserTypes();
 		$this->set('userTypeList', $userTypeList);		
@@ -410,7 +410,42 @@ class UserTypeController extends Controller {
 			$this->render('usertypes/editpluginusertypesettings');
 		}
 		
+	}
+
+	/**
+	 * Function to update plugin user type settings
+	 */
+	function updatePluginUserTypeSettings($settingsInfo) {
+
+		$pluginId = intval($settingsInfo['plugin_id']);
+		$basePluginObj = new SeoPluginsController();
+		$pluginInfo = $basePluginObj->__getSeoPluginInfo($pluginId);
+		$pluginObj = $basePluginObj->createPluginObject($pluginInfo['name']);
+		$pluginUserTypeObj = $pluginObj->createHelper($settingsInfo['class_name']);
 		
+		// loop through plugin user type settings
+		foreach ($pluginUserTypeObj->specColList as $specCol => $specColInfo) {
+			$this->updateUserTypeSpec($settingsInfo['user_type_id'], $specCol, $settingsInfo[$specCol], $pluginUserTypeObj->specCategory);	
+		}
+		
+		// show the plugin user type settings
+		$this->set('spTextSettings', $this->getLanguageTexts('settings', $_SESSION['lang_code']));
+		$this->set('saved', true);
+		$this->editPluginUserTypeSettings($settingsInfo['user_type_id'], $pluginId, $settingsInfo['class_name']);
+		
+	}
+	
+	/**
+	 * update user type spec
+	 */
+	function updateUserTypeSpec($userTypeId, $specColumn, $specValue, $specCategory) {
+		$specValue = addslashes($specValue);
+		$specColumn = addslashes($specColumn);
+		$specCategory = addslashes($specCategory);
+		$userTypeId = intval($userTypeId);
+		$sql = "Insert into user_specs(user_type_id, spec_column, spec_value, spec_category) values($userTypeId, '$specColumn', '$specValue', '$specCategory') 
+				ON DUPLICATE KEY UPDATE spec_value='$specValue'";
+		$this->db->query($sql);
 	}
 	
 }

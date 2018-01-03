@@ -1,9 +1,23 @@
 <?php
 echo showSectionHead($spTextPanel['User Type Settings']);
-$changeUserTypeAction = "doLoad('user_type_id', 'user-types-manager.php?plugin_id=$pluginId&class_name=$className', 'content', 'sec=edit_plugin_user_type_settings')";
+$actionLink = "user-types-manager.php?plugin_id=$pluginId&class_name=$className&sec=edit_plugin_user_type_settings";
+$changeUserTypeAction = "doLoad('user_type_id', '$actionLink', 'content')";
+$actionLink .= "&user_type_id=$userTypeId";
+
+// if saved successfully
+if (!empty($saved)) {
+	showSuccessMsg($spTextSettings['allsettingssaved'], false);
+}
+
+// save process failed
+if (!empty($errorMsg)) {
+	echo showErrorMsg($errorMsg, false);
+}
 ?>
-<form id="editUserTypeCat">
-<input type="hidden" name="sec" value="update_cat"/>
+<form id="editPluginUserType">
+<input type="hidden" name="sec" value="edit_plugin_user_type_settings"/>
+<input type="hidden" name="plugin_id" value="<?php echo $pluginId?>"/>
+<input type="hidden" name="class_name" value="<?php echo $className?>"/>
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
 	<tr class="listHead">
 		<td class="left" width='30%'><?php echo $spTextPanel['User Type Settings']?></td>
@@ -86,10 +100,10 @@ $changeUserTypeAction = "doLoad('user_type_id', 'user-types-manager.php?plugin_i
 <table width="100%" cellspacing="0" cellpadding="0" border="0" class="actionSec">
 	<tr>
     	<td style="padding-top: 6px;text-align:right;">
-    		<a onclick="scriptDoLoad('user-types-manager.php', 'content')" href="javascript:void(0);" class="actionbut">
+    		<a onclick="scriptDoLoad('<?php echo $actionLink?>', 'content')" href="javascript:void(0);" class="actionbut">
          		<?php echo $spText['button']['Cancel']?>
          	</a> &nbsp;
-         	<?php $actFun = SP_DEMO ? "alertDemoMsg()" : "confirmSubmit('user-types-manager.php', 'editUserTypeCat', 'content')"; ?>         		
+         	<?php $actFun = SP_DEMO ? "alertDemoMsg()" : "confirmSubmit('user-types-manager.php', 'editPluginUserType', 'content')"; ?>         		
          	<a onclick="<?php echo $actFun?>" href="javascript:void(0);" class="actionbut">
          		<?php echo $spText['button']['Proceed']?>
          	</a>

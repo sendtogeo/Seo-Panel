@@ -76,6 +76,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 		    }		    			
 			$controller->listUserTypes($_POST);
 		    break;
+		    
+		case "edit_plugin_user_type_settings":
+			$controller->updatePluginUserTypeSettings($_POST);
+			break;
 		
 	}
 } else {
