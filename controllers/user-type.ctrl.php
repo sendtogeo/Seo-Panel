@@ -378,7 +378,7 @@ class UserTypeController extends Controller {
 	 * @params : $userTypeId - user type id, $pluginId, $className
 	 * @return : Display the edit form
 	 */
-	function editPluginUserTypeSettings($userTypeId, $pluginId, $className) {
+	function editPluginUserTypeSettings($userTypeId, $pluginId, $className, $post = array()) {
 		
 		// create plugin object
 		$basePluginObj = new SeoPluginsController();
@@ -398,7 +398,14 @@ class UserTypeController extends Controller {
 			$specColList = array();
 			foreach ($pluginUserTypeObj->specColList as $specCol => $specColInfo) {
 				$specColList[$specCol] = $specColInfo;
-				$specColList[$specCol]['spec_value'] = isset($userTypeSpecList[$specCol]) ? $userTypeSpecList[$specCol] : $specColInfo['default'];
+				
+				// check for post request
+				if (isset($post[$specCol])) {
+					$specColList[$specCol]['spec_value'] = $post[$specCol];
+				} else {
+					$specColList[$specCol]['spec_value'] = isset($userTypeSpecList[$specCol]) ? $userTypeSpecList[$specCol] : $specColInfo['default'];
+				}
+				
 			}
 			
 			$this->set('pluginId', $pluginId);
@@ -423,9 +430,27 @@ class UserTypeController extends Controller {
 		$pluginObj = $basePluginObj->createPluginObject($pluginInfo['name']);
 		$pluginUserTypeObj = $pluginObj->createHelper($settingsInfo['class_name']);
 		
+		// loop through plugin user type settings and validate
+		foreach ($pluginUserTypeObj->specColList as $specCol => $specColInfo) {
+			
+			// if validation is set
+			if (!empty($specColInfo['validation'])) {
+				$errMsg[$specCol] = formatErrorMsg($this->validate->$specColInfo['validation']($settingsInfo[$specCol]));
+				
+				// if error occured
+				if ($this->validate->flagErr) {
+					$this->set('errMsg', $errMsg);
+					$this->editPluginUserTypeSettings($settingsInfo['user_type_id'], $pluginId, $settingsInfo['class_name'], $settingsInfo);
+					exit;
+				}
+				
+			}
+			
+		}		
+		
 		// loop through plugin user type settings
 		foreach ($pluginUserTypeObj->specColList as $specCol => $specColInfo) {
-			$this->updateUserTypeSpec($settingsInfo['user_type_id'], $specCol, $settingsInfo[$specCol], $pluginUserTypeObj->specCategory);	
+			$this->updateUserTypeSpec($settingsInfo['user_type_id'], $specCol, $settingsInfo[$specCol], $pluginUserTypeObj->specCategory, $specColInfo['type']);	
 		}
 		
 		// show the plugin user type settings
@@ -438,8 +463,8 @@ class UserTypeController extends Controller {
 	/**
 	 * update user type spec
 	 */
-	function updateUserTypeSpec($userTypeId, $specColumn, $specValue, $specCategory) {
-		$specValue = addslashes($specValue);
+	function updateUserTypeSpec($userTypeId, $specColumn, $specValue, $specCategory, $dataType) {		
+		$specValue = Database::escapeData($specValue, $dataType);
 		$specColumn = addslashes($specColumn);
 		$specCategory = addslashes($specCategory);
 		$userTypeId = intval($userTypeId);

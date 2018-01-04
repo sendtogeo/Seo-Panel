@@ -43,7 +43,7 @@ if (!empty($errorMsg)) {
 	foreach ($specColList as $specCol => $specColInfo) {
 	
 		$styleClass = ($i++ % 2) ? "blue_row" : "white_row";
-		switch($specColInfo['type']){
+		switch($specColInfo['field_type']){
 				
 			case "small":
 				$width = 40;
@@ -72,16 +72,17 @@ if (!empty($errorMsg)) {
 		<tr class="<?php echo $styleClass?>">
 			<td class="td_left_col"><?php echo $specText[$specCol]; ?>:</td>
 			<td class="td_right_col">
-				<?php if ($specColInfo['type'] == 'bool') {?>
+				<?php if ($specColInfo['field_type'] == 'bool') {?>
 					<select  name="<?php echo $specCol?>">
 						<option value="1" <?php echo $selectYes?>><?php echo $spText['common']['Yes']?></option>
 						<option value="0" <?php echo $selectNo?>><?php echo $spText['common']['No']?></option>
 					</select>
-				<?php } else if ($specColInfo['type'] == 'text') {?>
+				<?php } else if ($specColInfo['field_type'] == 'text') {?>
 					<textarea name="<?php echo $specCol?>" style='width:<?php echo $width?>px'><?php echo stripslashes($specColInfo['spec_value'])?></textarea>
 				<?php } else {?>
-					<input type="<?php echo $type?>" name="<?php echo $specCol?>" value="<?php echo stripslashes($specColInfo['spec_value'])?>" style='width:<?php echo $width?>px'>
+					<input type="text" name="<?php echo $specCol?>" value="<?php echo stripslashes($specColInfo['spec_value'])?>" style='width:<?php echo $width?>px'>
 				<?php }?>
+				<?php echo $errMsg[$specCol]?>
 			</td>
 		</tr>	
 	<?php }?>
