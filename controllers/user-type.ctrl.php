@@ -331,6 +331,7 @@ class UserTypeController extends Controller {
 	 */
 	function getUserTypeSpec($userTypeId, $specCategory = '') {
 		$specCategory = addslashes($specCategory);
+		$userTypeId = intval($userTypeId);
 		$sql = "select * from user_specs where user_type_id=" . $userTypeId;
 		$sql .= !empty($specCategory) ? " and spec_category='$specCategory'" : "";
 		$userTypeSpecList = $this->db->select($sql);
