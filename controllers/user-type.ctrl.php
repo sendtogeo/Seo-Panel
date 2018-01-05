@@ -346,11 +346,12 @@ class UserTypeController extends Controller {
 	/**
 	 * Function to get the user type spec details by user
 	 */
-	function getUserTypeSpecByUser($userId) {
+	function getUserTypeSpecByUser($userId, $specCategory = '') {
 		$sql = "select * from users where id=" . $userId;
 		$userDetails = $this->db->select($sql);
 		
 		$sql = "select * from user_specs where user_type_id=" . $userDetails[0]['utype_id'];
+		$sql .= !empty($specCategory) ? " and spec_category='$specCategory'" : "";
 		$userTypeSpecList = $this->db->select($sql);
 			
 		foreach ($userTypeSpecList as $userTypeSpec) {

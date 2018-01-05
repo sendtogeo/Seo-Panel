@@ -77,6 +77,16 @@ if (!empty($errorMsg)) {
 						<option value="1" <?php echo $selectYes?>><?php echo $spText['common']['Yes']?></option>
 						<option value="0" <?php echo $selectNo?>><?php echo $spText['common']['No']?></option>
 					</select>
+				<?php } else if ($specColInfo['field_type'] == 'select') {?>
+					<select name="<?php echo $specCol?>">
+						<?php 
+						foreach ($specColInfo['options'] as $optVal => $optLabel) {
+							$selected = ($optVal == $specColInfo['spec_value']) ? " selected" : "";
+							?>
+							<option value="<?php echo $optVal?>" <?php echo $selected?>><?php echo $optLabel?></option>
+							<?php
+						}?>
+					</select>
 				<?php } else if ($specColInfo['field_type'] == 'text') {?>
 					<textarea name="<?php echo $specCol?>" style='width:<?php echo $width?>px'><?php echo stripslashes($specColInfo['spec_value'])?></textarea>
 				<?php } else {?>
