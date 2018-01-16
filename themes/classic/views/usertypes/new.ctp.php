@@ -15,7 +15,7 @@
 		<td class="left" width='30%'><?php echo $spTextPanel['New User Type']?></td>
 		<td class="right">&nbsp;</td>
 	</tr>
-	<tr class="white_row">
+	<tr class="blue_row">
 		<td class="td_left_col"><?php echo $spText['common']['Name']?>:</td>
 		<td class="td_right_col"><input type="text" name="user_type" value="<?php echo $post['user_type']?>"><?php echo $errMsg['user_type']?></td>
 	</tr>
@@ -23,7 +23,7 @@
 		<td class="td_left_col"><?php echo $spText['label']['Description']?>:</td>
 		<td class="td_right_col"><textarea name="description" id="usertypedescription"><?php echo $post['description']?></textarea><?php echo $errMsg['description']?></td>
 	</tr>
-	<tr class="white_row">
+	<tr class="blue_row">
 		<td class="td_left_col"><?php echo $spText['common']['Keywords Count']?>:</td>
 		<td class="td_right_col"><input type="text" name="keywordcount" id="keywordcount" value="<?php echo $post['keywordcount']?>"><?php echo $errMsg['keywordcount']?></td>
 	</tr>
@@ -32,7 +32,7 @@
 		<td class="td_right_col"><input type="text" name="websitecount" id="websitecount" value="<?php echo $post['websitecount']?>"><?php echo $errMsg['websitecount']?></td>
 	</tr>
 	<?php if ($isPluginSubsActive) {?>
-		<tr class="white_row">
+		<tr class="blue_row">
 			<td class="td_left_col"><?php echo $spText['common']['Price']?>:</td>
 			<td class="td_right_col"><?php echo $currencyList[SP_PAYMENT_CURRENCY]['symbol']; ?><input type="text" name="price" id="price" value="<?php echo $post['price']?>"><?php echo $errMsg['price']?></td>
 		</tr>
@@ -45,7 +45,25 @@
 				<option value="0"><?php echo $_SESSION['text']['common']['Inactive']?></option>
 			</select>
 		</td>
-	</tr>		
+	</tr>
+	
+	<tr class="white_row"><td class="td_left_col left bold" colspan="2"><?php echo $spTextSubscription['Plugin Access Settings']?></td></tr>
+	<?php 
+	foreach ($pluginAccessList as $i => $pluginInfo) {
+		$selectYes = $pluginInfo['value'] ? " selected" : "";
+		?>
+		<tr class="white_row">
+			<td class="td_left_col"><?php echo $pluginInfo['label']?>:</td>
+			<td class="td_right_col">
+				<select  name="<?php echo $pluginInfo['name']?>">
+					<option value="0"><?php echo $spText['common']['No']?></option>
+					<option value="1" <?php echo $selectYes?>><?php echo $spText['common']['Yes']?></option>
+				</select>
+				<?php echo $errMsg[$pluginInfo['name']]?>
+			</td>
+		</tr>	
+	<?php }?>
+		
 	<tr class="white_row">
 		<td class="tab_left_bot_noborder"></td>
 		<td class="tab_right_bot"></td>

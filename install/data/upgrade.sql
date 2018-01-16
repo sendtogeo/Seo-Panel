@@ -45,3 +45,6 @@ ALTER TABLE `user_specs` ADD UNIQUE( `user_type_id`, `spec_column`);
 
 INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 ('en', 'panel', 'User Type Settings', 'User Type Settings');
+
+INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
+('en', 'subscription', 'Plugin Access Settings', 'Plugin Access Settings');

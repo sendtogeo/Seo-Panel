@@ -38,6 +38,16 @@ class SeoPluginsController extends Controller{
 	
 	# function to manage seo plugins
 	function manageSeoPlugins($info, $method='get') {
+		
+		// check for plugin access level for user, if not admin
+		if (!isAdmin()) {
+			$userTypeCtrler = new UserTypeController();
+			$pluginAccessList = $userTypeCtrler->getPluginAccessSettings($_SESSION['userInfo']['userId']);
+			if (isset($pluginAccessList[$info['pid']]) && empty($pluginAccessList[$info['pid']]['value'])) {
+				showErrorMsg("Access denied");
+			}
+		}
+		
 		$pluginInfo = $this->__getSeoPluginInfo($info['pid']);
 		$pluginDirName = $pluginInfo['name'];
 		$pluginPath = SP_PLUGINPATH."/".$pluginDirName;
@@ -151,7 +161,35 @@ class SeoPluginsController extends Controller{
 	function showSeoPlugins($info=''){
 		$this->layout = "default";
 		
-		$menuList = $this->__getAllSeoPlugins("status=1 and installed=1 ");
+		$menuList = array();
+		$pluginList = $this->__getAllSeoPlugins("status=1 and installed=1 ");
+		
+		// if not admin, check plugin access set for user, 
+		if (!isAdmin()) {
+			$userTypeCtrler = new UserTypeController();
+			$pluginAccessList = $userTypeCtrler->getPluginAccessSettings($_SESSION['userInfo']['userId']);
+			
+			// loop through plugin list
+			foreach ($pluginList as $pluginInfo) {
+				
+				// if access is set for plugin
+				if (isset($pluginAccessList[$pluginInfo['id']]['value'])) {
+
+					// access is on
+					if (!empty($pluginAccessList[$pluginInfo['id']]['value'])) {
+						$menuList[] = $pluginInfo;
+					}
+					
+				} else {
+					$menuList[] = $pluginInfo;	
+				}
+				
+			}
+			
+		} else {
+			$menuList = $pluginList;
+		}
+		
 		if(count($menuList) <= 0){
 		    $msg = $_SESSION['text']['label']['noactiveplugins'];
 		    $msgButton = '<a class="actionbut" href="'.SP_PLUGINSITE.'" target="_blank">'.$this->spTextPlugin['Download Seo Panel Plugins'].' &gt;&gt;</a>';

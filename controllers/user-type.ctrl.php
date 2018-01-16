@@ -27,6 +27,25 @@ class UserTypeController extends Controller {
 	public $userSpecFields = array('keywordcount','websitecount','price');
 	
 	/**
+	 * constructor
+	 */
+	function UserTypeController() {
+    	
+    	// call parent constructor
+    	parent::__construct();
+    	
+    	// get plugin access list
+    	$pluginAccessList = $this->getPluginAccessSettings();
+    	
+    	// assign new fields to user spec for plugin access
+    	foreach ($pluginAccessList as $pluginInfo) {
+    		$this->userSpecFields[] = $pluginInfo['name'];
+    	}
+		
+	}
+	
+	
+	/**
 	 * Function to list all the available user types
 	 * @params : Array of values to be passed
 	 * @return : Display the list
@@ -91,10 +110,15 @@ class UserTypeController extends Controller {
 				$currencyCtrler = new CurrencyController();
 				$this->set('currencyList', $currencyCtrler->getCurrencyCodeMapList());
 			}
+
+			// get all plugin access list
+			$pluginAccessList = $this->getPluginAccessSettings($userTypeId);
+			$this->set('pluginAccessList', $pluginAccessList);
 			
 			$this->render('usertypes/edit');
 			exit;
 		}
+		
 		$this->listUserTypes();
 	}
 
@@ -258,8 +282,41 @@ class UserTypeController extends Controller {
 			$currencyCtrler = new CurrencyController();
 			$this->set('currencyList', $currencyCtrler->getCurrencyCodeMapList());
 		}
+		
+		// get all plugin access list
+		$pluginAccessList = $this->getPluginAccessSettings();
+		$this->set('pluginAccessList', $pluginAccessList);
 			
 		$this->render('usertypes/new');
+	}
+	
+	/*
+	 * function to get plugin access id
+	 */
+	function getPluginAccessSettings($userTypeId = false) {
+		
+		$pluginAccessList = array();
+		$pluginCtrler = new SeoPluginsController();
+		$pluginList = $pluginCtrler->__getAllSeoPlugins();
+		
+		// if user type is passed
+		if ($userTypeId) {
+			$userTypeSettingList = $this->getUserTypeSpec($userTypeId, "system");
+		}
+		
+		// loop through plugin list
+		foreach ($pluginList as $i => $pluginInfo) {
+			$pluginCol = 'plugin_' . $pluginInfo['id'];
+			$pluginAccessList[$pluginInfo['id']] = array(
+				'name' => $pluginCol,
+				'label' => $pluginInfo['label'],
+				'value' => isset($userTypeSettingList[$pluginCol]) ? $userTypeSettingList[$pluginCol] : 0,
+			);
+			
+		}
+		
+		return $pluginAccessList;
+		
 	}
 
 	/**
