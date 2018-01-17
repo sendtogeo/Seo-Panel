@@ -22,6 +22,10 @@
 
 include_once("includes/sp-load.php");
 checkLoggedIn();
+
+// check for access to seo tool
+isUserHaveAccessToSeoTool("rank-checker");
+
 include_once(SP_CTRLPATH."/rank.ctrl.php");
 include_once(SP_CTRLPATH."/moz.ctrl.php");
 $controller = New RankController();

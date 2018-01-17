@@ -22,6 +22,10 @@
 
 include_once("includes/sp-load.php");
 checkLoggedIn();
+
+// check for access to seo tool
+isUserHaveAccessToSeoTool("site-auditor");
+
 include_once(SP_CTRLPATH."/siteauditor.ctrl.php");
 $controller = New SiteAuditorController();
 $controller->view->menu = 'seotools';

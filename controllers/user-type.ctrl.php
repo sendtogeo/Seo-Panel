@@ -19,6 +19,8 @@
 *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
 ***************************************************************************/
 
+include_once(SP_CTRLPATH . "/seotools.ctrl.php");
+
 /**
  * Class defines all user type controller functions
  */
@@ -40,6 +42,14 @@ class UserTypeController extends Controller {
     	// assign new fields to user spec for plugin access
     	foreach ($pluginAccessList as $pluginInfo) {
     		$this->userSpecFields[] = $pluginInfo['name'];
+    	}
+    	
+    	// get seo tool access list
+    	$toolAccessList = $this->getSeoToolAccessSettings($userTypeId);
+
+    	// assign new fields to user spec for seo tool access
+    	foreach ($toolAccessList as $toolInfo) {
+    		$this->userSpecFields[] = $toolInfo['name'];
     	}
 		
 	}
@@ -94,10 +104,12 @@ class UserTypeController extends Controller {
 		
 		$userTypeId = intval($userTypeId);
 		if (!empty($userTypeId)) {
+			
 			if (empty($listInfo)) {
 				$listInfo = $this->__getUserTypeInfo($userTypeId);
 				$listInfo['old_user_type'] = $listInfo['user_type'];
 			}
+			
 			$listInfo['websitecount'] = stripslashes($listInfo['websitecount']);
 			$listInfo['description'] = stripslashes($listInfo['description']);
 			$listInfo['keywordcount'] = stripslashes($listInfo['keywordcount']);
@@ -114,6 +126,10 @@ class UserTypeController extends Controller {
 			// get all plugin access list
 			$pluginAccessList = $this->getPluginAccessSettings($userTypeId);
 			$this->set('pluginAccessList', $pluginAccessList);
+
+			// get all seo tool access list
+			$toolAccessList = $this->getSeoToolAccessSettings($userTypeId);
+			$this->set('toolAccessList', $toolAccessList);
 			
 			$this->render('usertypes/edit');
 			exit;
@@ -286,6 +302,10 @@ class UserTypeController extends Controller {
 		// get all plugin access list
 		$pluginAccessList = $this->getPluginAccessSettings();
 		$this->set('pluginAccessList', $pluginAccessList);
+
+		// get all seo tool access list
+		$toolAccessList = $this->getSeoToolAccessSettings();
+		$this->set('toolAccessList', $toolAccessList);
 			
 		$this->render('usertypes/new');
 	}
@@ -310,12 +330,57 @@ class UserTypeController extends Controller {
 			$pluginAccessList[$pluginInfo['id']] = array(
 				'name' => $pluginCol,
 				'label' => $pluginInfo['label'],
-				'value' => isset($userTypeSettingList[$pluginCol]) ? $userTypeSettingList[$pluginCol] : 0,
+				'value' => isset($userTypeSettingList[$pluginCol]) ? $userTypeSettingList[$pluginCol] : 1,
 			);
 			
 		}
 		
 		return $pluginAccessList;
+		
+	}
+	
+	/*
+	 * function to get plugin access id
+	 */
+	function getSeoToolAccessSettings($userTypeId = false, $toolId = false) {
+		
+		$toolAccessList = array();
+		$toolCtrler = new SeoToolsController();
+		$whereCond = $toolId ? "id=" . intval($toolId) : "1=1";
+		$toolList = $toolCtrler->__getAllSeoTools($whereCond);
+		
+		// if user type is passed
+		if ($userTypeId) {
+			$userTypeSettingList = $this->getUserTypeSpec($userTypeId, "system");
+		}
+		
+		// loop through plugin list
+		foreach ($toolList as $i => $toolInfo) {
+			$toolCol = 'seotool_' . $toolInfo['id'];
+			$toolAccessList[$toolInfo['id']] = array(
+				'name' => $toolCol,
+				'label' => $toolInfo['name'],
+				'value' => isset($userTypeSettingList[$toolCol]) ? $userTypeSettingList[$toolCol] : 1,
+			);
+			
+		}
+		
+		return $toolAccessList;
+		
+	}
+	
+	/*
+	 * function to chekc whethere user type have access to seo tool
+	 */
+	function isUserTypeHaveAccessToSeoTool($userTypeId, $toolId) {
+
+		// chekc for admin
+		if (isAdmin()) {
+			return true;
+		} else {
+			$toolAccessList = $this->getSeoToolAccessSettings($userTypeId, $toolId);
+			return $toolAccessList[$toolId]['value'] ? true : false;
+		}
 		
 	}
 

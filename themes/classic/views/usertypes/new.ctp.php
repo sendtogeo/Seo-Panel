@@ -63,6 +63,23 @@
 			</td>
 		</tr>	
 	<?php }?>
+	
+	<tr class="white_row"><td class="td_left_col left bold" colspan="2"><?php echo $spTextSubscription['Seo Tools Access Settings']?></td></tr>
+	<?php 
+	foreach ($toolAccessList as $i => $toolInfo) {
+		$selectYes = $toolInfo['value'] ? " selected" : "";
+		?>
+		<tr class="blue_row">
+			<td class="td_left_col"><?php echo $toolInfo['label']?>:</td>
+			<td class="td_right_col">
+				<select  name="<?php echo $toolInfo['name']?>">
+					<option value="0"><?php echo $spText['common']['No']?></option>
+					<option value="1" <?php echo $selectYes?>><?php echo $spText['common']['Yes']?></option>
+				</select>
+				<?php echo $errMsg[$toolInfo['name']]?>
+			</td>
+		</tr>	
+	<?php }?>
 		
 	<tr class="white_row">
 		<td class="tab_left_bot_noborder"></td>

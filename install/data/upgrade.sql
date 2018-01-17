@@ -48,3 +48,9 @@ INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 
 INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 ('en', 'subscription', 'Plugin Access Settings', 'Plugin Access Settings');
+
+INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
+('en', 'subscription', 'Seo Tools Access Settings', 'Seo Tools Access Settings');
+
+INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
+('en', 'label', 'Access denied', 'Access denied');

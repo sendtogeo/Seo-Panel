@@ -22,6 +22,10 @@
 
 include_once("includes/sp-load.php");
 checkLoggedIn();
+
+// check for access to seo tool
+isUserHaveAccessToSeoTool("directory-submission");
+
 include_once(SP_CTRLPATH."/directory.ctrl.php");
 $controller = New DirectoryController();
 $controller->view->menu = 'seotools';

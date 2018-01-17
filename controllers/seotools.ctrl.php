@@ -34,7 +34,36 @@ class SeoToolsController extends Controller{
 		}
 		$sql .= " order by id";
 		
-		$menuList = $this->db->select($sql);
+		$menuList = array();
+		$toolList = $this->db->select($sql);
+		$userTypeCtrler = new UserTypeController();
+		
+		// if not admin, check tool access set for user,
+		if (!isAdmin()) {
+			$userSessInfo = Session::readSession('userInfo');
+			$toolAccessList = $userTypeCtrler->getSeoToolAccessSettings($userSessInfo['userTypeId']);
+				
+			// loop through plugin list
+			foreach ($toolList as $toolInfo) {
+		
+				// if access is set for plugin
+				if (isset($toolAccessList[$toolInfo['id']]['value'])) {
+		
+					// access is on
+					if (!empty($toolAccessList[$toolInfo['id']]['value'])) {
+						$menuList[] = $toolInfo;
+					}
+						
+				} else {
+					$menuList[] = $toolInfo;
+				}
+		
+			}
+				
+		} else {
+			$menuList = $toolList;
+		}
+		
 		if(count($menuList) <= 0){
 			$this->set('msg', $_SESSION['text']['common']['noactivetools']);
 			$this->render('common/notfound');
@@ -89,8 +118,8 @@ class SeoToolsController extends Controller{
 	}
 
 	# func to get all seo tools
-	function __getAllSeoTools(){
-		$sql = "select * from seotools order by id";
+	function __getAllSeoTools($whereCond = "1=1"){
+		$sql = "select * from seotools where $whereCond order by id";
 		$seoToolList = $this->db->select($sql);
 		return $seoToolList;
 	}

@@ -42,9 +42,10 @@ class SeoPluginsController extends Controller{
 		// check for plugin access level for user, if not admin
 		if (!isAdmin()) {
 			$userTypeCtrler = new UserTypeController();
-			$pluginAccessList = $userTypeCtrler->getPluginAccessSettings($_SESSION['userInfo']['userId']);
+			$userSessInfo = Session::readSession('userInfo');
+			$pluginAccessList = $userTypeCtrler->getPluginAccessSettings($userSessInfo['userTypeId']);
 			if (isset($pluginAccessList[$info['pid']]) && empty($pluginAccessList[$info['pid']]['value'])) {
-				showErrorMsg("Access denied");
+				showErrorMsg($_SESSION['text']['label']['Access denied']);
 			}
 		}
 		
@@ -167,7 +168,8 @@ class SeoPluginsController extends Controller{
 		// if not admin, check plugin access set for user, 
 		if (!isAdmin()) {
 			$userTypeCtrler = new UserTypeController();
-			$pluginAccessList = $userTypeCtrler->getPluginAccessSettings($_SESSION['userInfo']['userId']);
+			$userSessInfo = Session::readSession('userInfo');
+			$pluginAccessList = $userTypeCtrler->getPluginAccessSettings($userSessInfo['userTypeId']);
 			
 			// loop through plugin list
 			foreach ($pluginList as $pluginInfo) {

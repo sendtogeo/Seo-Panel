@@ -75,6 +75,7 @@ class UserController extends Controller{
 					    
 						$uInfo['userId'] = $userInfo['id'];
 						$uInfo['userType'] = $userInfo['user_type'];
+						$uInfo['userTypeId'] = $userInfo['utype_id'];
 						$uInfo['lang_code'] = $userInfo['lang_code'];
 						$this->setLoginSession($uInfo);
 						
