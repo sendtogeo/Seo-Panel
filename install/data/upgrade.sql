@@ -69,5 +69,11 @@ INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 ('en', 'subscription', 'total_count_greater_account_limit', 'Total count is greater than account limit - [limit]');
 
 INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
+('en', 'subscription', 'total_count_greater_account_limit_dir_sub', 'Directory submission count is greater than account limit - [limit]');
+
+INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
+('en', 'subscription', 'total_count_greater_account_limit_dir_sub_daily', 'Directory submission count is greater than daily account limit - [limit]');
+
+INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 ('en', 'label', 'Access denied', 'Access denied');
 

@@ -949,7 +949,7 @@ class DirectoryController extends Controller{
 				// check whether count greater than limit
 				if ($submitInfo['count'] >= $userTypeDetails['directory_submit_limit']) {
 					$validation['error'] = true;
-					$validation['msg'] = formatErrorMsg(str_replace("[limit]", $userTypeDetails['directory_submit_limit'], $spTextSubs['total_count_greater_account_limit']), "error", "");
+					$validation['msg'] = formatErrorMsg(str_replace("[limit]", $userTypeDetails['directory_submit_limit'], $spTextSubs['total_count_greater_account_limit_dir_sub']), "error", "");
 				}
 				
 			}
@@ -965,7 +965,7 @@ class DirectoryController extends Controller{
 				// check whether count greater than limit
 				if ($submitInfo['count'] >= $userTypeDetails['directory_submit_daily_limit']) {
 					$validation['error'] = true;
-					$validation['msg'] = formatErrorMsg(str_replace("[limit]", $userTypeDetails['directory_submit_daily_limit'], $spTextSubs['total_count_greater_account_limit']), "error", "");
+					$validation['msg'] = formatErrorMsg(str_replace("[limit]", $userTypeDetails['directory_submit_daily_limit'], $spTextSubs['total_count_greater_account_limit_dir_sub_daily']), "error", "");
 				}
 				
 			}
