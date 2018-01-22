@@ -115,6 +115,13 @@ class SiteAuditorController extends Controller{
 		    }
 		    $listInfo['exclude_links'] = $excludeInfo['exclude_links'];*/
 		    
+		    // check for max links allowed for the account type
+		    $maxValidInfo = $this->validateMaxLinkCount($websiteInfo['user_id'], $listInfo['max_links']);
+		    if ($maxValidInfo['error']) {
+		        $errorFlag = 1;
+		        $errMsg['max_links'] = $maxValidInfo['msg'];
+		    }
+		    
 		    if (!$errorFlag) {
     			if (!$this->isProjectExists($listInfo['website_id'])) {
     				$sql = "insert into auditorprojects(website_id,max_links,exclude_links,check_pr,check_backlinks,check_indexed,store_links_in_page,check_brocken,cron)
@@ -230,6 +237,14 @@ class SiteAuditorController extends Controller{
 		    }
 		    $listInfo['exclude_links'] = $excludeInfo['exclude_links'];*/
 		    
+		    // check for max links allowed for the account type
+		    $maxValidInfo = $this->validateMaxLinkCount($websiteInfo['user_id'], $listInfo['max_links']);
+		    if ($maxValidInfo['error']) {
+		        $errorFlag = 1;
+		        $errMsg['max_links'] = $maxValidInfo['msg'];
+		    }
+		    
+		    // if error occured
 		    if (!$errorFlag) {
     			if (!$this->isProjectExists($listInfo['website_id'], $listInfo['id'])) {
     				$sql = "Update auditorprojects set
@@ -916,5 +931,34 @@ class SiteAuditorController extends Controller{
 		$this->set('errMsg', $errMsg);
 		$this->showImportProjectLinks();
     }
+    
+    // Function to check / validate the user type site auditor project maximum list 
+    function validateMaxLinkCount($userId, $count) {
+    	$userCtrler = new UserController();
+    	$validation = array('error' => false);
+    
+    	// if admin user id return true
+    	if ($userCtrler->isAdminUserId($userId)) {
+    		return $validation;
+    	}
+    
+    	$userTypeCtrlr = new UserTypeController();
+    	$userTypeDetails = $userTypeCtrlr->getUserTypeSpecByUser($userId);
+    
+    	// if limit is set and not -1
+    	if (isset($userTypeDetails['site_auditor_max_page_limit']) && $userTypeDetails['site_auditor_max_page_limit'] >= 0) {
+    
+    		// check whether count greater than limit
+    		if ($count > $userTypeDetails['site_auditor_max_page_limit']) {
+    			$spTextSubs = $userTypeCtrlr->getLanguageTexts('subscription', $_SESSION['lang_code']);
+    			$validation['error'] = true;
+    			$validation['msg'] = formatErrorMsg(str_replace("[limit]", $userTypeDetails['site_auditor_max_page_limit'], $spTextSubs['total_count_greater_account_limit']));
+    		}
+    
+    	}
+    
+    	return $validation;
+    }
+    
 }
 ?>
