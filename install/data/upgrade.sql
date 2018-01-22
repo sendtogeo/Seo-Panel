@@ -49,7 +49,6 @@ INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 ('en', 'common', 'Search Engine Count', 'Search Engine Count');
 
-
 INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 ('en', 'subscription', 'infinite_limit_text', '<b>Note</b>: Enter -1 for infinite limit');
 
@@ -79,4 +78,8 @@ INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 
 INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 ('en', 'label', 'Access denied', 'Access denied');
+
+INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
+('en', 'panel', 'Global Reports Settings', 'Global Reports Settings');
+
 
