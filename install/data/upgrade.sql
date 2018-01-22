@@ -47,10 +47,27 @@ INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 ('en', 'panel', 'User Type Settings', 'User Type Settings');
 
 INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
+('en', 'common', 'Search Engine Count', 'Search Engine Count');
+
+
+INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
+('en', 'subscription', 'infinite_limit_text', '<b>Note</b>: Enter -1 for infinite limit');
+
+INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 ('en', 'subscription', 'Plugin Access Settings', 'Plugin Access Settings');
 
 INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 ('en', 'subscription', 'Seo Tools Access Settings', 'Seo Tools Access Settings');
 
 INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
+('en', 'subscription', 'Directory Submit Limit', 'Directory Submit Limit');
+
+INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
+('en', 'subscription', 'Directory Submit Daily Limit', 'Directory Submit Daily Limit');
+
+INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
+('en', 'subscription', 'total_count_greater_account_limit', 'Total count is greater than account limit - [limit]');
+
+INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 ('en', 'label', 'Access denied', 'Access denied');
+

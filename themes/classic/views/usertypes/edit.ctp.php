@@ -18,12 +18,45 @@
 	</tr>
 	<tr class="blue_row">
 		<td class="td_left_col"><?php echo $spText['common']['Keywords Count']?>:</td>
-		<td class="td_right_col"><input type="text" name="keywordcount" id="keywordcount" value="<?php echo $post['keywordcount']?>"><?php echo $errMsg['keywordcount']?></td>
+		<td class="td_right_col">
+			<input type="text" name="keywordcount" id="keywordcount" value="<?php echo $post['keywordcount']?>"><?php echo $errMsg['keywordcount']?>
+			<p><?php echo $spTextSubscription['infinite_limit_text']?></p>
+		</td>
 	</tr>
 	<tr class="blue_row">
 		<td class="td_left_col"><?php echo $spText['common']['Websites Count']?>:</td>
-		<td class="td_right_col"><input type="text" name="websitecount" id="websitecount" value="<?php echo $post['websitecount']?>"><?php echo $errMsg['websitecount']?></td>
+		<td class="td_right_col">
+			<input type="text" name="websitecount" id="websitecount" value="<?php echo $post['websitecount']?>"><?php echo $errMsg['websitecount']?>
+			<p><?php echo $spTextSubscription['infinite_limit_text']?></p>
+		</td>
 	</tr>
+	<tr class="blue_row">
+		<td class="td_left_col"><?php echo $spText['common']['Search Engine Count']?>:</td>
+		<td class="td_right_col">
+			<input type="text" name="searchengine_count" id="searchengine_count" value="<?php echo $post['searchengine_count']?>">
+			<?php echo $errMsg['searchengine_count']?>
+			<p><?php echo $spTextSubscription['infinite_limit_text']?></p>
+		</td>
+	</tr>	
+	
+	<tr class="blue_row">
+		<td class="td_left_col"><?php echo $spTextSubscription['Directory Submit Limit']?>:</td>
+		<td class="td_right_col">
+			<input type="text" name="directory_submit_limit" id="directory_submit_limit" value="<?php echo $post['directory_submit_limit']?>">
+			<?php echo $errMsg['directory_submit_limit']?>
+			<p><?php echo $spTextSubscription['infinite_limit_text']?></p>
+		</td>
+	</tr>	
+	
+	<tr class="blue_row">
+		<td class="td_left_col"><?php echo $spTextSubscription['Directory Submit Daily Limit']?>:</td>
+		<td class="td_right_col">
+			<input type="text" name="directory_submit_daily_limit" id="directory_submit_daily_limit" value="<?php echo $post['directory_submit_daily_limit']?>">
+			<?php echo $errMsg['directory_submit_daily_limit']?>
+			<p><?php echo $spTextSubscription['infinite_limit_text']?></p>
+		</td>
+	</tr>
+	
 	<?php if ($isPluginSubsActive) {?>
 		<tr class="blue_row">
 			<td class="td_left_col"><?php echo $spText['common']['Price']?>:</td>

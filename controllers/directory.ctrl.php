@@ -166,6 +166,13 @@ class DirectoryController extends Controller{
 	function startSubmission( $websiteId, $dirId='' ) {
 		$dirId = intval($dirId);
 		$websiteId = intval($websiteId);
+
+		$websiteController = New WebsiteController();
+		$websiteInfo = $websiteController->__getWebsiteInfo($websiteId);
+		$this->set('websiteId', $websiteId);
+		
+		// submission count validation
+		$this->validateDirectorySubmissionCount($websiteInfo['user_id']);
 		
 		# get list of already submitted directories
 		$sql = "select directory_id from dirsubmitinfo where website_id=$websiteId";
@@ -208,10 +215,6 @@ class DirectoryController extends Controller{
 		if(empty($dirInfo['id'])) {
 			showErrorMsg($this->spTextDir['nodirnote'].". Please <a href='".SP_CONTACT_LINK."' target='_blank'>Contact</a> <b>Seo Panel Team</b> to get more <b>directories</b>.");
 		}
-		
-		$websiteController = New WebsiteController();
-		$websiteInfo = $websiteController->__getWebsiteInfo($websiteId);
-		$this->set('websiteId', $websiteId);
 		
 		$spider = new Spider();
 		$spider->_CURLOPT_HEADER = 1; 
@@ -911,6 +914,70 @@ class DirectoryController extends Controller{
 	    $sql = "SELECT * FROM di_directory_meta where id=$id";
 	    $scriptInfo = $this->db->select($sql, true); 
 	    return $scriptInfo;
+	}
+
+	// Function to check / validate the user type directory submission count
+	function validateDirectorySubmissionCount($userId, $exit = true) {
+		$userCtrler = new UserController();
+		$validation = array('error' => false);
+	
+		// if admin user id return true
+		if ($userCtrler->isAdminUserId($userId)) {
+			return $validation;
+		}
+	
+		$userTypeCtrlr = new UserTypeController();
+		$userTypeDetails = $userTypeCtrlr->getUserTypeSpecByUser($userId);
+		
+		// if limit is set and not -1
+		if (isset($userTypeDetails['directory_submit_limit']) || isset($userTypeDetails['directory_submit_daily_limit'])) {
+
+			$spTextSubs = $userTypeCtrlr->getLanguageTexts('subscription', $_SESSION['lang_code']);
+			$websiteCtrler = new WebsiteController();
+			$websiteList = $websiteCtrler->__getAllWebsites($userId);
+			$websiteIdList = array();
+			foreach ($websiteList as $info) {
+				$websiteIdList[] = $info['id'];
+			}
+			
+			$whereCond = " website_id in (".implode(',', $websiteIdList).")";
+			
+			// if whole submit limit set
+			if ($userTypeDetails['directory_submit_limit'] >= 0) {
+				$submitInfo = $this->dbHelper->getRow("dirsubmitinfo", $whereCond, "count(*) count");
+
+				// check whether count greater than limit
+				if ($submitInfo['count'] >= $userTypeDetails['directory_submit_limit']) {
+					$validation['error'] = true;
+					$validation['msg'] = formatErrorMsg(str_replace("[limit]", $userTypeDetails['directory_submit_limit'], $spTextSubs['total_count_greater_account_limit']), "error", "");
+				}
+				
+			}
+			
+			// if daily submit limit is set
+			if (!$validation['error'] && $userTypeDetails['directory_submit_daily_limit'] >= 0) {
+				$dateStr = date("Y-m-d");
+				$fromTime = strtotime($dateStr . " 00:00:00");
+				$toTime = strtotime($dateStr . " 23:59:59");
+				$whereCond .= " and submit_time>=$fromTime and submit_time<=$toTime";
+				$submitInfo = $this->dbHelper->getRow("dirsubmitinfo", $whereCond, "count(*) count");
+				
+				// check whether count greater than limit
+				if ($submitInfo['count'] >= $userTypeDetails['directory_submit_daily_limit']) {
+					$validation['error'] = true;
+					$validation['msg'] = formatErrorMsg(str_replace("[limit]", $userTypeDetails['directory_submit_daily_limit'], $spTextSubs['total_count_greater_account_limit']), "error", "");
+				}
+				
+			}
+				
+		}
+		
+		// if exit after error
+		if ($exit && $validation['error']) {
+			showErrorMsg($validation['msg']);
+		}
+	
+		return $validation;
 	}
 }
 ?>
