@@ -68,7 +68,7 @@ foreach($menuList as $i => $menuInfo){
 				<?php if (isAdmin()) {?>
     				<li><a href="javascript:void(0);" onclick="scriptDoLoad('cron.php', 'content')"><?php echo $spTextPanel['Report Generation Manager']?></a></li>
     				<li><a href="javascript:void(0);" onclick="scriptDoLoad('cron.php?sec=croncommand', 'content')"><?php echo $spTextPanel['Cron Command']?></a></li>
-					<li><a href="javascript:void(0);" onclick="scriptDoLoad('settings.php?sec=reportsettings', 'content')"><?php echo $spTextPanel['Report Settings']?></a></li>
+					<li><a href="javascript:void(0);" onclick="scriptDoLoad('settings.php?sec=reportsettings', 'content')"><?php echo $spTextPanel['Global Reports Settings']?></a></li>
 				<?php }?>
 			</ul>
 			<?php
@@ -153,6 +153,7 @@ foreach($menuList as $i => $menuInfo){
 			<ul id='subui'>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('settings.php', 'content')"><?php echo $spTextPanel['System Settings']?></a></li>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('settings.php?category=moz', 'content')"><?php echo $spTextPanel['MOZ Settings']?></a></li>
+				<li><a href="javascript:void(0);" onclick="scriptDoLoad('settings.php?category=google', 'content')"><?php echo $spTextPanel['Google Settings']?></a></li>
 			</ul>
 			<?php
 			break;

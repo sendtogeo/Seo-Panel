@@ -26,7 +26,7 @@ class SaturationCheckerController extends Controller{
 	var $colList = array('google' => 'google', 'msn' => 'msn');
 	var $saturationUrlList = array(
 		'google' => 'http://www.google.com/search?hl=en&q=site%3A',
-		'msn' => 'http://www.bing.com/search?setmkt=en-us&q=site%3A',
+		'msn' => 'http://www.bing.com/search?q=site%3A',
 	);
 	
 	function showSaturationChecker() {
@@ -154,21 +154,22 @@ class SaturationCheckerController extends Controller{
 	
 	# function to save rank details
 	function saveRankResults($matchInfo, $remove=false) {
-		$time = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
+		$resultDate = date('Y-m-d');
 		
 		if($remove){				
-			$sql = "delete from saturationresults where website_id={$matchInfo['id']} and result_time=$time";
+			$sql = "delete from saturationresults where website_id={$matchInfo['id']} and result_date='$resultDate'";
 			$this->db->query($sql);
 		}
 		
-		$sql = "insert into saturationresults(website_id,google,msn,result_time)
-				values({$matchInfo['id']},{$matchInfo['google']},{$matchInfo['msn']},$time)";
+		$sql = "insert into saturationresults(website_id,google,msn,result_date)
+				values({$matchInfo['id']},{$matchInfo['google']},{$matchInfo['msn']}, '$resultDate')";
 		$this->db->query($sql);
 	}
 	
 	# function check whether reports already saved
 	function isReportsExists($websiteId, $time) {
-	    $sql = "select website_id from saturationresults where website_id=$websiteId and result_time=$time";
+		$resultDate = date('Y-m-d', $time);
+	    $sql = "select website_id from saturationresults where website_id=$websiteId and result_date='$resultDate'";
 	    $info = $this->db->select($sql, true);
 	    return empty($info['website_id']) ? false : true;
 	}
@@ -178,17 +179,21 @@ class SaturationCheckerController extends Controller{
 		
 		$userId = isLoggedIn();
 		if (!empty ($searchInfo['from_time'])) {
-			$fromTime = strtotime($searchInfo['from_time'] . ' 00:00:00');
+			$fromTime = $searchInfo['from_time'];
 		} else {
-			$fromTime = mktime(0, 0, 0, date('m'), date('d') - 30, date('Y'));
+			$fromTime = date('Y-m-d', strtotime('-30 days'));
 		}
+		
 		if (!empty ($searchInfo['to_time'])) {
-			$toTime = strtotime($searchInfo['to_time'] . ' 23:59:59');
+			$toTime = $searchInfo['to_time'];
 		} else {
-			$toTime = @mktime();
+			$toTime = date('Y-m-d');
 		}
-		$this->set('fromTime', date('Y-m-d', $fromTime));
-		$this->set('toTime', date('Y-m-d', $toTime));
+		
+		$fromTime = addslashes($fromTime);
+		$toTime = addslashes($toTime);
+		$this->set('fromTime', $fromTime);
+		$this->set('toTime', $toTime);
 
 		$websiteController = New WebsiteController();
 		$websiteList = $websiteController->__getAllWebsites($userId, true);
@@ -197,11 +202,8 @@ class SaturationCheckerController extends Controller{
 		$this->set('websiteId', $websiteId);
 		
 		$conditions = empty ($websiteId) ? "" : " and s.website_id=$websiteId";		
-		$sql = "select s.* ,w.name
-								from saturationresults s,websites w 
-								where s.website_id=w.id 
-								and result_time>= $fromTime and result_time<=$toTime $conditions  
-								order by result_time";
+		$sql = "select s.* ,w.name from saturationresults s,websites w where s.website_id=w.id 
+		and result_date >= '$fromTime' and result_date <= '$toTime' $conditions order by result_date";
 		$reportList = $this->db->select($sql);
 		
 		$i = 0;
@@ -252,8 +254,7 @@ class SaturationCheckerController extends Controller{
 		$fromTimeLabel = date('Y-m-d', $fromTime);
 		$toTimeLabel = date('Y-m-d', $toTime);
 		$sql = "select s.* ,w.name from saturationresults s,websites w where s.website_id=w.id and s.website_id=$websiteId
-				and (FROM_UNIXTIME(result_time, '%Y-%m-%d')='$fromTimeLabel' or FROM_UNIXTIME(result_time, '%Y-%m-%d')='$toTimeLabel')     
-				order by result_time DESC Limit 0,2";
+				and (result_date='$fromTimeLabel' or result_date='$toTimeLabel') order by result_date DESC Limit 0,2";
 		$reportList = $this->db->select($sql);
 		$reportList = array_reverse($reportList);
 		
@@ -290,6 +291,57 @@ class SaturationCheckerController extends Controller{
 
 		$reportList = array_reverse(array_slice($reportList, count($reportList) - 1));
 		return $reportList;
+	}
+	
+	# func to show graphical reports
+	function showGraphicalReports($searchInfo = '') {
+	
+		$userId = isLoggedIn();
+		$fromTime = !empty($searchInfo['from_time']) ? $searchInfo['from_time'] : date('Y-m-d', strtotime('-30 days'));
+		$toTime = !empty ($searchInfo['to_time']) ? $searchInfo['to_time'] : date("Y-m-d");
+		$this->set('fromTime', $fromTime);
+		$this->set('toTime', $toTime);
+	
+		$websiteController = New WebsiteController();
+		$websiteList = $websiteController->__getAllWebsites($userId, true);
+		$this->set('websiteList', $websiteList);
+		$websiteId = empty ($searchInfo['website_id']) ? $websiteList[0]['id'] : intval($searchInfo['website_id']);
+		$this->set('websiteId', $websiteId);
+		
+		$conditions = empty ($websiteId) ? "" : " and s.website_id=$websiteId";		
+		$sql = "select s.* ,w.name from saturationresults s,websites w where s.website_id=w.id 
+		and result_date >= '$fromTime' and result_date <= '$toTime' $conditions order by result_date";
+		$reportList = $this->db->select($sql);
+	
+		// if reports not empty
+		$colList = $this->colList;
+		if (!empty($reportList)) {
+	
+			$dataArr = "['Date', '" . implode("', '", array_values($colList)) . "']";
+	
+			// loop through data list
+			foreach ($reportList as $dataInfo) {
+	
+				$valStr = "";
+				foreach ($colList as $seId => $seVal) {
+					$valStr .= ", ";
+					$valStr .= !empty($dataInfo[$seId])    ? $dataInfo[$seId] : 0;
+				}
+	
+				$dataArr .= ", ['{$dataInfo['result_date']}' $valStr]";
+			}
+	
+			$this->set('dataArr', $dataArr);
+			$this->set('graphTitle', $this->spTextSat['Search Engine Saturation Reports']);
+			$graphContent = $this->getViewContent('report/graph');
+	
+		} else {
+			$graphContent = showErrorMsg($_SESSION['text']['common']['No Records Found'], false, true);
+		}
+	
+		// get graph content
+		$this->set('graphContent', $graphContent);
+		$this->render('saturationchecker/graphicalreport');
 	}
 	
 }

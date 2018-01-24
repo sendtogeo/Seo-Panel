@@ -28,7 +28,7 @@ class Validation{
 	function Validation(){
 		$this->Filters['email'] = "/^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i" ;
 		$this->Filters['number'] = "/^[0-9]+$/";
-		$this->Filters['floatnumber'] = "/^\d+$|^\d+\.\d+$|^\.\d+$/";
+		$this->Filters['floatnumber'] = "/^\d+$|^\d+\.\d+$|^\.\d+$|^\-\d+$/";
 		$this->Filters['phone'] = "/^[0-9\-\(\)\s\+]+$/";
 		$this->Filters['startPhone'] = "/^[0-9\+\(]$/";
 		$this->Filters['alpha']= "/^[a-zA-Z]+$/";
@@ -114,14 +114,14 @@ class Validation{
 	}
 
 	function checkEmail($entry){
-		$entry = stripslashes(trim($entry));
-		if(!preg_match($this->Filters['email'],$entry)){
+		
+		// check email using php function
+		$entry = stripslashes(trim($entry));		
+		if (filter_var($entry, FILTER_VALIDATE_EMAIL) === false) {
 			$msg = $_SESSION['text']['common']["Invalid email address entered"];
 			$this->flagErr = true;
-		}elseif(strlen($entry) == 0){
-			$msg = $_SESSION['text']['common']['Entry cannot be blank'];
-			$this->flagErr = true;
 		}
+		
 		return $msg;
 	}
 

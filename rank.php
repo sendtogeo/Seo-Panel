@@ -22,11 +22,17 @@
 
 include_once("includes/sp-load.php");
 checkLoggedIn();
+
+// check for access to seo tool
+isUserHaveAccessToSeoTool("rank-checker");
+
 include_once(SP_CTRLPATH."/rank.ctrl.php");
+include_once(SP_CTRLPATH."/moz.ctrl.php");
 $controller = New RankController();
 $controller->view->menu = 'seotools';
 $controller->layout = 'ajax';
-$controller->set('spTextTools', $controller->getLanguageTexts('seotools', $_SESSION['lang_code']));
+$controller->spTextTools = $controller->getLanguageTexts('seotools', $_SESSION['lang_code']);
+$controller->set('spTextTools', $controller->spTextTools);
 $controller->spTextRank = $controller->getLanguageTexts('rank', $_SESSION['lang_code']);
 $controller->set('spTextRank', $controller->spTextRank);
 
@@ -56,6 +62,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			
 		case "showmozrank":
 			$controller->printMOZRank(urldecode($_POST['url']));
+			break;
+			
+		case "graphical-reports":
+			$controller->showGraphicalReports($_POST);
 			break;
 		
 		default:
@@ -92,6 +102,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			
 		case "reports":
 			$controller->showReports($_GET);
+			break;
+			
+		case "graphical-reports":
+			$controller->showGraphicalReports($_GET);
 			break;
 
 		default:

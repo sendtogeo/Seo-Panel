@@ -22,6 +22,10 @@
 
 include_once("includes/sp-load.php");
 checkLoggedIn();
+
+// check for access to seo tool
+isUserHaveAccessToSeoTool("saturation-checker");
+
 include_once(SP_CTRLPATH."/saturationchecker.ctrl.php");
 $controller = New SaturationCheckerController();
 $controller->view->menu = 'seotools';
@@ -46,6 +50,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$controller->printSearchEngineSaturation($_POST);
 			break;
 			
+		case "graphical-reports":
+			$controller->showGraphicalReports($_POST);
+			break;
+			
 		default:
 			$controller->findSearchEngineSaturation($_POST);
 			break;
@@ -64,6 +72,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			
 		case "reports":
 			$controller->showReports($_GET);
+			break;
+			
+		case "graphical-reports":
+			$controller->showGraphicalReports($_GET);
 			break;
 		
 		default:

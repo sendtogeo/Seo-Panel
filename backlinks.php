@@ -22,6 +22,10 @@
 
 include_once("includes/sp-load.php");
 checkLoggedIn();
+
+// check for access to seo tool
+isUserHaveAccessToSeoTool("backlink-checker");
+
 include_once(SP_CTRLPATH."/backlink.ctrl.php");
 $controller = New BacklinkController();
 $controller->view->menu = 'seotools';
@@ -40,6 +44,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			
 		case "reports":
 			$controller->showReports($_POST);
+			break;
+			
+		case "graphical-reports":
+			$controller->showGraphicalReports($_POST);
 			break;
 		
 		case "backlink":
@@ -64,6 +72,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			
 		case "reports":
 			$controller->showReports($_GET);
+			break;
+			
+		case "graphical-reports":
+			$controller->showGraphicalReports($_GET);
 			break;
 		
 		default:

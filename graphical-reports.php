@@ -22,11 +22,13 @@
 
 include_once("includes/sp-load.php");
 checkLoggedIn();
+
+// check for access to seo tool
+isUserHaveAccessToSeoTool("keyword-position-checker");
+
 include_once(SP_CTRLPATH."/keyword.ctrl.php");
-include_once(SP_CTRLPATH."/website.ctrl.php");
-include_once(SP_CTRLPATH."/language.ctrl.php");
-include_once(SP_CTRLPATH."/searchengine.ctrl.php");
 include_once(SP_CTRLPATH."/report.ctrl.php");
+include_once(SP_CTRLPATH."/graph.ctrl.php");
 $controller = New ReportController();
 $controller->view->menu = 'seotools';
 $controller->set('spTextTools', $controller->getLanguageTexts('seotools', $_SESSION['lang_code']));

@@ -27,7 +27,7 @@ class SiteAuditorController extends Controller{
     var $seArr = array('google', 'bing'); // the array contains search engines 
     
 	function showAuditorProjects($info="") {
-	    
+		$info['userid'] = intval($info['userid']);
 	    $userId = isLoggedIn();
 		if(isAdmin()){
 			$sql = "select ap.*,w.name,u.username from websites w,users u,auditorprojects ap where ap.website_id=w.id and u.id=w.user_id";
@@ -115,6 +115,13 @@ class SiteAuditorController extends Controller{
 		    }
 		    $listInfo['exclude_links'] = $excludeInfo['exclude_links'];*/
 		    
+		    // check for max links allowed for the account type
+		    $maxValidInfo = $this->validateMaxLinkCount($websiteInfo['user_id'], $listInfo['max_links']);
+		    if ($maxValidInfo['error']) {
+		        $errorFlag = 1;
+		        $errMsg['max_links'] = $maxValidInfo['msg'];
+		    }
+		    
 		    if (!$errorFlag) {
     			if (!$this->isProjectExists($listInfo['website_id'])) {
     				$sql = "insert into auditorprojects(website_id,max_links,exclude_links,check_pr,check_backlinks,check_indexed,store_links_in_page,check_brocken,cron)
@@ -200,7 +207,7 @@ class SiteAuditorController extends Controller{
 	
 	// func to update project
 	function updateProject($listInfo){
-		
+		$listInfo['id'] = intval($listInfo['id']);
 		$userId = isLoggedIn();
 		$listInfo['website_id'] = intval($listInfo['website_id']);
 		$listInfo['max_links'] = intval($listInfo['max_links']);		
@@ -230,6 +237,14 @@ class SiteAuditorController extends Controller{
 		    }
 		    $listInfo['exclude_links'] = $excludeInfo['exclude_links'];*/
 		    
+		    // check for max links allowed for the account type
+		    $maxValidInfo = $this->validateMaxLinkCount($websiteInfo['user_id'], $listInfo['max_links']);
+		    if ($maxValidInfo['error']) {
+		        $errorFlag = 1;
+		        $errMsg['max_links'] = $maxValidInfo['msg'];
+		    }
+		    
+		    // if error occured
 		    if (!$errorFlag) {
     			if (!$this->isProjectExists($listInfo['website_id'], $listInfo['id'])) {
     				$sql = "Update auditorprojects set
@@ -373,12 +388,12 @@ class SiteAuditorController extends Controller{
 	    $errorMsg = '';	    
 	    if ($reportUrl = $this->getProjectRandomUrl($projectId)) {
 	        $auditorComp = $this->createComponent('AuditorComponent');
-	        $auditorComp->runReport($reportUrl, $projectInfo, $this->getCountcrawledLinks($projectId));
-	        $this->set('crawledUrl', $reportUrl);	        
+	        $crawledUrl = $auditorComp->runReport($reportUrl, $projectInfo, $this->getCountcrawledLinks($projectId));
+	        $this->set('crawledUrl', $crawledUrl);	        
 	        if (!$crawlUrl = $this->getProjectRandomUrl($projectId)) {
 	            $completed = 1;
 	        } else {
-	            if (!$this->cron) updateJsLocation('crawling_url', $reportUrl);
+	            if (!$this->cron) updateJsLocation('crawling_url', $crawledUrl);
 	        }	        
 	    } else {
 	        $completed = 1;
@@ -395,7 +410,7 @@ class SiteAuditorController extends Controller{
     	    $this->set('projectInfo', $projectInfo);
     	    $this->render('siteauditor/runproject');
 	    } else {
-	        return $reportUrl;
+	        return $crawledUrl;
 	    }
 	}
     
@@ -559,6 +574,7 @@ class SiteAuditorController extends Controller{
 		$headArr =  array(
         	'page_url' => $this->spTextSA["Page Link"],
         	'pagerank' => $_SESSION['text']['common']['MOZ Rank'],
+        	'page_authority' => $_SESSION['text']['common']['Page Authority'],
         	'score' => $_SESSION['text']['label']["Score"],
         	'brocken' => $_SESSION['text']['label']["Brocken"],
             'external_links' => $this->spTextSA["External Links"],
@@ -584,7 +600,7 @@ class SiteAuditorController extends Controller{
 			$exportContent .= createExportContent(array($_SESSION['text']['label']['Updated'], $projectInfo['last_updated']));
 			$exportContent .= createExportContent(array($_SESSION['text']['label']['Total Results'], $this->db->noRows));
 			$exportContent .= createExportContent(array());
-			$exportContent .= createExportContent(array($spText['common']['No'],$headArr['page_url'],$headArr['pagerank'],$headArr['google_backlinks'],$headArr['bing_backlinks'],$headArr['google_indexed'],$headArr['bing_indexed'],$headArr['external_links'],$headArr['total_links'],$headArr['score'],$headArr['brocken'],$headArr['crawled'],$headArr['page_title'],$headArr['page_description'],$headArr['page_keywords'],$headArr['comments']));
+			$exportContent .= createExportContent(array($spText['common']['No'],$headArr['page_url'],$headArr['pagerank'],$headArr['page_authority'],$headArr['google_backlinks'],$headArr['bing_backlinks'],$headArr['google_indexed'],$headArr['bing_indexed'],$headArr['external_links'],$headArr['total_links'],$headArr['score'],$headArr['brocken'],$headArr['crawled'],$headArr['page_title'],$headArr['page_description'],$headArr['page_keywords'],$headArr['comments']));
 			$auditorComp = $this->createComponent('AuditorComponent');
 			foreach($reportList as $i => $listInfo) {			    
 			    if ($listInfo['crawled']) {			        
@@ -595,7 +611,7 @@ class SiteAuditorController extends Controller{
 			    }			    
 			    $listInfo['crawled'] = $listInfo['crawled'] ? $spText['common']['Yes'] : $spText['common']['No'];
 			    $listInfo['brocken'] = $listInfo['brocken'] ? $spText['common']['Yes'] : $spText['common']['No'];
-				$exportContent .= createExportContent(array($i+1, $listInfo['page_url'],$listInfo['pagerank'],$listInfo['google_backlinks'],$listInfo['bing_backlinks'],$listInfo['google_indexed'],$listInfo['bing_indexed'],$listInfo['external_links'],$listInfo['total_links'],$listInfo['score'],$listInfo['brocken'],$listInfo['crawled'],$listInfo['page_title'],$listInfo['page_description'],$listInfo['page_keywords'],$comments));
+				$exportContent .= createExportContent(array($i+1, $listInfo['page_url'],$listInfo['pagerank'],$listInfo['page_authority'],$listInfo['google_backlinks'],$listInfo['bing_backlinks'],$listInfo['google_indexed'],$listInfo['bing_indexed'],$listInfo['external_links'],$listInfo['total_links'],$listInfo['score'],$listInfo['brocken'],$listInfo['crawled'],$listInfo['page_title'],$listInfo['page_description'],$listInfo['page_keywords'],$comments));
 			}			
 			exportToCsv('siteauditor_report', $exportContent);
 		} else {					
@@ -915,5 +931,34 @@ class SiteAuditorController extends Controller{
 		$this->set('errMsg', $errMsg);
 		$this->showImportProjectLinks();
     }
+    
+    // Function to check / validate the user type site auditor project maximum list 
+    function validateMaxLinkCount($userId, $count) {
+    	$userCtrler = new UserController();
+    	$validation = array('error' => false);
+    
+    	// if admin user id return true
+    	if ($userCtrler->isAdminUserId($userId)) {
+    		return $validation;
+    	}
+    
+    	$userTypeCtrlr = new UserTypeController();
+    	$userTypeDetails = $userTypeCtrlr->getUserTypeSpecByUser($userId);
+    
+    	// if limit is set and not -1
+    	if (isset($userTypeDetails['site_auditor_max_page_limit']) && $userTypeDetails['site_auditor_max_page_limit'] >= 0) {
+    
+    		// check whether count greater than limit
+    		if ($count > $userTypeDetails['site_auditor_max_page_limit']) {
+    			$spTextSubs = $userTypeCtrlr->getLanguageTexts('subscription', $_SESSION['lang_code']);
+    			$validation['error'] = true;
+    			$validation['msg'] = formatErrorMsg(str_replace("[limit]", $userTypeDetails['site_auditor_max_page_limit'], $spTextSubs['total_count_greater_account_limit']));
+    		}
+    
+    	}
+    
+    	return $validation;
+    }
+    
 }
 ?>

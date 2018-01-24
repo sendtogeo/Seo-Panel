@@ -49,6 +49,7 @@ if(!empty($pdfVersion) || !empty($printVersion)) {
 	<tr class="plainHead">
 		<td class="left" style="width: 30%;"><?php echo $page_urlLink?></td>
 		<td><?php echo $pagerankLink?></td>
+		<td><?php echo $page_authorityLink?></td>
 		<td><?php echo $google_backlinksLink?></td>
 		<td><?php echo $bing_backlinksLink?></td>
 		<td><?php echo $google_indexedLink?></td>
@@ -62,7 +63,7 @@ if(!empty($pdfVersion) || !empty($printVersion)) {
 		<?php }?>
 	</tr>
 	<?php
-	$colCount = 11; 
+	$colCount = 12; 
 	if(count($list) > 0){
 		$catCount = count($list);
 		foreach($list as $i => $listInfo){
@@ -78,6 +79,7 @@ if(!empty($pdfVersion) || !empty($printVersion)) {
 			<tr class="<?php echo $class?>">
 				<td class="<?php echo $leftBotClass?> left"><?php echo $pageLink?></td>
 				<td class="td_br_right"><?php echo $listInfo['pagerank']?></td>
+				<td class="td_br_right"><?php echo $listInfo['page_authority']?></td>
 				<td class="td_br_right"><?php echo $listInfo['google_backlinks']?></td>
 				<td class="td_br_right"><?php echo $listInfo['bing_backlinks']?></td>
 				<td class="td_br_right"><?php echo $listInfo['google_indexed']?></td>

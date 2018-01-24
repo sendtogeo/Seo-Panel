@@ -15,7 +15,7 @@ if (!empty($saved)) {
 		<td class="left" width='35%'><?php echo $headLabel?></td>
 		<td class="right">&nbsp;</td>
 	</tr>
-	<?php 
+	<?php
 	foreach( $list as $i => $listInfo){ 
 		$class = ($i % 2) ? "blue_row" : "white_row";
 		switch($listInfo['set_type']){
@@ -54,23 +54,7 @@ if (!empty($saved)) {
 							<option value="0" <?php echo $selectNo?>><?php echo $spText['common']['No']?></option>
 						</select>
 					<?php }else{?>
-						<?php if($listInfo['set_name'] == 'SP_SYSTEM_REPORT_INTERVAL') {?>
-							<select name="<?php echo $listInfo['set_name']?>">
-								<?php
-								foreach ($scheduleList as $interval => $label) {
-									$selected = ($interval == $listInfo['set_val']) ? "selected" : "";
-									?>			
-									<option value="<?php echo $interval?>" <?php echo $selected?>><?php echo $label?></option>
-									<?php
-								}
-								?>
-							</select>
-						<?php } else {?>
-							<input type="text" name="<?php echo $listInfo['set_name']?>" value="<?php echo stripslashes($listInfo['set_val'])?>" style='width:<?php echo $width?>px'>
-							<?php if ($listInfo['set_name'] == 'SP_NUMBER_KEYWORDS_CRON') {?>
-								<p><?php echo $spTextReport['keywordnumbercheckedcronnote']?></p>
-							<?php } ?>
-						<?php }?>
+						<input type="text" name="<?php echo $listInfo['set_name']?>" value="<?php echo stripslashes($listInfo['set_val'])?>" style='width:<?php echo $width?>px'>
 					<?php }?>
 				<?php }else{?>
 					<textarea name="<?php echo $listInfo['set_name']?>" style='width:<?php echo $width?>px'><?php echo stripslashes($listInfo['set_val'])?></textarea>

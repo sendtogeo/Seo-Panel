@@ -16,6 +16,23 @@ $backLink = "scriptDoLoadPost('siteauditor.php', 'search_form', 'subcontent', '&
         		<td><?php echo $reportInfo['pagerank']?></td>        		
         	</tr>
         	<tr>
+        		<th class="leftcell"><?php echo $spText['label']['Score']?>:</th>
+        		<td style="text-align: left;">
+        		    <?php
+				        if ($reportInfo['score'] < 0) {
+				            $scoreClass = 'minus';
+				            $reportInfo['score'] = $reportInfo['score'] * -1;
+				        } else {
+				            $scoreClass = 'plus';
+				        }
+				        for($b=0;$b<=$reportInfo['score'];$b++) echo "<span class='$scoreClass'>&nbsp;</span>";
+				    ?>
+        		    <?php echo $reportInfo['score']?>
+    			</td>
+        		<th width="20%"><?php echo $_SESSION['text']['common']['Page Authority']; ?>:</th>
+        		<td><?php echo $reportInfo['page_authority']?></td>        		
+        	</tr>
+        	<tr>
         		<th class="leftcell"><?php echo $spText['label']['Title']?>:</th>
         		<td style="text-align: left;"><?php echo strip_tags($reportInfo['page_title'])?></td>
         		<th>Google <?php echo $spTextHome['Backlinks']?>:</th>
@@ -46,21 +63,10 @@ $backLink = "scriptDoLoadPost('siteauditor.php', 'search_form', 'subcontent', '&
         		<td><?php echo $reportInfo['external_links']?></td>
         	</tr>
         	<tr>
-        		<th class="leftcell"><?php echo $spText['label']['Score']?>:</th>
-        		<td style="text-align: left;">
-        		    <?php
-				        if ($reportInfo['score'] < 0) {
-				            $scoreClass = 'minus';
-				            $reportInfo['score'] = $reportInfo['score'] * -1;
-				        } else {
-				            $scoreClass = 'plus';
-				        }
-				        for($b=0;$b<=$reportInfo['score'];$b++) echo "<span class='$scoreClass'>&nbsp;</span>";
-				    ?>
-        		    <?php echo $reportInfo['score']?>
-    			</td>
-        		<th><?php echo $spText['label']['Brocken']?>:</th>
-        		<td><?php echo $reportInfo['brocken'] ? $spText['common']['Yes'] : $spText['common']['No']; ?></td>
+        		<th class="leftcell"><?php echo $spText['label']['Brocken']?>:</th>
+        		<td style="text-align: left;"><?php echo $reportInfo['brocken'] ? $spText['common']['Yes'] : $spText['common']['No']; ?></td>
+        		<th></th>
+        		<td></td>
         	</tr>
         </table>
 	</div>

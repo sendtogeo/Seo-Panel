@@ -2,11 +2,13 @@
 	<tr class="listHead">
 		<td class="left"><?php echo $spText['common']['Id']?></td>
 		<td><?php echo $spText['common']['Url']?></td>		
-		<td><?php echo $spText['common']['MOZ Rank']?></td>
+		<td><?php echo $spText['common']['MOZ Rank']?></td>	
+		<td><?php echo $spText['common']['Domain Authority']?></td>	
+		<td><?php echo $spText['common']['Page Authority']?></td>
 		<td class="right"><?php echo $spText['common']['Alexa Rank']?></td>
 	</tr>
 	<?php
-	$colCount = 4; 
+	$colCount = 6; 
 	if(count($list) > 0){
 		$catCount = count($list);
 		$i = 0;
@@ -28,7 +30,13 @@
 				<td class="<?php echo $leftBotClass?>"><?php echo ($i+1)?></td>
 				<td class="td_br_right" style="text-align: left;"><?php echo $url?></td>
 				<td width="150px" id='mozrank<?php echo $i?>' class='td_br_right rankarea'>
-					<b class="success"><?php echo empty($mozRankList[$i]) ? "-" : $mozRankList[$i]; ?></b>
+					<b class="success"><?php echo empty($mozRankList[$i]['moz_rank']) ? "-" : $mozRankList[$i]['moz_rank']; ?></b>
+				</td>
+				<td width="150px" class='td_br_right rankarea'>
+					<b class="success"><?php echo empty($mozRankList[$i]['domain_authority']) ? "-" : $mozRankList[$i]['domain_authority']; ?></b>
+				</td>
+				<td width="150px" class='td_br_right rankarea'>
+					<b class="success"><?php echo empty($mozRankList[$i]['page_authority']) ? "-" : $mozRankList[$i]['page_authority']; ?></b>
 				</td>
 				<td class="<?php echo $rightBotClass?>" width="150px" id='alexarank<?php echo $i?>' class='rankarea'>
 					<script type="text/javascript">

@@ -24,7 +24,7 @@
 class Session extends Seopanel{
 
 	# starts session
-	function startSession(){
+	public static function startSession(){
 		ini_set("session.gc_probability", 100);
 		ini_set("session.gc_divisor", 100);
 		ini_set("session.gc_maxlifetime", SP_TIMEOUT);
@@ -32,17 +32,17 @@ class Session extends Seopanel{
 	}
 	
 	# to set session
-	function setSession($varName, $varValue){
+	public static function setSession($varName, $varValue){
 		$_SESSION[$varName] = $varValue;
 	}
 
 	# function read session
-	function readSession($varName) {
+	public static function readSession($varName) {
 		return $_SESSION[$varName];
 	}
 
 	# fucntion to destroy session
-	function destroySession() {	    
+	public static function destroySession() {	    
 		@Session::setSession('userInfo', "");
 		@Session::setSession('lang_code', "");
 		@Session::setSession('text', "");

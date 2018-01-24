@@ -90,22 +90,16 @@ class ReportController extends Controller {
 				break;
 		}
 		
-		// verify reports generated for user or not
-		$repSetInfo = $this->getUserReportSettings($userId);
-		$repGenerated = (date('y-m-d') === date("y-m-d", $repSetInfo['last_generated'])) ? true : false;
-		
 		if (!empty ($searchInfo['from_time'])) {
 			$fromTime = strtotime($searchInfo['from_time'] . ' 00:00:00');
-		} else {
-			$intervalDays = $repGenerated ? 7 : 8; 
-			$fromTime = mktime(0, 0, 0, date('m'), date('d') - $intervalDays, date('Y'));
+		} else { 
+			$fromTime = mktime(0, 0, 0, date('m'), date('d') - 1, date('Y'));
 		}
 		
 		if (!empty ($searchInfo['to_time'])) {
 			$toTime = strtotime($searchInfo['to_time'] . ' 00:00:00');
 		} else {
-			$intervalDays = $repGenerated ? 0 : 1;
-			$toTime = mktime(0, 0, 0, date('m'), date('d') - $intervalDays, date('Y'));
+			$toTime = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
 		}
 		
 		$fromTimeTxt = date('Y-m-d', $fromTime);		
@@ -136,7 +130,7 @@ class ReportController extends Controller {
 		// to find order col
         if (!empty($searchInfo['order_col'])) {
 		    $orderCol = $searchInfo['order_col'];
-		    $orderVal = $searchInfo['order_val'];
+		    $orderVal = getOrderByVal($searchInfo['order_val']);
 		} else {
 		    $orderCol = $this->seLIst[0]['id'];
 		    $orderVal = 'ASC';    
@@ -377,19 +371,11 @@ class ReportController extends Controller {
 	function showGraphicalReports($searchInfo = '') {		
 		
 		$userId = isLoggedIn();
-		if (!empty ($searchInfo['from_time'])) {
-			$fromTime = strtotime($searchInfo['from_time'] . ' 00:00:00');
-		} else {			
-			$fromTime = @mktime(0, 0, 0, date('m'), date('d') - 30, date('Y'));
-		}
-		if (!empty ($searchInfo['to_time'])) {
-			$toTime = strtotime($searchInfo['to_time'] . ' 23:59:59');
-		} else {
-			$toTime = @mktime();
-		}
-		$this->set('fromTime', date('Y-m-d', $fromTime));
-		$this->set('toTime', date('Y-m-d', $toTime));
-
+		$fromTime = !empty($searchInfo['from_time']) ? $searchInfo['from_time'] : date('Y-m-d', strtotime('-30 days'));
+		$toTime = !empty ($searchInfo['to_time']) ? $searchInfo['to_time'] : date("Y-m-d");
+		$this->set('fromTime', $fromTime);
+		$this->set('toTime', $toTime);
+		
 		$websiteController = New WebsiteController();
 		$websiteList = $websiteController->__getAllWebsitesWithActiveKeywords($userId, true);
 		$this->set('websiteList', $websiteList);
@@ -407,8 +393,13 @@ class ReportController extends Controller {
 		$this->set('seList', $seList);
 		$seId = empty ($searchInfo['se_id']) ? '' : intval($searchInfo['se_id']);
 		$this->set('seId', $seId);
-		$this->set('seNull', true);		
-		$this->set('graphUrl', "graphical-reports.php?sec=graph&fromTime=$fromTime&toTime=$toTime&keywordId=$keywordId&seId=$seId");
+		$this->set('seNull', true);
+		
+		// get graph content
+		$graphCtrler = new GraphController();
+		$graphCtrler->spTextKeyword = $this->spTextKeyword;
+		$graphContent = $graphCtrler->showKeywordPostionGraph($keywordId, $fromTime, $toTime, $seId);
+		$this->set('graphContent', $graphContent);
 		
 		$this->render('report/graphicalreport');
 	}
@@ -555,13 +546,13 @@ class ReportController extends Controller {
 		$websiteController = New WebsiteController();
 		$websiteList = $websiteController->__getAllWebsites($userId, true);
 		$this->set('websiteList', $websiteList);
-		$websiteId = empty ($searchInfo['website_id']) ? '' : $searchInfo['website_id'];
+		$websiteId = empty ($searchInfo['website_id']) ? $websiteList[0]['id'] : intval($searchInfo['website_id']);
 		$this->set('websiteId', $websiteId);
 
 		$keywordController = New KeywordController();
 		$keywordList = $keywordController->__getAllKeywords($userId, $websiteId, true);
 		$this->set('keywordList', $keywordList);
-		$this->set('keyNull', true);
+		$this->set('keyNull', false);
 		$keywordId = empty ($searchInfo['keyword_id']) ? '' : $searchInfo['keyword_id'];
 		$this->set('keywordId', $keywordId);		
 
@@ -660,11 +651,11 @@ class ReportController extends Controller {
 			}*/			
 			
 			$searchUrl = str_replace('[--keyword--]', urlencode(stripslashes($keywordInfo['name'])), $this->seList[$seInfoId]['url']);
-			$searchUrl = str_replace('[--lang--]', $keywordInfo['lang_code'], $searchUrl);
 			$searchUrl = str_replace('[--country--]', $keywordInfo['country_code'], $searchUrl);
 			if (empty($keywordInfo['country_code']) && stristr($searchUrl, '&cr=country&')) {
 			    $searchUrl = str_replace('&cr=country&', '&cr=&', $searchUrl);
 			}
+			
 			$seUrl = str_replace('[--start--]', $this->seList[$seInfoId]['start'], $searchUrl);
 			
 			// if google add special parameters
@@ -672,6 +663,9 @@ class ReportController extends Controller {
 			if (stristr($this->seList[$seInfoId]['url'], 'google')) {
 			    $isGoogle = true;
 			    $seUrl .= "&ie=utf-8&pws=0&gl=".$keywordInfo['country_code'];
+			    $seUrl = str_replace('[--lang--]', '', $seUrl);
+			} else {
+				$seUrl = str_replace('[--lang--]', $keywordInfo['lang_code'], $seUrl);
 			}
 			
 			if(!empty($this->seList[$seInfoId]['cookie_send'])){
@@ -680,8 +674,8 @@ class ReportController extends Controller {
 			}
 			
 			$result = $this->spider->getContent($seUrl);
-			$pageContent = $this->formatPageContent($seInfoId, $result['page']);			
-
+			$pageContent = $this->formatPageContent($seInfoId, $result['page']);
+			
 			$crawlLogCtrl = new CrawlLogController();
 			$crawlInfo['crawl_type'] = 'keyword';
 			$crawlInfo['ref_id'] = empty($keywordInfo['id']) ? $keywordInfo['name'] : $keywordInfo['id'];
@@ -729,8 +723,8 @@ class ReportController extends Controller {
 						
 						if(!preg_match('/^http:\/\/|^https:\/\//i', $url)) continue;
 						
-						// check for to remove msn ad links in page
-						if(stristr($url, 'r.msn.com')) continue;
+						// check for to remove bing ad links in page
+						if(stristr($url, 'bat.bing.com')) continue;
 
 						// check to remove duplicates from same domain if google is the search engine
 						if ($removeDuplicate && $isGoogle) {
@@ -741,21 +735,24 @@ class ReportController extends Controller {
 						    $previousDomain = $currentDomain;
 						}
 						
-						if($this->showAll || stristr($url, $websiteUrl)){
+						if($this->showAll || (stristr($url, "http://" . $websiteUrl) || stristr($url, "https://" . $websiteUrl)) ){
 
-							if($this->showAll && stristr($url, $websiteUrl)){
+							if ($this->showAll && (stristr($url, "http://" . $websiteUrl) || stristr($url, "https://" . $websiteUrl)) ) {
 								$matchInfo['found'] = 1; 
-							}else{
+							} else {
 								$matchInfo['found'] = 0;
 							}
+							
 							$matchInfo['url'] = $url;
 							$matchInfo['title'] = strip_tags($matches[$this->seList[$seInfoId]['title_index']][$i]);
 							$matchInfo['description'] = strip_tags($matches[$this->seList[$seInfoId]['description_index']][$i]);
 							$matchInfo['rank'] = $rank;
 							$crawlResult[$seInfoId]['matched'][] = $matchInfo;
 						}
+						
 						$rank++;							
 					}
+					
 					$crawlStatus = 1;					
 					
 				} else {
@@ -943,23 +940,17 @@ class ReportController extends Controller {
 		);
 		$this->set('reportTypes', $reportTypes);
 		$urlarg .= "&report_type=".$searchInfo['report_type'];		
-		
-		// verify reports generated for user or not
-		$repSetInfo = $this->getUserReportSettings($userId);
-		$repGenerated = (date('y-m-d') === date("y-m-d", $repSetInfo['last_generated'])) ? true : false;
-		
+				
 		if (!empty ($searchInfo['from_time'])) {
 			$fromTime = strtotime($searchInfo['from_time'] . ' 00:00:00');
 		} else {
-			$intervalDays = $repGenerated ? 7 : 8;
-			$fromTime = mktime(0, 0, 0, date('m'), date('d') - $intervalDays, date('Y'));
+			$fromTime = mktime(0, 0, 0, date('m'), date('d') - 1, date('Y'));
 		}
 		
 		if (!empty ($searchInfo['to_time'])) {
 			$toTime = strtotime($searchInfo['to_time'] . ' 00:00:00');
 		} else {
-			$intervalDays = $repGenerated ? 0 : 1;
-			$toTime = mktime(0, 0, 0, date('m'), date('d') - $intervalDays, date('Y'));
+			$toTime = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
 		}		
 		
 		$fromTimeShort = date('Y-m-d', $fromTime);
@@ -984,7 +975,7 @@ class ReportController extends Controller {
 		    // to find order col
             if (!empty($searchInfo['order_col'])) {
     		    $orderCol = $searchInfo['order_col'];
-    		    $orderVal = $searchInfo['order_val'];
+    		    $orderVal = getOrderByVal($searchInfo['order_val']);
     		} else {
     		    $orderCol = $this->seLIst[0]['id'];
     		    $orderVal = 'ASC';    
@@ -1010,7 +1001,7 @@ class ReportController extends Controller {
     			group by k.id";
     		
     			$unionOrderCol = ($orderCol == "keyword") ? "name" : "rank";
-				$sql = "(". str_replace("[col]", "k.id,k.name,min(rank) rank,w.name website,w.url weburl", $subSql) .")
+    			$sql = "(". str_replace("[col]", "k.id,k.name,min(rank) rank,w.name website,w.url weburl", $subSql) .")
     			UNION
     			(select k.id,k.name,1000,w.name website,w.url weburl
     			from keywords k, websites w
@@ -1136,10 +1127,15 @@ class ReportController extends Controller {
 			include_once(SP_CTRLPATH."/rank.ctrl.php");
 			include_once(SP_CTRLPATH."/backlink.ctrl.php");
 			include_once(SP_CTRLPATH."/directory.ctrl.php");
+			include_once(SP_CTRLPATH."/pagespeed.ctrl.php");
 			$rankCtrler = New RankController();
 			$backlinlCtrler = New BacklinkController();
 			$saturationCtrler = New SaturationCheckerController();			
-			$dirCtrler = New DirectoryController();
+			$dirCtrler = New DirectoryController();		
+			$pageSpeedCtrler = New PageSpeedController();
+			
+			$spTextPS = $this->getLanguageTexts('pagespeed', $_SESSION['lang_code']);
+			$this->set('spTextPS', $spTextPS);
 			
 			$websiteRankList = array();
 			foreach($websiteList as $listInfo){
@@ -1152,6 +1148,8 @@ class ReportController extends Controller {
 				$report = $report[0];
 				$listInfo['alexarank'] = empty($report['alexa_rank']) ? "-" : $report['alexa_rank']." ".$report['rank_diff_alexa'];
 				$listInfo['mozrank'] = empty($report['moz_rank']) ? "-" : $report['moz_rank']." ".$report['rank_diff_moz'];
+				$listInfo['domain_authority'] = empty($report['domain_authority']) ? "-" : $report['domain_authority']." ".$report['rank_diff_domain_authority'];
+				$listInfo['page_authority'] = empty($report['page_authority']) ? "-" : $report['page_authority']." ".$report['rank_diff_page_authority'];
 				
 				# back links reports
 				$report = $backlinlCtrler->__getWebsitebacklinkReport($listInfo['id'], $fromTime, $toTime);
@@ -1166,6 +1164,13 @@ class ReportController extends Controller {
 				$listInfo['google']['indexed'] = empty($report['google']) ? "-" : $report['google']." ".$report['rank_diff_google'];
 				$listInfo['msn']['indexed'] = empty($report['msn']) ? "-" : $report['msn']." ".$report['rank_diff_msn'];
 				
+				# pagespeed reports
+				$report = $pageSpeedCtrler->__getWebsitePageSpeedReport($listInfo['id'], $fromTime, $toTime);
+				$report = $report[0];				
+				$listInfo['desktop_speed_score'] = empty($report['desktop_speed_score']) ? "-" : $report['desktop_speed_score']." ".$report['rank_diff_desktop_speed_score'];
+				$listInfo['mobile_speed_score'] = empty($report['mobile_speed_score']) ? "-" : $report['mobile_speed_score']." ".$report['rank_diff_mobile_speed_score'];
+				$listInfo['mobile_usability_score'] = empty($report['mobile_usability_score']) ? "-" : $report['mobile_usability_score']." ".$report['rank_diff_mobile_usability_score'];
+								
 				$listInfo['dirsub']['total'] = $dirCtrler->__getTotalSubmitInfo($listInfo['id']);
 				$listInfo['dirsub']['active'] = $dirCtrler->__getTotalSubmitInfo($listInfo['id'], true);
 				$websiteRankList[] = $listInfo;
@@ -1189,27 +1194,38 @@ class ReportController extends Controller {
 					$_SESSION['text']['common']['Id'],
 					$_SESSION['text']['common']['Website'],
 					$_SESSION['text']['common']['MOZ Rank'],
+					$_SESSION['text']['common']['Domain Authority'],
+					$_SESSION['text']['common']['Page Authority'],
 					$_SESSION['text']['common']['Alexa Rank'],
 					'Google '.$spTextHome['Backlinks'],
 					'alexa '.$spTextHome['Backlinks'],
 					'Bing '.$spTextHome['Backlinks'],
 					'Google '.$spTextHome['Indexed'],
 					'Bing '.$spTextHome['Indexed'],
+					$spTextPS['Desktop Speed'],
+					$spTextPS['Mobile Speed'],
+					$spTextPS['Mobile Usability'],
 					$_SESSION['text']['common']['Total'].' Submission',
 					$_SESSION['text']['common']['Active'].' Submission',
 				);
+				
 				$exportContent .= createExportContent( $headList);
 				foreach ($websiteRankList as $websiteInfo) {
 					$valueList = array(
 						$websiteInfo['id'],
 						$websiteInfo['url'],
 						strip_tags($websiteInfo['mozrank']),
+						strip_tags($websiteInfo['domain_authority']),
+						strip_tags($websiteInfo['page_authority']),
 						strip_tags($websiteInfo['alexarank']),
 						strip_tags($websiteInfo['google']['backlinks']),
 						strip_tags($websiteInfo['alexa']['backlinks']),
 						strip_tags($websiteInfo['msn']['backlinks']),
 						strip_tags($websiteInfo['google']['indexed']),					
 						strip_tags($websiteInfo['msn']['indexed']),
+						strip_tags($websiteInfo['desktop_speed_score']),
+						strip_tags($websiteInfo['mobile_speed_score']),
+						strip_tags($websiteInfo['mobile_usability_score']),
 						$websiteInfo['dirsub']['total'],					
 						$websiteInfo['dirsub']['active'],
 					);

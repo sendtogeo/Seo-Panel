@@ -70,10 +70,16 @@ function showNoRecordsList($colspan, $msg='', $plain=false) {
 }
 
 # func to show error msg
-function showErrorMsg($errorMsg, $exit=true) {
+function showErrorMsg($errorMsg, $exit=true, $return = false) {
 	$data['errorMsg'] = $errorMsg;
-	print @View::fetchViewFile('common/error', $data);
-	if($exit) exit;
+	
+	// if return is set
+	if ($return && !$exit) {
+		return @View::fetchViewFile('common/error', $data);
+	} else {
+		print @View::fetchViewFile('common/error', $data);
+		if($exit) exit;
+	}
 }
 
 # func to show success msg
@@ -179,7 +185,12 @@ function confirmPostAJAXLink($file, $form, $area, $trigger='OnClick'){
 function formatUrl( $url, $removeWWW=true ) {
 	$url = str_replace('http://', '', $url);
 	$url = str_replace('https://', '', $url);
-	if ($removeWWW) $url = str_replace('www.', '', $url);
+	
+	// if ww needs to be removed
+	if ($removeWWW) {
+		$url = preg_replace('/^www./i', '', $url);
+	}
+	
 	return $url;
 }
 
@@ -231,6 +242,25 @@ function isHavingWebsite() {
 	if($count<=0){
 		redirectUrl(SP_WEBPATH."/admin-panel.php?sec=newweb");
 	}
+}
+
+# func to chekc s user have access to seo tool
+function isUserHaveAccessToSeoTool($urlSection, $showError = true) {
+
+	include_once(SP_CTRLPATH . "/seotools.ctrl.php");
+	$userTypeCtrler = new UserTypeController();
+	$userSessInfo = Session::readSession('userInfo');
+	$toolCtrler = new SeoToolsController();
+	$seoToolInfo = $toolCtrler->__getSeoToolInfo($urlSection, 'url_section');
+	$haveAccess = $userTypeCtrler->isUserTypeHaveAccessToSeoTool($userSessInfo['userTypeId'], $seoToolInfo['id']);
+	
+	// if show error and not have access
+	if ($showError && !$haveAccess) {
+		showErrorMsg($_SESSION['text']['label']['Access denied']);
+	}
+	
+	return $haveAccess;
+	
 }
 
 # function to create plugin ajax get method
@@ -400,6 +430,8 @@ function sendMail($from, $fromName, $to ,$subject,$content, $attachment = ''){
 
 	$mail->Subject = $subject;
 	$mail->Body = $content;
+	$mail->msgHTML($content); //creates plaintext alternate automatically
+	$mail->AltBody = 'To view the message, please use an HTML compatible email viewer!'; //fallback
 	
 	// if attachments are there
 	if (!empty($attachment)) {
@@ -505,4 +537,30 @@ function showPdfFooter($spText) {
     <div style="clear: both; margin-top: 30px;font-size: 12px; text-align: center;"><?php echo str_replace('[year]', date('Y'), $copyrightTxt)?></div>
 	<?php
 }
+
+# function to loop through the array values and change it to int or string
+function formatSQLParamList($paramList, $type = 'int') {
+	
+	foreach ($paramList as $key => $value) {
+		$paramList[$key] = ($type == 'int') ? intval($value) : addslashes($value);
+	}
+	
+	return $paramList;
+	
+}
+
+# function to find order by value to prevent sql injection
+function getOrderByVal($orderByVal) {
+	$orderByVal = (strtolower($orderByVal) == 'desc') ? "DESC" : "ASC";
+	return $orderByVal;
+}
+
+if (!function_exists('curl_reset'))
+{
+	function curl_reset(&$ch)
+	{
+		$ch = curl_init();
+	}
+}
+
 ?>

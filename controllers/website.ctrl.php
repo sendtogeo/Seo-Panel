@@ -228,7 +228,7 @@ class WebsiteController extends Controller{
 		
 		// add user id when using as admin or calling api
 		if (isAdmin() || $apiCall) {
-			$userId = empty($listInfo['userid']) ? isLoggedIn() : $listInfo['userid'];	
+			$userId = empty($listInfo['userid']) ? isLoggedIn() : intval($listInfo['userid']);	
 		} else {
 			$userId = isLoggedIn();
 		}
@@ -619,13 +619,21 @@ class WebsiteController extends Controller{
 		$userWebsiteCount = $this->__getCountAllWebsites($userId, false);
 		$userWebsiteCount += $newCount;
 		$userTypeDetails = $userTypeCtrlr->getUserTypeSpecByUser($userId);
-		
-		// check whether count greater than limit
-		if ($userWebsiteCount <= $userTypeDetails['websitecount']) {
-			return true;	
+
+		// if limit is set and not -1
+		if (isset($userTypeDetails['websitecount']) && $userTypeDetails['websitecount'] >= 0) {
+			
+			// check whether count greater than limit
+			if ($userWebsiteCount <= $userTypeDetails['websitecount']) {
+				return true;	
+			} else {
+				return false;	
+			}
+			
 		} else {
-			return false;	
+			return true;
 		}
+			
 	}
 		
 }

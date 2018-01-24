@@ -35,6 +35,15 @@ if($_SERVER['REQUEST_METHOD'] == 'GET'){
 			$infoCtrler = new InformationController();
 			$infoCtrler->showNews($_GET);
 			break;
+		
+		case "showdiv":
+			$areaId = $_GET['div_id'];
+			?>
+			<script type="text/javascript">
+			$('#dialogContent').html($("#<?php echo $areaId;?>").html());
+			</script>
+			<?php
+			break;
 
 		default:
 			$controller->index($_GET);

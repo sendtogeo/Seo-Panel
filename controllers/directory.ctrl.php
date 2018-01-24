@@ -164,6 +164,15 @@ class DirectoryController extends Controller{
 	
 	# func to show submission page
 	function startSubmission( $websiteId, $dirId='' ) {
+		$dirId = intval($dirId);
+		$websiteId = intval($websiteId);
+
+		$websiteController = New WebsiteController();
+		$websiteInfo = $websiteController->__getWebsiteInfo($websiteId);
+		$this->set('websiteId', $websiteId);
+		
+		// submission count validation
+		$this->validateDirectorySubmissionCount($websiteInfo['user_id']);
 		
 		# get list of already submitted directories
 		$sql = "select directory_id from dirsubmitinfo where website_id=$websiteId";
@@ -206,10 +215,6 @@ class DirectoryController extends Controller{
 		if(empty($dirInfo['id'])) {
 			showErrorMsg($this->spTextDir['nodirnote'].". Please <a href='".SP_CONTACT_LINK."' target='_blank'>Contact</a> <b>Seo Panel Team</b> to get more <b>directories</b>.");
 		}
-		
-		$websiteController = New WebsiteController();
-		$websiteInfo = $websiteController->__getWebsiteInfo($websiteId);
-		$this->set('websiteId', $websiteId);
 		
 		$spider = new Spider();
 		$spider->_CURLOPT_HEADER = 1; 
@@ -785,7 +790,7 @@ class DirectoryController extends Controller{
 		$searchInfo = array();
 		if(isset($info['stscheck']) && ($info['stscheck'] != '')){
 			$searchInfo = array(
-				'working' => $info['stscheck'],
+				'working' => intval($info['stscheck']),
 			);
 		}
 		
@@ -829,13 +834,16 @@ class DirectoryController extends Controller{
 				$extraValUpdate = ",extra_val='{$dirInfo['extra_val']}'";	    
 			}
 			
-			if ($this->checkPR) {				
-				include_once(SP_CTRLPATH."/rank.ctrl.php");
-				$rankCtrler = New RankController();
-				$rankInfo = $rankCtrler->__getMozRank(array($dirInfo['domain']));
-				$pagerank = !empty($rankInfo[0]) ? $rankInfo[0] : 0;
-				$prUpdate = ",pagerank=$pagerank";
+			if ($this->checkPR) {
+				include_once(SP_CTRLPATH."/moz.ctrl.php");
+				$mozCtrler = new MozController();
+				$mozRankList = $mozCtrler->__getMozRankInfo(array($dirInfo['domain']));
+				$pagerank = !empty($mozRankList[0]['moz_rank']) ? $mozRankList[0]['moz_rank'] : 0;
+				$domainAuthority = !empty($mozRankList[0]['domain_authority']) ? $mozRankList[0]['domain_authority'] : 0;
+				$pageAuthority = !empty($mozRankList[0]['page_authority']) ? $mozRankList[0]['page_authority'] : 0;
+				$prUpdate = ",pagerank=$pagerank,domain_authority=$domainAuthority,page_authority=$pageAuthority";
 			}
+			
 		}
 		
 		$sql = "update directories set working=$active,is_captcha=$captcha,checked=1 $prUpdate $searchUpdate $extraValUpdate where id=$dirId";
@@ -852,6 +860,8 @@ class DirectoryController extends Controller{
 				?>
 				<script type="text/javascript">
 					document.getElementById('pr_<?php echo $dirId?>').innerHTML = '<?php echo $pagerank?>';
+					document.getElementById('da_<?php echo $dirId?>').innerHTML = '<?php echo $domainAuthority?>';
+					document.getElementById('pa_<?php echo $dirId?>').innerHTML = '<?php echo $pageAuthority?>';
 				</script>
 				<?php
 			}
@@ -904,6 +914,70 @@ class DirectoryController extends Controller{
 	    $sql = "SELECT * FROM di_directory_meta where id=$id";
 	    $scriptInfo = $this->db->select($sql, true); 
 	    return $scriptInfo;
+	}
+
+	// Function to check / validate the user type directory submission count
+	function validateDirectorySubmissionCount($userId, $exit = true) {
+		$userCtrler = new UserController();
+		$validation = array('error' => false);
+	
+		// if admin user id return true
+		if ($userCtrler->isAdminUserId($userId)) {
+			return $validation;
+		}
+	
+		$userTypeCtrlr = new UserTypeController();
+		$userTypeDetails = $userTypeCtrlr->getUserTypeSpecByUser($userId);
+		
+		// if limit is set and not -1
+		if (isset($userTypeDetails['directory_submit_limit']) || isset($userTypeDetails['directory_submit_daily_limit'])) {
+
+			$spTextSubs = $userTypeCtrlr->getLanguageTexts('subscription', $_SESSION['lang_code']);
+			$websiteCtrler = new WebsiteController();
+			$websiteList = $websiteCtrler->__getAllWebsites($userId);
+			$websiteIdList = array();
+			foreach ($websiteList as $info) {
+				$websiteIdList[] = $info['id'];
+			}
+			
+			$whereCond = " website_id in (".implode(',', $websiteIdList).")";
+			
+			// if whole submit limit set
+			if ($userTypeDetails['directory_submit_limit'] >= 0) {
+				$submitInfo = $this->dbHelper->getRow("dirsubmitinfo", $whereCond, "count(*) count");
+
+				// check whether count greater than limit
+				if ($submitInfo['count'] >= $userTypeDetails['directory_submit_limit']) {
+					$validation['error'] = true;
+					$validation['msg'] = formatErrorMsg(str_replace("[limit]", $userTypeDetails['directory_submit_limit'], $spTextSubs['total_count_greater_account_limit_dir_sub']), "error", "");
+				}
+				
+			}
+			
+			// if daily submit limit is set
+			if (!$validation['error'] && $userTypeDetails['directory_submit_daily_limit'] >= 0) {
+				$dateStr = date("Y-m-d");
+				$fromTime = strtotime($dateStr . " 00:00:00");
+				$toTime = strtotime($dateStr . " 23:59:59");
+				$whereCond .= " and submit_time>=$fromTime and submit_time<=$toTime";
+				$submitInfo = $this->dbHelper->getRow("dirsubmitinfo", $whereCond, "count(*) count");
+				
+				// check whether count greater than limit
+				if ($submitInfo['count'] >= $userTypeDetails['directory_submit_daily_limit']) {
+					$validation['error'] = true;
+					$validation['msg'] = formatErrorMsg(str_replace("[limit]", $userTypeDetails['directory_submit_daily_limit'], $spTextSubs['total_count_greater_account_limit_dir_sub_daily']), "error", "");
+				}
+				
+			}
+				
+		}
+		
+		// if exit after error
+		if ($exit && $validation['error']) {
+			showErrorMsg($validation['msg']);
+		}
+	
+		return $validation;
 	}
 }
 ?>

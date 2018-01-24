@@ -38,6 +38,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	}
 	
 }else{
+	
+	$_GET['pid'] = intval($_GET['pid']);
+	
 	switch($_GET['sec']){
 		
 		case "activate":

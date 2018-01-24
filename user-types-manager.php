@@ -76,6 +76,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 		    }		    			
 			$controller->listUserTypes($_POST);
 		    break;
+		    
+		case "edit_plugin_user_type_settings":
+			$controller->updatePluginUserTypeSettings($_POST);
+			break;
 		
 	}
 } else {
@@ -103,6 +107,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 		case "delete":
 			$controller->__deleteUserType($_GET['userTypeId']);
 			$controller->listUserTypes($_GET);
+			break;
+		
+		case "edit_plugin_user_type_settings":
+			$controller->editPluginUserTypeSettings($_GET['user_type_id'], $_GET['plugin_id'], $_GET['class_name']);
 			break;
 			
 		default:
