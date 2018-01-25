@@ -27,7 +27,8 @@ include_once(SP_CTRLPATH . "/seotools.ctrl.php");
 class UserTypeController extends Controller {
 	
 	public $userSpecFields = array(
-		'keywordcount','websitecount', 'searchengine_count', 'directory_submit_limit', 'directory_submit_daily_limit', 'price',
+		'keywordcount','websitecount', 'searchengine_count', 'directory_submit_limit',
+		'directory_submit_daily_limit', 'site_auditor_max_page_limit', 'price',
 	);
 	
 	/**
@@ -176,6 +177,7 @@ class UserTypeController extends Controller {
 		$errMsg['searchengine_count'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['searchengine_count'])));
 		$errMsg['directory_submit_limit'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['directory_submit_limit'])));
 		$errMsg['directory_submit_daily_limit'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['directory_submit_daily_limit'])));
+		$errMsg['site_auditor_max_page_limit'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['site_auditor_max_page_limit'])));
 		
 		// if subscription plugin active
 		if ($this->isPluginSubsActive) {
@@ -254,6 +256,7 @@ class UserTypeController extends Controller {
 		$errMsg['searchengine_count'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['searchengine_count'])));
 		$errMsg['directory_submit_limit'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['directory_submit_limit'])));
 		$errMsg['directory_submit_daily_limit'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['directory_submit_daily_limit'])));
+		$errMsg['site_auditor_max_page_limit'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['site_auditor_max_page_limit'])));
 		
 		// if subscription plugin active
 		if ($this->isPluginSubsActive) {

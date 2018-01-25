@@ -206,17 +206,26 @@ class SeoPluginsController extends Controller{
 			@Session::setSession('plugin_id', $menuInfo['id']);
 			$pluginDirName = $menuInfo['name'];
 			
-			// create plugin object and access the menu file
-			$pluginObj = $this->createPluginObject($pluginDirName, array('not_set_global_vars' => true));
-			$menuFile = $pluginObj->pluginViewPath . "/". SP_PLUGINMENUFILE;
+			// for older versions with out themes specific files
+			$pluginDirName = $menuInfo['name'];
+			$menuFile = SP_PLUGINPATH."/".$pluginDirName."/views/".SP_PLUGINMENUFILE;
 			
 			// check for menu file exists or not
 			if(file_exists($menuFile)){
 				$menuList[$i]['menu'] = @View::fetchFile($menuFile);
-			}else{				
-				$menuList[$i]['menu'] = "<ul id='subui'>
+			}else{
+				
+				// create plugin object and access the menu file - theme specific files
+				$pluginObj = $this->createPluginObject($pluginDirName, array('not_set_global_vars' => true));
+				$menuFile = $pluginObj->pluginViewPath . "/". SP_PLUGINMENUFILE;
+				
+				if(file_exists($menuFile)){
+					$menuList[$i]['menu'] = @View::fetchFile($menuFile);
+				}else{
+					$menuList[$i]['menu'] = "<ul id='subui'>
 											<li><a href='javascript:void(0);' onclick=\"".pluginMenu('action=index')."\">{$menuInfo['name']}</a></li>
 										</ul>";
+				}
 			}
 		}
 		

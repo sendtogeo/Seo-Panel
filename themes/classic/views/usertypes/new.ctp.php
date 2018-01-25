@@ -65,6 +65,14 @@
 		</td>
 	</tr>	
 	
+	<tr class="blue_row">
+		<td class="td_left_col"><?php echo $spTextSubscription['site_auditor_max_page_limit']?>:</td>
+		<td class="td_right_col">
+			<input type="text" name="site_auditor_max_page_limit" id="site_auditor_max_page_limit" value="<?php echo $post['site_auditor_max_page_limit']?>">
+			<?php echo $errMsg['site_auditor_max_page_limit']?>
+		</td>
+	</tr>	
+	
 	<?php if ($isPluginSubsActive) {?>
 		<tr class="blue_row">
 			<td class="td_left_col"><?php echo $spText['common']['Price']?>:</td>
