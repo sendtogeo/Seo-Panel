@@ -30,8 +30,6 @@ ALTER TABLE `auditorreports` CHANGE `page_keywords` `page_keywords` TEXT CHARACT
 
 ALTER TABLE `auditorreports` CHANGE `page_authority` `page_authority` FLOAT NOT NULL DEFAULT '0';
 
-ALTER TABLE `auditorreports` CHANGE `domain_authority` `domain_authority` FLOAT NOT NULL DEFAULT '0';
-
 
 ALTER TABLE `saturationresults` CHANGE `result_time` `result_time` INT( 11 ) NOT NULL DEFAULT '0';
 ALTER TABLE `backlinkresults` CHANGE `result_time` `result_time` INT( 11 ) NOT NULL DEFAULT '0';
