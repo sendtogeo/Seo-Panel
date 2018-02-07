@@ -255,10 +255,14 @@ class CronController extends Controller {
 	
 		if (SP_MULTIPLE_CRON_EXEC && $pageSpeedCtrler->isReportsExists($websiteInfo['id'], $this->timeStamp)) return;
 		
+		$userCtrler = new UserController();
+		$userInfo = $userCtrler->__getUserInfo($websiteInfo['user_id']);
+		$langCode = $userInfo['lang_code'];
+		
 		$websiteUrl = addHttpToUrl($websiteInfo['url']);
-		$params = array('screenshot' => false, 'strategy' => 'desktop', 'locale' => $_SESSION['lang_code']);
+		$params = array('screenshot' => false, 'strategy' => 'desktop', 'locale' => $langCode);
 		$websiteInfo['desktop'] = $pageSpeedCtrler->__getPageSpeedInfo($websiteUrl, $params);
-		$params = array('screenshot' => false, 'strategy' => 'mobile', 'locale' => $_SESSION['lang_code']);
+		$params = array('screenshot' => false, 'strategy' => 'mobile', 'locale' => $langCode);
 		$websiteInfo['mobile'] = $pageSpeedCtrler->__getPageSpeedInfo($websiteUrl, $params);
 		
 		$pageSpeedCtrler->savePageSpeedResults($websiteInfo, true);
