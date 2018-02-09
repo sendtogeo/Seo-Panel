@@ -101,7 +101,11 @@ class Spider{
 	    
 	    $urlWithTrailingSlash = Spider::addTrailingSlash($url);
 		$ret = $this->getContent($urlWithTrailingSlash);
-		$pageInfo = array();
+		$pageInfo = array(
+			'external' => 0,
+			'total_links' => 0,
+		);
+		
 		$checkUrl = formatUrl($domainUrl);
 		
 		// if relative links of a page needs to be checked
@@ -434,7 +438,7 @@ class Spider{
 	    if (stristr($header, '404 Not Found')) {
 	        return true;
 	    } else {
-	        return false; 
+	        return 0; 
 	    }
 	}
 	
@@ -445,7 +449,7 @@ class Spider{
 			if (stristr($header, '301 Moved Permanently') || stristr($header, '308 Permanent Redirect')) {
 					return true;
 			} else {
-					return false;
+					return 0;
 			}
 	}
 }

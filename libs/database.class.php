@@ -182,6 +182,17 @@ class Database{
     	return $escDataList;
     	 
     }
+    
+    /**
+     * function to escape data
+     * @param mixed $value		To be escaped
+     * @param string $type		The data type[float|number|integer|int|text|string]
+     */
+    public static function escapeData($value, $type) {
+    	$dataList = array("data|$type" => $value);
+    	$dataList = self::escapeValue($dataList);
+    	return $dataList['data'];
+    }
 
 }
 ?>

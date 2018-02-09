@@ -38,7 +38,7 @@
     		<a onclick="scriptDoLoad('proxy.php?sec=import', 'content')" href="javascript:void(0);" class="actionbut">
          		<?php echo $spText['button']['Cancel']?>
          	</a>&nbsp;
-         	<?php $actFun = SP_DEMO ? "alertDemoMsg()" : "scriptDoLoadPost('proxy.php', 'import_proxy', 'subcontent')"; ?>
+         	<?php $actFun = SP_DEMO ? "alertDemoMsg()" : "$(window).scrollTop($('#subcontent').offset().top);scriptDoLoadPost('proxy.php', 'import_proxy', 'subcontent')"; ?>
          	<a onclick="<?php echo $actFun?>" href="javascript:void(0);" class="actionbut">
          		<?php echo $spText['button']['Proceed']?>
          	</a>

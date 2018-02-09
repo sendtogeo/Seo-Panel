@@ -2,7 +2,7 @@
 <form id='search_form'>
 <table width="45%" border="0" cellspacing="0" cellpadding="0" class="search">
 	<tr>				
-		<th>Test Plugin Type: </th>
+		<th>Test Plugin Type(Classic Theme): </th>
 		<td>
 			<select name="tp_type">
 				<option value="1">active</option>

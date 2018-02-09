@@ -244,6 +244,25 @@ function isHavingWebsite() {
 	}
 }
 
+# func to chekc s user have access to seo tool
+function isUserHaveAccessToSeoTool($urlSection, $showError = true) {
+
+	include_once(SP_CTRLPATH . "/seotools.ctrl.php");
+	$userTypeCtrler = new UserTypeController();
+	$userSessInfo = Session::readSession('userInfo');
+	$toolCtrler = new SeoToolsController();
+	$seoToolInfo = $toolCtrler->__getSeoToolInfo($urlSection, 'url_section');
+	$haveAccess = $userTypeCtrler->isUserTypeHaveAccessToSeoTool($userSessInfo['userTypeId'], $seoToolInfo['id']);
+	
+	// if show error and not have access
+	if ($showError && !$haveAccess) {
+		showErrorMsg($_SESSION['text']['label']['Access denied']);
+	}
+	
+	return $haveAccess;
+	
+}
+
 # function to create plugin ajax get method
 function pluginGETMethod($args='', $area='content'){
 	$script = "seo-plugins.php?pid=".PLUGIN_ID;	

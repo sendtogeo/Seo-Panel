@@ -31,7 +31,9 @@ class DBI{
 		$this->connectionId = @mysqli_connect($dbServer, $dbUser, $dbPassword, $dbName);
 		
 		if (!$this->connectionId){
-			return $this->getError();
+			$this->error = true;
+			$error =  "Mysql Error: Database connection failed.";
+			return $error;
 		}
 		
 		return true;

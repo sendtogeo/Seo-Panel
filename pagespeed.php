@@ -22,6 +22,10 @@
 
 include_once("includes/sp-load.php");
 checkLoggedIn();
+
+// check for access to seo tool
+isUserHaveAccessToSeoTool("pagespeed");
+
 include_once(SP_CTRLPATH."/pagespeed.ctrl.php");
 $controller = New PageSpeedController();
 $controller->view->menu = 'seotools';

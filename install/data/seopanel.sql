@@ -34,9 +34,9 @@ CREATE TABLE IF NOT EXISTS `auditorreports` (
 `id` bigint(24) NOT NULL,
   `project_id` int(11) NOT NULL,
   `page_url` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
-  `page_title` varchar(180) COLLATE utf8_unicode_ci NOT NULL,
-  `page_description` text COLLATE utf8_unicode_ci NOT NULL,
-  `page_keywords` text COLLATE utf8_unicode_ci NOT NULL,
+  `page_title` varchar(180) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `page_description` text COLLATE utf8_unicode_ci,
+  `page_keywords` text COLLATE utf8_unicode_ci,
   `pagerank` float NOT NULL DEFAULT '0',
   `google_backlinks` int(11) NOT NULL DEFAULT '0',
   `bing_backlinks` int(11) NOT NULL DEFAULT '0',
@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS `auditorreports` (
   `crawled` tinyint(1) NOT NULL DEFAULT '0',
   `score` smallint(6) NOT NULL DEFAULT '0',
   `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `page_authority` float NOT NULL
+  `page_authority` float NOT NULL DEFAULT '0'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `backlinkresults` (
@@ -57,7 +57,8 @@ CREATE TABLE IF NOT EXISTS `backlinkresults` (
   `google` int(11) NOT NULL,
   `msn` int(11) NOT NULL,
   `alexa` int(11) NOT NULL,
-  `result_time` int(11) NOT NULL
+  `result_time` int(11) NOT NULL DEFAULT '0',
+  `result_date` date DEFAULT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `country` (
@@ -316,16 +317,16 @@ INSERT INTO `country` (`country_code`, `country_name`) VALUES
 CREATE TABLE IF NOT EXISTS `crawl_log` (
 `id` bigint(20) unsigned NOT NULL,
   `crawl_type` varchar(20) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'other',
-  `ref_id` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `subject` varchar(60) COLLATE utf8_unicode_ci NOT NULL,
+  `ref_id` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `subject` varchar(60) COLLATE utf8_unicode_ci DEFAULT NULL,
   `crawl_link` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `crawl_referer` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `crawl_cookie` text COLLATE utf8_unicode_ci NOT NULL,
-  `crawl_post_fields` text COLLATE utf8_unicode_ci NOT NULL,
-  `crawl_useragent` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `crawl_referer` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `crawl_cookie` text COLLATE utf8_unicode_ci,
+  `crawl_post_fields` text COLLATE utf8_unicode_ci,
+  `crawl_useragent` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `crawl_status` tinyint(4) NOT NULL DEFAULT '1',
-  `proxy_id` int(11) unsigned NOT NULL,
-  `log_message` text COLLATE utf8_unicode_ci NOT NULL,
+  `proxy_id` int(11) unsigned NOT NULL DEFAULT '0',
+  `log_message` text COLLATE utf8_unicode_ci,
   `crawl_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
@@ -657,7 +658,25 @@ CREATE TABLE IF NOT EXISTS `keywords` (
   `country_code` varchar(8) COLLATE utf8_unicode_ci DEFAULT NULL,
   `website_id` int(11) DEFAULT NULL,
   `searchengines` varchar(120) CHARACTER SET latin1 DEFAULT NULL,
-  `status` tinyint(1) DEFAULT '0'
+  `status` tinyint(1) DEFAULT '0',
+  `crawled` tinyint(1) NOT NULL DEFAULT '0'
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `pagespeeddetails` (
+`id` bigint(20) unsigned NOT NULL,
+  `website_id` int(11) NOT NULL,
+  `desktop_score_details` text COLLATE utf8_unicode_ci NOT NULL,
+  `mobile_score_details` text COLLATE utf8_unicode_ci NOT NULL,
+  `result_date` date NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `pagespeedresults` (
+`id` bigint(20) unsigned NOT NULL,
+  `website_id` int(11) NOT NULL,
+  `desktop_speed_score` smallint(6) NOT NULL,
+  `mobile_speed_score` smallint(6) NOT NULL,
+  `mobile_usability_score` smallint(6) NOT NULL,
+  `result_date` date NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `proxylist` (
@@ -674,12 +693,13 @@ CREATE TABLE IF NOT EXISTS `proxylist` (
 CREATE TABLE IF NOT EXISTS `rankresults` (
 `id` bigint(20) unsigned NOT NULL,
   `website_id` int(11) NOT NULL,
-  `google_pagerank` int(8) NOT NULL,
+  `google_pagerank` int(8) NOT NULL DEFAULT '0',
   `alexa_rank` int(11) NOT NULL,
   `moz_rank` float NOT NULL,
-  `result_time` int(11) NOT NULL,
+  `result_time` int(11) NOT NULL DEFAULT '0',
   `domain_authority` float NOT NULL,
-  `page_authority` float NOT NULL
+  `page_authority` float NOT NULL,
+  `result_date` date DEFAULT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `reports_settings` (
@@ -698,7 +718,8 @@ CREATE TABLE IF NOT EXISTS `saturationresults` (
   `website_id` int(11) NOT NULL,
   `google` int(11) NOT NULL,
   `msn` int(11) NOT NULL,
-  `result_time` int(11) NOT NULL
+  `result_time` int(11) NOT NULL DEFAULT '0',
+  `result_date` date DEFAULT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `searchengines` (
@@ -756,7 +777,7 @@ CREATE TABLE IF NOT EXISTS `seoplugins` (
 
 INSERT INTO `seoplugins` (`id`, `label`, `name`, `author`, `description`, `version`, `website`, `status`, `installed`) VALUES
 (1, 'Meta Tag Generator', 'MetaTagGenerator', 'Geo Varghese', 'Meta Tag Generator', '1.0.0', 'http://www.seopanel.in/plugins/', 1, 1),
-(2, 'Test Plugin', 'TestPlugin', 'Geo Varghese', 'Seo Panel Test Plugin: Check the structure of test plugin and it will help you to create new Seo Panel Plugins.', '1.0.0', 'http://www.seopanel.in/plugins/', 1, 1);
+(2, 'Test Plugin', 'TestPlugin', 'Geo Varghese', 'Seo Panel Test Plugin: Check the structure of test plugin and it will help you to create new Seo Panel Plugins.', '1.0.0', 'http://www.seopanel.in/plugins/', 0, 1);
 
 CREATE TABLE IF NOT EXISTS `seotools` (
 `id` int(11) unsigned NOT NULL,
@@ -766,7 +787,7 @@ CREATE TABLE IF NOT EXISTS `seotools` (
   `reportgen` tinyint(1) NOT NULL DEFAULT '1',
   `cron` tinyint(1) NOT NULL DEFAULT '0',
   `status` tinyint(1) NOT NULL DEFAULT '0'
-) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 INSERT INTO `seotools` (`id`, `name`, `url_section`, `user_access`, `reportgen`, `cron`, `status`) VALUES
 (1, 'Keyword Position Checker', 'keyword-position-checker', 1, 1, 1, 1),
@@ -774,7 +795,8 @@ INSERT INTO `seotools` (`id`, `name`, `url_section`, `user_access`, `reportgen`,
 (3, 'Rank Checker', 'rank-checker', 1, 1, 1, 1),
 (4, 'Backlinks Checker', 'backlink-checker', 1, 1, 1, 1),
 (5, 'Directory Submission', 'directory-submission', 1, 1, 0, 1),
-(6, 'Search Engine Saturation', 'saturation-checker', 1, 1, 1, 1);
+(6, 'Search Engine Saturation', 'saturation-checker', 1, 1, 1, 1),
+(7, 'PageSpeed Insights', 'pagespeed', 1, 1, 1, 1);
 
 CREATE TABLE IF NOT EXISTS `settings` (
 `id` int(11) NOT NULL,
@@ -784,7 +806,7 @@ CREATE TABLE IF NOT EXISTS `settings` (
   `set_category` varchar(32) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'system',
   `set_type` enum('small','bool','medium','large','text') CHARACTER SET latin1 DEFAULT 'small',
   `display` tinyint(1) NOT NULL DEFAULT '1'
-) ENGINE=MyISAM AUTO_INCREMENT=49 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=51 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 INSERT INTO `settings` (`id`, `set_label`, `set_name`, `set_val`, `set_category`, `set_type`, `display`) VALUES
 (1, 'Seo Panel Title', 'SP_TITLE', 'Seo Panel: World''s first open source seo control panel for managing multiple web sites', 'system', 'large', 1),
@@ -818,7 +840,7 @@ INSERT INTO `settings` (`id`, `set_label`, `set_name`, `set_val`, `set_category`
 (29, 'Allow users to schedule reports', 'SP_ALLOW_USER_SCHEDULE_REPORT', '1', 'report', 'bool', 1),
 (30, 'System report generation interval', 'SP_SYSTEM_REPORT_INTERVAL', '1', 'report', 'small', 1),
 (31, 'Enable report email notification', 'SP_REPORT_EMAIL_NOTIFICATION', '1', 'report', 'bool', 1),
-(32, 'Number of keywords needs to be checked in each cron execution', 'SP_NUMBER_KEYWORDS_CRON', '1', 'report', 'small', 1),
+(32, 'Number of keywords needs to be checked in each cron execution', 'SP_NUMBER_KEYWORDS_CRON', '1', 'report', 'small', 0),
 (33, 'Crawl relative links in a page', 'SP_RELATIVE_LINK_CRAWL', '1', 'siteauditor', 'bool', 1),
 (34, 'Enable HTTP Proxy Tunnel', 'CURLOPT_HTTPPROXYTUNNEL_VAL', '1', 'proxy', 'bool', 1),
 (35, 'Deactivate Proxy When Crawling Failed', 'PROXY_DEACTIVATE_CRAWL', '0', 'proxy', 'bool', 1),
@@ -829,12 +851,14 @@ INSERT INTO `settings` (`id`, `set_label`, `set_name`, `set_val`, `set_category`
 (40, 'API Secret', 'API_SECRET', '', 'api', 'medium', 1),
 (41, 'Company Name', 'SP_COMPANY_NAME', 'Seo Panel', 'system', 'medium', 1),
 (42, 'Currency', 'SP_PAYMENT_CURRENCY', 'USD', 'system', 'medium', 1),
-(43, 'Seo Panel version', 'SP_VERSION_NUMBER', '3.11.0', 'system', 'medium', 0),
+(43, 'Seo Panel version', 'SP_VERSION_NUMBER', '3.12.0', 'system', 'medium', 0),
 (44, 'Moz API Link', 'SP_MOZ_API_LINK', 'http://lsapi.seomoz.com/linkscape', 'moz', 'medium', 0),
 (45, 'Moz API Link', 'SP_MOZ_API_ACCESS_ID', '', 'moz', 'large', 1),
 (46, 'Moz API Link', 'SP_MOZ_API_SECRET', '', 'moz', 'large', 1),
 (47, 'Page authority check level first', 'SA_PA_CHECK_LEVEL_FIRST', '40', 'siteauditor', 'small', 0),
-(48, 'Page authority check level second', 'SA_PA_CHECK_LEVEL_SECOND', '75', 'siteauditor', 'small', 0);
+(48, 'Page authority check level second', 'SA_PA_CHECK_LEVEL_SECOND', '75', 'siteauditor', 'small', 0),
+(49, 'Google API Key', 'SP_GOOGLE_API_KEY', '', 'google', 'large', 1),
+(50, 'Number of websites needs to be checked in each cron execution', 'SP_NUMBER_WEBSITES_CRON', '1', 'report', 'small', 0);
 
 CREATE TABLE IF NOT EXISTS `skipdirectories` (
 `id` int(11) NOT NULL,
@@ -996,13 +1020,14 @@ CREATE TABLE IF NOT EXISTS `user_specs` (
 `id` int(11) NOT NULL,
   `user_type_id` int(11) NOT NULL,
   `spec_column` varchar(120) COLLATE utf8_unicode_ci NOT NULL,
-  `spec_value` varchar(255) COLLATE utf8_unicode_ci NOT NULL
+  `spec_value` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `spec_category` varchar(32) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'system'
 ) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-INSERT INTO `user_specs` (`id`, `user_type_id`, `spec_column`, `spec_value`) VALUES
-(1, 2, 'keywordcount', '50'),
-(2, 2, 'websitecount', '10'),
-(3, 2, 'price', '0');
+INSERT INTO `user_specs` (`id`, `user_type_id`, `spec_column`, `spec_value`, `spec_category`) VALUES
+(1, 2, 'keywordcount', '50', 'system'),
+(2, 2, 'websitecount', '10', 'system'),
+(3, 2, 'price', '0', 'system');
 
 CREATE TABLE IF NOT EXISTS `websites` (
 `id` int(11) NOT NULL,
@@ -1024,7 +1049,8 @@ CREATE TABLE IF NOT EXISTS `websites` (
   `description5` text COLLATE utf8_unicode_ci,
   `reciprocal_url` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `user_id` int(11) DEFAULT NULL,
-  `status` tinyint(1) NOT NULL
+  `status` tinyint(1) NOT NULL,
+  `crawled` tinyint(1) NOT NULL DEFAULT '0'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
@@ -1038,7 +1064,7 @@ ALTER TABLE `auditorreports`
  ADD PRIMARY KEY (`id`), ADD UNIQUE KEY `project_id_2` (`project_id`,`page_url`), ADD KEY `project_id` (`project_id`);
 
 ALTER TABLE `backlinkresults`
- ADD PRIMARY KEY (`id`);
+ ADD PRIMARY KEY (`id`), ADD KEY `result_date` (`result_date`);
 
 ALTER TABLE `country`
  ADD PRIMARY KEY (`country_code`);
@@ -1070,17 +1096,23 @@ ALTER TABLE `keywordcrontracker`
 ALTER TABLE `keywords`
  ADD PRIMARY KEY (`id`);
 
+ALTER TABLE `pagespeeddetails`
+ ADD PRIMARY KEY (`id`), ADD KEY `result_date` (`result_date`);
+
+ALTER TABLE `pagespeedresults`
+ ADD PRIMARY KEY (`id`), ADD KEY `result_date` (`result_date`);
+
 ALTER TABLE `proxylist`
  ADD PRIMARY KEY (`id`);
 
 ALTER TABLE `rankresults`
- ADD PRIMARY KEY (`id`);
+ ADD PRIMARY KEY (`id`), ADD KEY `result_date` (`result_date`);
 
 ALTER TABLE `reports_settings`
  ADD PRIMARY KEY (`id`), ADD UNIQUE KEY `user_id` (`user_id`);
 
 ALTER TABLE `saturationresults`
- ADD PRIMARY KEY (`id`);
+ ADD PRIMARY KEY (`id`), ADD KEY `result_date` (`result_date`);
 
 ALTER TABLE `searchengines`
  ADD PRIMARY KEY (`id`);
@@ -1119,7 +1151,7 @@ ALTER TABLE `usertypes`
  ADD PRIMARY KEY (`id`);
 
 ALTER TABLE `user_specs`
- ADD PRIMARY KEY (`id`);
+ ADD PRIMARY KEY (`id`), ADD UNIQUE KEY `user_type_id` (`user_type_id`,`spec_column`);
 
 ALTER TABLE `websites`
  ADD PRIMARY KEY (`id`);
@@ -1151,6 +1183,10 @@ ALTER TABLE `keywordcrontracker`
 MODIFY `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT;
 ALTER TABLE `keywords`
 MODIFY `id` bigint(24) unsigned NOT NULL AUTO_INCREMENT;
+ALTER TABLE `pagespeeddetails`
+MODIFY `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT;
+ALTER TABLE `pagespeedresults`
+MODIFY `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT;
 ALTER TABLE `proxylist`
 MODIFY `id` int(11) unsigned NOT NULL AUTO_INCREMENT;
 ALTER TABLE `rankresults`
@@ -1168,9 +1204,9 @@ MODIFY `id` bigint(24) unsigned NOT NULL AUTO_INCREMENT;
 ALTER TABLE `seoplugins`
 MODIFY `id` int(11) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=3;
 ALTER TABLE `seotools`
-MODIFY `id` int(11) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=7;
+MODIFY `id` int(11) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=8;
 ALTER TABLE `settings`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=49;
+MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=51;
 ALTER TABLE `skipdirectories`
 MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 ALTER TABLE `testplugin`
@@ -1187,57 +1223,6 @@ ALTER TABLE `user_specs`
 MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=4;
 ALTER TABLE `websites`
 MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
-update `settings` set set_val='3.11.0' WHERE `set_name` LIKE 'SP_VERSION_NUMBER';
-
-ALTER TABLE `keywords` ADD `crawled` TINYINT( 1 ) NOT NULL DEFAULT '0';
-
-ALTER TABLE `websites` ADD `crawled` TINYINT( 1 ) NOT NULL DEFAULT '0';
-
-
-ALTER TABLE `rankresults` ADD `result_date` DATE NULL , ADD INDEX ( `result_date` );
-UPDATE `rankresults` SET `result_date` = FROM_UNIXTIME(result_time, '%Y-%m-%d');
-
-
-ALTER TABLE `backlinkresults` ADD `result_date` DATE NULL , ADD INDEX ( `result_date` );
-UPDATE `backlinkresults` SET `result_date` = FROM_UNIXTIME(result_time, '%Y-%m-%d');
-
-ALTER TABLE `saturationresults` ADD `result_date` DATE NULL , ADD INDEX ( `result_date` );
-UPDATE `saturationresults` SET `result_date` = FROM_UNIXTIME(result_time, '%Y-%m-%d');
-
-INSERT INTO `settings` (`set_label`, `set_name`, `set_val`, `set_category`, `set_type`, `display`)  
-VALUES ('Google API Key', 'SP_GOOGLE_API_KEY', '', 'google', 'large', '1');
-
-INSERT INTO `seotools` (`name`, `url_section`, `user_access`, `reportgen`, `cron`, `status`) 
-VALUES ('PageSpeed Insights', 'pagespeed', '1', '1', '1', '1');
-
-
-CREATE TABLE IF NOT EXISTS `pagespeedresults` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `website_id` int(11) NOT NULL,
-  `desktop_speed_score` smallint(6) NOT NULL,
-  `mobile_speed_score` smallint(6) NOT NULL,
-  `mobile_usability_score` smallint(6) NOT NULL,
-  `result_date` date NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `result_date` (`result_date`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
-
-CREATE TABLE IF NOT EXISTS `pagespeeddetails` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `website_id` int(11) NOT NULL,
-  `desktop_score_details` text NOT NULL,
-  `mobile_score_details` text NOT NULL,
-  `result_date` date NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `result_date` (`result_date`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
-
-INSERT INTO `settings` (`set_label`, `set_name`, `set_val`, `set_category`, `set_type`, `display`) VALUES
-('Number of websites needs to be checked in each cron execution', 'SP_NUMBER_WEBSITES_CRON', '1', 'report', 'small', 0);
-
-update `settings` set set_val='1',display=0 WHERE `set_name` LIKE 'SP_NUMBER_KEYWORDS_CRON';
-
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
