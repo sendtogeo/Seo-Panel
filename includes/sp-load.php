@@ -118,7 +118,8 @@ if(file_exists(SP_ABSPATH."/config/sp-config.php")){
 	$themeLocation = empty($themeInfo['folder']) ? "themes/classic" : "themes/".$themeInfo['folder'];
 	define('SP_THEME_ABSPATH', SP_ABSPATH."/$themeLocation");
 	define('SP_VIEWPATH', SP_ABSPATH."/$themeLocation/views");
-	define('SP_CSSPATH', SP_WEBPATH."/$themeLocation/css");	
+	define('SP_CSSPATH', SP_WEBPATH."/$themeLocation/css");
+	define('SP_THEME_WEB_PATH', SP_WEBPATH."/$themeLocation");	
 
 	# to prevent sql injection
 	if(!empty($_SERVER['REQUEST_METHOD']) && SP_PREVENT_SQL_INJECTION){
