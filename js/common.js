@@ -313,7 +313,7 @@ function hideNewsBox(scriptPos, cookieVar, cookieVal) {
 function alertDemoMsg(){
     if(spdemo){
     	alert('Some features are disabled in the demo system due to security threats. Please download and install seo panel to enjoy full features.');
-    	exit;
+    	return;
     }
 }
 
