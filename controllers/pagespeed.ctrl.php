@@ -264,7 +264,7 @@ class PageSpeedController extends Controller{
 		$toTimeLabel = date('Y-m-d', $toTime);
 		$conditions = empty ($websiteId) ? "" : " and s.website_id=$websiteId";
 		$sql = "select s.* ,w.name 	from pagespeedresults s,websites w
-		where s.website_id=w.id and s.website_id=$websiteId
+		where s.website_id=w.id" . $conditions . "
 		and (result_date='$fromTimeLabel' or result_date='$toTimeLabel')
 		order by result_date DESC Limit 0,2";
 		$reportList = $this->db->select($sql);
