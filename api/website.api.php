@@ -59,6 +59,7 @@ class WebsiteAPI extends Seopanel{
 		include_once(SP_CTRLPATH."/backlink.ctrl.php");
 		include_once(SP_CTRLPATH."/directory.ctrl.php");
 		include_once(SP_CTRLPATH."/keyword.ctrl.php");
+		include_once(SP_CTRLPATH."/pagespeed.ctrl.php");
 	}
 
 	/**
@@ -75,6 +76,7 @@ class WebsiteAPI extends Seopanel{
 		$backlinlCtrler = New BacklinkController();
 		$saturationCtrler = New SaturationCheckerController();
 		$dirCtrler = New DirectoryController();
+		$pagespeedCtrler = New PageSpeedController();
 		
 		// rank reports
 		$report = $rankCtrler->__getWebsiteRankReport($websiteInfo['id'], $fromTime, $toTime);
@@ -114,6 +116,17 @@ class WebsiteAPI extends Seopanel{
 		$websiteInfo['dirsub']['total'] = $dirCtrler->__getTotalSubmitInfo($websiteInfo['id']);
 		$websiteInfo['dirsub']['active'] = $dirCtrler->__getTotalSubmitInfo($websiteInfo['id'], true);
 		$websiteInfo['dirsub']['date'] = $toTimeDate;
+		
+		// pagespeed reports
+		$report = $pagespeedCtrler->__getWebsitePageSpeedReport($websiteInfo['id'], $fromTime, $toTime);
+		$report = $report[0];
+		$websiteInfo['google']['pagespeed']['desktop_speed'] = empty($report['desktop_speed_score']) ? "-" : $report['desktop_speed_score'];
+		$websiteInfo['google']['pagespeed']['ds_diff'] = empty($report['rank_diff_desktop_speed_score']) ? "-" : $report['rank_diff_desktop_speed_score'];
+		$websiteInfo['google']['pagespeed']['mobile_speed'] = empty($report['mobile_speed_score']) ? "-" : $report['mobile_speed_score'];
+		$websiteInfo['google']['pagespeed']['ms_diff'] = empty($report['rank_diff_mobile_speed_score']) ? "-" : $report['rank_diff_mobile_speed_score'];
+		$websiteInfo['google']['pagespeed']['mobile_usability'] = empty($report['mobile_usability_score']) ? "-" : $report['mobile_usability_score'];
+		$websiteInfo['google']['pagespeed']['mu_diff'] = empty($report['rank_diff_mobile_usability_score']) ? "-" : $report['rank_diff_mobile_usability_score'];
+		$websiteInfo['google']['pagespeed']['date'] = $toTimeDate;
 		
 		return $websiteInfo; 
 	}	
