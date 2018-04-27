@@ -125,7 +125,7 @@ class SearchEngineController extends Controller{
 		$captchFound = false;
 		
 		// if captcha input field is found
-		if (stristr($searchContent, 'name="captcha"') || stristr($searchContent, 'id="captcha"')) {
+		if (stristr($searchContent, 'name="captcha"') || stristr($searchContent, 'id="captcha"') || stristr($searchContent, 'recaptcha/api')) {
 			$captchFound = true;
 		}
 		
