@@ -91,7 +91,7 @@ class SeoPluginsController extends Controller{
 
 			$this->pluginCtrler = $pluginControler;
 			$action = empty($info['action']) ? "index" : $info['action'];
-			$data = ($method=='get') ? $_GET : $_POST;
+			$data = $_REQUEST;
 		
 			// check whethere export report type action
 			if (empty($data['doc_type']) || ($data['doc_type'] != 'export')) {
