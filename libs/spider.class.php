@@ -280,6 +280,23 @@ class Spider{
 		curl_setopt($this->_CURL_RESOURCE, CURLOPT_SSL_VERIFYHOST, 0);
 		curl_setopt($this->_CURL_RESOURCE, CURLOPT_SSL_VERIFYPEER, 0);
 
+		// user agent assignment
+		$this->_CURLOPT_USERAGENT = defined('SP_USER_AGENT') ? SP_USER_AGENT : $this->_CURLOPT_USERAGENT;
+		if( strlen( $this -> _CURLOPT_USERAGENT ) > 0 ) {
+			curl_setopt( $this -> _CURL_RESOURCE , CURLOPT_USERAGENT, $this -> _CURLOPT_USERAGENT );
+		}
+		
+		// if sending custom header with curl is enabled
+		if (SP_SEND_CUSTOM_HEADER_IN_CURL) {
+			$sessionId = session_id();
+			$sessionId = !empty($sessionId) ? $sessionId : session_regenerate_id();
+			array_push($this ->_CURL_HTTPHEADER, "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+			array_push($this ->_CURL_HTTPHEADER, "Connection: keep-alive");
+			array_push($this ->_CURL_HTTPHEADER, "Cache-Control: max-age=0");
+			array_push($this ->_CURL_HTTPHEADER, "Cookie: PHPSESSID=" . $sessionId);
+			array_push($this ->_CURL_HTTPHEADER, "User-Agent: " . $this -> _CURLOPT_USERAGENT);
+		}
+
 		// to add the curl http headers
 		if (!empty($this ->_CURL_HTTPHEADER)) {
 			curl_setopt($this->_CURL_RESOURCE, CURLOPT_HTTPHEADER, $this ->_CURL_HTTPHEADER);
@@ -293,12 +310,6 @@ class Spider{
 		if( strlen( $this -> _CURLOPT_POSTFIELDS ) > 1 ) {
 			curl_setopt( $this -> _CURL_RESOURCE , CURLOPT_POST , $this -> _CURLOPT_POST );
 			curl_setopt( $this -> _CURL_RESOURCE , CURLOPT_POSTFIELDS , $this -> _CURLOPT_POSTFIELDS );
-		}
-
-		// user agent assignment
-		$this->_CURLOPT_USERAGENT = defined('SP_USER_AGENT') ? SP_USER_AGENT : $this->_CURLOPT_USERAGENT;
-		if( strlen( $this -> _CURLOPT_USERAGENT ) > 0 ) {
-			curl_setopt( $this -> _CURL_RESOURCE , CURLOPT_USERAGENT, $this -> _CURLOPT_USERAGENT );
 		}
 
 		if( strlen( $this -> _CURLOPT_USERPWD ) > 2 ) {
