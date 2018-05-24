@@ -409,7 +409,10 @@ class ProxyController extends Controller{
 			if ($proxyInfo = $proxyCtrler->getRandomProxy()) {
 		
 				curl_setopt($curlHandle, CURLOPT_PROXY, $proxyInfo['proxy'].":".$proxyInfo['port']);
-				curl_setopt($curlHandle, CURLOPT_HTTPPROXYTUNNEL, CURLOPT_HTTPPROXYTUNNEL_VAL);
+				
+				if (CURLOPT_HTTPPROXYTUNNEL_VAL) {
+					curl_setopt($curlHandle, CURLOPT_HTTPPROXYTUNNEL, CURLOPT_HTTPPROXYTUNNEL_VAL);
+				}
 		
 				if (!empty($proxyInfo['proxy_auth'])) {
 					curl_setopt ($curlHandle, CURLOPT_PROXYUSERPWD, $proxyInfo['proxy_username'].":".$proxyInfo['proxy_password']);

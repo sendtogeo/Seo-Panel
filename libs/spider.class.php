@@ -328,10 +328,15 @@ class Spider{
 			$proxyCtrler = New ProxyController();
 			if ($proxyInfo = $proxyCtrler->getRandomProxy()) {
 				curl_setopt($this -> _CURL_RESOURCE, CURLOPT_PROXY, $proxyInfo['proxy'].":".$proxyInfo['port']);
-				curl_setopt($this -> _CURL_RESOURCE, CURLOPT_HTTPPROXYTUNNEL, CURLOPT_HTTPPROXYTUNNEL_VAL);		
+				
+				if (CURLOPT_HTTPPROXYTUNNEL_VAL) {
+					curl_setopt($this -> _CURL_RESOURCE, CURLOPT_HTTPPROXYTUNNEL, CURLOPT_HTTPPROXYTUNNEL_VAL);
+				}		
+				
 				if (!empty($proxyInfo['proxy_auth'])) {
 					curl_setopt ($this -> _CURL_RESOURCE, CURLOPT_PROXYUSERPWD, $proxyInfo['proxy_username'].":".$proxyInfo['proxy_password']);
 				}
+				
 			} else {
 			    showErrorMsg("No active proxies found!! Please check your proxy settings from Admin Panel.");
 			}
@@ -412,11 +417,14 @@ class Spider{
 		$this->_CURLOPT_USERAGENT = defined('SP_USER_AGENT') ? SP_USER_AGENT : $this->_CURLOPT_USERAGENT;
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($ch, CURLOPT_PROXY, $proxyInfo['proxy'].":".$proxyInfo['port']);		
-		curl_setopt($ch, CURLOPT_HTTPPROXYTUNNEL, CURLOPT_HTTPPROXYTUNNEL_VAL);
+		curl_setopt($ch, CURLOPT_PROXY, $proxyInfo['proxy'].":".$proxyInfo['port']);
 		curl_setopt($ch, CURLOPT_HEADER, 1);
 		curl_setopt($ch, CURLOPT_USERAGENT, $this->_CURLOPT_USERAGENT);
-		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);		
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+
+		if (CURLOPT_HTTPPROXYTUNNEL_VAL) {
+			curl_setopt($ch, CURLOPT_HTTPPROXYTUNNEL, CURLOPT_HTTPPROXYTUNNEL_VAL);
+		}
 		
 		if (!empty($proxyInfo['proxy_auth'])) {
 			curl_setopt ($ch, CURLOPT_PROXYUSERPWD, $proxyInfo['proxy_username'].":".$proxyInfo['proxy_password']);
