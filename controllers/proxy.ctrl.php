@@ -401,13 +401,14 @@ class ProxyController extends Controller{
 	
 	// function to add proxy to curl handle
 	public static function addProxyToCurlHandle($curlHandle) {
+		$proxyId = 0;
 		
 		// to use proxy if proxy enabled
 		if (SP_ENABLE_PROXY) {
 		
 			$proxyCtrler = New self();
 			if ($proxyInfo = $proxyCtrler->getRandomProxy()) {
-		
+				$proxyId = $proxyInfo['id'];
 				curl_setopt($curlHandle, CURLOPT_PROXY, $proxyInfo['proxy'].":".$proxyInfo['port']);
 				
 				if (CURLOPT_HTTPPROXYTUNNEL_VAL) {
@@ -423,8 +424,12 @@ class ProxyController extends Controller{
 			}
 			 
 		}
+		
+		// to fix the ssl related issues
+		curl_setopt($curlHandle, CURLOPT_SSL_VERIFYHOST, 0);
+		curl_setopt($curlHandle, CURLOPT_SSL_VERIFYPEER, 0);
 
-		return array($curlHandle, $proxyInfo['id']);
+		return array($curlHandle, $proxyId);
 		
 	}
 	
