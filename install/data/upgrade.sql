@@ -36,14 +36,3 @@ INSERT INTO `qwp_settings` (`set_label`, `set_name`, `set_val`, `set_type`) VALU
 ('Allow user to access the web proxy', 'QWP_ALLOW_USER_WEB_PROXY', '0', 'bool'),
 ('Allow web server to act as a proxy', 'QWP_ALLOW_WEB_SERVER_ACT_AS_PROXY', '1', 'bool')
 ON DUPLICATE KEY UPDATE `set_type`=`set_type`;
-
-INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
-('en', 'QuickWebProxy', 'Anonymize', 'Anonymize'),
-('en', 'QuickWebProxy', 'QWP_ALLOW_USER_WEB_PROXY', 'Allow user to access the web proxy'),
-('en', 'QuickWebProxy', 'QWP_ALLOW_WEB_SERVER_ACT_AS_PROXY', 'Allow web server to act as a proxy'),
-('en', 'QuickWebProxy', 'Web Proxy', 'Web Proxy'),
-('en', 'QuickWebProxy', 'Web Server', 'Web Server'),
-('en', 'QuickWebProxy', 'Please enter a valid url', 'Please enter a valid url'),
-('en', 'QuickWebProxy', 'Server list is empty', 'Server list is empty'),
-('en', 'settings', 'SP_SEND_CUSTOM_HEADER_IN_CURL', 'Send custom header with curl request'),
-('en', 'common', 'Server', 'Server');
