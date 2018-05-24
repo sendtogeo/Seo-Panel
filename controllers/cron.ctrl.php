@@ -113,6 +113,11 @@ class CronController extends Controller {
 		$userCtrler = New UserController();
 		$userList = $userCtrler->__getAllUsers();
 		foreach($userList as $userInfo){
+			
+			// check whether user expired 
+			if (!$userCtrler->isUserExpired($userInfo['id'])) {
+				continue;
+			}
 		    
 		    // create report controller
 		    $reportCtrler = New ReportController();
