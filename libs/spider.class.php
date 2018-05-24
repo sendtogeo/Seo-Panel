@@ -262,6 +262,21 @@ class Spider{
 	    return $this->userAgentList[$userAgentKey];    
 	}
 	
+	# function to create custome headers
+	function setCustomHeaders() {
+		
+		// if sending custom header with curl is enabled
+		if (SP_SEND_CUSTOM_HEADER_IN_CURL) {
+			$sessionId = session_id();
+			$sessionId = !empty($sessionId) ? $sessionId : session_regenerate_id();
+			array_push($this ->_CURL_HTTPHEADER, "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+			array_push($this ->_CURL_HTTPHEADER, "Connection: keep-alive");
+			array_push($this ->_CURL_HTTPHEADER, "Cache-Control: max-age=0");
+			array_push($this ->_CURL_HTTPHEADER, "Cookie: PHPSESSID=" . $sessionId);
+			array_push($this ->_CURL_HTTPHEADER, "User-Agent: " . $this -> _CURLOPT_USERAGENT);
+		}
+		
+	}
 	
 	# get contents of a web page	
 	function getContent( $url, $enableProxy=true, $logCrawl = true)	{
@@ -286,16 +301,8 @@ class Spider{
 			curl_setopt( $this -> _CURL_RESOURCE , CURLOPT_USERAGENT, $this -> _CURLOPT_USERAGENT );
 		}
 		
-		// if sending custom header with curl is enabled
-		if (SP_SEND_CUSTOM_HEADER_IN_CURL) {
-			$sessionId = session_id();
-			$sessionId = !empty($sessionId) ? $sessionId : session_regenerate_id();
-			array_push($this ->_CURL_HTTPHEADER, "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
-			array_push($this ->_CURL_HTTPHEADER, "Connection: keep-alive");
-			array_push($this ->_CURL_HTTPHEADER, "Cache-Control: max-age=0");
-			array_push($this ->_CURL_HTTPHEADER, "Cookie: PHPSESSID=" . $sessionId);
-			array_push($this ->_CURL_HTTPHEADER, "User-Agent: " . $this -> _CURLOPT_USERAGENT);
-		}
+		// set custom headers
+		$this->setCustomHeaders();
 
 		// to add the curl http headers
 		if (!empty($this ->_CURL_HTTPHEADER)) {
@@ -364,6 +371,15 @@ class Spider{
 			}
 		}
 		
+		// debug run time if enabled
+		$this->debugRunTime($ret);
+
+		return $ret;
+	}
+	
+	# function to debug runtime
+	function debugRunTime($ret) {
+		
 		// check debug request is enabled
 		if (!empty($_GET['debug']) || !empty($_POST['debug'])) {
 			?>
@@ -378,8 +394,7 @@ class Spider{
 			</div>
 			<?php
 		}
-
-		return $ret;
+		
 	}
 	
 	# func to get session id
@@ -406,6 +421,18 @@ class Spider{
 		if (!empty($proxyInfo['proxy_auth'])) {
 			curl_setopt ($ch, CURLOPT_PROXYUSERPWD, $proxyInfo['proxy_username'].":".$proxyInfo['proxy_password']);
 		}
+
+		// set custom headers
+		$this->setCustomHeaders();
+
+		// to add the curl http headers
+		if (!empty($this ->_CURL_HTTPHEADER)) {
+			curl_setopt($ch, CURLOPT_HTTPHEADER, $this ->_CURL_HTTPHEADER);
+		}
+		
+		// to fix the ssl related issues
+		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
 				
 		curl_setopt($ch, CURLOPT_URL, "http://www.google.com/search?q=twitter");
 		$ret['page'] = curl_exec( $ch );
@@ -414,10 +441,21 @@ class Spider{
 		curl_close($ch);
 		
 		// if no error check whether the ouput contains twitter keyword
-		if (empty($ret['error']) && !stristr($ret['page'], 'twitter') ) {
-			$ret['error'] = "Page not contains twitter keyword";
-			$ret['errmsg'] = strtok($ret['page'], "\n");
+		if (empty($ret['error'])) {
+			
+			// is captcha found in search results
+			if (SearchEngineController::isCaptchInSearchResults($ret['page'])) {
+				$ret['error'] = "Capctha found in the results";
+				$ret['errmsg'] = strtok($ret['page'], "\n");
+			} elseif(!stristr($ret['page'], 'twitter')) {
+				$ret['error'] = "Page not contains twitter keyword";
+				$ret['errmsg'] = strtok($ret['page'], "\n");
+			}
+			
 		}
+		
+		// debug run time if enabled
+		$this->debugRunTime($ret);
 		
 		return $ret;
 	}
@@ -437,6 +475,10 @@ class Spider{
 		// Only calling the head
 		curl_setopt($ch, CURLOPT_HEADER, true); // header will be at output
 		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'HEAD'); // HTTP request is 'HEAD'
+		
+		// to fix the ssl related issues
+		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
 		
 		$content = curl_exec ($ch);
 		curl_close ($ch);
