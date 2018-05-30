@@ -526,7 +526,7 @@ class WebsiteController extends Controller{
 		// process file upload option
 		$fileInfo = $_FILES['website_csv_file'];
 		if (!empty($fileInfo['name']) && !empty($userId)) {
-			if ($fileInfo["type"] == "text/csv") {
+			if ($fileInfo["type"] == "text/csv" || $fileInfo["type"] == "application/vnd.ms-excel") {
 				$targetFile = SP_TMPPATH . "/".$fileInfo['name'];
 				if(move_uploaded_file($fileInfo['tmp_name'], $targetFile)) {
 
@@ -619,13 +619,21 @@ class WebsiteController extends Controller{
 		$userWebsiteCount = $this->__getCountAllWebsites($userId, false);
 		$userWebsiteCount += $newCount;
 		$userTypeDetails = $userTypeCtrlr->getUserTypeSpecByUser($userId);
-		
-		// check whether count greater than limit
-		if ($userWebsiteCount <= $userTypeDetails['websitecount']) {
-			return true;	
+
+		// if limit is set and not -1
+		if (isset($userTypeDetails['websitecount']) && $userTypeDetails['websitecount'] >= 0) {
+			
+			// check whether count greater than limit
+			if ($userWebsiteCount <= $userTypeDetails['websitecount']) {
+				return true;	
+			} else {
+				return false;	
+			}
+			
 		} else {
-			return false;	
+			return true;
 		}
+			
 	}
 		
 }

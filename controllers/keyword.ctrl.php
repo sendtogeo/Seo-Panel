@@ -173,13 +173,21 @@ class KeywordController extends Controller{
 				$errMsg['limit_error'] = $validationMsg;
 				$this->validate->flagErr = true;
 			}
+
+			// Validate search engine count
+			$seValdInfo = SearchEngineController::validateSearchEngineCount($webUserId, count($listInfo['searchengines']));
+			if ($seValdInfo['error']) {
+				$errMsg['searchengines'] = $seValdInfo['msg'];
+				$this->validate->flagErr = true;
+			}
+			
 		}
 		
 		// verify the form elements
 		if(!$this->validate->flagErr){
 			$keyword = addslashes(trim($listInfo['name']));
 			if (!$this->__checkName($keyword, $listInfo['website_id'])) {
-				$listInfo['searchengines'] = is_array($listInfo['searchengines']) ? $listInfo['searchengines'] : array();
+				
 				$sql = "insert into keywords(name,lang_code,country_code,website_id,searchengines,status)
 				values('$keyword', '".addslashes($listInfo['lang_code'])."', '".addslashes($listInfo['country_code'])."',
 				".intval($listInfo['website_id']).", '".addslashes($seStr)."', $statusVal)";
@@ -262,6 +270,22 @@ class KeywordController extends Controller{
 		$errMsg['keywords'] = formatErrorMsg($this->validate->checkBlank($listInfo['keywords']));
 		if (!is_array($listInfo['searchengines'])) $listInfo['searchengines'] = array();
 		$errMsg['searchengines'] = formatErrorMsg($this->validate->checkBlank(implode('', $listInfo['searchengines'])));
+
+		// Check the user website count for validation
+		if (isAdmin()) {
+			$websiteCtrler = new WebsiteController();
+			$websiteInfo = $websiteCtrler->__getWebsiteInfo($listInfo['website_id']);
+			$webUserId = $websiteInfo['user_id'];
+		} else {
+			$webUserId = $userId;
+		}
+
+		// Validate search engine count
+		$seValdInfo = SearchEngineController::validateSearchEngineCount($webUserId, count($listInfo['searchengines']));
+		if ($seValdInfo['error']) {
+			$errMsg['searchengines'] = $seValdInfo['msg'];
+			$this->validate->flagErr = true;
+		}
 		
 		if(!$this->validate->flagErr){
 			
@@ -281,15 +305,6 @@ class KeywordController extends Controller{
 				if (!empty($keyword)) {
 					$keywordList[$i] = $keyword;
 				}
-			}			
-			
-			// Check the user website count for validation
-			if (isAdmin()) {
-				$websiteCtrler = new WebsiteController();
-				$websiteInfo = $websiteCtrler->__getWebsiteInfo($listInfo['website_id']);
-				$webUserId = $websiteInfo['user_id'];
-			} else {
-				$webUserId = $userId;
 			}
 			
 			// check whether keyword count exeeds the limit
@@ -382,10 +397,27 @@ class KeywordController extends Controller{
 	function updateKeyword($listInfo, $apiCall = false){
 		$userId = isLoggedIn();
 		$this->set('post', $listInfo);
+
+		// Check the user website count for validation
+		if (isAdmin()) {
+			$websiteCtrler = new WebsiteController();
+			$websiteInfo = $websiteCtrler->__getWebsiteInfo($listInfo['website_id']);
+			$webUserId = $websiteInfo['user_id'];
+		} else {
+			$webUserId = $userId;
+		}
+		
 		$errMsg['name'] = formatErrorMsg($this->validate->checkBlank($listInfo['name']));
 		$errMsg['searchengines'] = formatErrorMsg($this->validate->checkBlank(implode('', $listInfo['searchengines'])));
 		$seStr = is_array($listInfo['searchengines']) ? implode(':', $listInfo['searchengines']) : $listInfo['searchengines'];
-		$statusVal = isset($listInfo['status']) ? "status = " . intval($listInfo['status']) ."," : "";	
+		$statusVal = isset($listInfo['status']) ? "status = " . intval($listInfo['status']) ."," : "";
+		
+		// Validate search engine count
+		$seValdInfo = SearchEngineController::validateSearchEngineCount($webUserId, count($listInfo['searchengines']));
+		if ($seValdInfo['error']) {
+			$errMsg['searchengines'] = $seValdInfo['msg'];
+			$this->validate->flagErr = true;
+		}
 		
 		//validate form
 		if(!$this->validate->flagErr){
@@ -438,7 +470,7 @@ class KeywordController extends Controller{
 		echo "<script>scriptDoLoad('reports.php', 'content', 'keyword_id=$keywordId&rep=1')</script>";
 	}
 	
-	// Function to check / validate the user type keuword count
+	// Function to check / validate the user type keyword count
 	function validateKeywordCount($userId, $newCount = 1) {
 		$userCtrler = new UserController();
 
@@ -452,12 +484,20 @@ class KeywordController extends Controller{
 		$userKeywordCount += $newCount;
 		$userTypeDetails = $userTypeCtrlr->getUserTypeSpecByUser($userId);
 		
-		// check whether count greater than limit
-		if ($userKeywordCount <= $userTypeDetails['keywordcount']) {
-			return true;
+		// if limit is set and not -1
+		if (isset($userTypeDetails['keywordcount']) && $userTypeDetails['keywordcount'] >= 0) {
+		
+			// check whether count greater than limit
+			if ($userKeywordCount <= $userTypeDetails['keywordcount']) {
+				return true;
+			} else {
+				return false;	
+			}
+			
 		} else {
-			return false;	
+			return true;	
 		}
+		
 	}
 	
 }

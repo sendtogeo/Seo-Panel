@@ -19,12 +19,44 @@
 *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
 ***************************************************************************/
 
+include_once(SP_CTRLPATH . "/seotools.ctrl.php");
+
 /**
  * Class defines all user type controller functions
  */
 class UserTypeController extends Controller {
 	
-	public $userSpecFields = array('keywordcount','websitecount','price');
+	public $userSpecFields = array(
+		'keywordcount','websitecount', 'searchengine_count', 'directory_submit_limit',
+		'directory_submit_daily_limit', 'site_auditor_max_page_limit', 'price',
+	);
+	
+	/**
+	 * constructor
+	 */
+	function UserTypeController() {
+    	
+    	// call parent constructor
+    	parent::__construct();
+    	
+    	// get plugin access list
+    	$pluginAccessList = $this->getPluginAccessSettings();
+    	
+    	// assign new fields to user spec for plugin access
+    	foreach ($pluginAccessList as $pluginInfo) {
+    		$this->userSpecFields[] = $pluginInfo['name'];
+    	}
+    	
+    	// get seo tool access list
+    	$toolAccessList = $this->getSeoToolAccessSettings($userTypeId);
+
+    	// assign new fields to user spec for seo tool access
+    	foreach ($toolAccessList as $toolInfo) {
+    		$this->userSpecFields[] = $toolInfo['name'];
+    	}
+		
+	}
+	
 	
 	/**
 	 * Function to list all the available user types
@@ -75,10 +107,12 @@ class UserTypeController extends Controller {
 		
 		$userTypeId = intval($userTypeId);
 		if (!empty($userTypeId)) {
+			
 			if (empty($listInfo)) {
 				$listInfo = $this->__getUserTypeInfo($userTypeId);
 				$listInfo['old_user_type'] = $listInfo['user_type'];
 			}
+			
 			$listInfo['websitecount'] = stripslashes($listInfo['websitecount']);
 			$listInfo['description'] = stripslashes($listInfo['description']);
 			$listInfo['keywordcount'] = stripslashes($listInfo['keywordcount']);
@@ -91,10 +125,19 @@ class UserTypeController extends Controller {
 				$currencyCtrler = new CurrencyController();
 				$this->set('currencyList', $currencyCtrler->getCurrencyCodeMapList());
 			}
+
+			// get all plugin access list
+			$pluginAccessList = $this->getPluginAccessSettings($userTypeId);
+			$this->set('pluginAccessList', $pluginAccessList);
+
+			// get all seo tool access list
+			$toolAccessList = $this->getSeoToolAccessSettings($userTypeId);
+			$this->set('toolAccessList', $toolAccessList);
 			
 			$this->render('usertypes/edit');
 			exit;
 		}
+		
 		$this->listUserTypes();
 	}
 
@@ -131,6 +174,10 @@ class UserTypeController extends Controller {
 		$errMsg['user_type'] = formatErrorMsg($this->validate->checkBlank(trim($listInfo['user_type'])));
 		$errMsg['websitecount'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['websitecount'])));
 		$errMsg['keywordcount'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['keywordcount'])));
+		$errMsg['searchengine_count'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['searchengine_count'])));
+		$errMsg['directory_submit_limit'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['directory_submit_limit'])));
+		$errMsg['directory_submit_daily_limit'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['directory_submit_daily_limit'])));
+		$errMsg['site_auditor_max_page_limit'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['site_auditor_max_page_limit'])));
 		
 		// if subscription plugin active
 		if ($this->isPluginSubsActive) {
@@ -177,6 +224,7 @@ class UserTypeController extends Controller {
 				}
 			}
 		}
+		
 		$this->set('errMsg', $errMsg);
 		$this->editUserType($listInfo['id'], $listInfo);
 	}
@@ -205,6 +253,10 @@ class UserTypeController extends Controller {
 		$errMsg['user_type'] = formatErrorMsg($this->validate->checkBlank(trim($listInfo['user_type'])));
 		$errMsg['websitecount'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['websitecount'])));
 		$errMsg['keywordcount'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['keywordcount'])));
+		$errMsg['searchengine_count'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['searchengine_count'])));
+		$errMsg['directory_submit_limit'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['directory_submit_limit'])));
+		$errMsg['directory_submit_daily_limit'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['directory_submit_daily_limit'])));
+		$errMsg['site_auditor_max_page_limit'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['site_auditor_max_page_limit'])));
 		
 		// if subscription plugin active
 		if ($this->isPluginSubsActive) {
@@ -258,8 +310,90 @@ class UserTypeController extends Controller {
 			$currencyCtrler = new CurrencyController();
 			$this->set('currencyList', $currencyCtrler->getCurrencyCodeMapList());
 		}
+		
+		// get all plugin access list
+		$pluginAccessList = $this->getPluginAccessSettings();
+		$this->set('pluginAccessList', $pluginAccessList);
+
+		// get all seo tool access list
+		$toolAccessList = $this->getSeoToolAccessSettings();
+		$this->set('toolAccessList', $toolAccessList);
 			
 		$this->render('usertypes/new');
+	}
+	
+	/*
+	 * function to get plugin access id
+	 */
+	function getPluginAccessSettings($userTypeId = false) {
+		
+		$pluginAccessList = array();
+		$pluginCtrler = new SeoPluginsController();
+		$pluginList = $pluginCtrler->__getAllSeoPlugins();
+		
+		// if user type is passed
+		if ($userTypeId) {
+			$userTypeSettingList = $this->getUserTypeSpec($userTypeId, "system");
+		}
+		
+		// loop through plugin list
+		foreach ($pluginList as $i => $pluginInfo) {
+			$pluginCol = 'plugin_' . $pluginInfo['id'];
+			$pluginAccessList[$pluginInfo['id']] = array(
+				'name' => $pluginCol,
+				'label' => $pluginInfo['label'],
+				'value' => isset($userTypeSettingList[$pluginCol]) ? $userTypeSettingList[$pluginCol] : 1,
+			);
+			
+		}
+		
+		return $pluginAccessList;
+		
+	}
+	
+	/*
+	 * function to get plugin access id
+	 */
+	function getSeoToolAccessSettings($userTypeId = false, $toolId = false) {
+		
+		$toolAccessList = array();
+		$toolCtrler = new SeoToolsController();
+		$whereCond = $toolId ? "id=" . intval($toolId) : "1=1";
+		$toolList = $toolCtrler->__getAllSeoTools($whereCond);
+		
+		// if user type is passed
+		if ($userTypeId) {
+			$userTypeSettingList = $this->getUserTypeSpec($userTypeId, "system");
+		}
+		
+		// loop through plugin list
+		foreach ($toolList as $i => $toolInfo) {
+			$toolCol = 'seotool_' . $toolInfo['id'];
+			$toolAccessList[$toolInfo['id']] = array(
+				'name' => $toolCol,
+				'label' => $toolInfo['name'],
+				'value' => isset($userTypeSettingList[$toolCol]) ? $userTypeSettingList[$toolCol] : 1,
+			);
+			
+		}
+		
+		return $toolAccessList;
+		
+	}
+	
+	/*
+	 * function to chekc whethere user type have access to seo tool
+	 */
+	function isUserTypeHaveAccessToSeoTool($userTypeId, $toolId) {
+
+		// chekc for admin
+		if (isAdmin()) {
+			return true;
+		} else {
+			$toolAccessList = $this->getSeoToolAccessSettings($userTypeId, $toolId);
+			return $toolAccessList[$toolId]['value'] ? true : false;
+		}
+		
 	}
 
 	/**
@@ -299,7 +433,7 @@ class UserTypeController extends Controller {
 		
 		// Set the spec details for user type
 		foreach ($uTypeList as $userType) {
-			$sql = "select * from user_specs where user_type_id=" . $userType['id'];
+			$sql = "select * from user_specs where spec_category='system' and user_type_id=" . $userType['id'];
 			$userTypeSpecList = $this->db->select($sql);
 				
 			foreach ($userTypeSpecList as $userTypeSpec) {
@@ -329,8 +463,11 @@ class UserTypeController extends Controller {
 	/**
 	 * Function to get the user type spec details
 	 */
-	function getUserTypeSpec($userTypeId) {
+	function getUserTypeSpec($userTypeId, $specCategory = '') {
+		$specCategory = addslashes($specCategory);
+		$userTypeId = intval($userTypeId);
 		$sql = "select * from user_specs where user_type_id=" . $userTypeId;
+		$sql .= !empty($specCategory) ? " and spec_category='$specCategory'" : "";
 		$userTypeSpecList = $this->db->select($sql);
 			
 		foreach ($userTypeSpecList as $userTypeSpec) {
@@ -343,11 +480,12 @@ class UserTypeController extends Controller {
 	/**
 	 * Function to get the user type spec details by user
 	 */
-	function getUserTypeSpecByUser($userId) {
+	function getUserTypeSpecByUser($userId, $specCategory = '') {
 		$sql = "select * from users where id=" . $userId;
 		$userDetails = $this->db->select($sql);
 		
 		$sql = "select * from user_specs where user_type_id=" . $userDetails[0]['utype_id'];
+		$sql .= !empty($specCategory) ? " and spec_category='$specCategory'" : "";
 		$userTypeSpecList = $this->db->select($sql);
 			
 		foreach ($userTypeSpecList as $userTypeSpec) {
@@ -369,6 +507,106 @@ class UserTypeController extends Controller {
 		$sql = "select id from usertypes where user_type='admin'"; 
 		$userTypeInfo = $this->db->select($sql, true);
 		return $userTypeInfo['id'];
+	}
+	
+	/**
+	 * Function to edit the user type plugin settings
+	 * @params : $userTypeId - user type id, $pluginId, $className
+	 * @return : Display the edit form
+	 */
+	function editPluginUserTypeSettings($userTypeId, $pluginId, $className, $post = array()) {
+		
+		// create plugin object
+		$basePluginObj = new SeoPluginsController();
+		$pluginInfo = $basePluginObj->__getSeoPluginInfo($pluginId);
+		$pluginObj = $basePluginObj->createPluginObject($pluginInfo['name']);
+		$pluginUserTypeObj = $pluginObj->createHelper($className);
+	
+		$userTypeList = $this->getAllUserTypes();
+		$this->set('userTypeList', $userTypeList);		
+		$userTypeId = !empty($userTypeId) ? $userTypeId : $userTypeList[0]['id'];
+		
+		// if user type id found
+		if ($userTypeId) {
+			$userTypeSpecList = $this->getUserTypeSpec($userTypeId, $pluginUserTypeObj->specCategory);
+			
+			// loop through the plugin spec col list and assign values
+			$specColList = array();
+			foreach ($pluginUserTypeObj->specColList as $specCol => $specColInfo) {
+				$specColList[$specCol] = $specColInfo;
+				
+				// check for post request
+				if (isset($post[$specCol])) {
+					$specColList[$specCol]['spec_value'] = $post[$specCol];
+				} else {
+					$specColList[$specCol]['spec_value'] = isset($userTypeSpecList[$specCol]) ? $userTypeSpecList[$specCol] : $specColInfo['default'];
+				}
+				
+			}
+			
+			$this->set('pluginId', $pluginId);
+			$this->set('className', $className);
+			$this->set('userTypeId', $userTypeId);
+			$this->set('specColList', $specColList);
+			$this->set('specText', $pluginUserTypeObj->pluginText);
+			$this->set('spTextPanel', $this->getLanguageTexts('panel', $_SESSION['lang_code']));
+			$this->render('usertypes/editpluginusertypesettings');
+		}
+		
+	}
+
+	/**
+	 * Function to update plugin user type settings
+	 */
+	function updatePluginUserTypeSettings($settingsInfo) {
+
+		$pluginId = intval($settingsInfo['plugin_id']);
+		$basePluginObj = new SeoPluginsController();
+		$pluginInfo = $basePluginObj->__getSeoPluginInfo($pluginId);
+		$pluginObj = $basePluginObj->createPluginObject($pluginInfo['name']);
+		$pluginUserTypeObj = $pluginObj->createHelper($settingsInfo['class_name']);
+		
+		// loop through plugin user type settings and validate
+		foreach ($pluginUserTypeObj->specColList as $specCol => $specColInfo) {
+			
+			// if validation is set
+			if (!empty($specColInfo['validation'])) {
+				$errMsg[$specCol] = formatErrorMsg($this->validate->$specColInfo['validation']($settingsInfo[$specCol]));
+				
+				// if error occured
+				if ($this->validate->flagErr) {
+					$this->set('errMsg', $errMsg);
+					$this->editPluginUserTypeSettings($settingsInfo['user_type_id'], $pluginId, $settingsInfo['class_name'], $settingsInfo);
+					exit;
+				}
+				
+			}
+			
+		}		
+		
+		// loop through plugin user type settings
+		foreach ($pluginUserTypeObj->specColList as $specCol => $specColInfo) {
+			$this->updateUserTypeSpec($settingsInfo['user_type_id'], $specCol, $settingsInfo[$specCol], $pluginUserTypeObj->specCategory, $specColInfo['type']);	
+		}
+		
+		// show the plugin user type settings
+		$this->set('spTextSettings', $this->getLanguageTexts('settings', $_SESSION['lang_code']));
+		$this->set('saved', true);
+		$this->editPluginUserTypeSettings($settingsInfo['user_type_id'], $pluginId, $settingsInfo['class_name']);
+		
+	}
+	
+	/**
+	 * update user type spec
+	 */
+	function updateUserTypeSpec($userTypeId, $specColumn, $specValue, $specCategory, $dataType) {		
+		$specValue = Database::escapeData($specValue, $dataType);
+		$specColumn = addslashes($specColumn);
+		$specCategory = addslashes($specCategory);
+		$userTypeId = intval($userTypeId);
+		$sql = "Insert into user_specs(user_type_id, spec_column, spec_value, spec_category) values($userTypeId, '$specColumn', '$specValue', '$specCategory') 
+				ON DUPLICATE KEY UPDATE spec_value='$specValue'";
+		$this->db->query($sql);
 	}
 	
 }

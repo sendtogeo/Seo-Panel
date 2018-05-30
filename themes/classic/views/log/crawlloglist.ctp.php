@@ -135,7 +135,7 @@ $searchFun = "scriptDoLoadPost('log.php', 'listform', 'content')";
 				<td class="td_br_right left"><?php echo $listInfo['crawl_type']?></td>
 				<td class="td_br_right left"><?php echo $listInfo['ref_id']?></td>
 				<td class="td_br_right left"><?php echo $listInfo['subject']?></td>
-				<td class="td_br_right left"><?php echo $listInfo['log_message']?></td>
+				<td class="td_br_right left"><?php echo stripslashes($listInfo['log_message'])?></td>
 				<td class="td_br_right">
 					<?php 
 					if ($listInfo['crawl_status']) {

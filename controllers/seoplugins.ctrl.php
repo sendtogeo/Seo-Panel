@@ -27,27 +27,61 @@ class SeoPluginsController extends Controller{
 	var $info = array();
 	var $pluginText = "";
 	var $pluginCtrler = FALSE;
+	var $pluginPath;
+	var $pluginId;
+	var $pluginViewPath;
+	var $pluginWebPath;
+	var $pluginImagePath;
+	var $pluginCssPath;
+	var $pluginJsPath;
+	var $pluginScriptUrl;
 	
 	# function to manage seo plugins
 	function manageSeoPlugins($info, $method='get') {
-		$pluginInfo = $this->__getSeoPluginInfo($info['pid']);
-
-		$pluginDirName = $pluginInfo['name'];
-		define('PLUGIN_PATH', SP_PLUGINPATH."/".$pluginDirName);
-		define('PLUGIN_VIEWPATH', PLUGIN_PATH."/views");		
-		define('PLUGIN_ID', $info['pid']);
-		define('PLUGIN_WEBPATH', SP_WEBPATH."/".SP_PLUGINDIR."/".$pluginDirName);
-		define('PLUGIN_IMGPATH', PLUGIN_WEBPATH."/images");
-		define('PLUGIN_CSSPATH', PLUGIN_WEBPATH."/css");
-		define('PLUGIN_JSPATH', PLUGIN_WEBPATH."/js");
-		define("PLUGIN_SCRIPT_URL", SP_WEBPATH."/seo-plugins.php?pid=".PLUGIN_ID);
 		
-		if(file_exists(PLUGIN_PATH."/".SP_PLUGINCONF)){
-			include_once(PLUGIN_PATH."/".SP_PLUGINCONF);
+		// check for plugin access level for user, if not admin
+		if (!isAdmin()) {
+			$userTypeCtrler = new UserTypeController();
+			$userSessInfo = Session::readSession('userInfo');
+			$pluginAccessList = $userTypeCtrler->getPluginAccessSettings($userSessInfo['userTypeId']);
+			if (isset($pluginAccessList[$info['pid']]) && empty($pluginAccessList[$info['pid']]['value'])) {
+				showErrorMsg($_SESSION['text']['label']['Access denied']);
+			}
 		}
 		
-		include_once(PLUGIN_PATH."/".$pluginDirName.".ctrl.php");
+		$pluginInfo = $this->__getSeoPluginInfo($info['pid']);
+		$pluginDirName = $pluginInfo['name'];
+		$pluginPath = SP_PLUGINPATH."/".$pluginDirName;
+		
+		if(file_exists($pluginPath."/".SP_PLUGINCONF)){
+			include_once($pluginPath."/".SP_PLUGINCONF);
+		}
+		
+		include_once($pluginPath."/".$pluginDirName.".ctrl.php");
 		$pluginControler = New $pluginDirName();
+		
+		// set plugin specific variabled
+		$pluginControlerpluginDirName = $pluginDirName;
+		$pluginControler->pluginPath = $pluginPath;
+		$pluginControler->pluginId = $info['pid'];
+		$pluginControler->pluginViewPath = $this->getPluginViewPath($pluginControler->pluginPath);
+		$pluginControler->pluginWebPath = SP_WEBPATH . "/" . SP_PLUGINDIR . "/" . $pluginDirName;
+		$pluginControler->pluginImagePath = $pluginControler->pluginWebPath . "/images";
+		$pluginControler->pluginCssPath = $pluginControler->pluginWebPath . "/css";
+		$pluginControler->pluginJsPath = $pluginControler->pluginWebPath . "/js";
+		$pluginControler->pluginScriptUrl = SP_WEBPATH . "/seo-plugins.php?pid=" . $pluginControler->pluginId;
+		
+		// if not_set_global_vars is not assigned
+		if (empty($info['not_set_global_vars']) || !$info['not_set_global_vars']) {
+			define('PLUGIN_PATH', $pluginControler->pluginPath);
+			define('PLUGIN_ID', $info['pid']);
+			define('PLUGIN_VIEWPATH', $pluginControler->pluginViewPath);
+			define('PLUGIN_WEBPATH', $pluginControler->pluginWebPath);
+			define('PLUGIN_IMGPATH', $pluginControler->pluginImagePath);
+			define('PLUGIN_CSSPATH', $pluginControler->pluginCssPath);
+			define('PLUGIN_JSPATH', $pluginControler->pluginJsPath);
+			define("PLUGIN_SCRIPT_URL", $pluginControler->pluginScriptUrl);
+		}
 		
 		// if no action specified just initialize plugin
 		if ($info['action'] == 'get_plugin_object') {
@@ -57,7 +91,7 @@ class SeoPluginsController extends Controller{
 
 			$this->pluginCtrler = $pluginControler;
 			$action = empty($info['action']) ? "index" : $info['action'];
-			$data = ($method=='get') ? $_GET : $_POST;
+			$data = $_REQUEST;
 		
 			// check whethere export report type action
 			if (empty($data['doc_type']) || ($data['doc_type'] != 'export')) {
@@ -69,6 +103,29 @@ class SeoPluginsController extends Controller{
 			$pluginControler->$action($data);
 		}
 	}
+	
+	# function to get plugin view path, chekc for theme exists or not
+	function getPluginViewPath($pluginPath) {
+		$pluginViewPath = $pluginPath."/views";
+		
+		
+		# if theme compatible design for plugin
+		if (file_exists($pluginPath."/themes")) {
+			$themeInfo = $this->dbHelper->getRow("themes", "status=1 order by id");
+			
+			// if activated theme folder is existing
+			if (file_exists($pluginPath."/themes/". $themeInfo['folder'])) {
+				$pluginViewPath = $pluginPath."/themes/". $themeInfo['folder'] ."/views";
+			} else {
+				$pluginViewPath = $pluginPath."/themes/classic/views";
+			}
+			
+		}
+		
+		return $pluginViewPath;
+		
+	}
+	
 	
 	# function to init plugin before do action
 	function initPlugin($data) {
@@ -104,8 +161,37 @@ class SeoPluginsController extends Controller{
 	# index function
 	function showSeoPlugins($info=''){
 		$this->layout = "default";
-		$sql = "select * from seoplugins where status=1 and installed=1 order by id";
-		$menuList = $this->db->select($sql);
+		
+		$menuList = array();
+		$pluginList = $this->__getAllSeoPlugins("status=1 and installed=1 ");
+		
+		// if not admin, check plugin access set for user, 
+		if (!isAdmin()) {
+			$userTypeCtrler = new UserTypeController();
+			$userSessInfo = Session::readSession('userInfo');
+			$pluginAccessList = $userTypeCtrler->getPluginAccessSettings($userSessInfo['userTypeId']);
+			
+			// loop through plugin list
+			foreach ($pluginList as $pluginInfo) {
+				
+				// if access is set for plugin
+				if (isset($pluginAccessList[$pluginInfo['id']]['value'])) {
+
+					// access is on
+					if (!empty($pluginAccessList[$pluginInfo['id']]['value'])) {
+						$menuList[] = $pluginInfo;
+					}
+					
+				} else {
+					$menuList[] = $pluginInfo;	
+				}
+				
+			}
+			
+		} else {
+			$menuList = $pluginList;
+		}
+		
 		if(count($menuList) <= 0){
 		    $msg = $_SESSION['text']['label']['noactiveplugins'];
 		    $msgButton = '<a class="actionbut" href="'.SP_PLUGINSITE.'" target="_blank">'.$this->spTextPlugin['Download Seo Panel Plugins'].' &gt;&gt;</a>';
@@ -119,13 +205,27 @@ class SeoPluginsController extends Controller{
 		foreach($menuList as $i => $menuInfo){
 			@Session::setSession('plugin_id', $menuInfo['id']);
 			$pluginDirName = $menuInfo['name'];
+			
+			// for older versions with out themes specific files
+			$pluginDirName = $menuInfo['name'];
 			$menuFile = SP_PLUGINPATH."/".$pluginDirName."/views/".SP_PLUGINMENUFILE;
+			
+			// check for menu file exists or not
 			if(file_exists($menuFile)){
 				$menuList[$i]['menu'] = @View::fetchFile($menuFile);
-			}else{				
-				$menuList[$i]['menu'] = "<ul id='subui'>
+			}else{
+				
+				// create plugin object and access the menu file - theme specific files
+				$pluginObj = $this->createPluginObject($pluginDirName, array('not_set_global_vars' => true));
+				$menuFile = $pluginObj->pluginViewPath . "/". SP_PLUGINMENUFILE;
+				
+				if(file_exists($menuFile)){
+					$menuList[$i]['menu'] = @View::fetchFile($menuFile);
+				}else{
+					$menuList[$i]['menu'] = "<ul id='subui'>
 											<li><a href='javascript:void(0);' onclick=\"".pluginMenu('action=index')."\">{$menuInfo['name']}</a></li>
 										</ul>";
+				}
 			}
 		}
 		
@@ -137,8 +237,9 @@ class SeoPluginsController extends Controller{
 	}
 
 	# func to get all seo tools
-	function __getAllSeoPlugins(){
-		$sql = "select * from seoplugins order by id";
+	function __getAllSeoPlugins($whereCond = ""){
+		$whereCond = !empty($whereCond) ? $whereCond : "1=1";
+		$sql = "select * from seoplugins where $whereCond order by id";
 		$seoPluginList = $this->db->select($sql);
 		return $seoPluginList;
 	}
@@ -356,10 +457,19 @@ class SeoPluginsController extends Controller{
 	}
 	
 	# function to create helpers for main controlller
-	function createHelper($helperName) {
-		
-		include_once(PLUGIN_PATH."/".strtolower($helperName).".ctrl.php");
+	function createHelper($helperName) {		
+		include_once($this->pluginPath . "/".strtolower($helperName).".ctrl.php");
 		$helperObj = New $helperName();
+		$helperObj->pluginPath = $this->pluginPath;
+		$helperObj->pluginId = $this->pluginId;
+		$helperObj->pluginViewPath = $this->pluginViewPath;
+		$helperObj->pluginWebPath = $this->pluginWebPath;
+		$helperObj->pluginImagePath = $this->pluginImagePath;
+		$helperObj->pluginCssPath = $this->pluginCssPath;
+		$helperObj->pluginJsPath = $this->pluginJsPath;
+		$helperObj->pluginScriptUrl = $this->pluginScriptUrl;
+		$helperObj->data = $this->data;
+		$helperObj->pluginText = $this->pluginText;		
 		return $helperObj;
 	}
 	
@@ -403,7 +513,7 @@ class SeoPluginsController extends Controller{
 	}
 	
 	# function to create plugin object
-	function createPluginObject($pluginName) {
+	function createPluginObject($pluginName, $info = array()) {
 		$pluginInfo = $this->__getSeoPluginInfo($pluginName, 'name');
 		$info['pid'] = $pluginInfo['id'];
 		$info['action'] = "get_plugin_object";

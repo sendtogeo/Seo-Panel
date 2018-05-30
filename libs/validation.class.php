@@ -28,7 +28,7 @@ class Validation{
 	function Validation(){
 		$this->Filters['email'] = "/^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i" ;
 		$this->Filters['number'] = "/^[0-9]+$/";
-		$this->Filters['floatnumber'] = "/^\d+$|^\d+\.\d+$|^\.\d+$/";
+		$this->Filters['floatnumber'] = "/^\d+$|^\d+\.\d+$|^\.\d+$|^\-\d+$/";
 		$this->Filters['phone'] = "/^[0-9\-\(\)\s\+]+$/";
 		$this->Filters['startPhone'] = "/^[0-9\+\(]$/";
 		$this->Filters['alpha']= "/^[a-zA-Z]+$/";

@@ -264,7 +264,7 @@ class PageSpeedController extends Controller{
 		$toTimeLabel = date('Y-m-d', $toTime);
 		$conditions = empty ($websiteId) ? "" : " and s.website_id=$websiteId";
 		$sql = "select s.* ,w.name 	from pagespeedresults s,websites w
-		where s.website_id=w.id and s.website_id=$websiteId
+		where s.website_id=w.id" . $conditions . "
 		and (result_date='$fromTimeLabel' or result_date='$toTimeLabel')
 		order by result_date DESC Limit 0,2";
 		$reportList = $this->db->select($sql);
@@ -414,6 +414,11 @@ class PageSpeedController extends Controller{
 			$this->db->query($sql);
 		}
 	
+		$matchInfo['id'] = intval($matchInfo['id']);
+		$matchInfo['desktop']['speed_score'] = intval($matchInfo['desktop']['speed_score']);
+		$matchInfo['mobile']['speed_score'] = intval($matchInfo['mobile']['speed_score']);
+		$matchInfo['mobile']['usability_score'] = intval($matchInfo['mobile']['usability_score']);
+		
 		$sql = "insert into pagespeedresults(website_id, desktop_speed_score, mobile_speed_score, mobile_usability_score, result_date)
 		values({$matchInfo['id']},{$matchInfo['desktop']['speed_score']},{$matchInfo['mobile']['speed_score']},{$matchInfo['mobile']['usability_score']}, '$resultDate')";
 		$this->db->query($sql);

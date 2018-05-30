@@ -22,6 +22,10 @@
 
 include_once("includes/sp-load.php");
 checkLoggedIn();
+
+// check for access to seo tool
+isUserHaveAccessToSeoTool("saturation-checker");
+
 include_once(SP_CTRLPATH."/saturationchecker.ctrl.php");
 $controller = New SaturationCheckerController();
 $controller->view->menu = 'seotools';

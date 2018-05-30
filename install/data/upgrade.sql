@@ -1,54 +1,38 @@
 --
--- Seo Panel 3.11.0 changes
+-- Seo Panel 3.13.0 changes
 --
 
-update `settings` set set_val='3.11.0' WHERE `set_name` LIKE 'SP_VERSION_NUMBER';
+update `settings` set set_val='3.13.0' WHERE `set_name` LIKE 'SP_VERSION_NUMBER';
 
-ALTER TABLE `keywords` ADD `crawled` TINYINT( 1 ) NOT NULL DEFAULT '0';
+UPDATE `currency` SET `symbol` = '£' WHERE `currency`.`id` =25;
 
-ALTER TABLE `websites` ADD `crawled` TINYINT( 1 ) NOT NULL DEFAULT '0';
-
-
-ALTER TABLE `rankresults` ADD `result_date` DATE NULL , ADD INDEX ( `result_date` );
-UPDATE `rankresults` SET `result_date` = FROM_UNIXTIME(result_time, '%Y-%m-%d');
-
-
-ALTER TABLE `backlinkresults` ADD `result_date` DATE NULL , ADD INDEX ( `result_date` );
-UPDATE `backlinkresults` SET `result_date` = FROM_UNIXTIME(result_time, '%Y-%m-%d');
-
-ALTER TABLE `saturationresults` ADD `result_date` DATE NULL , ADD INDEX ( `result_date` );
-UPDATE `saturationresults` SET `result_date` = FROM_UNIXTIME(result_time, '%Y-%m-%d');
-
-INSERT INTO `settings` (`set_label`, `set_name`, `set_val`, `set_category`, `set_type`, `display`)  
-VALUES ('Google API Key', 'SP_GOOGLE_API_KEY', '', 'google', 'large', '1');
-
-INSERT INTO `seotools` (`name`, `url_section`, `user_access`, `reportgen`, `cron`, `status`) 
-VALUES ('PageSpeed Insights', 'pagespeed', '1', '1', '1', '1');
-
-
-CREATE TABLE IF NOT EXISTS `pagespeedresults` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `website_id` int(11) NOT NULL,
-  `desktop_speed_score` smallint(6) NOT NULL,
-  `mobile_speed_score` smallint(6) NOT NULL,
-  `mobile_usability_score` smallint(6) NOT NULL,
-  `result_date` date NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `result_date` (`result_date`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
-
-CREATE TABLE IF NOT EXISTS `pagespeeddetails` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `website_id` int(11) NOT NULL,
-  `desktop_score_details` text NOT NULL,
-  `mobile_score_details` text NOT NULL,
-  `result_date` date NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `result_date` (`result_date`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
+UPDATE `searchengines` SET `regex` = '<div.*?class="?g.*?><h3 class="r"><a href="(.*?)".*?>(.*?)<\\/a>.*?<\\/div><span.*?>(.*?)<\\/span>' WHERE `url` LIKE '%google%';
 
 INSERT INTO `settings` (`set_label`, `set_name`, `set_val`, `set_category`, `set_type`, `display`) VALUES
-('Number of websites needs to be checked in each cron execution', 'SP_NUMBER_WEBSITES_CRON', '1', 'report', 'small', 0);
+('Send custom header with curl request', 'SP_SEND_CUSTOM_HEADER_IN_CURL', '1', 'report', 'bool', 1);
 
-update `settings` set set_val='1',display=0 WHERE `set_name` LIKE 'SP_NUMBER_KEYWORDS_CRON';
+--
+-- Quick web proxy plugin
+--
 
+INSERT INTO `seoplugins` (`label`, `name`, `author`, `description`, `version`, `website`, `status`, `installed`) VALUES
+('Quick Web Proxy', 'QuickWebProxy', 'Seo Panel', 'It will help you to create a web proxy server using your hosting server or external proxy servers', '1.0.0', 'https://www.seopanel.in/plugin/l/94/quick-web-proxy/', 1, 1);
+
+CREATE TABLE IF NOT EXISTS `qwp_settings` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `set_label` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
+  `set_name` varchar(64) CHARACTER SET latin1 NOT NULL,
+  `set_val` text COLLATE utf8_unicode_ci NOT NULL,
+  `set_type` enum('small','bool','medium','large','text') CHARACTER SET latin1 DEFAULT 'small',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `set_name` (`set_name`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=2 ;
+
+--
+-- Dumping data for table `qwp_settings`
+--
+
+INSERT INTO `qwp_settings` (`set_label`, `set_name`, `set_val`, `set_type`) VALUES
+('Allow user to access the web proxy', 'QWP_ALLOW_USER_WEB_PROXY', '0', 'bool'),
+('Allow web server to act as a proxy', 'QWP_ALLOW_WEB_SERVER_ACT_AS_PROXY', '1', 'bool')
+ON DUPLICATE KEY UPDATE `set_type`=`set_type`;

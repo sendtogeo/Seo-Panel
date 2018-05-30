@@ -720,6 +720,11 @@ class ReportController extends Controller {
 							$url =  addHttpToUrl($url);
 							$url = str_replace("...", "", $url);
 						}
+
+						// if google engine, format the urls
+						if ($isGoogle && stristr($url, '/url?q=')) {
+							$url = preg_replace(array('/\/url\?q=/i', '/\&amp;sa=U.*$/i'), array("", ""), $url);
+						}
 						
 						if(!preg_match('/^http:\/\/|^https:\/\//i', $url)) continue;
 						

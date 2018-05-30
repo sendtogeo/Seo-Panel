@@ -38,7 +38,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	switch($_POST['sec']){
 			
 		default:
-			$controller->manageSeoPlugins($_POST, 'post');
+			$controller->manageSeoPlugins($_REQUEST, 'post');
 			break;
 	}
 	
@@ -50,9 +50,15 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			break;
 			
 		default:
-			$controller->manageSeoPlugins($_GET, 'get');
+			
+			// if plugin id existing present
+			if (!empty($_GET['pid'])) {
+				$controller->manageSeoPlugins($_REQUEST, 'get');
+			} else {
+				$controller->showSeoPlugins($_GET);
+			}
+			
 			break;
 	}
 }
-
 ?>

@@ -22,6 +22,10 @@
 
 include_once("includes/sp-load.php");
 checkLoggedIn();
+
+// check for access to seo tool
+isUserHaveAccessToSeoTool("backlink-checker");
+
 include_once(SP_CTRLPATH."/backlink.ctrl.php");
 $controller = New BacklinkController();
 $controller->view->menu = 'seotools';

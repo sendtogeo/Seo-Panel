@@ -48,47 +48,57 @@ class AuditorComponent extends Controller{
     // func to run report for a project
     function runReport($reportUrl, $projectInfo, $totalLinks) {        
         $spider = new Spider();
-        $pageInfo = $spider->getPageInfo($reportUrl, $projectInfo['url'], true);
 
         if ($rInfo = $this->getReportInfo(" and project_id={$projectInfo['id']} and page_url='$reportUrl'") ) {
-            
+        	
+        	$pageInfo = $spider->getPageInfo($reportUrl, $projectInfo['url'], true);
+        	
             // handle redirects
             if(!empty($spider->effectiveUrl)) {
                 $effectiveUrl = rtrim($spider->effectiveUrl, '/'); //remove trailing slash
                 $reportId = $rInfo['id'];
 
                 if ($effectiveUrl != $reportUrl){ //redirect occurred. Could be simply www vs. no www
+					$parse = parse_url($effectiveUrl);
+					$effectiveDomain = str_replace("www.", '', $parse['host']);
+                  	$parse = parse_url($projectInfo['url']);
+                  	$projectDomain = str_replace("www.", '', $parse['host']);
                   
-                  $parse = parse_url($effectiveUrl);
-                  $effectiveDomain = str_replace("www.", '', $parse['host']);
-                  $parse = parse_url($projectInfo['url']);
-                  $projectDomain = str_replace("www.", '', $parse['host']);
+                  	if ($effectiveDomain == $projectDomain) { //still on same domain
+                  	
+                      	// check if we already have an entry for the effective URL
+						if ($rInfoForEffectiveUrl = $this->getReportInfo(" and project_id={$projectInfo['id']} and page_url='$effectiveUrl'")){
+
+							// If we already have an entry then we can delete this new one and not continue running tests on it as it's a duplicate 
+							$this->db->query("delete from auditorreports where id=$reportId");
+                        
+                        	// if already existing effective url is not crawled, continue with the page crawl details and save
+	                        if ($rInfoForEffectiveUrl['crawled'] == 0) {                        	
+							$rInfo = $rInfoForEffectiveUrl;
+	                        	$reportId = $rInfo['id'];
+	                        } else {
+	                        	return $effectiveUrl; //Redirected to existing URL
+	                        }
+                        
+						} else { //if we don't already have an entry, update this one
+                        	$this->db->query("update auditorreports set page_url='$effectiveUrl' where id=$reportId");
+                        	$reportUrl = $effectiveUrl;
+                      	}
+                      
+					} else { //external link -- delete it from report                  	
+						$this->db->query("delete from auditorreports where id=$reportId");
+                    	return "Error: External Link Found";
+					}
                   
-                  if ($effectiveDomain == $projectDomain) { //still on same domain
-                      //check if we already have an entry for the effective URL
-                      if ($rInfoForEffectiveUrl = $this->getReportInfo(" and project_id={$projectInfo['id']} and page_url='$effectiveUrl'")){
-                          //If we already have an entry then we can delete this new one and not continue running tests on it as it's a duplicate 
-                        $this->db->query("delete from auditorreports where id=$reportId");
-                        return $effectiveUrl; //Redirected to existing URL
-                      }
-                      else{ //if we don't already have an entry, update this one
-                        $this->db->query("update auditorreports set page_url='$effectiveUrl' where id=$reportId");
-                        $reportUrl = $effectiveUrl;
-                      }
-                  }
-                  else { //external link -- delete it from report
-                    $this->db->query("delete from auditorreports where id=$reportId");
-                    return "Error: External Link Found";
-                  }
-                }
+				}
             }
             
             $reportInfo['id'] = $rInfo['id'];
             $reportInfo['page_title'] = addslashes($pageInfo['page_title']);
             $reportInfo['page_description'] = addslashes($pageInfo['page_description']);
             $reportInfo['page_keywords'] = addslashes($pageInfo['page_keywords']);
-            $reportInfo['total_links'] = $pageInfo['total_links'];
-            $reportInfo['external_links'] = $pageInfo['external'];
+            $reportInfo['total_links'] = intval($pageInfo['total_links']);
+            $reportInfo['external_links'] = intval($pageInfo['external']);
             $reportInfo['crawled'] = 1;
         
             // gooogle pagerank check

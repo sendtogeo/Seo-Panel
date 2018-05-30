@@ -101,7 +101,11 @@ class Spider{
 	    
 	    $urlWithTrailingSlash = Spider::addTrailingSlash($url);
 		$ret = $this->getContent($urlWithTrailingSlash);
-		$pageInfo = array();
+		$pageInfo = array(
+			'external' => 0,
+			'total_links' => 0,
+		);
+		
 		$checkUrl = formatUrl($domainUrl);
 		
 		// if relative links of a page needs to be checked
@@ -258,6 +262,21 @@ class Spider{
 	    return $this->userAgentList[$userAgentKey];    
 	}
 	
+	# function to create custome headers
+	function setCustomHeaders() {
+		
+		// if sending custom header with curl is enabled
+		if (SP_SEND_CUSTOM_HEADER_IN_CURL) {
+			$sessionId = session_id();
+			$sessionId = !empty($sessionId) ? $sessionId : session_regenerate_id();
+			array_push($this ->_CURL_HTTPHEADER, "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+			array_push($this ->_CURL_HTTPHEADER, "Connection: keep-alive");
+			array_push($this ->_CURL_HTTPHEADER, "Cache-Control: max-age=0");
+			array_push($this ->_CURL_HTTPHEADER, "Cookie: PHPSESSID=" . $sessionId);
+			array_push($this ->_CURL_HTTPHEADER, "User-Agent: " . $this -> _CURLOPT_USERAGENT);
+		}
+		
+	}
 	
 	# get contents of a web page	
 	function getContent( $url, $enableProxy=true, $logCrawl = true)	{
@@ -276,6 +295,15 @@ class Spider{
 		curl_setopt($this->_CURL_RESOURCE, CURLOPT_SSL_VERIFYHOST, 0);
 		curl_setopt($this->_CURL_RESOURCE, CURLOPT_SSL_VERIFYPEER, 0);
 
+		// user agent assignment
+		$this->_CURLOPT_USERAGENT = defined('SP_USER_AGENT') ? SP_USER_AGENT : $this->_CURLOPT_USERAGENT;
+		if( strlen( $this -> _CURLOPT_USERAGENT ) > 0 ) {
+			curl_setopt( $this -> _CURL_RESOURCE , CURLOPT_USERAGENT, $this -> _CURLOPT_USERAGENT );
+		}
+		
+		// set custom headers
+		$this->setCustomHeaders();
+
 		// to add the curl http headers
 		if (!empty($this ->_CURL_HTTPHEADER)) {
 			curl_setopt($this->_CURL_RESOURCE, CURLOPT_HTTPHEADER, $this ->_CURL_HTTPHEADER);
@@ -291,12 +319,6 @@ class Spider{
 			curl_setopt( $this -> _CURL_RESOURCE , CURLOPT_POSTFIELDS , $this -> _CURLOPT_POSTFIELDS );
 		}
 
-		// user agent assignment
-		$this->_CURLOPT_USERAGENT = defined('SP_USER_AGENT') ? SP_USER_AGENT : $this->_CURLOPT_USERAGENT;
-		if( strlen( $this -> _CURLOPT_USERAGENT ) > 0 ) {
-			curl_setopt( $this -> _CURL_RESOURCE , CURLOPT_USERAGENT, $this -> _CURLOPT_USERAGENT );
-		}
-
 		if( strlen( $this -> _CURLOPT_USERPWD ) > 2 ) {
 			curl_setopt( $this -> _CURL_RESOURCE , CURLOPT_USERPWD, $this -> _CURLOPT_USERPWD );
 		}
@@ -306,10 +328,15 @@ class Spider{
 			$proxyCtrler = New ProxyController();
 			if ($proxyInfo = $proxyCtrler->getRandomProxy()) {
 				curl_setopt($this -> _CURL_RESOURCE, CURLOPT_PROXY, $proxyInfo['proxy'].":".$proxyInfo['port']);
-				curl_setopt($this -> _CURL_RESOURCE, CURLOPT_HTTPPROXYTUNNEL, CURLOPT_HTTPPROXYTUNNEL_VAL);		
+				
+				if (CURLOPT_HTTPPROXYTUNNEL_VAL) {
+					curl_setopt($this -> _CURL_RESOURCE, CURLOPT_HTTPPROXYTUNNEL, CURLOPT_HTTPPROXYTUNNEL_VAL);
+				}		
+				
 				if (!empty($proxyInfo['proxy_auth'])) {
 					curl_setopt ($this -> _CURL_RESOURCE, CURLOPT_PROXYUSERPWD, $proxyInfo['proxy_username'].":".$proxyInfo['proxy_password']);
 				}
+				
 			} else {
 			    showErrorMsg("No active proxies found!! Please check your proxy settings from Admin Panel.");
 			}
@@ -349,6 +376,15 @@ class Spider{
 			}
 		}
 		
+		// debug run time if enabled
+		$this->debugRunTime($ret);
+
+		return $ret;
+	}
+	
+	# function to debug runtime
+	function debugRunTime($ret) {
+		
 		// check debug request is enabled
 		if (!empty($_GET['debug']) || !empty($_POST['debug'])) {
 			?>
@@ -363,8 +399,7 @@ class Spider{
 			</div>
 			<?php
 		}
-
-		return $ret;
+		
 	}
 	
 	# func to get session id
@@ -382,15 +417,30 @@ class Spider{
 		$this->_CURLOPT_USERAGENT = defined('SP_USER_AGENT') ? SP_USER_AGENT : $this->_CURLOPT_USERAGENT;
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($ch, CURLOPT_PROXY, $proxyInfo['proxy'].":".$proxyInfo['port']);		
-		curl_setopt($ch, CURLOPT_HTTPPROXYTUNNEL, CURLOPT_HTTPPROXYTUNNEL_VAL);
+		curl_setopt($ch, CURLOPT_PROXY, $proxyInfo['proxy'].":".$proxyInfo['port']);
 		curl_setopt($ch, CURLOPT_HEADER, 1);
 		curl_setopt($ch, CURLOPT_USERAGENT, $this->_CURLOPT_USERAGENT);
-		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);		
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+
+		if (CURLOPT_HTTPPROXYTUNNEL_VAL) {
+			curl_setopt($ch, CURLOPT_HTTPPROXYTUNNEL, CURLOPT_HTTPPROXYTUNNEL_VAL);
+		}
 		
 		if (!empty($proxyInfo['proxy_auth'])) {
 			curl_setopt ($ch, CURLOPT_PROXYUSERPWD, $proxyInfo['proxy_username'].":".$proxyInfo['proxy_password']);
 		}
+
+		// set custom headers
+		$this->setCustomHeaders();
+
+		// to add the curl http headers
+		if (!empty($this ->_CURL_HTTPHEADER)) {
+			curl_setopt($ch, CURLOPT_HTTPHEADER, $this ->_CURL_HTTPHEADER);
+		}
+		
+		// to fix the ssl related issues
+		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
 				
 		curl_setopt($ch, CURLOPT_URL, "http://www.google.com/search?q=twitter");
 		$ret['page'] = curl_exec( $ch );
@@ -399,10 +449,21 @@ class Spider{
 		curl_close($ch);
 		
 		// if no error check whether the ouput contains twitter keyword
-		if (empty($ret['error']) && !stristr($ret['page'], 'twitter') ) {
-			$ret['error'] = "Page not contains twitter keyword";
-			$ret['errmsg'] = strtok($ret['page'], "\n");
+		if (empty($ret['error'])) {
+			
+			// is captcha found in search results
+			if (SearchEngineController::isCaptchInSearchResults($ret['page'])) {
+				$ret['error'] = "Capctha found in the results";
+				$ret['errmsg'] = strtok($ret['page'], "\n");
+			} elseif(!stristr($ret['page'], 'twitter')) {
+				$ret['error'] = "Page not contains twitter keyword";
+				$ret['errmsg'] = strtok($ret['page'], "\n");
+			}
+			
 		}
+		
+		// debug run time if enabled
+		$this->debugRunTime($ret);
 		
 		return $ret;
 	}
@@ -423,6 +484,10 @@ class Spider{
 		curl_setopt($ch, CURLOPT_HEADER, true); // header will be at output
 		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'HEAD'); // HTTP request is 'HEAD'
 		
+		// to fix the ssl related issues
+		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+		
 		$content = curl_exec ($ch);
 		curl_close ($ch);
 		return $content;
@@ -434,7 +499,7 @@ class Spider{
 	    if (stristr($header, '404 Not Found')) {
 	        return true;
 	    } else {
-	        return false; 
+	        return 0; 
 	    }
 	}
 	
@@ -445,7 +510,7 @@ class Spider{
 			if (stristr($header, '301 Moved Permanently') || stristr($header, '308 Permanent Redirect')) {
 					return true;
 			} else {
-					return false;
+					return 0;
 			}
 	}
 }

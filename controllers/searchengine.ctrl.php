@@ -62,7 +62,7 @@ class SearchEngineController extends Controller{
 		
 		// search for search engine name
 		if (!empty($info['se_name'])) {
-			$sql .= " and url like '%".addslashes($info['se_name'])."%'";
+			$sql .= " and domain like '%".addslashes($info['se_name'])."%'";
 			$pageScriptPath .= "&se_name=" . $info['se_name'];
 		}
 		
@@ -85,6 +85,7 @@ class SearchEngineController extends Controller{
 		
 		$this->set('statusList', $statusList);
 		$this->set('info', $info);
+		$this->set('pageScriptPath', $pageScriptPath);
 		$this->set('pageNo', $info['pageno']);		
 		$this->render('searchengine/list', 'ajax');
 	}
@@ -124,11 +125,39 @@ class SearchEngineController extends Controller{
 		$captchFound = false;
 		
 		// if captcha input field is found
-		if (stristr($searchContent, 'name="captcha"') || stristr($searchContent, 'id="captcha"')) {
+		if (stristr($searchContent, 'name="captcha"') || stristr($searchContent, 'id="captcha"') || stristr($searchContent, 'recaptcha/api')) {
 			$captchFound = true;
 		}
 		
 		return $captchFound;
+	}
+	
+	// Function to check / validate the user type searh engine count
+	public static function validateSearchEngineCount($userId, $count) {
+		$userCtrler = new UserController();
+		$validation = array('error' => false);
+
+		// if admin user id return true
+		if ($userCtrler->isAdminUserId($userId)) {
+			return $validation;
+		}
+		
+		$userTypeCtrlr = new UserTypeController();
+		$userTypeDetails = $userTypeCtrlr->getUserTypeSpecByUser($userId);
+		
+		// if limit is set and not -1
+		if (isset($userTypeDetails['searchengine_count']) && $userTypeDetails['searchengine_count'] >= 0) {
+		
+			// check whether count greater than limit
+			if ($count > $userTypeDetails['searchengine_count']) {
+				$validation['error'] = true;
+				$spTextSubs = $userTypeCtrlr->getLanguageTexts('subscription', $_SESSION['lang_code']);
+				$validation['msg'] = formatErrorMsg(str_replace("[limit]", $userTypeDetails['searchengine_count'], $spTextSubs['total_count_greater_account_limit']));
+			}
+			
+		}
+		
+		return $validation;
 	}
 	
 }
