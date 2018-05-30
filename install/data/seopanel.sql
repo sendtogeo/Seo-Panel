@@ -851,7 +851,7 @@ INSERT INTO `settings` (`id`, `set_label`, `set_name`, `set_val`, `set_category`
 (40, 'API Secret', 'API_SECRET', '', 'api', 'medium', 1),
 (41, 'Company Name', 'SP_COMPANY_NAME', 'Seo Panel', 'system', 'medium', 1),
 (42, 'Currency', 'SP_PAYMENT_CURRENCY', 'USD', 'system', 'medium', 1),
-(43, 'Seo Panel version', 'SP_VERSION_NUMBER', '3.12.0', 'system', 'medium', 0),
+(43, 'Seo Panel version', 'SP_VERSION_NUMBER', '3.13.0', 'system', 'medium', 0),
 (44, 'Moz API Link', 'SP_MOZ_API_LINK', 'http://lsapi.seomoz.com/linkscape', 'moz', 'medium', 0),
 (45, 'Moz API Link', 'SP_MOZ_API_ACCESS_ID', '', 'moz', 'large', 1),
 (46, 'Moz API Link', 'SP_MOZ_API_SECRET', '', 'moz', 'large', 1),
@@ -1223,6 +1223,44 @@ ALTER TABLE `user_specs`
 MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=4;
 ALTER TABLE `websites`
 MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- Seo Panel 3.13.0 changes
+--
+
+UPDATE `currency` SET `symbol` = '£' WHERE `currency`.`id` =25;
+
+UPDATE `searchengines` SET `regex` = '<div.*?class="?g.*?><h3 class="r"><a href="(.*?)".*?>(.*?)<\\/a>.*?<\\/div><span.*?>(.*?)<\\/span>' WHERE `url` LIKE '%google%';
+
+INSERT INTO `settings` (`set_label`, `set_name`, `set_val`, `set_category`, `set_type`, `display`) VALUES
+('Send custom header with curl request', 'SP_SEND_CUSTOM_HEADER_IN_CURL', '1', 'report', 'bool', 1);
+
+--
+-- Quick web proxy plugin
+--
+
+INSERT INTO `seoplugins` (`label`, `name`, `author`, `description`, `version`, `website`, `status`, `installed`) VALUES
+('Quick Web Proxy', 'QuickWebProxy', 'Seo Panel', 'It will help you to create a web proxy server using your hosting server or external proxy servers', '1.0.0', 'https://www.seopanel.in/plugin/l/94/quick-web-proxy/', 1, 1);
+
+CREATE TABLE IF NOT EXISTS `qwp_settings` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `set_label` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
+  `set_name` varchar(64) CHARACTER SET latin1 NOT NULL,
+  `set_val` text COLLATE utf8_unicode_ci NOT NULL,
+  `set_type` enum('small','bool','medium','large','text') CHARACTER SET latin1 DEFAULT 'small',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `set_name` (`set_name`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=2 ;
+
+--
+-- Dumping data for table `qwp_settings`
+--
+
+INSERT INTO `qwp_settings` (`set_label`, `set_name`, `set_val`, `set_type`) VALUES
+('Allow user to access the web proxy', 'QWP_ALLOW_USER_WEB_PROXY', '0', 'bool'),
+('Allow web server to act as a proxy', 'QWP_ALLOW_WEB_SERVER_ACT_AS_PROXY', '1', 'bool')
+ON DUPLICATE KEY UPDATE `set_type`=`set_type`;
+
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

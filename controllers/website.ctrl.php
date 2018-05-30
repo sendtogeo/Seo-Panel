@@ -526,7 +526,7 @@ class WebsiteController extends Controller{
 		// process file upload option
 		$fileInfo = $_FILES['website_csv_file'];
 		if (!empty($fileInfo['name']) && !empty($userId)) {
-			if ($fileInfo["type"] == "text/csv") {
+			if ($fileInfo["type"] == "text/csv" || $fileInfo["type"] == "application/vnd.ms-excel") {
 				$targetFile = SP_TMPPATH . "/".$fileInfo['name'];
 				if(move_uploaded_file($fileInfo['tmp_name'], $targetFile)) {
 
