@@ -1,38 +1,31 @@
 --
--- Seo Panel 3.13.0 changes
+-- Seo Panel 3.14.0 changes
 --
 
-update `settings` set set_val='3.13.0' WHERE `set_name` LIKE 'SP_VERSION_NUMBER';
+update `settings` set set_val='3.14.0' WHERE `set_name` LIKE 'SP_VERSION_NUMBER';
 
-UPDATE `currency` SET `symbol` = '£' WHERE `currency`.`id` =25;
 
-UPDATE `searchengines` SET `regex` = '<div.*?class="?g.*?><h3 class="r"><a href="(.*?)".*?>(.*?)<\\/a>.*?<\\/div><span.*?>(.*?)<\\/span>' WHERE `url` LIKE '%google%';
+CREATE TABLE IF NOT EXISTS `user_tokens` (
+`id` bigint(20) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `access_token` text COLLATE utf8_unicode_ci NOT NULL,
+  `token_type` varchar(120) COLLATE utf8_unicode_ci NOT NULL,
+  `expires_in` int(11) NOT NULL DEFAULT '3600' COMMENT 'seconds',
+  `created_time` datetime NOT NULL,
+  `token_category` enum('google','twitter','facebook','linkedin') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'google'
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-INSERT INTO `settings` (`set_label`, `set_name`, `set_val`, `set_category`, `set_type`, `display`) VALUES
-('Send custom header with curl request', 'SP_SEND_CUSTOM_HEADER_IN_CURL', '1', 'report', 'bool', 1);
+ALTER TABLE `user_tokens` ADD PRIMARY KEY (`id`);
+ALTER TABLE `user_tokens` MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
 
---
--- Quick web proxy plugin
---
 
-INSERT INTO `seoplugins` (`label`, `name`, `author`, `description`, `version`, `website`, `status`, `installed`) VALUES
-('Quick Web Proxy', 'QuickWebProxy', 'Seo Panel', 'It will help you to create a web proxy server using your hosting server or external proxy servers', '1.0.0', 'https://www.seopanel.in/plugin/l/94/quick-web-proxy/', 1, 1);
+INSERT INTO `settings` (`set_label`, `set_name`, `set_val`, `set_category`, `set_type`, `display`) VALUES 
+('Google API Key', 'SP_GOOGLE_API_CLIENT_ID', '', 'google', 'large', '1'),
+('Google API Key', 'SP_GOOGLE_API_CLIENT_SECRET', '', 'google', 'large', '1');
 
-CREATE TABLE IF NOT EXISTS `qwp_settings` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `set_label` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
-  `set_name` varchar(64) CHARACTER SET latin1 NOT NULL,
-  `set_val` text COLLATE utf8_unicode_ci NOT NULL,
-  `set_type` enum('small','bool','medium','large','text') CHARACTER SET latin1 DEFAULT 'small',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `set_name` (`set_name`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=2 ;
 
---
--- Dumping data for table `qwp_settings`
---
+INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
+('en', 'settings', 'SP_GOOGLE_API_CLIENT_ID', 'Google API Client Id'),
+('en', 'settings', 'SP_GOOGLE_API_CLIENT_SECRET', 'Google API Client Secret');
 
-INSERT INTO `qwp_settings` (`set_label`, `set_name`, `set_val`, `set_type`) VALUES
-('Allow user to access the web proxy', 'QWP_ALLOW_USER_WEB_PROXY', '0', 'bool'),
-('Allow web server to act as a proxy', 'QWP_ALLOW_WEB_SERVER_ACT_AS_PROXY', '1', 'bool')
-ON DUPLICATE KEY UPDATE `set_type`=`set_type`;
+
