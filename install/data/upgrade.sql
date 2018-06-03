@@ -9,9 +9,10 @@ CREATE TABLE IF NOT EXISTS `user_tokens` (
 `id` bigint(20) NOT NULL,
   `user_id` int(11) NOT NULL,
   `access_token` text COLLATE utf8_unicode_ci NOT NULL,
+  `refresh_token` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `token_type` varchar(120) COLLATE utf8_unicode_ci NOT NULL,
   `expires_in` int(11) NOT NULL DEFAULT '3600' COMMENT 'seconds',
-  `created_time` datetime NOT NULL,
+  `created` datetime NOT NULL,
   `token_category` enum('google','twitter','facebook','linkedin') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'google'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
