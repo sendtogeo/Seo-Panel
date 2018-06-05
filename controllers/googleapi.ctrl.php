@@ -118,7 +118,7 @@ class GoogleAPIController extends Controller{
 	 * function to get auth url
 	 */
 	function getAPIAuthUrl($userId) {
-		$ret = array('auth_url' => false)
+		$ret = array('auth_url' => false);
 		$client = $this->createAuthAPIClient();
 		
 		// if client created successfully
@@ -145,7 +145,7 @@ class GoogleAPIController extends Controller{
 	 */
 	function createUserAuthToken($userId, $authCode) {
 		
-		$ret = array('status' => false)
+		$ret = array('status' => false);
 		$client = $this->createAuthAPIClient();
 		
 		// if client created successfully
