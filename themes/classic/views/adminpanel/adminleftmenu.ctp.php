@@ -163,6 +163,7 @@ foreach($menuList as $i => $menuInfo){
 			<script type="text/javascript">scriptList[<?php echo $i?>] = 'users.php?sec=my-profile';</script>			
 			<ul id='subui'>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('users.php?sec=my-profile', 'content')"><?php echo $spTextPanel['My Profile']?></a></li>
+				<li><a href="javascript:void(0);" onclick="scriptDoLoad('connections.php', 'content')"><?php echo $spTextPanel['Connections']?></a></li>
 			</ul>
 			<?php
 			break;

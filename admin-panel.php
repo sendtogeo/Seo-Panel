@@ -52,7 +52,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			break;
 		
 		case "connections":
-			$info['menu_selected'] = 'connections';
+			$info['menu_selected'] = 'my-profile';
 			$info['start_script'] = 'connections.php';
 			$controller->index($info);
 			break;

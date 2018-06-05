@@ -114,7 +114,7 @@ class AdminPanelController extends Controller{
 
 		$menuList[] = array(
 				'id' => 13,
-				'name' => $this->spTextPanel['My Profile'],
+				'name' => $_SESSION['text']['common']['My Account'],
 				'url_section' => 'my-profile'
 		);
 		

@@ -27,6 +27,7 @@ INSERT INTO `settings` (`set_label`, `set_name`, `set_val`, `set_category`, `set
 
 INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 ('en', 'settings', 'SP_GOOGLE_API_CLIENT_ID', 'Google API Client Id'),
-('en', 'settings', 'SP_GOOGLE_API_CLIENT_SECRET', 'Google API Client Secret');
+('en', 'settings', 'SP_GOOGLE_API_CLIENT_SECRET', 'Google API Client Secret'),
+('en', 'panel', 'Connections', 'Connections');
 
 

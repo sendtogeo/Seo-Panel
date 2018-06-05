@@ -21,7 +21,7 @@
  ***************************************************************************/
 
 include_once("includes/sp-load.php");
-include_once(SP_CTRLPATH."/connections.ctrl.php");
+include_once(SP_CTRLPATH . "/connection.ctrl.php");
 
 isLoggedIn();
 $controller = New ConnectionController();
