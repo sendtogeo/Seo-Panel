@@ -49,8 +49,8 @@ class GoogleAPIController extends Controller{
 			$client->setClientId(SP_GOOGLE_API_CLIENT_ID);
 			$client->setClientSecret(SP_GOOGLE_API_CLIENT_SECRET);
 			$client->setAccessType('offline');
-			$redirectUrl = SP_WEBPATH . "/google-connector.php";
-			$client->setRedirectUri($redirect_uri);
+			$redirectUrl = SP_WEBPATH . "/admin-panel.php?sec=connections&category=google&action=connect_return";
+			$client->setRedirectUri($redirectUrl);
 			
 			// set app scopes
 			$client = $this->setAppScopes($client);
@@ -58,6 +58,8 @@ class GoogleAPIController extends Controller{
 		} else {
 			return "Error: Google Auth Credentials not set.";
 		}
+		
+		return $client;
 		
 	}
 	
@@ -136,7 +138,7 @@ class GoogleAPIController extends Controller{
 			$ret['msg'] = $client;
 		}
 		
-		return $authUrl;
+		return $ret;
 		
 	}
 	

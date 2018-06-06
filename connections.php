@@ -23,7 +23,7 @@
 include_once("includes/sp-load.php");
 include_once(SP_CTRLPATH . "/connection.ctrl.php");
 
-isLoggedIn();
+checkLoggedIn();
 $controller = New ConnectionController();
 $controller->view->menu = 'connections';
 $controller->layout = 'ajax';
@@ -40,15 +40,18 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			
 	}
 	
-}else{
+} else {
 	
-	switch($_GET['sec']){
+	switch($_GET['action']) {
 		
-		default:
+		case "connect_return":
+			$controller->processConnectionReturn($_GET);
+			break;
+		
+		default:			
 			$controller->listConnections($_GET);
 			break;
 	}
 	
 }
-
 ?>

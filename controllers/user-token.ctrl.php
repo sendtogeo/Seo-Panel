@@ -29,7 +29,7 @@ class UserTokenController extends Controller {
 	 */
 	function getUserToken($userId, $category = 'google') {
 		$category = addslashes($category);
-		$userId = int($userId);
+		$userId = intval($userId);
 		$whereCond = "user_id=$userId and token_category='$category' order by created DESC";
 		$tokenInfo = $this->dbHelper->getRow("user_tokens", $whereCond);
 		return $tokenInfo;
@@ -39,7 +39,7 @@ class UserTokenController extends Controller {
 	 * function to insert user token
 	 */
 	function insertUserToken($tokenInfo) {
-		$ret = $this->dbHelper->updateRow("user_tokens", $tokenInfo);
+		$ret = $this->dbHelper->insertRow("user_tokens", $tokenInfo);
 		return $ret;
 	}
 	
