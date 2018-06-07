@@ -29,6 +29,8 @@ $controller->view->menu = 'connections';
 $controller->layout = 'ajax';
 $controller->spTextPanel = $controller->getLanguageTexts('panel', $_SESSION['lang_code']);
 $controller->set('spTextPanel', $controller->spTextPanel);
+$controller->spTextMyAccount = $controller->getLanguageTexts('myaccount', $_SESSION['lang_code']);
+$controller->set('spTextMyAccount', $controller->spTextMyAccount);
 
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	
@@ -46,6 +48,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		
 		case "connect_return":
 			$controller->processConnectionReturn($_GET);
+			break;
+		
+		case "disconnect":
+			$controller->processDisconnection($_GET);
 			break;
 		
 		default:			
