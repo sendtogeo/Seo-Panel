@@ -101,7 +101,7 @@ class ConnectionController extends Controller {
 		$userId = isLoggedIn();$className = $this->sourceList[$info['category']];
 		
 		// if class existing for process
-		if (!empty($className)) {
+		if (class_exists($className)) {
 			$sourceCtrler = new $className();
 			$ret = $sourceCtrler->removeUserAuthToken($userId);
 			$this->set('successMsg', "Successfully disconnected from " . $info['category']);
