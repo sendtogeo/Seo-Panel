@@ -66,7 +66,7 @@ class UserTokenController extends Controller {
 	 */
 	function deleteAllUserTokens($userId, $category = 'google') {
 		$category = addslashes($category);
-		$userId = int($userId);
+		$userId = intval($userId);
 		$whereCond = "user_id=$userId and token_category='$category'";
 		$ret = $this->dbHelper->deleteRows("user_tokens", $whereCond);
 		return $ret;

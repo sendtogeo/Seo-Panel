@@ -1,7 +1,14 @@
 <?php 
 echo showSectionHead($spTextPanel["Connections"]);
-?>
 
+if ($successMsg) {
+	showSuccessMsg($successMsg, false);
+}
+
+if ($errorMsg) {
+	showErrorMsg($errorMsg, false);
+}
+?>
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
 	<tr class="listHead">
 		<td class="leftid"><?php echo $spText['common']['Id']?></td>		
@@ -30,22 +37,25 @@ echo showSectionHead($spTextPanel["Connections"]);
 				<td class="td_br_right">
 					<?php
 					if ($listInfo['status']) {
-						echo "<b class='success'>Connected</b>";
+						echo "<b class='success'>{$spTextMyAccount['Connected']}</b>";
 					} else {
-						echo "<b class='error'>Disconnected</b>";
+						echo "<b class='error'>{$spTextMyAccount['Disconnected']}</b>";
 					}
 					?>
 				</td>
 				<td class="<?php echo $rightBotClass?>">
 					<?php
 					if ($listInfo['status']) {
-						echo "<b class='error'>Disconnect</b>";
+						$disconnectFun = SP_DEMO ? "alertDemoMsg()" :  "confirmLoad('connections.php', 'content', 'action=disconnect&category={$listInfo['name']}')";
+						?>
+						<a onclick="<?php echo $disconnectFun?>" href="javascript:void(0);"><?php echo $spTextMyAccount['Disconnect']?></a>
+						<?php
 					} else {
 						
 						// check whether auth url set
 						if ($listInfo['auth_url_info']['auth_url']) {
 							?>
-							<a href="<?php echo $listInfo['auth_url_info']['auth_url']?>">Connect</a>
+							<a href="<?php echo $listInfo['auth_url_info']['auth_url']?>"><?php echo $spTextMyAccount['Connect']?></a>
 							<?php
 						} else {
 							echo "<b class='error'>{$listInfo['auth_url_info']['msg']}</b>";

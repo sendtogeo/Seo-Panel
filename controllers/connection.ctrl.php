@@ -50,8 +50,13 @@ class ConnectionController extends Controller {
 				$status = true;
 			} else {
 				$status = false;
-				$sourceCtrler = new $class();
-				$authUrlInfo = $sourceCtrler->getAPIAuthUrl($userId);
+				
+				if (SP_DEMO) {
+					$authUrlInfo = array('auth_url' => '#');
+				} else {
+					$sourceCtrler = new $class();
+					$authUrlInfo = $sourceCtrler->getAPIAuthUrl($userId);
+				}
 			}
 			
 			$sourceList[] = array('name' => $name, 'status' => $status, 'auth_url_info' => $authUrlInfo);
@@ -76,17 +81,35 @@ class ConnectionController extends Controller {
 			
 			// if token created successfull
 			if ($ret['status']) {
-				showSuccessMsg("Successfully connected to " . $info['category'], false);
+				$this->set('successMsg', "Successfully connected to " . $info['category']);
 			} else {
-				showErrorMsg($ret['msg'], false);
+				$this->set('errorMsg', $ret['msg']);
 			}
 			
 		} else {
-			showErrorMsg("Class not found to process connection return action.", false);
+			$this->set('errorMsg', "Class not found to process requested action.");
 		}
 		
 		$this->listConnections();
 		
+	}
+	
+	/*
+	 * process disconnection action
+	 */
+	function processDisconnection($info) {
+		$userId = isLoggedIn();$className = $this->sourceList[$info['category']];
+		
+		// if class existing for process
+		if (!empty($className)) {
+			$sourceCtrler = new $className();
+			$ret = $sourceCtrler->removeUserAuthToken($userId);
+			$this->set('successMsg', "Successfully disconnected from " . $info['category']);
+		} else {
+			$this->set('errorMsg', "Class not found to process requested action.");
+		}
+		
+		$this->listConnections();
 	}
 	
 }

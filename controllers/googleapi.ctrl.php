@@ -27,7 +27,8 @@ include_once(SP_CTRLPATH . "/user-token.ctrl.php");
 // class defines all google api controller functions
 class GoogleAPIController extends Controller{
 
-	var $tokenCtrler; 
+	var $tokenCtrler;
+	var $sourceName = 'google';
 	
 	/*
 	 * contructor
@@ -49,7 +50,7 @@ class GoogleAPIController extends Controller{
 			$client->setClientId(SP_GOOGLE_API_CLIENT_ID);
 			$client->setClientSecret(SP_GOOGLE_API_CLIENT_SECRET);
 			$client->setAccessType('offline');
-			$redirectUrl = SP_WEBPATH . "/admin-panel.php?sec=connections&category=google&action=connect_return";
+			$redirectUrl = SP_WEBPATH . "/admin-panel.php?sec=connections&action=connect_return&category=" . $this->sourceName;
 			$client->setRedirectUri($redirectUrl);
 			
 			// set app scopes
@@ -75,7 +76,7 @@ class GoogleAPIController extends Controller{
 		if (is_object($client)) {
 			
 			// get user token
-			$tokenInfo = $this->tokenCtrler->getUserToken($userId);
+			$tokenInfo = $this->tokenCtrler->getUserToken($userId, $this->sourceName);
 			
 			// if token not set for the user
 			if (empty($tokenInfo['access_token'])) {
@@ -176,7 +177,25 @@ class GoogleAPIController extends Controller{
 	 * function to remove all user tokens
 	 */
 	function removeUserAuthToken($userId) {
-		$tokenInfo = $this->tokenCtrler->deleteAllUserTokens($userId);
+		$ret = array('status' => false);
+		
+		try {
+			
+			$tokenInfo = $this->tokenCtrler->getUserToken($userId, $this->sourceName);
+			
+			if (!empty($tokenInfo['id'])) {
+				$client = $this->createAuthAPIClient();
+				$client->revokeToken($tokenInfo['access_token']);
+			}
+			
+		} catch (Exception $e) {
+			$err = $e->getMessage();
+			$ret['msg'] = "Error: revoke token - $err";
+		}
+		
+		$tokenInfo = $this->tokenCtrler->deleteAllUserTokens($userId, $this->sourceName);
+		return $ret;
+		
 	}
 		
 }
