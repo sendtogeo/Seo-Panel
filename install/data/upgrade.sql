@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS `website_search_analytics` (
   `report_date` date NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+ALTER TABLE `website_search_analytics` ADD `source` ENUM( 'google', 'yahoo', 'bing', 'baidu', 'yandex' ) NOT NULL DEFAULT 'google';
 ALTER TABLE `website_search_analytics` ADD PRIMARY KEY (`id`), ADD KEY `website_id` (`website_id`);
 ALTER TABLE `website_search_analytics` MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
 
@@ -48,6 +49,7 @@ CREATE TABLE IF NOT EXISTS `keyword_analytics` (
   `report_date` date NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+ALTER TABLE `keyword_analytics` ADD `source` ENUM( 'google', 'yahoo', 'bing', 'baidu', 'yandex' ) NOT NULL DEFAULT 'google';
 ALTER TABLE `keyword_analytics` ADD PRIMARY KEY (`id`), ADD KEY `keyword_id` (`keyword_id`);
 ALTER TABLE `keyword_analytics` MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
 
