@@ -197,6 +197,6 @@ class GoogleAPIController extends Controller{
 		return $ret;
 		
 	}
-		
+			
 }
 ?>

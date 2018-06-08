@@ -1,5 +1,56 @@
 <?php
 include_once("includes/sp-load.php");
+
+include_once(SP_CTRLPATH . "/components/webmaster.ctrl.php");
+$userId = 1;
+$siteUrl = "https://www.seopanel.in/";
+
+$gapiCtrler = new WebMatserController();
+
+// $client = $gapiCtrler->getAuthClient($userId);
+
+// $service = new Google_Service_Webmasters($client);
+// $siteList = $service->sites->listSites();
+
+$paramList = array(
+	'startDate' => "2018-06-01",
+	'endDate' => "2018-06-04",
+	'dimensions' => ['query'],
+);
+
+$resList = $gapiCtrler->getQueryResults($userId, $siteUrl, $paramList, 10000);
+
+print count($resList['resultList']);
+
+debugVar($resList);
+
+exit;
+
+
+
+
+
+
+
+
+$serviceRquest = new Google_Service_Webmasters_SearchAnalyticsQueryRequest();
+
+$serviceRquest->startDate = "2018-06-01";
+$serviceRquest->endDate = "2018-06-04";
+$serviceRquest->dimensions = array('query');
+$serviceRquest->rowLimit = 10;
+
+
+$statRes = $service->searchanalytics->query("https://www.seopanel.in/", $serviceRquest);
+$rowList = $stats->getRows();
+
+debugVar($stats->getRows());
+
+exit;
+
+
+
+
 include_once(SP_LIBPATH . "/google-api-php-client/vendor/autoload.php");
 $apiKey = SP_GOOGLE_API_KEY;
 

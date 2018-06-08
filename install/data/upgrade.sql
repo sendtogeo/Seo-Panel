@@ -25,6 +25,33 @@ INSERT INTO `settings` (`set_label`, `set_name`, `set_val`, `set_category`, `set
 ('Google API Key', 'SP_GOOGLE_API_CLIENT_SECRET', '', 'google', 'large', '1');
 
 
+CREATE TABLE IF NOT EXISTS `website_search_analytics` (
+`id` bigint(20) NOT NULL,
+  `website_id` int(11) NOT NULL,
+  `clicks` int(11) NOT NULL,
+  `impressions` int(11) NOT NULL,
+  `ctr` float NOT NULL,
+  `avrage_positon` float NOT NULL,
+  `report_date` date NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+ALTER TABLE `website_search_analytics` ADD PRIMARY KEY (`id`), ADD KEY `website_id` (`website_id`);
+ALTER TABLE `website_search_analytics` MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE IF NOT EXISTS `keyword_analytics` (
+`id` bigint(20) NOT NULL,
+  `keyword_id` int(11) NOT NULL,
+  `clicks` int(11) NOT NULL,
+  `impressions` int(11) NOT NULL,
+  `ctr` float NOT NULL,
+  `avrage_positon` float NOT NULL,
+  `report_date` date NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+ALTER TABLE `keyword_analytics` ADD PRIMARY KEY (`id`), ADD KEY `keyword_id` (`keyword_id`);
+ALTER TABLE `keyword_analytics` MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+
+
 INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 ('en', 'settings', 'SP_GOOGLE_API_CLIENT_ID', 'Google API Client Id'),
 ('en', 'settings', 'SP_GOOGLE_API_CLIENT_SECRET', 'Google API Client Secret'),
@@ -33,5 +60,3 @@ INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 ('en', 'myaccount', 'Disconnect', 'Disconnect'),
 ('en', 'myaccount', 'Connected', 'Connected'),
 ('en', 'myaccount', 'Disconnected', 'Disconnected');
-
-
