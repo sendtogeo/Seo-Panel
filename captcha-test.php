@@ -4,25 +4,30 @@ include_once("includes/sp-load.php");
 include_once(SP_CTRLPATH . "/components/webmaster.ctrl.php");
 $userId = 1;
 $siteUrl = "https://www.seopanel.in/";
+$websiteId = 4;
+$reportDate = "2018-06-06";
 
-$gapiCtrler = new WebMatserController();
+$gapiCtrler = new WebMasterController();
 
 // $client = $gapiCtrler->getAuthClient($userId);
 
 // $service = new Google_Service_Webmasters($client);
 // $siteList = $service->sites->listSites();
 
-$paramList = array(
-	'startDate' => "2018-06-01",
-	'endDate' => "2018-06-04",
-	'dimensions' => ['query'],
-);
+// $paramList = array(
+// 	'startDate' => "2018-06-01",
+// 	'endDate' => "2018-06-04",
+// 	'dimensions' => ['query'],
+// );
 
-$resList = $gapiCtrler->getQueryResults($userId, $siteUrl, $paramList, 10000);
+// $resList = $gapiCtrler->getQueryResults($userId, $siteUrl, $paramList, 10000);
 
-print count($resList['resultList']);
+// print count($resList['resultList']);
 
-debugVar($resList);
+// debugVar($resList);
+
+
+$gapiCtrler->storeWebsiteAnalytics($websiteId, $reportDate);
 
 exit;
 

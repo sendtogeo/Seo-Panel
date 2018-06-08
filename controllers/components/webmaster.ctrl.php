@@ -24,7 +24,7 @@
 include_once(SP_CTRLPATH . "/googleapi.ctrl.php");
 
 // class defines all google webmaster tool api controller functions
-class WebMatserController extends GoogleAPIController {
+class WebMasterController extends GoogleAPIController {
 	
 	var $rowLimit = 5000;
 	
@@ -85,10 +85,11 @@ class WebMatserController extends GoogleAPIController {
 	 * function to store website results
 	 */
 	function storeWebsiteAnalytics($websiteId, $reportDate) {
-		
+		$websiteId = intval($websiteId);
 		$websiteCtrler = new WebsiteController();
 		$websiteInfo = $websiteCtrler->__getWebsiteInfo($websiteId);
-		$keywordList = $websiteCtrler->__getAllWebsitesWithActiveKeywords($websiteInfo['user_id']);
+		$wherecond = "website_id=$websiteId and status=1";
+		$keywordList = $this->dbHelper->getAllRows('keywords', $wherecond); 
 		
 		if (!empty($keywordList)) {
 			$paramList = array(
@@ -97,12 +98,64 @@ class WebMatserController extends GoogleAPIController {
 				'dimensions' => ['query'],
 			);
 			
-			$result = $this->getQueryResults($websiteInfo['user_id'], $websiteInfo['url'], $paramList)
-			
+			// query results from api and verify no error occured
+			$result = $this->getQueryResults($websiteInfo['user_id'], $websiteInfo['url'], $paramList);
 			if ($result['status']) {
+				
+				$keywordAnalytics = array();
+				foreach ($result['resultList'] as $resInfo) {
+					$keywordAnalytics[$resInfo['keys'][0]] = $resInfo;
+				}
+				
+				// for each keyword list
+				foreach ($keywordList as $keywordInfo) {
+					
+					// if keyword preent in api response results
+					if (isset($keywordAnalytics[$keywordInfo['name']])) {
+						$reportInfo = $keywordAnalytics[$keywordInfo['name']];
+						$info = array(
+							'clicks' => $reportInfo['clicks'],
+							'impressions' => $reportInfo['impressions'],
+							'ctr' => $reportInfo['ctr'],
+							'average_positon' => $reportInfo['position'],
+							'report_date' => $reportDate,
+						);
+						
+						$this->insertKeywordAnalytics($keywordInfo['id'], $info);
+						
+					}
+					
+				}
+				
 			}
 			
+			return $result;
+			
 		}
+		
+	}
+	
+	/*
+	 * function to insert keyword analytics
+	 */
+	function insertKeywordAnalytics($keywordId, $reportInfo, $clearExisting = true) {
+		$keywordId = intval($keywordId);		
+		
+		if ($clearExisting) {
+			$whereCond = "keyword_id=$keywordId and report_date='" . addslashes($reportInfo['report_date']) . "'";
+			$this->dbHelper->deleteRows('keyword_analytics', $whereCond);
+		}
+		
+		$dataList = array(
+			'keyword_id' => $keywordId,
+			'clicks|int' => $reportInfo['clicks'],
+			'impressions|int' => $reportInfo['impressions'],
+			'ctr|float' => round($reportInfo['ctr'], 2),
+			'average_positon|float' => round($reportInfo['average_positon'], 2),
+			'report_date' => $reportInfo['report_date'],
+		);
+		
+		$this->dbHelper->insertRow('keyword_analytics', $dataList);
 		
 	}
 	
