@@ -36,6 +36,12 @@ define('SP_PLUGINDBFILE', 'database.sql');
 # The seo panel plugin menu file
 define('SP_PLUGINMENUFILE', 'menu.ctp.php');
 
+# seo panel is hosted version or not
+define('SP_HOSTED_VERSION', 0);
+
+# use sendgrid api for email sending
+define('SP_SENDGRID_API', 1);
+
 # seo panel is demo system or not
 define('SP_DEMO', 0);
 
