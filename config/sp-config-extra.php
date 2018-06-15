@@ -40,7 +40,7 @@ define('SP_PLUGINMENUFILE', 'menu.ctp.php');
 define('SP_HOSTED_VERSION', 0);
 
 # use sendgrid api for email sending
-define('SP_SENDGRID_API', 1);
+define('SP_SENDGRID_API', 0);
 
 # seo panel is demo system or not
 define('SP_DEMO', 0);
