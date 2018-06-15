@@ -457,8 +457,9 @@ class SeoPluginsController extends Controller{
 	}
 	
 	# function to create helpers for main controlller
-	function createHelper($helperName) {		
-		include_once($this->pluginPath . "/".strtolower($helperName).".ctrl.php");
+	function createHelper($helperName) {
+		$pluginPath = !empty($this->pluginPath)	? $this->pluginPath : PLUGIN_PATH;
+		include_once($pluginPath . "/".strtolower($helperName).".ctrl.php");
 		$helperObj = New $helperName();
 		$helperObj->pluginPath = $this->pluginPath;
 		$helperObj->pluginId = $this->pluginId;
