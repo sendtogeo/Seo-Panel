@@ -53,7 +53,19 @@ class UserController extends Controller{
 			$userInfo = $this->db->select($sql, true);
 			if(!empty($userInfo['id'])){
 				if($userInfo['password'] == md5($_POST['password'])){
-					if($userInfo['status'] == 1){
+					
+					// get user type spec details and verify whether to check activation or not
+					$activationStatus = true;
+					$userTypeCtrler = new UserTypeController();
+					$userTypeSpecList = $userTypeCtrler->__getUserTypeInfo($userInfo['utype_id']);
+					if ($userTypeSpecList['enable_email_activation']) {
+						if ($userInfo['confirm'] == 0) {
+							$activationStatus = false;
+						}
+					}
+					
+					// check for user status and activation
+					if($userInfo['status'] && $activationStatus){
 					    
     					// if login after first installation
                 	    if (!empty($_POST['lang_code']) && ($_POST['lang_code'] != 'en')) {
@@ -86,7 +98,8 @@ class UserController extends Controller{
 						}
 												
 					}else{
-						$errMsg['userName'] = formatErrorMsg($_SESSION['text']['login']["User inactive"]);
+						$msgTxt = $activationStatus ? $_SESSION['text']['login']["User inactive"] : $_SESSION['text']['login']["user_not_activated_msg"];
+						$errMsg['userName'] = formatErrorMsg($msgTxt);
 					}
 				}else{
 					$errMsg['password'] = formatErrorMsg($_SESSION['text']['login']["Password incorrect"]);
@@ -97,6 +110,29 @@ class UserController extends Controller{
 		}
 		$this->set('errMsg', $errMsg);
 		$this->index();
+	}
+	
+	# func to confirm the user registration
+	function confirmUser($confirmCode) {
+		$confirmCode = addslashes($confirmCode);
+		$sql = "select id from users where confirm_code='$confirmCode'";
+		$userInfo = $this->db->select($sql, true);
+		
+		if(!empty($userInfo['id'])){
+			
+			$sql = "update users set confirm=1,status=1 where id=".$userInfo['id'];
+			if($this->db->query($sql)){
+				$this->set('confirm', true);
+			}else{
+				$error = showErrorMsg('Internal error occured while process confirm request!', false);
+			}
+			
+		} else {
+			$error = showErrorMsg('User not existing in the system!', false);
+		}
+		
+		$this->set('error', $error);
+		$this->render('common/registerconfirm');
 	}
 	
 	# register function
@@ -215,6 +251,22 @@ class UserController extends Controller{
 						}						
 					}
 					
+					# get confirm code
+					$cfm = str_shuffle($userId . $userInfo['userName']);
+					$sql = "update users set confirm_code='$cfm' where id=$userId";
+					$this->db->query($sql);
+					$this->set('confirmLink', SP_WEBPATH . "/register.php?code=$cfm");
+						
+					$content = $this->getViewContent('email/accountconfirmation');
+					$error = 0;
+					if(!sendMail(SP_SUPPORT_EMAIL, SP_ADMIN_NAME, $userInfo['email'], $subject, $content)){
+						$error = showErrorMsg(
+							'An internal error occured while sending confirmation mail! Please <a href="'.SP_CONTACT_LINK.'">contact</a> seo panel team.',
+							false
+						);
+					}
+					
+					$this->set('error', $error);
 					$this->render('common/registerconfirm');
 					return True;
 					

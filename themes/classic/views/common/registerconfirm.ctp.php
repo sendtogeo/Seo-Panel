@@ -11,7 +11,13 @@
 	            	<?php } else { ?>
 	                	<tr>
 	                		<td colspan="2">
-	                			<?php showSuccessMsg($spText['login']['newaccountsuccess'], false); ?>
+	                			<?php
+	                			if($confirm){
+	                				showSuccessMsg($spText['login']['Your account activated successfully'], false);
+	                			} else {
+	                				showSuccessMsg($spText['login']['newaccountsuccess'], false);
+	                			} 
+	                			?>
 	                		</td>
 	                	</tr>
 	                	<tr>

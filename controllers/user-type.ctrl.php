@@ -27,7 +27,7 @@ include_once(SP_CTRLPATH . "/seotools.ctrl.php");
 class UserTypeController extends Controller {
 	
 	public $userSpecFields = array(
-		'keywordcount','websitecount', 'searchengine_count', 'directory_submit_limit',
+		'enable_email_activation', 'keywordcount','websitecount', 'searchengine_count', 'directory_submit_limit',
 		'directory_submit_daily_limit', 'site_auditor_max_page_limit', 'price',
 	);
 	

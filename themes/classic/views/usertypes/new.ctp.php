@@ -80,6 +80,15 @@
 		</tr>
 	<?php }?>
 	<tr class="blue_row">
+		<td class="td_left_col"><?php echo $spTextSubscription['enable_email_activation']?>:</td>
+		<td class="td_right_col">
+			<select name="enable_email_activation" id="enable_email_activation">
+				<option value="0"><?php echo $_SESSION['text']['common']['No']?></option>
+				<option value="1"><?php echo $_SESSION['text']['common']['Yes']?></option>
+			</select>
+		</td>
+	</tr>
+	<tr class="blue_row">
 		<td class="td_left_col"><?php echo $spText['common']['Status']?>:</td>
 		<td class="td_right_col">
 			<select name="user_type_status" id="user_type_status">

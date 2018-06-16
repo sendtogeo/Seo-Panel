@@ -31,11 +31,14 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		case "pricing":
 			$controller->showPricing();
 			break;
+		
+		case "confirm":
+			$controller->confirmUser($_GET['code']);
+			break;
 
 		default:
 			$controller->register($_GET);
 			break;
 	}
 }
-
 ?>
