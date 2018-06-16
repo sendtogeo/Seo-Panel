@@ -22,8 +22,11 @@ ALTER TABLE `user_tokens` MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
 
 INSERT INTO `settings` (`set_label`, `set_name`, `set_val`, `set_category`, `set_type`, `display`) VALUES 
 ('Google API Key', 'SP_GOOGLE_API_CLIENT_ID', '', 'google', 'large', '1'),
-('Google API Key', 'SP_GOOGLE_API_CLIENT_SECRET', '', 'google', 'large', '1');
+('Google API Key', 'SP_GOOGLE_API_CLIENT_SECRET', '', 'google', 'large', '1'),
+('Google Analytics Tracking Code', 'SP_GOOGLE_ANALYTICS_TRACK_CODE', '', 'google', 'text', '1');
 
+ALTER TABLE `users` ADD column `confirm_code` varchar(120) NOT NULL DEFAULT '';
+ALTER TABLE `users` ADD column `confirm` tinyint(1) NOT NULL DEFAULT '0';
 
 CREATE TABLE IF NOT EXISTS `website_search_analytics` (
 `id` bigint(20) NOT NULL,
@@ -57,8 +60,12 @@ ALTER TABLE `keyword_analytics` MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
 INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 ('en', 'settings', 'SP_GOOGLE_API_CLIENT_ID', 'Google API Client Id'),
 ('en', 'settings', 'SP_GOOGLE_API_CLIENT_SECRET', 'Google API Client Secret'),
+('en', 'settings', 'SP_GOOGLE_ANALYTICS_TRACK_CODE', 'Google Analytics Tracking Code'),
 ('en', 'panel', 'Connections', 'Connections'),
 ('en', 'myaccount', 'Connect', 'Connect'),
 ('en', 'myaccount', 'Disconnect', 'Disconnect'),
 ('en', 'myaccount', 'Connected', 'Connected'),
-('en', 'myaccount', 'Disconnected', 'Disconnected');
+('en', 'myaccount', 'Disconnected', 'Disconnected'),
+('en', 'login', 'Your account activated successfully', 'Your account activated successfully'),
+('en', 'login', 'user_not_activated_msg', 'User is not activated. Please check your mail for activation'),
+('en', 'subscription', 'enable_email_activation', 'Enable Email Activation');
