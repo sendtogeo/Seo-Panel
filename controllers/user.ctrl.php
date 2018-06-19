@@ -57,8 +57,7 @@ class UserController extends Controller{
 					// get user type spec details and verify whether to check activation or not
 					$activationStatus = true;
 					$userTypeCtrler = new UserTypeController();
-					$userTypeSpecList = $userTypeCtrler->__getUserTypeInfo($userInfo['utype_id']);
-					if ($userTypeSpecList['enable_email_activation']) {
+					if ($userTypeCtrler->isEmailActivationEnabledForUserType($userInfo['utype_id'])) {
 						if ($userInfo['confirm'] == 0) {
 							$activationStatus = false;
 						}
@@ -124,15 +123,16 @@ class UserController extends Controller{
 			if($this->db->query($sql)){
 				$this->set('confirm', true);
 			}else{
-				$error = showErrorMsg('Internal error occured while process confirm request!', false);
+				$error = showErrorMsg($this->spTextRegister['user_confirm_content_1'], false);
 			}
 			
 		} else {
-			$error = showErrorMsg('User not existing in the system!', false);
+			$error = showErrorMsg($this->spTextRegister['user_confirm_content_1'], false);
 		}
 		
 		$this->set('error', $error);
 		$this->render('common/registerconfirm');
+		
 	}
 	
 	# register function
@@ -233,6 +233,7 @@ class UserController extends Controller{
 					
 					// get user id created
 					$userId = $this->db->getMaxId('users');
+					$error = 0;
 					
 					// check whether subscription is active
 					if ($subscriptionActive and $userId) {
@@ -252,18 +253,19 @@ class UserController extends Controller{
 					}
 					
 					# get confirm code
-					$cfm = str_shuffle($userId . $userInfo['userName']);
-					$sql = "update users set confirm_code='$cfm' where id=$userId";
-					$this->db->query($sql);
-					$this->set('confirmLink', SP_WEBPATH . "/register.php?code=$cfm");
-						
-					$content = $this->getViewContent('email/accountconfirmation');
-					$error = 0;
-					if(!sendMail(SP_SUPPORT_EMAIL, SP_ADMIN_NAME, $userInfo['email'], $subject, $content)){
-						$error = showErrorMsg(
-							'An internal error occured while sending confirmation mail! Please <a href="'.SP_CONTACT_LINK.'">contact</a> seo panel team.',
-							false
-						);
+					if ($utypeCtrler->isEmailActivationEnabledForUserType($utypeId)) {
+						$cfm = str_shuffle($userId . $userInfo['userName']);
+						$sql = "update users set confirm_code='$cfm' where id=$userId";
+						$this->db->query($sql);
+						$this->set('confirmLink', SP_WEBPATH . "/register.php?sec=confirm&code=$cfm");
+							
+						$content = $this->getViewContent('email/accountconfirmation');
+						if(!sendMail(SP_SUPPORT_EMAIL, SP_ADMIN_NAME, $userInfo['email'], $subject, $content)){
+							$error = showErrorMsg(
+								'An internal error occured while sending confirmation mail! Please <a href="'.SP_CONTACT_LINK.'">contact</a> seo panel team.',
+								false
+							);
+						}
 					}
 					
 					$this->set('error', $error);

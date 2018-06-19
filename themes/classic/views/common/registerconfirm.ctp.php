@@ -12,11 +12,17 @@
 	                	<tr>
 	                		<td colspan="2">
 	                			<?php
-	                			if($confirm){
-	                				showSuccessMsg($spText['login']['Your account activated successfully'], false);
+	                			if ($error) {
+	                				echo $error;
 	                			} else {
-	                				showSuccessMsg($spText['login']['newaccountsuccess'], false);
-	                			} 
+	                				
+		                			if($confirm){
+		                				showSuccessMsg($spText['login']['Your account activated successfully'], false);
+		                			} else {
+		                				showSuccessMsg($spText['login']['newaccountsuccess'], false);
+		                			}
+		                			
+	                			}
 	                			?>
 	                		</td>
 	                	</tr>
@@ -27,6 +33,6 @@
             	</table>
             </div>
 		</div>
-		<?php echo getRoundTabBot(); ?>           
+		<?php echo getRoundTabBot(); ?>
     </div>
 </div>

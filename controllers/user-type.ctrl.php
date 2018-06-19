@@ -609,5 +609,21 @@ class UserTypeController extends Controller {
 		$this->db->query($sql);
 	}
 	
+	/**
+	 * function to get a particular user type spec value
+	 */
+	function __getUserTypeSpecValue($userTypeId, $specName) {
+		$userTypeSpecList = $userTypeCtrler->__getUserTypeInfo($userInfo['utype_id']);
+		return $userTypeSpecList['enable_email_activation'] ? isset($userTypeSpecList['enable_email_activation']) : false;
+	}
+	
+	/*
+	 * function to check whether email activation enabled for the user
+	 */
+	function isEmailActivationEnabledForUserType($userTypeId) {
+		$specValue = $this->__getUserTypeSpecValue($userTypeId, "enable_email_activation");
+		return $specValue;
+	}
+	
 }
 ?>

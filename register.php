@@ -15,6 +15,8 @@ $controller->view->menu = 'register';
 $controller->set('spTitle', 'Seo Tools: User Registration');
 $controller->set('spDescription', 'Seo Tools: User Registration');
 $controller->set('spKeywords', 'Seo tools User Registration');
+$controller->spTextRegister = $controller->getLanguageTexts('register', $_SESSION['lang_code']);
+$controller->set('spTextRegister', $controller->spTextRegister);
 
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	

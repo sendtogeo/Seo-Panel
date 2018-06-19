@@ -1,11 +1,11 @@
 <?php echo $spText['common']['Hello']?> <?php echo $name?>,<br><br>
 
-Thank you for your registration with <?=SP_COMPANY_NAME?>.<br><br>
+<?php echo $spTextRegister['user_confirm_mail_cont_1']?> <?php echo SP_COMPANY_NAME?>.<br><br>
 
-Please click on the following link to confirm registration:<br><br>
+<?php echo $spTextRegister['user_confirm_mail_cont_2']?>:<br><br>
 
-<a href="<?=$confirmLink?>"><?=$confirmLink?></a><br><br>
+<a href="<?php echo $confirmLink?>"><?php echo $confirmLink?></a><br><br>
 
-Thank You,<br>
-<?=SP_COMPANY_NAME?> Team,<br>
+<?php echo $spText['common']['Thank you']; ?>,<br>
+<?php echo SP_COMPANY_NAME?><br>
 <a href="<?php echo SP_WEBPATH?>"><?php echo SP_WEBPATH?></a>
