@@ -48,7 +48,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	switch($_POST['sec']){
 		
 		case "kwchecker":
-			$controller->showQuickRankChecker($_POST);
+			if (isQuickCheckerEnabled()) {
+				$controller->showQuickRankChecker($_POST);
+			} else {
+				showErrorMsg($_SESSION['text']['label']["Access denied"]);
+			}
 			break;
 		
 		case "reportsum":

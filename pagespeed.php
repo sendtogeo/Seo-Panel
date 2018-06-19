@@ -39,7 +39,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	switch($_POST['sec']){	
 			
 		case "generate":
-			$controller->generateReports($_POST);
+			if(SP_USER_GEN_REPORT || isAdmin()){
+				$controller->generateReports($_POST);
+			} else {
+				showErrorMsg($_SESSION['text']['label']["Access denied"]);
+			}
 			break;
 
 		case "reports":
@@ -51,7 +55,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			break;	
 			
 		default:
-			$controller->findPageSpeedInfo($_POST);
+			if (isQuickCheckerEnabled()) {
+				$controller->findPageSpeedInfo($_POST);
+			} else {
+				showErrorMsg($_SESSION['text']['label']["Access denied"]);
+			}
 			break;
 	}
 	

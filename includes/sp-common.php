@@ -131,6 +131,12 @@ function isLoggedIn() {
 	return empty($userInfo['userId']) ? false : $userInfo['userId'];
 }
 
+# function to chekc quick checker enabled for user
+function isQuickCheckerEnabled() {
+	$enabled = (isAdmin() || !SP_HOSTED_VERSION) ? true : false;
+	return $enabled;
+}
+
 # get functions
 function scriptGetAJAXLink($file, $area, $args='', $trigger='OnClick'){
 	$link = ' '.$trigger.'="scriptDoLoad('."'$file', '$area', '$args')".'"';

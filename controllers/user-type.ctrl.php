@@ -613,7 +613,7 @@ class UserTypeController extends Controller {
 	 * function to get a particular user type spec value
 	 */
 	function __getUserTypeSpecValue($userTypeId, $specName) {
-		$userTypeSpecList = $userTypeCtrler->__getUserTypeInfo($userInfo['utype_id']);
+		$userTypeSpecList = $this->__getUserTypeInfo($userTypeId);
 		return $userTypeSpecList['enable_email_activation'] ? isset($userTypeSpecList['enable_email_activation']) : false;
 	}
 	

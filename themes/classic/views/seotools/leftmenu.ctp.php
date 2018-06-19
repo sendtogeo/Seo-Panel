@@ -33,7 +33,9 @@ foreach($menuList as $i => $menuInfo){
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('reports.php?sec=reportsum', 'content')"><?php echo $spTextTools['Keyword Position Summary']?></a></li>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('reports.php', 'content')"><?php echo $spTextTools['Detailed Position Reports']?></a></li>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('graphical-reports.php', 'content')"><?php echo $spTextTools['Graphical Position Reports']?></a></li>
-				<li><a href="javascript:void(0);" onclick="scriptDoLoad('reports.php?sec=kwchecker', 'content')"><?php echo $spTextTools['Quick Position Checker']?></a></li>				
+				<?php if (isQuickCheckerEnabled()) {?>
+					<li><a href="javascript:void(0);" onclick="scriptDoLoad('reports.php?sec=kwchecker', 'content')"><?php echo $spTextTools['Quick Position Checker']?></a></li>
+				<?php }?>				
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('keywords.php', 'content')"><?php echo $spTextTools['Keywords Manager']?></a></li>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('keywords.php', 'content', 'sec=new')"><?php echo $spTextKeyword['New Keyword']?></a></li>
 	         	<li><a href="javascript:void(0);" onclick="scriptDoLoad('keywords.php', 'content', 'sec=import')"><?php echo $spTextKeyword['Import Keywords']?></a></li>
@@ -77,7 +79,12 @@ foreach($menuList as $i => $menuInfo){
 			?>
 			<script type="text/javascript">scriptList[<?php echo $i?>] = 'rank.php?sec=google';</script>			
 			<ul id='subui'>
-				<li><a href="javascript:void(0);" onclick="scriptDoLoad('rank.php?sec=quickrank', 'content')"><?php echo $spTextTools['Quick Rank Checker']?></a></li>
+				<?php if (isQuickCheckerEnabled()) {?>
+					<script type="text/javascript">scriptList[<?php echo $i?>] = 'rank.php?sec=quickrank';</script>	
+					<li><a href="javascript:void(0);" onclick="scriptDoLoad('rank.php?sec=quickrank', 'content')"><?php echo $spTextTools['Quick Rank Checker']?></a></li>
+				<?php } else {?>
+					<script type="text/javascript">scriptList[<?php echo $i?>] = 'rank.php?sec=reports';</script>	
+				<?php }?>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('rank.php?sec=reports', 'content')"><?php echo $spTextTools['Rank Reports']?></a></li>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('rank.php?sec=graphical-reports', 'content')"><?php echo $spTextTools['Graphical Position Reports']?></a></li>
 				<?php if(SP_USER_GEN_REPORT || isAdmin()){ ?>
@@ -92,10 +99,14 @@ foreach($menuList as $i => $menuInfo){
 			break;
 			
 		case "backlink-checker":
-			?>
-			<script type="text/javascript">scriptList[<?php echo $i?>] = 'backlinks.php';</script>			
+			?>		
 			<ul id='subui'>
-				<li><a href="javascript:void(0);" onclick="scriptDoLoad('backlinks.php', 'content')"><?php echo $spTextTools['Quick Backlinks Checker']?></a></li>
+				<?php if (isQuickCheckerEnabled()) {?>
+					<script type="text/javascript">scriptList[<?php echo $i?>] = 'backlinks.php';</script>
+					<li><a href="javascript:void(0);" onclick="scriptDoLoad('backlinks.php', 'content')"><?php echo $spTextTools['Quick Backlinks Checker']?></a></li>
+				<?php } else {?>
+					<script type="text/javascript">scriptList[<?php echo $i?>] = 'backlinks.php?sec=reports';</script>	
+				<?php }?>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('backlinks.php?sec=reports', 'content')"><?php echo $spTextTools['Backlinks Reports']?></a></li>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('backlinks.php?sec=graphical-reports', 'content')"><?php echo $spTextTools['Graphical Position Reports']?></a></li>
 				<?php if(SP_USER_GEN_REPORT || isAdmin()){ ?>
@@ -129,10 +140,14 @@ foreach($menuList as $i => $menuInfo){
 			break;			
 			
 		case "saturation-checker":
-			?>
-			<script type="text/javascript">scriptList[<?php echo $i?>] = 'saturationchecker.php';</script>			
+			?>			
 			<ul id='subui'>
-				<li><a href="javascript:void(0);" onclick="scriptDoLoad('saturationchecker.php', 'content')"><?php echo $spTextTools['Quick Saturation Checker']?></a></li>
+				<?php if (isQuickCheckerEnabled()) {?>
+					<script type="text/javascript">scriptList[<?php echo $i?>] = 'saturationchecker.php';</script>
+					<li><a href="javascript:void(0);" onclick="scriptDoLoad('saturationchecker.php', 'content')"><?php echo $spTextTools['Quick Saturation Checker']?></a></li>
+				<?php } else {?>
+					<script type="text/javascript">scriptList[<?php echo $i?>] = 'saturationchecker.php?sec=reports';</script>	
+				<?php }?>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('saturationchecker.php?sec=reports', 'content')"><?php echo $spTextTools['Saturation Reports']?></a></li>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('saturationchecker.php?sec=graphical-reports', 'content')"><?php echo $spTextTools['Graphical Position Reports']?></a></li>
 				<?php if(SP_USER_GEN_REPORT || isAdmin()){ ?>				
@@ -147,10 +162,14 @@ foreach($menuList as $i => $menuInfo){
 			break;			
 			
 		case "pagespeed":
-			?>
-			<script type="text/javascript">scriptList[<?php echo $i?>] = 'pagespeed.php';</script>			
+			?>	
 			<ul id='subui'>
-				<li><a href="javascript:void(0);" onclick="scriptDoLoad('pagespeed.php', 'content')"><?php echo $spTextTools['Quick PageSpeed Checker']?></a></li>
+				<?php if (isQuickCheckerEnabled()) {?>
+					<script type="text/javascript">scriptList[<?php echo $i?>] = 'pagespeed.php';</script>
+					<li><a href="javascript:void(0);" onclick="scriptDoLoad('pagespeed.php', 'content')"><?php echo $spTextTools['Quick PageSpeed Checker']?></a></li>
+				<?php } else {?>
+					<script type="text/javascript">scriptList[<?php echo $i?>] = 'pagespeed.php?sec=reports';</script>	
+				<?php }?>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('pagespeed.php?sec=reports', 'content')"><?php echo $spTextTools['PageSpeed Reports']?></a></li>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('pagespeed.php?sec=graphical-reports', 'content')"><?php echo $spTextTools['Graphical Position Reports']?></a></li>
 				<?php if(SP_USER_GEN_REPORT || isAdmin()){ ?>				
