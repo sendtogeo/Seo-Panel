@@ -27,8 +27,8 @@ include_once(SP_CTRLPATH . "/seotools.ctrl.php");
 class UserTypeController extends Controller {
 	
 	public $userSpecFields = array(
-		'enable_email_activation', 'keywordcount','websitecount', 'searchengine_count', 'directory_submit_limit',
-		'directory_submit_daily_limit', 'site_auditor_max_page_limit', 'price',
+		'price','keywordcount','websitecount', 'searchengine_count', 'directory_submit_limit',
+		'directory_submit_daily_limit', 'site_auditor_max_page_limit', 'enable_email_activation', 
 	);
 	
 	/**
@@ -48,7 +48,7 @@ class UserTypeController extends Controller {
     	}
     	
     	// get seo tool access list
-    	$toolAccessList = $this->getSeoToolAccessSettings($userTypeId);
+    	$toolAccessList = $this->getSeoToolAccessSettings();
 
     	// assign new fields to user spec for seo tool access
     	foreach ($toolAccessList as $toolInfo) {
@@ -342,6 +342,7 @@ class UserTypeController extends Controller {
 			$pluginAccessList[$pluginInfo['id']] = array(
 				'name' => $pluginCol,
 				'label' => $pluginInfo['label'],
+				'status' => $pluginInfo['status'],
 				'value' => isset($userTypeSettingList[$pluginCol]) ? $userTypeSettingList[$pluginCol] : 1,
 			);
 			
@@ -372,6 +373,8 @@ class UserTypeController extends Controller {
 			$toolAccessList[$toolInfo['id']] = array(
 				'name' => $toolCol,
 				'label' => $toolInfo['name'],
+				'status' => $toolInfo['status'],
+				'url_section' => $toolInfo['url_section'],
 				'value' => isset($userTypeSettingList[$toolCol]) ? $userTypeSettingList[$toolCol] : 1,
 			);
 			

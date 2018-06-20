@@ -176,9 +176,76 @@ class UserController extends Controller{
 		
 		// check whetehr plugin installed or not
 		if ($seopluginCtrler->isPluginActive("Subscription")) {
+			$userSpecFields = $utypeCtrler->userSpecFields;
 			$userTypeList = $utypeCtrler->getAllUserTypes();
-			$this->set('list', $userTypeList);
-			$this->set('spTextSubscription', $this->getLanguageTexts('subscription', $_SESSION['lang_code']));			
+			$list = array();
+			foreach ($userTypeList as $userType) $list[$userType['id']] = $userType;
+			$this->set('list', $list);
+			
+			$spTextSubscription = $this->getLanguageTexts('subscription', $_SESSION['lang_code']);
+			$spTextTools = $this->getLanguageTexts('seotools', $_SESSION['lang_code']);
+			$this->set('spTextSubscription', $spTextSubscription);
+			
+			// get all plugin access list
+			$pluginAccessList = $utypeCtrler->getPluginAccessSettings();
+			$pluginNameList = array();
+			foreach ($pluginAccessList as $pluginAccessInfo) {
+				if ($pluginAccessInfo['status'] == 0) continue;
+				$pluginNameList[$pluginAccessInfo['name']] = $pluginAccessInfo['label'];
+			}
+				
+			// get all seo tool access list
+			$toolAccessList = $utypeCtrler->getSeoToolAccessSettings();
+			$toolNameList = array();
+			foreach ($toolAccessList as $toolAccessInfo) {
+				if ($toolAccessInfo['status'] == 0) continue;
+				$toolNameList[$toolAccessInfo['name']] = $spTextTools[$toolAccessInfo['url_section']];
+			}
+			
+			$utypeSpecList = array();
+			$spText = $_SESSION['text'];
+			foreach ($userSpecFields as $specName) {
+				
+				if (in_array($specName, array('enable_email_activation'))) continue;
+				
+				if (stristr($specName, 'plugin_')) {
+					if (empty($pluginNameList[$specName])) continue;
+					$utypeSpecList[$specName] = $pluginNameList[$specName];
+					continue;
+				}
+				
+				if (stristr($specName, 'seotool_')) {
+					if (empty($toolNameList[$specName])) continue;
+					$utypeSpecList[$specName] = $toolNameList[$specName];
+					continue;
+				}
+				
+				switch ($specName) {
+					case "price":
+						$utypeSpecList[$specName] = $spText['common']['Price'];
+						break;
+					case "keywordcount":
+						$utypeSpecList[$specName] = $spText['common']['Keywords Count'];
+						break;
+					case "websitecount":
+						$utypeSpecList[$specName] = $spText['common']['Websites Count'];
+						break;
+					case "searchengine_count":
+						$utypeSpecList[$specName] = $spText['common']['Search Engine Count'];
+						break;
+					case "directory_submit_limit":
+						$utypeSpecList[$specName] = $spTextSubscription['Directory Submit Limit'];
+						break;
+					case "directory_submit_daily_limit":
+						$utypeSpecList[$specName] = $spTextSubscription['Directory Submit Daily Limit'];
+						break;
+					default:
+						$utypeSpecList[$specName] = $spTextSubscription[$specName];
+						
+				}
+			}			
+
+			$this->set('utypeSpecList', $utypeSpecList);						
 			$currencyCtrler = new CurrencyController();
 			$this->set('currencyList', $currencyCtrler->getCurrencyCodeMapList());
 			$this->render('common/pricing');

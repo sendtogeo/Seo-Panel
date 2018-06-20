@@ -56,6 +56,7 @@ ALTER TABLE `keyword_analytics` ADD `source` ENUM( 'google', 'yahoo', 'bing', 'b
 ALTER TABLE `keyword_analytics` ADD PRIMARY KEY (`id`), ADD KEY `keyword_id` (`keyword_id`);
 ALTER TABLE `keyword_analytics` MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
 
+ALTER TABLE `usertypes` CHANGE `description` `description` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;
 
 INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 ('en', 'settings', 'SP_GOOGLE_API_CLIENT_ID', 'Google API Client Id'),
@@ -71,4 +72,5 @@ INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 ('en', 'subscription', 'enable_email_activation', 'Enable Email Activation'),
 ('en', 'register', 'user_confirm_mail_cont_1', 'Thank you for your registration with'),
 ('en', 'register', 'user_confirm_mail_cont_2', 'Please click on the following link to confirm registration'),
-('en', 'register', 'user_confirm_content_1', 'Internal error occured while processing confirm request');
+('en', 'register', 'user_confirm_content_1', 'Internal error occured while processing confirm request'),
+('en', 'label', 'Feature', 'Feature');
