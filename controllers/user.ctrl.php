@@ -316,11 +316,22 @@ class UserController extends Controller{
 							$this->set('paymentForm', $paymentForm);							
 						} else {
 							$this->__changeStatus($userId, 1);
+							
+							// if trial period is set for user type
+							if (!empty($utypeInfo['free_trial_period'])) {
+								$totalDays = intval($utypeInfo['free_trial_period']);
+								$day = date('d') + $totalDays;
+								$expiryTimeStamp = mktime(23, 59, 59, date('m'), $day, date('Y'));
+								$expiryDate = date('Y-m-d', $expiryTimeStamp);
+								$this->updateUserInfo($userId, 'expiry_date', $expiryDate);
+							}
+							
 						}						
 					}
 					
 					# get confirm code
 					if ($utypeCtrler->isEmailActivationEnabledForUserType($utypeId)) {
+						$this->__changeStatus($userId, 0);
 						$cfm = str_shuffle($userId . $userInfo['userName']);
 						$sql = "update users set confirm_code='$cfm' where id=$userId";
 						$this->db->query($sql);

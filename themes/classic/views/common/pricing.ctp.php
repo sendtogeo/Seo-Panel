@@ -31,11 +31,18 @@
 							<?php foreach ($list as $listInfo) {?>
 								<td class="td_br_right">
 									<?php
-									if ($specName == 'price') {
+									if ($specName == 'free_trial_period') {
+										$days = intval($listInfo[$specName]);
+										echo !empty($days) ? $days . " {$spText['label']['Days']}" : "-";
+									} else if ($specName == 'price') {
 										?>
-										<b style="font-size: 18px;">
+										<b style="font-size: 18px;color: #FF6600;">
 											<?php
-											echo !empty($listInfo[$specName]) ? $currencyList[SP_PAYMENT_CURRENCY]['symbol'] . $listInfo[$specName] : $spText['label']['Free'];
+											if (!empty($listInfo[$specName])) {
+												echo $currencyList[SP_PAYMENT_CURRENCY]['symbol'] . floatval($listInfo[$specName]) . "<font style='font-size: 12px;font-weight: normal;'>/" . $spText['label']['Monthly'] . "</font>";
+											} else {
+												echo $spText['label']['Free'];
+											}
 											?>
 										</b>
 										<?php

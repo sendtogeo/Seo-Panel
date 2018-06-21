@@ -28,7 +28,7 @@ class UserTypeController extends Controller {
 	
 	public $userSpecFields = array(
 		'price','keywordcount','websitecount', 'searchengine_count', 'directory_submit_limit',
-		'directory_submit_daily_limit', 'site_auditor_max_page_limit', 'enable_email_activation', 
+		'directory_submit_daily_limit', 'site_auditor_max_page_limit', 'enable_email_activation', 'free_trial_period'
 	);
 	
 	/**

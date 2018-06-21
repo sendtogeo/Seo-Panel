@@ -70,7 +70,10 @@ INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 ('en', 'login', 'Your account activated successfully', 'Your account activated successfully'),
 ('en', 'login', 'user_not_activated_msg', 'User is not activated. Please check your mail for activation'),
 ('en', 'subscription', 'enable_email_activation', 'Enable Email Activation'),
+('en', 'subscription', 'free_trial_period', 'Free Trial Period'),
 ('en', 'register', 'user_confirm_mail_cont_1', 'Thank you for your registration with'),
 ('en', 'register', 'user_confirm_mail_cont_2', 'Please click on the following link to confirm registration'),
 ('en', 'register', 'user_confirm_content_1', 'Internal error occured while processing confirm request'),
-('en', 'label', 'Feature', 'Feature');
+('en', 'label', 'Feature', 'Feature'),
+('en', 'label', 'Months', 'Months'),
+('en', 'label', 'Days', 'Days');

@@ -75,8 +75,14 @@
 	
 	<?php if ($isPluginSubsActive) {?>
 		<tr class="blue_row">
-			<td class="td_left_col"><?php echo $spText['common']['Price']?>:</td>
+			<td class="td_left_col"><?php echo $spText['common']['Price']?>(<?php echo $spText['label']['Monthly']?>):</td>
 			<td class="td_right_col"><?php echo $currencyList[SP_PAYMENT_CURRENCY]['symbol']; ?><input type="text" name="price" id="price" value="<?php echo $post['price']?>"><?php echo $errMsg['price']?></td>
+		</tr>		
+		<tr class="blue_row">
+			<td class="td_left_col"><?php echo $spTextSubscription['free_trial_period']?>(<?php echo $spText['label']['Days']?>):</td>
+			<td class="td_right_col">
+				<input type="text" name="free_trial_period" id="free_trial_period" value="<?php echo $post['free_trial_period']?>"><?php echo $errMsg['free_trial_period']?>
+			</td>
 		</tr>
 	<?php }?>
 	<tr class="blue_row">
