@@ -31,6 +31,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	switch($_GET['sec']){
 		
 		case "pricing":
+			$controller->view->menu = 'pricing';
 			$controller->showPricing();
 			break;
 		

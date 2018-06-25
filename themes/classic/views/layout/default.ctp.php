@@ -78,7 +78,7 @@ var wantproceed = '<?php  echo $spText['label']['wantproceed']; ?>';
 </div>
 <div id="tmp"><form name="tmp" id="tmp"></form></div>
 <div id="dialogContent" style="display:none;"></div>
-<?php if(empty($_COOKIE['hidenews'])){ ?>
+<?php if(empty($_COOKIE['hidenews']) && !SP_HOSTED_VERSION){ ?>
 	<script>scriptDoLoad('<?php echo SP_WEBPATH?>/index.php?sec=news', 'newsalert');</script>
 <?php }?>
 </body>

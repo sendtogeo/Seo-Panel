@@ -76,4 +76,5 @@ INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 ('en', 'register', 'user_confirm_content_1', 'Internal error occured while processing confirm request'),
 ('en', 'label', 'Feature', 'Feature'),
 ('en', 'label', 'Months', 'Months'),
-('en', 'label', 'Days', 'Days');
+('en', 'label', 'Days', 'Days'),
+('en', 'common', 'Pricing', 'Pricing');
