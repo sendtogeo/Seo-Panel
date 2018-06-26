@@ -81,5 +81,11 @@ var wantproceed = '<?php  echo $spText['label']['wantproceed']; ?>';
 <?php if(empty($_COOKIE['hidenews']) && !SP_HOSTED_VERSION){ ?>
 	<script>scriptDoLoad('<?php echo SP_WEBPATH?>/index.php?sec=news', 'newsalert');</script>
 <?php }?>
+<?php
+// add google analytics code to verify the site hits 
+if ( defined('SP_GOOGLE_ANALYTICS_TRACK_CODE') && !empty(SP_GOOGLE_ANALYTICS_TRACK_CODE)) { 
+	echo SP_GOOGLE_ANALYTICS_TRACK_CODE;
+}
+?>
 </body>
 </html>
