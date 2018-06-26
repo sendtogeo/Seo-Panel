@@ -83,7 +83,7 @@ var wantproceed = '<?php  echo $spText['label']['wantproceed']; ?>';
 <?php }?>
 <?php
 // add google analytics code to verify the site hits 
-if ( defined('SP_GOOGLE_ANALYTICS_TRACK_CODE') && !empty(SP_GOOGLE_ANALYTICS_TRACK_CODE)) { 
+if ( defined('SP_GOOGLE_ANALYTICS_TRACK_CODE')) { 
 	echo SP_GOOGLE_ANALYTICS_TRACK_CODE;
 }
 ?>
