@@ -269,7 +269,7 @@ class UserController extends Controller{
 		$errMsg['firstName'] = formatErrorMsg($this->validate->checkBlank($userInfo['firstName']));
 		$errMsg['lastName'] = formatErrorMsg($this->validate->checkBlank($userInfo['lastName']));
 		$errMsg['email'] = formatErrorMsg($this->validate->checkEmail($userInfo['email']));
-		$errMsg['code'] = formatErrorMsg($this->validate->checkCaptcha($userInfo['code']));
+// 		$errMsg['code'] = formatErrorMsg($this->validate->checkCaptcha($userInfo['code']));
 		$errMsg['utype_id'] = formatErrorMsg($this->validate->checkNumber($userInfo['utype_id']));
 		
 		// if admin user type selected, show error
@@ -336,14 +336,20 @@ class UserController extends Controller{
 						$sql = "update users set confirm_code='$cfm' where id=$userId";
 						$this->db->query($sql);
 						$this->set('confirmLink', SP_WEBPATH . "/register.php?sec=confirm&code=$cfm");
-							
+						
+						// get mail details
+						$adminInfo = $this->__getAdminInfo();
+						$adminName = $adminInfo['first_name']." ".$adminInfo['last_name'];
+						$this->set('name', $userInfo['firstName']." ".$userInfo['lastName']);
+						$subject = SP_COMPANY_NAME . " " . $this->spTextRegister['Registration'];
 						$content = $this->getViewContent('email/accountconfirmation');
-						if(!sendMail(SP_SUPPORT_EMAIL, SP_ADMIN_NAME, $userInfo['email'], $subject, $content)){
+						
+						if(!sendMail($adminInfo['email'], $adminName, $userInfo['email'], $subject, $content)){
 							$error = showErrorMsg(
 								'An internal error occured while sending confirmation mail! Please <a href="'.SP_CONTACT_LINK.'">contact</a> seo panel team.',
 								false
 							);
-						}
+						}						
 					}
 					
 					$this->set('error', $error);

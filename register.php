@@ -6,7 +6,7 @@ include_once(SP_CTRLPATH."/seoplugins.ctrl.php");
 include_once(SP_CTRLPATH."/user-type.ctrl.php");
 $controller = New UserController();
 
-if(isLoggedIn() || !SP_USER_REGISTRATION){
+if($_GET['sec'] != 'pricing' && (isLoggedIn() || !SP_USER_REGISTRATION)) {
 	redirectUrl(SP_WEBPATH."/");
 }
 

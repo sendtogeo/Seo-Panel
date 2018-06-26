@@ -37,6 +37,7 @@ if (!empty($paymentForm)) {
 					}
 					?>
 				</select>
+				<a class="bold_link" target="_blank" href="<?php echo SP_WEBPATH . "/register.php?sec=pricing"; ?>"><?php echo $spTextSubscription['Plans and Pricing']?> &gt;&gt;</a>
 			</td>
 		</tr>
 		<tr class="blue_row">

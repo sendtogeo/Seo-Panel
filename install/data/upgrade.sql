@@ -77,4 +77,5 @@ INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 ('en', 'label', 'Feature', 'Feature'),
 ('en', 'label', 'Months', 'Months'),
 ('en', 'label', 'Days', 'Days'),
-('en', 'common', 'Pricing', 'Pricing');
+('en', 'common', 'Pricing', 'Pricing'),
+('en', 'register', 'Registration', 'Registration');
