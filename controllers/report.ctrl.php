@@ -73,6 +73,7 @@ class ReportController extends Controller {
 	function showKeywordReportSummary($searchInfo = '') {
 		
 		$userId = isLoggedIn();
+		$keywordController = New KeywordController();
 		$exportVersion = false;
 		switch($searchInfo['doc_type']){
 						
@@ -123,8 +124,8 @@ class ReportController extends Controller {
 		}
 		$this->set('websiteUrl', $websiteUrl);
 		
-		$seController = New SearchEngineController();
-		$this->seLIst = $seController->__getAllSearchEngines();
+		$seSearchUserId = isAdmin() ? "" : $userId;
+		$this->seLIst = $keywordController->getUserKeywordSearchEngineList($seSearchUserId);
 		$this->set('seList', $this->seLIst);
 		
 		// to find order col
@@ -141,7 +142,6 @@ class ReportController extends Controller {
 		$scriptPath = SP_WEBPATH."/reports.php?sec=reportsum&website_id=$websiteId";
 		$scriptPath .= "&from_time=$fromTimeTxt&to_time=$toTimeTxt&search_name=" . $searchInfo['search_name'];
 		$scriptPath .= "&order_col=$orderCol&order_val=$orderVal";
-		$keywordController = New KeywordController();
 		
 		if (in_array($searchInfo['doc_type'], array("pdf", "export"))) {
 			$list = $keywordController->__getAllKeywords($userId, $websiteId, true, true, $orderVal, $searchInfo['search_name']);
@@ -921,7 +921,8 @@ class ReportController extends Controller {
 		$this->set('sectionHead', 'Overall Report Summary');
 		$userId = empty($cronUserId) ? isLoggedIn() : $cronUserId;
 		$isAdmin = isAdmin();
-		
+
+		$keywordController = New KeywordController();
 		$websiteCtrler = New WebsiteController();
 		$websiteList = $websiteCtrler->__getAllWebsites($userId, true);
 		$this->set('siteList', $websiteList);
@@ -962,10 +963,10 @@ class ReportController extends Controller {
 		$this->set('fromTime', $fromTimeShort);
 		$toTimeShort = date('Y-m-d', $toTime);
 		$this->set('toTime', $toTimeShort);		
-		$urlarg .= "&from_time=$fromTimeShort&to_time=$toTimeShort&search_name=" . $searchInfo['search_name'];		
+		$urlarg .= "&from_time=$fromTimeShort&to_time=$toTimeShort&search_name=" . $searchInfo['search_name'];	
 		
-		$seController = New SearchEngineController();
-		$this->seLIst = $seController->__getAllSearchEngines();
+		$seSearchUserId = isAdmin() ? "" : $userId;
+		$this->seLIst = $keywordController->getUserKeywordSearchEngineList($seSearchUserId);
 		$this->set('seList', $this->seLIst);
 		
 		$this->set('isAdmin', $isAdmin);
@@ -988,7 +989,6 @@ class ReportController extends Controller {
     		
     		$this->set('orderCol', $orderCol);
     		$this->set('orderVal', $orderVal);
-    		$keywordController = New KeywordController();
 			$scriptPath .= "&report_type=keyword-position&order_col=$orderCol&order_val=$orderVal";
     		
     		if (in_array($searchInfo['doc_type'], array("pdf", "export")) || !empty($cronUserId)) {
