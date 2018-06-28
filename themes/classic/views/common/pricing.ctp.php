@@ -35,6 +35,7 @@
 										$days = intval($listInfo[$specName]);
 										echo !empty($days) ? $days . " {$spText['label']['Days']}" : "-";
 									} else if ($specName == 'price') {
+										$orderLink = SP_WEBPATH . '/register.php?utype_id=' . $listInfo['id'];
 										?>
 										<b style="font-size: 18px;color: #FF6600;">
 											<?php
@@ -45,6 +46,9 @@
 											}
 											?>
 										</b>
+										<br><br>
+										<a class="actionbut" href="<?php echo $orderLink; ?>" style="font-size: 16px;"><?php echo $spText['common']['Sign Up']; ?> &gt;&gt;</a>
+										<br><br>
 										<?php
 									} else {																		
 										if ($boolVal) {
@@ -68,7 +72,8 @@
 							$orderLink = SP_WEBPATH . '/register.php?utype_id=' . $listInfo['id'];
 							?>
 							<td>
-								<a class="bold_link" href="<?php echo $orderLink; ?>" style="font-size: 16px;"><?php echo $spTextSubscription['Subscribe']; ?> &gt;&gt;</a>
+								<br>
+								<a class="actionbut" href="<?php echo $orderLink; ?>" style="font-size: 16px;"><?php echo $spText['common']['Sign Up']; ?> &gt;&gt;</a>
 							</td>
 						<?php }?>
 					</tr>					
