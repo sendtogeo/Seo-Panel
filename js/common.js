@@ -184,6 +184,7 @@ function doAction(scriptUrl, scriptPos, scriptArgs, actionDiv) {
 				if((actVal == 'delete') || (actVal == 'Activate') || (actVal == 'Inactivate') || (actVal == 'recheckreport') 
 					|| (actVal == 'showrunproject') || (actVal == 'checkscore') || (actVal == 'deletepage') || (actVal == 'upgrade') || (actVal == 'reinstall') ){
 					alertDemoMsg();
+					return false;
 				}
 			}
 			confirmLoad(scriptUrl, scriptPos, scriptArgs);
