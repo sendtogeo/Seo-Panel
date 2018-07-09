@@ -696,9 +696,9 @@ class UserController extends Controller{
 			
 			$spTextSubscription = $this->getLanguageTexts('subscription', $_SESSION['lang_code']);
 			$this->set('spTextSubscription', $spTextSubscription);
-			
 			include_once(SP_PLUGINPATH . "/Subscription/paymentgateway.ctrl.php");
-			$userTypeList = $userTypeCtrler->getAllUserTypes();
+			
+			$userTypeList = $userTypeCtrler->getRenewUserTypeList($userInfo['utype_id']);
 			$this->set('userTypeList', $userTypeList);
 			
 			$currencyCtrler = new CurrencyController();
@@ -731,7 +731,14 @@ class UserController extends Controller{
 			$adminTypeId = $utypeCtrler->getAdminUserTypeId();
 			if ($adminTypeId == $userInfo['utype_id']) {
 				$this->validate->flagErr = true;
-				$errMsg['userName'] = formatErrorMsg("You can not register as admin!!");
+				$errMsg['utype_id'] = formatErrorMsg("You can not register as admin.");
+			}
+			
+			// get renew usertype list
+			$userTypeList = $utypeCtrler->getRenewUserTypeList($userInfo['utype_id']);
+			if (!in_array($userInfo['utype_id'], array_keys($userTypeList))) {
+				$this->validate->flagErr = true;
+				$errMsg['utype_id'] = formatErrorMsg("You are not allowed to upgrade to this plan.");
 			}
 			
 			// if all form inputs are valid

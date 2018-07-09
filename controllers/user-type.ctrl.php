@@ -628,5 +628,36 @@ class UserTypeController extends Controller {
 		return $specValue;
 	}
 	
+	/**
+	 * function to get renew user typelist
+	 */
+	function getRenewUserTypeList($userTypeId) {
+		
+		$userTypeCtrler = new UserTypeController();
+		$userTypeInfo = $userTypeCtrler->__getUserTypeInfo($userTypeId);
+		$typeList = $userTypeCtrler->getAllUserTypes();
+		$userTypeList = array();
+			
+		// loop through the list to find the exact user types - remove the plans below current plan, disable free trial plans
+		$startAdd = false;
+		foreach ($typeList as $typeInfo) {
+		
+			// same user type selected
+			if ($typeInfo['id'] == $userTypeId) {
+				$startAdd = true;
+				if ($userTypeInfo['free_trial_period'] > 0) continue;
+			}
+		
+			// start to add
+			if ($startAdd) {
+				$userTypeList[$typeInfo['id']] = $typeInfo;
+			}
+		
+		}
+		
+		return $userTypeList;
+		
+	}
+	
 }
 ?>
