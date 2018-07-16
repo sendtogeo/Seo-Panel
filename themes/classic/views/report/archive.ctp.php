@@ -88,10 +88,13 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 <div id='subcontent' style="margin-top: 40px;">
 <?php 
 if (!empty($keywordPos)) {
+	$seCount = count($seList);
+	$colCount = empty($websiteId) ? ($seCount * 3) + 2 : ($seCount * 3) + 1;
 	?>
 	<div>
 	<?php echo $keywordPagingDiv?>
-	<table width="100%" border="0" cellspacing="0" cellpadding="0" class="list" style="<?php echo $borderCollapseVal; ?>">
+	<table width="100%" border="0" cellspacing="0" cellpadding="0" class="summary" style="<?php echo $borderCollapseVal; ?>">
+		<tr><td class="topheader" colspan="<?php echo $colCount?>"><?php echo $spTextTools['Keyword Position Summary']?></td></tr>
 		<tr class="squareHead">
 			<?php
 			$linkClass = "";
@@ -113,7 +116,6 @@ if (!empty($keywordPos)) {
 				<td class="left" rowspan="2" style="border-right:2px solid #B0C2CC;"><?php echo $linkName?></td>
 			<?php }?>
 			<?php
-			$seCount = count($seList);
 			foreach ($seList as $i => $seInfo){
 			    
 			    $linkClass = "";
@@ -151,8 +153,7 @@ if (!empty($keywordPos)) {
 			}
 			?>
 		</tr>
-		<?php
-		$colCount = empty($websiteId) ? ($seCount * 3) + 2 : ($seCount * 3) + 1; 
+		<?php		 
 		if (count($list) > 0) {
 			
 			$catCount = count($list);

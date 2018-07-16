@@ -21,8 +21,8 @@ ALTER TABLE `user_tokens` MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
 
 
 INSERT INTO `settings` (`set_label`, `set_name`, `set_val`, `set_category`, `set_type`, `display`) VALUES 
-('Google API Key', 'SP_GOOGLE_API_CLIENT_ID', '', 'google', 'large', '1'),
-('Google API Key', 'SP_GOOGLE_API_CLIENT_SECRET', '', 'google', 'large', '1'),
+('Google API Client Id', 'SP_GOOGLE_API_CLIENT_ID', '', 'google', 'large', '1'),
+('Google API Client Secret', 'SP_GOOGLE_API_CLIENT_SECRET', '', 'google', 'large', '1'),
 ('Google Analytics Tracking Code', 'SP_GOOGLE_ANALYTICS_TRACK_CODE', '', 'google', 'text', '1');
 
 ALTER TABLE `users` ADD column `confirm_code` varchar(120) NOT NULL DEFAULT '';
@@ -58,6 +58,18 @@ ALTER TABLE `keyword_analytics` MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
 
 ALTER TABLE `usertypes` CHANGE `description` `description` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;
 
+
+ALTER TABLE `seotools` ADD `priority` INT NOT NULL DEFAULT '100' AFTER `cron` ;
+
+UPDATE `seotools` SET `priority` = '10' WHERE url_section='keyword-position-checker';
+
+INSERT `seotools` (`name`, `url_section` ,`user_access` ,`reportgen` ,`cron` ,`status`, `priority`)
+VALUES ('Webmaster Tools', 'webmaster-tools', '1', '1', '1', '1', '20');
+
+
+ALTER TABLE `seoplugins` ADD `priority` INT NOT NULL DEFAULT '100';
+
+
 INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 ('en', 'settings', 'SP_GOOGLE_API_CLIENT_ID', 'Google API Client Id'),
 ('en', 'settings', 'SP_GOOGLE_API_CLIENT_SECRET', 'Google API Client Secret'),
@@ -78,4 +90,6 @@ INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 ('en', 'label', 'Months', 'Months'),
 ('en', 'label', 'Days', 'Days'),
 ('en', 'common', 'Pricing', 'Pricing'),
-('en', 'register', 'Registration', 'Registration');
+('en', 'register', 'Registration', 'Registration'),
+('en', 'seotools', 'webmaster-tools', 'Webmaster Tools'),
+('en', 'seotools', 'Keyword Search Analytics', 'Keyword Search Analytics');

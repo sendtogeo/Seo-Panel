@@ -110,7 +110,7 @@ class WebMasterController extends GoogleAPIController {
 				// for each keyword list
 				foreach ($keywordList as $keywordInfo) {
 					
-					// if keyword preent in api response results
+					// if keyword present in api response results
 					if (isset($keywordAnalytics[$keywordInfo['name']])) {
 						$reportInfo = $keywordAnalytics[$keywordInfo['name']];
 						$info = array(

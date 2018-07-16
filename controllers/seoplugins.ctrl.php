@@ -239,7 +239,7 @@ class SeoPluginsController extends Controller{
 	# func to get all seo tools
 	function __getAllSeoPlugins($whereCond = ""){
 		$whereCond = !empty($whereCond) ? $whereCond : "1=1";
-		$sql = "select * from seoplugins where $whereCond order by id";
+		$sql = "select * from seoplugins where $whereCond order by priority,id";
 		$seoPluginList = $this->db->select($sql);
 		return $seoPluginList;
 	}

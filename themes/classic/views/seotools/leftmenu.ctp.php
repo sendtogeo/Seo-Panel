@@ -50,6 +50,15 @@ foreach($menuList as $i => $menuInfo){
 			<?php
 			break;
 			
+		case "webmaster-tools":
+			?>
+			<script type="text/javascript">scriptList[<?php echo $i?>] = 'webmaster-tools.php';</script>			
+			<ul id='subui'>
+				<li><a href="javascript:void(0);" onclick="scriptDoLoad('webmaster-tools.php?sec=viewreports', 'content')"><?php echo $spTextTools['Keyword Search Analytics']?></a></li>
+			</ul>
+			<?php
+			break;
+			
 		case "site-auditor":
 			?>
 			<script type="text/javascript">scriptList[<?php echo $i?>] = 'siteauditor.php';</script>			
