@@ -92,7 +92,7 @@ class WebMasterController extends GoogleAPIController {
 	/*
 	 * function to store website results
 	 */
-	function storeWebsiteAnalytics($websiteId, $reportDate, $source = "google") {
+	function storeWebsiteAnalytics($websiteId, $reportDate, $source = "google") {		
 		$websiteId = intval($websiteId);
 		$websiteCtrler = new WebsiteController();
 		$websiteInfo = $websiteCtrler->__getWebsiteInfo($websiteId);		

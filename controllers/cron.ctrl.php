@@ -399,7 +399,9 @@ class CronController extends Controller {
 		
 		$wmCtrler = New WebMasterController();
 		$websiteInfo = $this->websiteInfo;
-		$reportDate = date('Y-m-d', $this->timeStamp);
+		
+		// report date should be less than 2 days, then only reports will be generated
+		$reportDate = date('Y-m-d', $this->timeStamp - (2 * 60 * 60 * 24));
 		
 		// loop through source list
 		foreach ($wmCtrler->sourceList as $source) {
@@ -411,7 +413,7 @@ class CronController extends Controller {
 			$wmCtrler->storeWebsiteAnalytics($websiteInfo['id'], $reportDate, $source);
 		}		
 
-		$this->debugMsg("Saved webmaster tools results of <b>$websiteUrl</b>.....<br>\n");
+		$this->debugMsg("Saved webmaster tools results of <b>{$this->websiteInfo['name']}</b>.....<br>\n");
 		
 	}
 	
