@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS `website_search_analytics` (
   `clicks` int(11) NOT NULL,
   `impressions` int(11) NOT NULL,
   `ctr` float NOT NULL,
-  `average_positon` float NOT NULL,
+  `average_position` float NOT NULL,
   `report_date` date NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS `keyword_analytics` (
   `clicks` int(11) NOT NULL,
   `impressions` int(11) NOT NULL,
   `ctr` float NOT NULL,
-  `average_positon` float NOT NULL,
+  `average_position` float NOT NULL,
   `report_date` date NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 

@@ -489,10 +489,10 @@ class UserController extends Controller{
 	}
 	
 	#function to get all users	
-	function __getAllUsers($active=1,$admin=true){
+	function __getAllUsers($active=1,$admin=true, $orderByCol = "username"){
 		$sql = "select * from users where status=$active";
 		$sql .= $admin ? "" : " and utype_id!=1";
-		$sql .= " order by username"; 
+		$sql .= " order by " . addslashes($orderByCol); 
 		$userList = $this->db->select($sql);
 		return $userList;
 	}
