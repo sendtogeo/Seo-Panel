@@ -54,7 +54,16 @@ foreach($menuList as $i => $menuInfo){
 			?>
 			<script type="text/javascript">scriptList[<?php echo $i?>] = 'webmaster-tools.php';</script>			
 			<ul id='subui'>
-				<li><a href="javascript:void(0);" onclick="scriptDoLoad('webmaster-tools.php?sec=viewreports', 'content')"><?php echo $spTextTools['Keyword Search Analytics']?></a></li>
+				<li>
+					<a href="javascript:void(0);" onclick="scriptDoLoad('webmaster-tools.php?sec=viewKeywordReportsSummary', 'content')">
+						<?php echo 'Keyword Search Analytics Summary'?>
+					</a>
+				</li>
+				<li>
+					<a href="javascript:void(0);" onclick="scriptDoLoad('webmaster-tools.php?sec=viewWebsiteReports', 'content')">
+						<?php echo 'Website Search Analytics Summary'?>
+					</a>
+				</li>
 			</ul>
 			<?php
 			break;
