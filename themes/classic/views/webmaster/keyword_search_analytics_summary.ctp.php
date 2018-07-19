@@ -26,7 +26,7 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
     echo showSectionHead($spTextTools['Keyword Position Summary']);
     ?>
 	<form id='search_form'>
-	<?php $submitLink = "scriptDoLoadPost('reports.php', 'search_form', 'content', '&sec=reportsum')";?>
+	<?php $submitLink = "scriptDoLoadPost('webmaster-tools.php', 'search_form', 'content', '&sec=viewKeywordReportsSummary')";?>
 	<table width="100%" border="0" cellspacing="0" cellpadding="0" class="search">
 		<tr>
 			<th><?php echo $spText['common']['Name']?>: </th>
@@ -36,7 +36,6 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 			<th width="100px"><?php echo $spText['common']['Website']?>: </th>
 			<td width="160px">
 				<select name="website_id" id="website_id" style='width:100px;' onchange="<?php echo $submitLink?>">
-					<option value="">-- <?php echo $spText['common']['All']?> --</option>
 					<?php foreach($websiteList as $websiteInfo){?>
 						<?php if($websiteInfo['id'] == $websiteId){?>
 							<option value="<?php echo $websiteInfo['id']?>" selected><?php echo $websiteInfo['name']?></option>
@@ -58,7 +57,7 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 	</table>
 	</form>
 	<?php
-	if(empty($list)){
+	if(empty($baseReportList)){
 		?>
 		<p class='note'>
 			<?php echo $spText['common']['No Keywords Found']?>.
@@ -69,7 +68,7 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 	}
 
 	// url parameters
-	$mainLink = SP_WEBPATH."/reports.php?sec=reportsum&website_id=$websiteId&from_time=$fromTime&to_time=$toTime&search_name=" . $searchInfo['search_name'];
+	$mainLink = SP_WEBPATH."/webmaster-tools.php?sec=viewKeywordReportsSummary&website_id=$websiteId&from_time=$fromTime&to_time=$toTime&search_name=" . $searchInfo['search_name'];
 	$directLink = $mainLink . "&order_col=$orderCol&order_val=$orderVal&pageno=$pageNo";
 	?>
 	<br><br>
@@ -86,46 +85,30 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="list" style="<?php echo $borderCollapseVal; ?>">
 	<tr class="squareHead">
 		<?php
-		$linkClass = "";
-        if ($orderCol == 'keyword') {
-            $oVal = ($orderVal == 'DESC') ? "ASC" : "DESC";
-            $linkClass .= "sort_".strtolower($orderVal);
-        } else {
-            $oVal = 'ASC';
-        }
-        
-        $hrefAttr = $pdfVersion ? "" : "href='javascript:void(0)'";
-        
-		$linkName = "<a id='sortLink' class='$linkClass' $hrefAttr onclick=\"scriptDoLoad('$mainLink&order_col=keyword&order_val=$oVal', 'content')\">{$spText['common']['Keyword']}</a>"; 
-		?>		
-		<?php if (empty($websiteId)) {?>
-			<td class="left" rowspan="2"><?php echo $spText['common']['Website']?></td>
-			<td rowspan="2" style="border-right:2px solid #B0C2CC;"><?php echo $linkName?></td>
-		<?php } else { ?>
-			<td class="left" rowspan="2" style="border-right:2px solid #B0C2CC;"><?php echo $linkName?></td>
-		<?php }?>
-		<?php
-		$seCount = count($seList);
-		foreach ($seList as $i => $seInfo){
+		$seCount = count($colList);
+		foreach ($colList as $i => $colName){
 		    
 		    $linkClass = "";
-            if ($seInfo['id'] == $orderCol) {
+            if ($colName == $orderCol) {
                 $oVal = ($orderVal == 'DESC') ? "ASC" : "DESC";
                 $linkClass .= "sort_".strtolower($oVal);
             } else {
                 $oVal = 'ASC';
             }
-            $linkName = "<a id='sortLink' class='$linkClass' $hrefAttr onclick=\"scriptDoLoad('$mainLink&order_col={$seInfo['id']}&order_val=$oVal', 'content')\">{$seInfo['domain']}</a>";
+            
+            $linkName = "<a id='sortLink' class='$linkClass' $hrefAttr onclick=\"scriptDoLoad('$mainLink&order_col=$colName&order_val=$oVal', 'content')\">$colName</a>";
 		    
-			if( ($i+1) == $seCount){			
-				?>
-				<td class="right" colspan="3" style="border-right:2px solid #B0C2CC;"><?php echo $linkName; ?></td>
-				<?php	
-			}else{
-				?>
-				<td colspan="3" style="border-right:2px solid #B0C2CC;"><?php echo $linkName; ?></td>
-				<?php
-			}
+            $tdClass = "";
+            if ($i == 0) {
+            	$tdClass = "left";
+            } elseif(($i+1) == $seCount) {
+            	$tdClass = "right";
+            }
+            
+            $rowSpan = ($colName == "name") ? 2 : 1;
+			?>
+			<td rowspan="<?php echo $rowSpan?>" class="<?php echo $tdClass?>" colspan="3" style="border-right:2px solid #B0C2CC;"><?php echo $linkName; ?></td>
+			<?php
 			
 		}
 		?>
@@ -134,7 +117,8 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 		<?php
 		$pTxt = str_replace("-", "/", substr($fromTime, -5));
 		$cTxt = str_replace("-", "/", substr($toTime, -5));
-		foreach ($seList as $i => $seInfo) {
+		foreach ($colList as $i => $colName) {
+			if ($colName == 'name') continue;
 			?>
 			<td><?php echo $pTxt; ?></td>
 			<td><?php echo $cTxt; ?></td>
@@ -144,39 +128,35 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 		?>
 	</tr>
 	<?php
-	$colCount = empty($websiteId) ? ($seCount * 3) + 2 : ($seCount * 3) + 1; 
-	if (count($list) > 0) {
+	$colCount = ($seCount * 3) + 1; 
+	if (count($baseReportList) > 0) {
 		
-		$catCount = count($list);
+		$catCount = count($baseReportList);
 		$i = 0;
-		foreach($indexList as $keywordId => $rankValue){
-		    $listInfo = $list[$keywordId];
-			$positionInfo = $listInfo['position_info'];
+		foreach($baseReportList as $listInfo){
+			$keywordId = $listInfo['id'];
 			$class = ($i % 2) ? "blue_row" : "white_row";
 			
 			if( !$i || ($catCount != ($i + 1)) ){
                 $leftBotClass = "td_left_border td_br_right";
                 $rightBotClass = "td_br_right";
             }
-            $scriptLink = "website_id={$listInfo['website_id']}&keyword_id={$listInfo['id']}&rep=1&from_time=$fromTime&to_time=$toTime";          
+            
+            $scriptLink = "website_id=$websiteId&keyword_id={$listInfo['id']}&rep=1&from_time=$fromTime&to_time=$toTime";          
 			?>
-			<tr class="<?php echo $class?>">				
-				<?php if (empty($websiteId)) {?>
-					<td class="<?php echo $leftBotClass?> left" width='250px;'><?php echo $listInfo['weburl']; ?></td>
-					<td class='td_br_right left' style="border-right:2px solid #B0C2CC;"><?php echo $listInfo['name'] ?></td>
-				<?php } else { ?>
-					<td class="<?php echo $leftBotClass?> left" width='100px;' style="border-right:2px solid #B0C2CC;"><?php echo $listInfo['name']; ?></td>
-				<?php }?>				
+			<tr class="<?php echo $class?>">
+				<td colspan="3" class="<?php echo $leftBotClass?> left" width='100px;' style="border-right:2px solid #B0C2CC;"><?php echo $listInfo['name']; ?></td>
 				<?php
-				foreach ($seList as $index => $seInfo){
-					$rankInfo = $positionInfo[$seInfo['id']];
-					$prevRank = isset($rankInfo[$fromTime]) ? $rankInfo[$fromTime] : "";
-					$currRank = isset($rankInfo[$toTime]) ? $rankInfo[$toTime] : "";
+				foreach ($colList as $index => $colName){
+					if ($colName == 'name') continue;
+					
+					$prevRank = isset($listInfo[$colName]) ? $listInfo[$colName] : 0;
+					$currRank = isset($compareReportList[$keywordId][$colName]) ? $compareReportList[$keywordId][$colName] : 0;
 					$rankDiffTxt = "";
 					
 					// if both ranks are existing
 					if ($prevRank != '' && $currRank != '') {
-						$rankDiff = $prevRank - $currRank;
+						$rankDiff = $currRank - $prevRank;
 						
 						if ($rankDiff > 0) {
 							$rankDiffTxt = "<font class='green'>($rankDiff)</font>";
@@ -187,9 +167,9 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 						}													
 					}
 
-					$prevRankLink = scriptAJAXLinkHrefDialog('reports.php', 'content', $scriptLink."&se_id=".$seInfo['id'], $prevRank);
-					$currRankLink = scriptAJAXLinkHrefDialog('reports.php', 'content', $scriptLink."&se_id=".$seInfo['id'], $currRank);
-					$graphLink = scriptAJAXLinkHrefDialog('graphical-reports.php', 'content', $scriptLink."&se_id=".$seInfo['id'], '&nbsp;', 'graphicon');
+					$prevRankLink = scriptAJAXLinkHrefDialog('webmaster-tools.php', 'content', $scriptLink."&se_id=".$seInfo['id'], $prevRank);
+					$currRankLink = scriptAJAXLinkHrefDialog('webmaster-tools.php', 'content', $scriptLink."&se_id=".$seInfo['id'], $currRank);
+					$graphLink = scriptAJAXLinkHrefDialog('graphical-webmaster-tools.php', 'content', $scriptLink."&se_id=".$seInfo['id'], '&nbsp;', 'graphicon');
 					
 					// if pdf report remove links
 					if ($pdfVersion) {

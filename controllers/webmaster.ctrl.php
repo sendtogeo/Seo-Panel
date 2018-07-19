@@ -28,6 +28,7 @@ class WebMasterController extends GoogleAPIController {
 	
 	var $rowLimit = 5000;
 	var $sourceList = array('google');
+	var $colList = array('name', 'clicks', 'impressions', 'ctr', 'average_position');
 	
 	/*
 	 * function to get webmaster tool query search result
@@ -304,17 +305,21 @@ class WebMasterController extends GoogleAPIController {
 		$scriptPath .= "&from_time=$fromTimeTxt&to_time=$toTimeTxt&search_name=" . $searchInfo['search_name'];
 		$scriptPath .= "&order_col=$orderCol&order_val=$orderVal";
 		
-		$conditions = " and w.status=1 and k.status=1";
-		$conditions .= isAdmin() ? "" : " and w.user_id=$userId";
-		$conditions .= !empty($websiteId) ? " and w.id=$websiteId" : "";
-		$conditions .= !empty($searchInfo['search_name']) ? " and k.name like '%".addslashes($searchInfo['search_name'])."%'" : "";		
-		$sql = "select k.id as keyword_id,k.name,r.* from keywords k, keyword_analytics r, websites w
-		where k.id=r.keyword_id and k.website_id=w.id $conditions
-		and r.source='$source' and r.report_date='[dateVal]'";
-		$allSql = str_replace("[dateVal]", addslashes($toTimeTxt), $sql) . " order by " . addslashes($orderCol) . " " . addslashes($orderVal);
+		$conditions = !empty($websiteId) ? " and k.website_id=$websiteId" : "";
+		$conditions .= !empty($searchInfo['search_name']) ? " and k.name like '%".addslashes($searchInfo['search_name'])."%'" : "";
+		
+		$subSql = "select [cols] from keywords k, keyword_analytics r where k.id=r.keyword_id
+		and k.status=1 $conditions and r.source='$source' and r.report_date='$fromTimeTxt'";
+		
+		$sql = "
+		(" . str_replace("[cols]", "k.id,k.name,r.clicks,r.impressions,r.ctr,r.average_position", $subSql) . ")
+		UNION
+		(select k.id,k.name,0,0,0,0 from keywords k where k.status=1 $conditions 
+		and k.id not in (". str_replace("[cols]", "distinct(k.id)", $subSql) ."))
+		order by " . addslashes($orderCol) . " " . addslashes($orderVal);
 		
 		# pagination setup
-		$this->db->query($allSql, true);
+		$this->db->query($sql, true);
 		$this->paging->setDivClass('pagingdiv');
 		$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
 		$pagingDiv = $this->paging->printPages($scriptPath, '', 'scriptDoLoad', 'content', "");
@@ -322,22 +327,36 @@ class WebMasterController extends GoogleAPIController {
 		$this->set('pageNo', $searchInfo['pageno']);
 		
 		if (!in_array($searchInfo['doc_type'], array("pdf", "export"))) {
-			$allSql .= " limit ".$this->paging->start .",". $this->paging->per_page;
+			$sql .= " limit ".$this->paging->start .",". $this->paging->per_page;
 		}
 		
 		# set report list
-		$toTimeReportList = $this->db->select($allSql);
+		$baseReportList = $this->db->select($sql);
+		$this->set('baseReportList', $baseReportList);
+		$this->set('colList', $this->colList);
 		
-		$keywordIdList = array();
-		foreach ($toTimeReportList as $info) {
-			$keywordIdList[] = $info['keyword_id'];
+		// if keywords existing
+		if (!empty($baseReportList)) {
+			
+			$keywordIdList = array();
+			foreach ($baseReportList as $info) {
+				$keywordIdList[] = $info['id'];
+			}
+
+			$sql = "select k.id,k.name,r.clicks,r.impressions,r.ctr,r.average_position 
+			from keywords k, keyword_analytics r where k.id=r.keyword_id
+			and k.status=1 $conditions and r.source='$source' and r.report_date='$toTimeTxt'";
+			$sql .= " and k.id in(" . implode(",", $keywordIdList) . ")";
+			$reportList = $this->db->select($sql);
+			$compareReportList = array();
+			
+			foreach ($reportList as $info) {
+				$compareReportList[$info['id']] = $info;	
+			}
+			
+			$this->set('compareReportList', $compareReportList);
+			
 		}
-		
-		$fromTimeSql = str_replace("[dateVal]", addslashes($fromTimeTxt), $sql);
-		$fromTimeSql .= " and k.id in(" . implode(",", $keywordIdList) . ")";
-		$fromTimeReportList = $this->db->select($fromTimeSql);
-		
-		$this->set('indexList', $toTimeReportList);
 	
 		if ($exportVersion) {
 			$spText = $_SESSION['text'];
@@ -382,7 +401,6 @@ class WebMasterController extends GoogleAPIController {
 			}
 			exportToCsv('keyword_search_analytics_summary', $exportContent);
 		} else {
-			$this->set('list', $keywordList);
 				
 			// if pdf export
 			if ($searchInfo['doc_type'] == "pdf") {
@@ -391,6 +409,7 @@ class WebMasterController extends GoogleAPIController {
 				$this->set('searchInfo', $searchInfo);
 				$this->render('webmaster/keyword_search_analytics_summary');
 			}
+			
 		}
 	}
 	
