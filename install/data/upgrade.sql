@@ -92,4 +92,10 @@ INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 ('en', 'common', 'Pricing', 'Pricing'),
 ('en', 'register', 'Registration', 'Registration'),
 ('en', 'seotools', 'webmaster-tools', 'Webmaster Tools'),
-('en', 'seotools', 'Keyword Search Analytics', 'Keyword Search Analytics');
+('en', 'seotools', 'Keyword Search Reports', 'Keyword Search Reports'),
+('en', 'seotools', 'Keyword Search Summary', 'Keyword Search Summary'),
+('en', 'seotools', 'Website Search Reports', 'Website Search Reports'),
+('en', 'label', 'Clicks', 'Clicks'),
+('en', 'label', 'Impressions', 'Impressions'),
+('en', 'webmaster', 'Average Position', 'Average Position'),
+;

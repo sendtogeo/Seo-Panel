@@ -1,16 +1,15 @@
 <?php
-
 $borderCollapseVal = $pdfVersion ? "border-collapse: collapse;" : "";
 
 if(!empty($printVersion) || !empty($pdfVersion)) {
-    $pdfVersion ? showPdfHeader($spTextTools['Keyword Position Summary']) : showPrintHeader($spTextTools['Keyword Position Summary']);
+    $pdfVersion ? showPdfHeader($spTextTools['Keyword Search Summary']) : showPrintHeader($spTextTools['Keyword Search Summary']);
     ?>
     <table width="80%" border="0" cellspacing="0" cellpadding="0" class="search">
-    	<?php if (!empty($websiteUrl)) {?>
+    	<?php if (!empty($websiteInfo['url'])) {?>
     		<tr>
     			<th><?php echo $spText['common']['Website']?>:</th>
         		<td>
-        			<?php echo $websiteUrl; ?>
+        			<?php echo $websiteInfo['url']; ?>
     			</td>
     		</tr>
 		<?php }?>
@@ -23,10 +22,10 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 	</table>
     <?php
 } else {
-    echo showSectionHead($spTextTools['Keyword Position Summary']);
+    echo showSectionHead($spTextTools['Keyword Search Summary']);
     ?>
 	<form id='search_form'>
-	<?php $submitLink = "scriptDoLoadPost('webmaster-tools.php', 'search_form', 'content', '&sec=viewKeywordReportsSummary')";?>
+	<?php $submitLink = "scriptDoLoadPost('webmaster-tools.php', 'search_form', 'content', '&sec=viewKeywordSearchSummary')";?>
 	<table width="100%" border="0" cellspacing="0" cellpadding="0" class="search">
 		<tr>
 			<th><?php echo $spText['common']['Name']?>: </th>
@@ -68,7 +67,7 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 	}
 
 	// url parameters
-	$mainLink = SP_WEBPATH."/webmaster-tools.php?sec=viewKeywordReportsSummary&website_id=$websiteId&from_time=$fromTime&to_time=$toTime&search_name=" . $searchInfo['search_name'];
+	$mainLink = SP_WEBPATH."/webmaster-tools.php?sec=viewKeywordSearchSummary&website_id=$websiteId&from_time=$fromTime&to_time=$toTime&search_name=" . $searchInfo['search_name'];
 	$directLink = $mainLink . "&order_col=$orderCol&order_val=$orderVal&pageno=$pageNo";
 	?>
 	<br><br>
@@ -77,31 +76,32 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 		<a href="<?php echo $directLink?>&doc_type=export"><img src="<?php echo SP_IMGPATH?>/icoExport.gif"></a> &nbsp;
 		<a target="_blank" href="<?php echo $directLink?>&doc_type=print"><img src="<?php echo SP_IMGPATH?>/print_button.gif?1"></a>
 	</div>
-	
+	<?php echo $pagingDiv?>
 <?php }?>
-<?php echo $pagingDiv?>
+
 <div id='subcontent' style="margin-top: 0px;">
 
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="list" style="<?php echo $borderCollapseVal; ?>">
 	<tr class="squareHead">
 		<?php
-		$seCount = count($colList);
-		foreach ($colList as $i => $colName){
+		$hrefAttr = $pdfVersion ? "" : "href='javascript:void(0)'";
+		$baseColCount = count($colList);
+		foreach (array_keys($colList) as $i => $colName){
 		    
 		    $linkClass = "";
             if ($colName == $orderCol) {
                 $oVal = ($orderVal == 'DESC') ? "ASC" : "DESC";
-                $linkClass .= "sort_".strtolower($oVal);
+                $linkClass .= "sort_".strtolower($orderVal);
             } else {
                 $oVal = 'ASC';
             }
             
-            $linkName = "<a id='sortLink' class='$linkClass' $hrefAttr onclick=\"scriptDoLoad('$mainLink&order_col=$colName&order_val=$oVal', 'content')\">$colName</a>";
+            $linkName = "<a id='sortLink' class='$linkClass' $hrefAttr onclick=\"scriptDoLoad('$mainLink&order_col=$colName&order_val=$oVal', 'content')\">$colList[$colName]</a>";
 		    
             $tdClass = "";
             if ($i == 0) {
             	$tdClass = "left";
-            } elseif(($i+1) == $seCount) {
+            } elseif(($i+1) == $baseColCount) {
             	$tdClass = "right";
             }
             
@@ -117,7 +117,7 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 		<?php
 		$pTxt = str_replace("-", "/", substr($fromTime, -5));
 		$cTxt = str_replace("-", "/", substr($toTime, -5));
-		foreach ($colList as $i => $colName) {
+		foreach ($colList as $colName => $colVal) {
 			if ($colName == 'name') continue;
 			?>
 			<td><?php echo $pTxt; ?></td>
@@ -128,7 +128,7 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 		?>
 	</tr>
 	<?php
-	$colCount = ($seCount * 3) + 1; 
+	$colCount = ($baseColCount * 3) + 1;
 	if (count($baseReportList) > 0) {
 		
 		$catCount = count($baseReportList);
@@ -147,7 +147,7 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 			<tr class="<?php echo $class?>">
 				<td colspan="3" class="<?php echo $leftBotClass?> left" width='100px;' style="border-right:2px solid #B0C2CC;"><?php echo $listInfo['name']; ?></td>
 				<?php
-				foreach ($colList as $index => $colName){
+				foreach ($colList as $colName => $colVal){
 					if ($colName == 'name') continue;
 					
 					$prevRank = isset($listInfo[$colName]) ? $listInfo[$colName] : 0;
@@ -169,7 +169,7 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 
 					$prevRankLink = scriptAJAXLinkHrefDialog('webmaster-tools.php', 'content', $scriptLink."&se_id=".$seInfo['id'], $prevRank);
 					$currRankLink = scriptAJAXLinkHrefDialog('webmaster-tools.php', 'content', $scriptLink."&se_id=".$seInfo['id'], $currRank);
-					$graphLink = scriptAJAXLinkHrefDialog('graphical-webmaster-tools.php', 'content', $scriptLink."&se_id=".$seInfo['id'], '&nbsp;', 'graphicon');
+					$graphLink = scriptAJAXLinkHrefDialog('webmaster-tools.php', 'content', $scriptLink."&se_id=".$seInfo['id'], '&nbsp;', 'graphicon');
 					
 					// if pdf report remove links
 					if ($pdfVersion) {

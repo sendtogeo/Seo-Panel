@@ -133,7 +133,7 @@ class ReportController extends Controller {
 		    $orderCol = $searchInfo['order_col'];
 		    $orderVal = getOrderByVal($searchInfo['order_val']);
 		} else {
-		    $orderCol = $this->seLIst[0]['id'];
+		    $orderCol = $this->seLIst[array_keys($this->seLIst)[0]]['id'];
 		    $orderVal = 'ASC';    
 		}
 		
@@ -142,43 +142,42 @@ class ReportController extends Controller {
 		$scriptPath = SP_WEBPATH."/reports.php?sec=reportsum&website_id=$websiteId";
 		$scriptPath .= "&from_time=$fromTimeTxt&to_time=$toTimeTxt&search_name=" . $searchInfo['search_name'];
 		$scriptPath .= "&order_col=$orderCol&order_val=$orderVal";
-		
-		if (in_array($searchInfo['doc_type'], array("pdf", "export"))) {
-			$list = $keywordController->__getAllKeywords($userId, $websiteId, true, true, $orderVal, $searchInfo['search_name']);
-		} else {
 			
-			$conditions = " and w.status=1 and k.status=1";
-			$conditions .= isAdmin() ? "" : " and w.user_id=$userId";
-			$conditions .= !empty($websiteId) ? " and w.id=$websiteId" : "";
-			$conditions .= !empty($searchInfo['search_name']) ? " and k.name like '%".addslashes($searchInfo['search_name'])."%'" : "";
-						
-			$subSql = "select [col] from keywords k,searchresults r, websites w 
-			where k.id=r.keyword_id and k.website_id=w.id $conditions
-			and r.searchengine_id=".intval($orderCol)." and r.result_date='" . addslashes($toTimeTxt) . "'
-			group by k.id";
+		$conditions = " and w.status=1 and k.status=1";
+		$conditions .= isAdmin() ? "" : " and w.user_id=$userId";
+		$conditions .= !empty($websiteId) ? " and w.id=$websiteId" : "";
+		$conditions .= !empty($searchInfo['search_name']) ? " and k.name like '%".addslashes($searchInfo['search_name'])."%'" : "";
+					
+		$subSql = "select [col] from keywords k,searchresults r, websites w 
+		where k.id=r.keyword_id and k.website_id=w.id $conditions
+		and r.searchengine_id=".intval($orderCol)." and r.result_date='" . addslashes($toTimeTxt) . "'
+		group by k.id";
 
-			$unionOrderCol = ($orderCol == "keyword") ? "name" : "rank";
-			$sql = "(". str_replace("[col]", "k.id,k.name,min(rank) rank,w.name website,w.url weburl", $subSql) .") 
-			UNION 
-			(select k.id,k.name,1000,w.name website,w.url weburl 
-			from keywords k, websites w  
-			where w.id=k.website_id $conditions and k.id not in
-			(". str_replace("[col]", "distinct(k.id)", $subSql) ."))
-			order by $unionOrderCol $orderVal";
-			
-			# pagination setup
-			$this->db->query($sql, true);
-			$this->paging->setDivClass('pagingdiv');
-			$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
-			$pagingDiv = $this->paging->printPages($scriptPath, '', 'scriptDoLoad', 'content', "");
-			$this->set('pagingDiv', $pagingDiv);
-			$this->set('pageNo', $searchInfo['pageno']);
+		$unionOrderCol = ($orderCol == "keyword") ? "name" : "rank";
+		$sql = "(". str_replace("[col]", "k.id,k.name,min(rank) rank,w.name website,w.url weburl", $subSql) .") 
+		UNION 
+		(select k.id,k.name,1000,w.name website,w.url weburl 
+		from keywords k, websites w  
+		where w.id=k.website_id $conditions and k.id not in
+		(". str_replace("[col]", "distinct(k.id)", $subSql) ."))
+		order by $unionOrderCol $orderVal";
+		
+		if ($unionOrderCol != 'name') $sql .= ", name";
+		
+		# pagination setup
+		$this->db->query($sql, true);
+		$this->paging->setDivClass('pagingdiv');
+		$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
+		$pagingDiv = $this->paging->printPages($scriptPath, '', 'scriptDoLoad', 'content', "");
+		$this->set('pagingDiv', $pagingDiv);
+		$this->set('pageNo', $searchInfo['pageno']);
+		
+		if (!in_array($searchInfo['doc_type'], array("pdf", "export"))) {
 			$sql .= " limit ".$this->paging->start .",". $this->paging->per_page;
-				
-			# set keywords list
-			$list = $this->db->select($sql);
-			
 		}
+			
+		# set keywords list
+		$list = $this->db->select($sql);
 				
 		$indexList = array();
 		foreach($list as $keywordInfo){
@@ -983,50 +982,49 @@ class ReportController extends Controller {
     		    $orderCol = $searchInfo['order_col'];
     		    $orderVal = getOrderByVal($searchInfo['order_val']);
     		} else {
-    		    $orderCol = $this->seLIst[0]['id'];
+    		    $orderCol = $this->seLIst[array_keys($this->seLIst)[0]]['id'];
     		    $orderVal = 'ASC';    
     		}
     		
     		$this->set('orderCol', $orderCol);
     		$this->set('orderVal', $orderVal);
 			$scriptPath .= "&report_type=keyword-position&order_col=$orderCol&order_val=$orderVal";
+			
+    		$conditions = " and w.status=1 and k.status=1";
+    		$conditions .= isAdmin() ? "" : " and w.user_id=$userId";
+    		$conditions .= !empty($websiteId) ? " and w.id=$websiteId" : "";
+    		$conditions .= !empty($searchInfo['search_name']) ? " and k.name like '%".addslashes($searchInfo['search_name'])."%'" : "";
     		
-    		if (in_array($searchInfo['doc_type'], array("pdf", "export")) || !empty($cronUserId)) {
-    			$list = $keywordController->__getAllKeywords($userId, $websiteId, true, true, $orderVal, $searchInfo['search_name']);
-    		} else {
-    				
-    			$conditions = " and w.status=1 and k.status=1";
-    			$conditions .= isAdmin() ? "" : " and w.user_id=$userId";
-    			$conditions .= !empty($websiteId) ? " and w.id=$websiteId" : "";
-    			$conditions .= !empty($searchInfo['search_name']) ? " and k.name like '%".addslashes($searchInfo['search_name'])."%'" : "";
+    		$subSql = "select [col] from keywords k,searchresults r, websites w
+    		where k.id=r.keyword_id and k.website_id=w.id $conditions
+    		and r.searchengine_id=".intval($orderCol)." and r.result_date='" . addslashes($toTimeShort) . "'
+    		group by k.id";
     		
-    			$subSql = "select [col] from keywords k,searchresults r, websites w
-    			where k.id=r.keyword_id and k.website_id=w.id $conditions
-    			and r.searchengine_id=".intval($orderCol)." and r.result_date='" . addslashes($toTimeShort) . "'
-    			group by k.id";
+    		$unionOrderCol = ($orderCol == "keyword") ? "name" : "rank";
+    		$sql = "(". str_replace("[col]", "k.id,k.name,min(rank) rank,w.name website,w.url weburl", $subSql) .")
+    		UNION
+    		(select k.id,k.name,1000,w.name website,w.url weburl
+    		from keywords k, websites w
+    		where w.id=k.website_id $conditions and k.id not in
+    		(". str_replace("[col]", "distinct(k.id)", $subSql) ."))
+    		order by $unionOrderCol $orderVal";
     		
-    			$unionOrderCol = ($orderCol == "keyword") ? "name" : "rank";
-    			$sql = "(". str_replace("[col]", "k.id,k.name,min(rank) rank,w.name website,w.url weburl", $subSql) .")
-    			UNION
-    			(select k.id,k.name,1000,w.name website,w.url weburl
-    			from keywords k, websites w
-    			where w.id=k.website_id $conditions and k.id not in
-    			(". str_replace("[col]", "distinct(k.id)", $subSql) ."))
-    			order by $unionOrderCol $orderVal";
+    		if ($unionOrderCol != 'name') $sql .= ", name";
     						
-    			# pagination setup
-    			$this->db->query($sql, true);
-    			$this->paging->setDivClass('pagingdiv');
-				$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
-    			$pagingDiv = $this->paging->printPages($scriptPath, '', 'scriptDoLoad', 'content', "");
-    			$this->set('keywordPagingDiv', $pagingDiv);
-    			$this->set('pageNo', $searchInfo['pageno']);
+    		# pagination setup
+    		$this->db->query($sql, true);
+    		$this->paging->setDivClass('pagingdiv');
+			$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
+    		$pagingDiv = $this->paging->printPages($scriptPath, '', 'scriptDoLoad', 'content', "");
+    		$this->set('keywordPagingDiv', $pagingDiv);
+    		$this->set('pageNo', $searchInfo['pageno']);
+    			
+    		if (!in_array($searchInfo['doc_type'], array("pdf", "export"))) {
     			$sql .= " limit ".$this->paging->start .",". $this->paging->per_page;
-    		
-    			# set keywords list
-    			$list = $this->db->select($sql);
-    								
     		}
+    		
+    		# set keywords list
+    		$list = $this->db->select($sql);
     		
     		$indexList = array();
     		foreach($list as $keywordInfo){

@@ -33,20 +33,18 @@ $controller->view->menu = 'seotools';
 $controller->layout = 'ajax';
 $controller->spTextTools = $controller->getLanguageTexts('seotools', $_SESSION['lang_code']);
 $controller->set('spTextTools', $controller->spTextTools);
-$controller->spTextWB = $controller->getLanguageTexts('webmaster', $_SESSION['lang_code']);
-$controller->set('spTextWB', $controller->spTextWB);
 
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	
 	switch($_POST['sec']){
 		
 			
-		case "viewKeywordReportsSummary":
-			$controller->viewKeywordReportsSummary($_POST);
+		case "viewKeywordSearchSummary":
+			$controller->viewKeywordSearchSummary($_POST);
 			break;
 		
 		default:
-			$controller->viewKeywordReportsSummary($_POST);
+			$controller->viewKeywordSearchSummary($_POST);
 			break;
 	}
 	
@@ -54,12 +52,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	
 	switch($_GET['sec']){
 			
-		case "viewKeywordReportsSummary":
-			$controller->viewKeywordReportsSummary($_GET);
+		case "viewKeywordSearchSummary":
+			$controller->viewKeywordSearchSummary($_GET);
 			break;
 
 		default:
-			$controller->viewKeywordReportsSummary($_GET);
+			$controller->viewKeywordSearchSummary($_GET);
 			break;
 	}
 	

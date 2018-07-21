@@ -92,7 +92,7 @@ if (!empty($keywordPos)) {
 	$colCount = empty($websiteId) ? ($seCount * 3) + 2 : ($seCount * 3) + 1;
 	?>
 	<div>
-	<?php echo $keywordPagingDiv?>
+	<?php if (empty($pdfVersion)) echo $keywordPagingDiv?>
 	<table width="100%" border="0" cellspacing="0" cellpadding="0" class="summary" style="<?php echo $borderCollapseVal; ?>">
 		<tr><td class="topheader" colspan="<?php echo $colCount?>"><?php echo $spTextTools['Keyword Position Summary']?></td></tr>
 		<tr class="squareHead">
@@ -100,7 +100,7 @@ if (!empty($keywordPos)) {
 			$linkClass = "";
 	        if ($orderCol == 'keyword') {
 	            $oVal = ($orderVal == 'DESC') ? "ASC" : "DESC";
-	            $linkClass .= "sort_".strtolower($orderVal);
+	            $linkClass .= "sort_".strtolower($oVal);
 	        } else {
 	            $oVal = 'ASC';
 	        }
@@ -235,7 +235,7 @@ if (!empty($keywordPos)) {
 	if (!empty($websiteStats)) {
     	$colSpan = 16; 
     	?>
-    	<?php echo $websitePagingDiv?>
+    	<?php if (empty($pdfVersion)) echo $websitePagingDiv?>
     	<table width="100%" cellspacing="0" cellpadding="0" class="summary" style="<?php echo $borderCollapseVal; ?>">
     		<tr><td class="topheader" colspan="<?php echo $colSpan?>"><?php echo $spTextHome['Website Statistics']?></td></tr>
     		<tr>

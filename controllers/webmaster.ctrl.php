@@ -28,7 +28,23 @@ class WebMasterController extends GoogleAPIController {
 	
 	var $rowLimit = 5000;
 	var $sourceList = array('google');
-	var $colList = array('name', 'clicks', 'impressions', 'ctr', 'average_position');
+	var $colList = array();	
+	
+	function WebMasterController() {
+		parent::Controller();
+
+		$this->spTextWB = $this->getLanguageTexts('webmaster', $_SESSION['lang_code']);
+		$this->set('spTextWB', $this->spTextWB);
+		
+		$this->colList = array(
+			'name' => $_SESSION['text']['common']['Keyword'],
+			'clicks' => $_SESSION['text']['label']['Clicks'],
+			'impressions' => $_SESSION['text']['label']['Impressions'],
+			'ctr' => "CTR",
+			'average_position' => $this->spTextWB['Average Position'],
+		);
+		
+	}
 	
 	/*
 	 * function to get webmaster tool query search result
@@ -241,7 +257,7 @@ class WebMasterController extends GoogleAPIController {
 	}
 	
 	# func to show webmasterkeyword report summary
-	function viewKeywordReportsSummary($searchInfo = '') {
+	function viewKeywordSearchSummary($searchInfo = '') {
 	
 		$userId = isLoggedIn();
 		$keywordController = New KeywordController();
@@ -318,6 +334,8 @@ class WebMasterController extends GoogleAPIController {
 		and k.id not in (". str_replace("[cols]", "distinct(k.id)", $subSql) ."))
 		order by " . addslashes($orderCol) . " " . addslashes($orderVal);
 		
+		if ($orderVal != 'name') $sql .= ", name";
+		
 		# pagination setup
 		$this->db->query($sql, true);
 		$this->paging->setDivClass('pagingdiv');
@@ -360,31 +378,29 @@ class WebMasterController extends GoogleAPIController {
 	
 		if ($exportVersion) {
 			$spText = $_SESSION['text'];
-			$reportHeading =  $this->spTextTools['Keyword Position Summary']."(".date('Y-m-d', $fromTime)." - ".date('Y-m-d', $toTime).")";
+			$reportHeading =  $this->spTextTools['Keyword Search Summary']."(".date('Y-m-d', $fromTime)." - ".date('Y-m-d', $toTime).")";
 			$exportContent .= createExportContent( array('', $reportHeading, ''));
 			$exportContent .= createExportContent( array());
 			$headList = array($spText['common']['Website'], $spText['common']['Keyword']);
 	
 			$pTxt = str_replace("-", "/", substr($fromTimeTxt, -5));
 			$cTxt = str_replace("-", "/", substr($toTimeTxt, -5));
-			foreach ($this->seLIst as $seInfo) {
-				$domainTxt = str_replace("www.", "", $seInfo['domain']);
-				$headList[] = $domainTxt . "($cTxt)";
-				$headList[] = $domainTxt . "($pTxt)";
-				$headList[] = $domainTxt . "(+/-)";
+			foreach ($this->colList as $colKey => $colLabel) {
+				if ($colKey == 'name') continue;
+				$headList[] = $colLabel . "($cTxt)";
+				$headList[] = $colLabel . "($pTxt)";
+				$headList[] = $colLabel . "(+/-)";
 			}
 	
-			$exportContent .= createExportContent( $headList);
-			foreach($indexList as $keywordId => $rankValue){
-				$listInfo = $keywordList[$keywordId];
-				$positionInfo = $listInfo['position_info'];
+			$exportContent .= createExportContent($headList);
+			foreach($baseReportList as $listInfo){
 	
-				$valueList = array($listInfo['weburl'], $listInfo['name']);
-				foreach ($this->seLIst as $index => $seInfo){
-						
-					$rankInfo = $positionInfo[$seInfo['id']];
-					$prevRank = isset($rankInfo[$fromTimeTxt]) ? $rankInfo[$fromTimeTxt] : "";
-					$currRank = isset($rankInfo[$toTimeTxt]) ? $rankInfo[$toTimeTxt] : "";
+				$valueList = array($websiteInfo['url'], $listInfo['name']);
+				foreach ($this->colList as $colName => $colVal) {
+					if ($colName == 'name') continue;
+					
+					$prevRank = isset($listInfo[$colName]) ? $listInfo[$colName] : 0;
+					$currRank = isset($compareReportList[$keywordId][$colName]) ? $compareReportList[$keywordId][$colName] : 0;
 					$rankDiff = "";
 	
 					// if both ranks are existing
@@ -399,12 +415,13 @@ class WebMasterController extends GoogleAPIController {
 	
 				$exportContent .= createExportContent( $valueList);
 			}
-			exportToCsv('keyword_search_analytics_summary', $exportContent);
+			
+			exportToCsv('keyword_search_summary', $exportContent);
 		} else {
 				
 			// if pdf export
 			if ($searchInfo['doc_type'] == "pdf") {
-				exportToPdf($this->getViewContent('webmaster/keyword_search_analytics_summary'), "keyword_search_analytics_summary_$fromTimeTxt-$toTimeTxt.pdf");
+				exportToPdf($this->getViewContent('webmaster/keyword_search_analytics_summary'), "keyword_search_summary_$fromTimeTxt-$toTimeTxt.pdf");
 			} else {
 				$this->set('searchInfo', $searchInfo);
 				$this->render('webmaster/keyword_search_analytics_summary');
