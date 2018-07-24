@@ -37,7 +37,14 @@ $controller->set('spTextTools', $controller->spTextTools);
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	
 	switch($_POST['sec']){
-		
+			
+		case "viewWebsiteSearchReports":
+			$controller->viewWebsiteSearchReports($_POST);
+			break;
+			
+		case "viewKeywordSearchReports":
+			$controller->viewKeywordSearchReports($_POST);
+			break;
 			
 		case "viewKeywordSearchSummary":
 			$controller->viewKeywordSearchSummary($_POST);
@@ -48,9 +55,17 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			break;
 	}
 	
-}else{
+} else {
 	
 	switch($_GET['sec']){
+			
+		case "viewWebsiteSearchReports":
+			$controller->viewWebsiteSearchReports($_GET);
+			break;
+			
+		case "viewKeywordSearchReports":
+			$controller->viewKeywordSearchReports($_GET);
+			break;
 			
 		case "viewKeywordSearchSummary":
 			$controller->viewKeywordSearchSummary($_GET);
@@ -62,5 +77,4 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	}
 	
 }
-
 ?>
