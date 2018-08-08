@@ -35,6 +35,7 @@ class WebMasterController extends GoogleAPIController {
 
 		$this->spTextWB = $this->getLanguageTexts('webmaster', $_SESSION['lang_code']);
 		$this->set('spTextWB', $this->spTextWB);
+		$this->tokenCtrler = new UserTokenController();
 		
 		$this->colList = array(
 			'name' => $_SESSION['text']['common']['Keyword'],
@@ -639,6 +640,82 @@ class WebMasterController extends GoogleAPIController {
 		// get graph content
 		$this->set('graphContent', $graphContent);
 		$this->render('webmaster/graphicalreport');
+		
+	}
+
+	# func to show quick checker
+	function viewQuickChecker($keywordInfo='') {	
+		$userId = isLoggedIn();
+		$websiteController = New WebsiteController();
+		$websiteList = $websiteController->__getAllWebsites($userId, true);
+		$this->set('websiteList', $websiteList);
+		$websiteId = empty ($searchInfo['website_id']) ? $websiteList[0]['id'] : intval($searchInfo['website_id']);
+		$this->set('websiteId', $websiteId);
+		$this->render('webmaster/quick_checker');		
+	}
+
+	# func to do quick report
+	function doQuickChecker($searchInfo = '') {
+	
+		if (!empty($searchInfo['website_id'])) {
+			$websiteId = intval($searchInfo['website_id']);
+			$websiteController = New WebsiteController();
+			$websiteInfo = $websiteController->__getWebsiteInfo($websiteId);
+			
+			if (!empty($websiteInfo['url'])) {
+				$reportDate = date('Y-m-d', strtotime('-2 days'));
+				
+				// store website analytics
+				$paramList = array(
+					'startDate' => $reportDate,
+					'endDate' => $reportDate,
+				);
+				
+				// query results from api and verify no error occured
+				$result = $this->getQueryResults($websiteInfo['user_id'], $websiteInfo['url'], $paramList);
+					
+				// if status is success
+				if ($result['status']) {
+					$reportInfo = !empty($result['resultList'][0]) ? $result['resultList'][0] : array();
+					$websiteReport = array(
+						'clicks' => !empty($reportInfo->clicks) ? $reportInfo->clicks : 0,
+						'impressions' => !empty($reportInfo->impressions) ? $reportInfo->impressions : 0,
+						'ctr' => !empty($reportInfo->ctr) ? $reportInfo->ctr * 100 : 0,
+						'average_position' => !empty($reportInfo->position) ? $reportInfo->position : 0,
+						'report_date' => $reportDate,
+						'source' => $source,
+					);
+					
+					$this->set('websiteReport', $websiteReport);
+					
+					// find keyword reports
+					$paramList = array(
+						'startDate' => $reportDate,
+						'endDate' => $reportDate,
+						'dimensions' => ['query'],
+					);
+						
+					// query results from api and verify no error occured
+					$result = $this->getQueryResults($websiteInfo['user_id'], $websiteInfo['url'], $paramList);
+					if ($result['status']) {
+					
+						$keywordAnalytics = array();
+						foreach ($result['resultList'] as $resInfo) {
+							$keywordAnalytics[$resInfo['keys'][0]] = $resInfo;
+						}
+						
+						$this->set('keywordAnalytics', $keywordAnalytics);
+					}
+					
+					$this->set('searchInfo', $searchInfo);
+					$this->render('webmaster/quick_checker_results');
+					return true;
+					
+				}
+			}
+		} 
+			
+		showErrorMsg("Website not found.");
 		
 	}
 	

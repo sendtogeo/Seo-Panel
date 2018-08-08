@@ -53,7 +53,7 @@ if(empty($keywordId)){
 		<td class="right"><?php echo $spTextWB['Average Position']?></td>
 	</tr>
 	<?php
-	$colCount = 4; 
+	$colCount = 5; 
 	if(count($list) > 0){
 		$catCount = count($list);
 		$i = 0;

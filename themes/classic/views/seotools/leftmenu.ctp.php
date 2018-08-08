@@ -51,14 +51,18 @@ foreach($menuList as $i => $menuInfo){
 			break;
 			
 		case "webmaster-tools":
-			?>
-			<script type="text/javascript">scriptList[<?php echo $i?>] = 'webmaster-tools.php';</script>			
+			?>		
 			<ul id='subui'>
-				<li>
-					<a href="javascript:void(0);" onclick="scriptDoLoad('webmaster-tools.php?sec=quickChecker', 'content')">
-						<?php echo $spTextTools['Quick Checker']?>
-					</a>
-				</li>
+				<?php if (isQuickCheckerEnabled()) {?>
+					<script type="text/javascript">scriptList[<?php echo $i?>] = 'webmaster-tools.php?sec=quickChecker';</script>
+					<li>
+						<a href="javascript:void(0);" onclick="scriptDoLoad('webmaster-tools.php?sec=quickChecker', 'content')">
+							<?php echo $spTextTools['Quick Checker']?>
+						</a>
+					</li>
+				<?php } else {?>
+					<script type="text/javascript">scriptList[<?php echo $i?>] = 'webmaster-tools.php';</script>	
+				<?php }?>
 				<li>
 					<a href="javascript:void(0);" onclick="scriptDoLoad('webmaster-tools.php?sec=viewKeywordSearchSummary', 'content')">
 						<?php echo $spTextTools['Keyword Search Summary']?>
@@ -109,8 +113,7 @@ foreach($menuList as $i => $menuInfo){
 			break;
 			
 		case "rank-checker":
-			?>
-			<script type="text/javascript">scriptList[<?php echo $i?>] = 'rank.php?sec=google';</script>			
+			?>			
 			<ul id='subui'>
 				<?php if (isQuickCheckerEnabled()) {?>
 					<script type="text/javascript">scriptList[<?php echo $i?>] = 'rank.php?sec=quickrank';</script>	

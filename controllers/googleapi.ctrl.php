@@ -155,9 +155,13 @@ class GoogleAPIController extends Controller{
 		if (is_object($client)) {
 		
 			try {
-				$tokenInfo = $client->fetchAccessTokenWithAuthCode($authCode);
-				$tokenInfo['created'] = date('Y-m-d H:i:s', $tokenInfo['created']);
+				$tkInfo = $client->fetchAccessTokenWithAuthCode($authCode);				
+				$tokenInfo['created'] = date('Y-m-d H:i:s', $tkInfo['created']);
 				$tokenInfo['user_id'] = intval($userId);
+				$tokenInfo['access_token'] = $tkInfo['access_token'];
+				$tokenInfo['token_type'] = $tkInfo['token_type'];
+				$tokenInfo['expires_in'] = $tkInfo['expires_in'];
+				$tokenInfo['refresh_token'] = $tkInfo['refresh_token'];
 				$this->tokenCtrler->insertUserToken($tokenInfo);
 				$ret['status'] = true;
 			} catch (Exception $e) {

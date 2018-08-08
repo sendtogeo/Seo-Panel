@@ -38,6 +38,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	
 	switch($_POST['sec']){
 			
+		case "doQuickChecker":
+			$controller->doQuickChecker($_POST);
+			break;
+			
 		case "viewWebsiteSearchReports":
 			$controller->viewWebsiteSearchReports($_POST);
 			break;
@@ -62,6 +66,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 } else {
 	
 	switch($_GET['sec']){
+			
+		case "quickChecker":
+			$controller->viewQuickChecker($_GET);
+			break;
 			
 		case "viewWebsiteSearchReports":
 			$controller->viewWebsiteSearchReports($_GET);
