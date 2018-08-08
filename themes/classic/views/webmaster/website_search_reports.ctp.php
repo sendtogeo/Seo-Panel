@@ -40,10 +40,7 @@ if(empty($websiteId)){
 ?>
 
 <div id='subcontent'>
-<table width="100%" border="0" cellspacing="0" cellpadding="2px;" class="list" align='center'>
-	<tr>
-	<td width='33%'>
-	<table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
+<table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
 	<tr class="listHead">
 		<td class="left"><?php echo $spText['common']['Date']?></td>
 		<td><?php echo $spText['label']['Clicks']?></td>
@@ -72,7 +69,7 @@ if(empty($websiteId)){
 				<td class='td_br_right left'><b><?php echo $listInfo['clicks'].'</b> '. $listInfo['rank_diff_clicks']?></td>
 				<td class='td_br_right left'><b><?php echo $listInfo['impressions'].'</b> '. $listInfo['rank_diff_impressions']?></td>
 				<td class='td_br_right left'><b><?php echo $listInfo['ctr'].'</b> '. $listInfo['rank_diff_ctr']?></td>
-				<td class="<?php echo $rightBotClass?>" style='text-align:left;padding-left:160px;'><b><?php echo $listInfo['average_position'].'</b> '. $listInfo['rank_diff_average_position']?></td>
+				<td class="<?php echo $rightBotClass?>" style='text-align:left;padding-left:10px;'><b><?php echo $listInfo['average_position'].'</b> '. $listInfo['rank_diff_average_position']?></td>
 			</tr>
 			<?php
 			$i++;
@@ -90,9 +87,6 @@ if(empty($websiteId)){
 	<tr class="listBot">
 		<td class="left" colspan="<?php echo ($colCount-1)?>"></td>
 		<td class="right"></td>
-	</tr>
-	</table>
-	</td>
 	</tr>
 </table>
 </div>

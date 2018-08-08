@@ -167,9 +167,9 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 						}													
 					}
 
-					$prevRankLink = scriptAJAXLinkHrefDialog('webmaster-tools.php', 'content', $scriptLink."&se_id=".$seInfo['id'], $prevRank);
-					$currRankLink = scriptAJAXLinkHrefDialog('webmaster-tools.php', 'content', $scriptLink."&se_id=".$seInfo['id'], $currRank);
-					$graphLink = scriptAJAXLinkHrefDialog('webmaster-tools.php', 'content', $scriptLink."&se_id=".$seInfo['id'], '&nbsp;', 'graphicon');
+					$prevRankLink = scriptAJAXLinkHrefDialog('webmaster-tools.php', 'content', $scriptLink . "&sec=viewKeywordSearchReports", $prevRank);
+					$currRankLink = scriptAJAXLinkHrefDialog('webmaster-tools.php', 'content', $scriptLink . "&sec=viewKeywordSearchReports", $currRank);
+					$graphLink = scriptAJAXLinkHrefDialog('webmaster-tools.php', 'content', $scriptLink . "&sec=viewKeywordSearchGraphReports", '&nbsp;', 'graphicon');
 					
 					// if pdf report remove links
 					if ($pdfVersion) {

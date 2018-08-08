@@ -277,21 +277,19 @@ class WebMasterController extends GoogleAPIController {
 				$this->set('printVersion', true);
 				break;
 		}
-	
-		if (!empty ($searchInfo['from_time'])) {
-			$fromTime = strtotime($searchInfo['from_time'] . ' 00:00:00');
+
+		if (!empty($searchInfo['from_time'])) {
+			$fromTimeTxt = addslashes($searchInfo['from_time']);
 		} else {
-			$fromTime = mktime(0, 0, 0, date('m'), date('d') - 3, date('Y'));
-		}		
-	
-		if (!empty ($searchInfo['to_time'])) {
-			$toTime = strtotime($searchInfo['to_time'] . ' 00:00:00');
-		} else {
-			$toTime = mktime(0, 0, 0, date('m'), date('d') - 2, date('Y'));
+			$fromTimeTxt = date('Y-m-d', strtotime('-3 days'));
 		}
-	
-		$fromTimeTxt = date('Y-m-d', $fromTime);
-		$toTimeTxt = date('Y-m-d', $toTime);
+		
+		if (!empty($searchInfo['to_time'])) {
+			$toTimeTxt = addslashes($searchInfo['to_time']);
+		} else {
+			$toTimeTxt = date('Y-m-d', strtotime('-2 days'));
+		}
+		
 		$this->set('fromTime', $fromTimeTxt);
 		$this->set('toTime', $toTimeTxt);
 	
@@ -378,7 +376,7 @@ class WebMasterController extends GoogleAPIController {
 	
 		if ($exportVersion) {
 			$spText = $_SESSION['text'];
-			$reportHeading =  $this->spTextTools['Keyword Search Summary']."(".date('Y-m-d', $fromTime)." - ".date('Y-m-d', $toTime).")";
+			$reportHeading =  $this->spTextTools['Keyword Search Summary']."($fromTimeTxt - $toTimeTxt)";
 			$exportContent .= createExportContent( array('', $reportHeading, ''));
 			$exportContent .= createExportContent( array());
 			$headList = array($spText['common']['Website'], $spText['common']['Keyword']);
@@ -435,19 +433,17 @@ class WebMasterController extends GoogleAPIController {
 	
 		$userId = isLoggedIn();
 		if (!empty ($searchInfo['from_time'])) {
-			$fromTime = $searchInfo['from_time'];
+			$fromTime = addslashes($searchInfo['from_time']);
 		} else {
 			$fromTime = date('Y-m-d', strtotime('-17 days'));
 		}
 	
 		if (!empty ($searchInfo['to_time'])) {
-			$toTime = $searchInfo['to_time'];
+			$toTime = addslashes($searchInfo['to_time']);
 		} else {
 			$toTime = date('Y-m-d', strtotime('-2 days'));
 		}
-	
-		$fromTime = addslashes($fromTime);
-		$toTime = addslashes($toTime);
+		
 		$this->set('fromTime', $fromTime);
 		$this->set('toTime', $toTime);
 		
@@ -501,15 +497,15 @@ class WebMasterController extends GoogleAPIController {
 		$userId = isLoggedIn();
 
 		if (!empty ($searchInfo['from_time'])) {
-			$fromTimeDate = $searchInfo['from_time'];
+			$fromTimeDate = addslashes($searchInfo['from_time']);
 		} else {
 			$fromTimeDate = date('Y-m-d', strtotime('-17 days'));
 		}
 		
 		if (!empty ($searchInfo['to_time'])) {
-			$fromTimeDate = $searchInfo['to_time'];
+			$toTimeDate = addslashes($searchInfo['to_time']);
 		} else {
-			$fromTimeDate = date('Y-m-d', strtotime('-2 days'));
+			$toTimeDate = date('Y-m-d', strtotime('-2 days'));
 		}
 		
 		$this->set('fromTime', $fromTimeDate);
@@ -533,54 +529,116 @@ class WebMasterController extends GoogleAPIController {
 		$keywordId = empty ($searchInfo['keyword_id']) ? $keywordList[0]['id'] : $searchInfo['keyword_id'];
 		$this->set('keywordId', $keywordId);
 	
-		$seController = New SearchEngineController();
-		$seList = $seController->__getAllSearchEngines();
-		$this->set('seList', $seList);
-		$seId = empty ($searchInfo['se_id']) ? $seList[0]['id'] : intval($searchInfo['se_id']);
-		$this->set('seId', $seId);
-		$this->set('seInfo', $seController->__getsearchEngineInfo($seId));
+		$conditions = empty ($keywordId) ? "" : " and s.keyword_id=$keywordId";
+		$sql = "select s.* from keyword_analytics s
+		where report_date>='$fromTimeDate' and report_date<='$toTimeDate' $conditions
+		order by s.report_date";
+		$reportList = $this->db->select($sql);
+		
+		$colList = array_keys($this->colList);
+		array_shift($colList);
+		foreach ($colList as $col) $prevRank[$col] = 0;
+		
+		# loop through rank
+		foreach ($reportList as $key => $repInfo) {
+				
+			foreach ($colList as $col) $rankDiff[$col] = '';
+				
+			foreach ($colList as $col) {
+				$rankDiff[$col] = $repInfo[$col] - $prevRank[$col];
+		
+				if ($rankDiff[$col] > 0) {
+					$rankDiff[$col] = "<font class='green'>($rankDiff[$col])</font>";
+				} elseif ($rankDiff[$col] < 0) {
+					$rankDiff[$col] = "<font class='red'>($rankDiff[$col])</font>";
+				}
+					
+				$reportList[$key]['rank_diff_'.$col] = empty($rankDiff[$col]) ? '' : $rankDiff[$col];
+		
+			}
+				
+			foreach ($colList as $col) $prevRank[$col] = $repInfo[$col];
+		
+		}
+		
+		$this->set('list', array_reverse($reportList, true));				
+		$this->render('webmaster/keyword_search_reports');
+		
+	}
+	
+	# func to show keyword search reports in graph
+	function viewKeywordSearchGraphReports($searchInfo = '') {
+	
+		$userId = isLoggedIn();
+
+		if (!empty ($searchInfo['from_time'])) {
+			$fromTimeDate = addslashes($searchInfo['from_time']);
+		} else {
+			$fromTimeDate = date('Y-m-d', strtotime('-17 days'));
+		}
+		
+		if (!empty ($searchInfo['to_time'])) {
+			$toTimeDate = addslashes($searchInfo['to_time']);
+		} else {
+			$toTimeDate = date('Y-m-d', strtotime('-2 days'));
+		}
+		
+		$this->set('fromTime', $fromTimeDate);
+		$this->set('toTime', $toTimeDate);
+	
+		$keywordController = New KeywordController();
+		if(!empty($searchInfo['keyword_id']) && !empty($searchInfo['rep'])){				
+			$searchInfo['keyword_id'] = intval($searchInfo['keyword_id']);
+			$keywordInfo = $keywordController->__getKeywordInfo($searchInfo['keyword_id']);
+			$searchInfo['website_id'] = $keywordInfo['website_id'];
+		}
+	
+		$websiteController = New WebsiteController();
+		$websiteList = $websiteController->__getAllWebsitesWithActiveKeywords($userId, true);
+		$this->set('websiteList', $websiteList);
+		$websiteId = empty ($searchInfo['website_id']) ? $websiteList[0]['id'] : intval($searchInfo['website_id']);
+		$this->set('websiteId', $websiteId);
+	
+		$keywordList = $keywordController->__getAllKeywords($userId, $websiteId, true);
+		$this->set('keywordList', $keywordList);
+		$keywordId = empty ($searchInfo['keyword_id']) ? $keywordList[0]['id'] : $searchInfo['keyword_id'];
+		$this->set('keywordId', $keywordId);
 	
 		$conditions = empty ($keywordId) ? "" : " and s.keyword_id=$keywordId";
-		$conditions .= empty ($seId) ? "" : " and s.searchengine_id=$seId";
-		$sql = "select s.*,sd.url,sd.title,sd.description from searchresults s,searchresultdetails sd
-		where s.id=sd.searchresult_id and result_date>='$fromTimeDate' and result_date<='$toTimeDate' $conditions
-		order by s.result_date";
-		$repList = $this->db->select($sql);
+		$sql = "select s.* from keyword_analytics s
+		where report_date>='$fromTimeDate' and report_date<='$toTimeDate' $conditions
+		order by s.report_date";
+		$reportList = $this->db->select($sql);
+
+		// if reports not empty
+		$colList = $this->colList;
+		array_shift($colList);
+		if (!empty($reportList)) {
+				
+			$dataArr = "['Date', '" . implode("', '", array_values($colList)) . "']";
+			 
+			// loop through data list
+			foreach ($reportList as $dataInfo) {
 	
-		$reportList = array ();
-		foreach ($repList as $repInfo) {
-			$var = 'se' . $seId . $repInfo['keyword_id'] . $repInfo['result_date'];
-			
-			if (empty ($reportList[$var])) {
-				$reportList[$var] = $repInfo;
-			} else {
-				if ($repInfo['rank'] < $reportList[$var]['rank']) {
-					$reportList[$var] = $repInfo;
+				$valStr = "";
+				foreach ($colList as $seId => $seVal) {
+					$valStr .= ", ";
+					$valStr .= !empty($dataInfo[$seId]) ? $dataInfo[$seId] : 0;
 				}
+	
+				$dataArr .= ", ['{$dataInfo['result_date']}' $valStr]";
 			}
-
+			 
+			$this->set('dataArr', $dataArr);
+			$this->set('graphTitle', $this->spTextTools['Backlinks Reports']);
+			$graphContent = $this->getViewContent('report/graph');
+		} else {
+			$graphContent = showErrorMsg($_SESSION['text']['common']['No Records Found'], false, true);
 		}
-
-		$prevRank = 0;
-		$i = 0;
-		foreach ($reportList as $key => $repInfo) {
-			$rankDiff = '';
-			if ($i > 0) {
-				$rankDiff = $prevRank - $repInfo['rank'];
-				if ($rankDiff > 0) {
-					$rankDiff = "<font class='green'>($rankDiff)</font>";
-				} elseif ($rankDiff < 0) {
-					$rankDiff = "<font class='red'>($rankDiff)</font>";
-				}
-			}
-			
-			$reportList[$key]['rank_diff'] = empty ($rankDiff) ? '' : $rankDiff;
-			$prevRank = $repInfo['rank'];
-			$i++;
-		}
-
-		$this->set('list', array_reverse($reportList, true));		
-		$this->render('webmaster/keyword_search_reports');
+		
+		// get graph content
+		$this->set('graphContent', $graphContent);
+		$this->render('webmaster/graphicalreport');
 		
 	}
 	
