@@ -1256,13 +1256,13 @@ class ReportController extends Controller {
 			
 			// if website search reports
 			if (empty($searchInfo['report_type']) || ($searchInfo['report_type'] == 'website-search-reports')) {
-				$websiteSearchReport = $webMasterCtrler->getWebsiteSearchReportSummary($filterList);
+				$websiteSearchReport = $webMasterCtrler->viewWebsiteSearchSummary($filterList, true);
 			}
 			
 			// if keyword search reports
-			if (empty($searchInfo['report_type']) || ($searchInfo['report_type'] == 'keyword-search-reports')) {
+			/*if (empty($searchInfo['report_type']) || ($searchInfo['report_type'] == 'keyword-search-reports')) {
 				$keywordSearchReport = $webMasterCtrler->viewKeywordSearchSummary($filterList);
-			}
+			}*/
 			
 			if ($exportVersion) {
 				$exportContent .= $websiteSearchReport;

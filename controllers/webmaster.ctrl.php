@@ -430,12 +430,13 @@ class WebMasterController extends GoogleAPIController {
 	}
 	
 	# func to show website search report summary
-	function getWebsiteSearchReportSummary($searchInfo = '') {
+	function viewWebsiteSearchSummary($searchInfo = '', $summaryPage = false) {
 	
 		$userId = isLoggedIn();
 		$websiteController = New WebsiteController();
 		$exportVersion = false;
 		$source = $this->sourceList[0];
+		$this->set('summaryPage', $summaryPage);
 		
 		switch($searchInfo['doc_type']){
 	
@@ -570,15 +571,24 @@ class WebMasterController extends GoogleAPIController {
 				$exportContent .= createExportContent( $valueList);
 			}
 			
-			exportToCsv('website_search_summary', $exportContent);
+			if ($summaryPage) {
+				return $exportContent;
+			} else {
+				exportToCsv('website_search_summary', $exportContent);
+			}
+			
 		} else {
 				
 			// if pdf export
-			if ($searchInfo['doc_type'] == "pdf") {
-				exportToPdf($this->getViewContent('webmaster/website_search_analytics_summary'), "website_search_summary_$fromTime-$toTime.pdf");
+			if ($summaryPage) {
+				return $this->getViewContent('webmaster/website_search_analytics_summary');
 			} else {
-				$this->set('searchInfo', $searchInfo);
-				$this->render('webmaster/website_search_analytics_summary');
+				if ($searchInfo['doc_type'] == "pdf") {
+					exportToPdf($this->getViewContent('webmaster/website_search_analytics_summary'), "website_search_summary_$fromTime-$toTime.pdf");
+				} else {
+					$this->set('searchInfo', $searchInfo);
+					$this->render('webmaster/website_search_analytics_summary');
+				}
 			}
 			
 		}

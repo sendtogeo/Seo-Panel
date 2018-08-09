@@ -94,6 +94,7 @@ INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 ('en', 'seotools', 'webmaster-tools', 'Webmaster Tools'),
 ('en', 'seotools', 'Keyword Search Reports', 'Keyword Search Reports'),
 ('en', 'seotools', 'Keyword Search Summary', 'Keyword Search Summary'),
+('en', 'seotools', 'Website Search Summary', 'Website Search Summary'),
 ('en', 'seotools', 'Website Search Reports', 'Website Search Reports'),
 ('en', 'seotools', 'Graphical Reports', 'Graphical Reports'),
 ('en', 'seotools', 'Quick Checker', 'Quick Checker'),

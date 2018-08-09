@@ -22,40 +22,45 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 	</table>
     <?php
 } else {
-    echo showSectionHead($spTextTools['Keyword Search Summary']);
-    ?>
-	<form id='search_form'>
-	<?php $submitLink = "scriptDoLoadPost('webmaster-tools.php', 'search_form', 'content', '&sec=viewKeywordSearchSummary')";?>
-	<table width="100%" border="0" cellspacing="0" cellpadding="0" class="search">
-		<tr>
-			<th><?php echo $spText['common']['Name']?>: </th>
-			<td>
-				<input type="text" name="search_name" value="<?php echo htmlentities($searchInfo['search_name'], ENT_QUOTES)?>" onblur="<?php echo $submitLink?>">
-			</td>
-			<th width="100px"><?php echo $spText['common']['Website']?>: </th>
-			<td width="160px">
-				<select name="website_id" id="website_id" style='width:100px;' onchange="<?php echo $submitLink?>">
-					<?php foreach($websiteList as $websiteInfo){?>
-						<?php if($websiteInfo['id'] == $websiteId){?>
-							<option value="<?php echo $websiteInfo['id']?>" selected><?php echo $websiteInfo['name']?></option>
-						<?php }else{?>
-							<option value="<?php echo $websiteInfo['id']?>"><?php echo $websiteInfo['name']?></option>
+    echo showSectionHead($spTextTools['Website Search Summary']);
+    
+    // if not summary page show the filters
+    if(!$summaryPage) {
+    	?>
+		<form id='search_form'>
+		<?php $submitLink = "scriptDoLoadPost('webmaster-tools.php', 'search_form', 'content', '&sec=viewWebsiteSearchSummary')";?>
+		<table width="100%" border="0" cellspacing="0" cellpadding="0" class="search">
+			<tr>
+				<th><?php echo $spText['common']['Name']?>: </th>
+				<td>
+					<input type="text" name="search_name" value="<?php echo htmlentities($searchInfo['search_name'], ENT_QUOTES)?>" onblur="<?php echo $submitLink?>">
+				</td>
+				<th width="100px"><?php echo $spText['common']['Website']?>: </th>
+				<td width="160px">
+					<select name="website_id" id="website_id" style='width:100px;' onchange="<?php echo $submitLink?>">
+						<?php foreach($websiteList as $websiteInfo){?>
+							<?php if($websiteInfo['id'] == $websiteId){?>
+								<option value="<?php echo $websiteInfo['id']?>" selected><?php echo $websiteInfo['name']?></option>
+							<?php }else{?>
+								<option value="<?php echo $websiteInfo['id']?>"><?php echo $websiteInfo['name']?></option>
+							<?php }?>
 						<?php }?>
-					<?php }?>
-				</select>
-			</td>
-			<th width="100px;"><?php echo $spText['common']['Period']?>:</th>
-    		<td width="236px">
-    			<input type="text" style="width: 80px;margin-right:0px;" value="<?php echo $fromTime?>" name="from_time"/> 
-    			<img align="bottom" onclick="displayDatePicker('from_time', false, 'ymd', '-');" src="<?php echo SP_IMGPATH?>/cal.gif"/> 
-    			<input type="text" style="width: 80px;margin-right:0px;" value="<?php echo $toTime?>" name="to_time"/> 
-    			<img align="bottom" onclick="displayDatePicker('to_time', false, 'ymd', '-');" src="<?php echo SP_IMGPATH?>/cal.gif"/>
-    		</td>
-			<td><a href="javascript:void(0);" onclick="<?php echo $submitLink?>" class="actionbut"><?php echo $spText['button']['Search']?></a></td>
-		</tr>
-	</table>
-	</form>
-	<?php
+					</select>
+				</td>
+				<th width="100px;"><?php echo $spText['common']['Period']?>:</th>
+	    		<td width="236px">
+	    			<input type="text" style="width: 80px;margin-right:0px;" value="<?php echo $fromTime?>" name="from_time"/> 
+	    			<img align="bottom" onclick="displayDatePicker('from_time', false, 'ymd', '-');" src="<?php echo SP_IMGPATH?>/cal.gif"/> 
+	    			<input type="text" style="width: 80px;margin-right:0px;" value="<?php echo $toTime?>" name="to_time"/> 
+	    			<img align="bottom" onclick="displayDatePicker('to_time', false, 'ymd', '-');" src="<?php echo SP_IMGPATH?>/cal.gif"/>
+	    		</td>
+				<td><a href="javascript:void(0);" onclick="<?php echo $submitLink?>" class="actionbut"><?php echo $spText['button']['Search']?></a></td>
+			</tr>
+		</table>
+		</form>
+		<?php
+    } 
+    
 	if(empty($baseReportList)){
 		?>
 		<p class='note'>
@@ -67,17 +72,24 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 	}
 
 	// url parameters
-	$mainLink = SP_WEBPATH."/webmaster-tools.php?sec=viewKeywordSearchSummary&website_id=$websiteId&from_time=$fromTime&to_time=$toTime&search_name=" . $searchInfo['search_name'];
-	$directLink = $mainLink . "&order_col=$orderCol&order_val=$orderVal&pageno=$pageNo";
-	?>
-	<br><br>
-	<div style="float:left;margin-right: 10px;">
-		<a href="<?php echo $directLink?>&doc_type=pdf"><img src="<?php echo SP_IMGPATH?>/icon_pdf.png"></a> &nbsp;
-		<a href="<?php echo $directLink?>&doc_type=export"><img src="<?php echo SP_IMGPATH?>/icoExport.gif"></a> &nbsp;
-		<a target="_blank" href="<?php echo $directLink?>&doc_type=print"><img src="<?php echo SP_IMGPATH?>/print_button.gif?1"></a>
-	</div>
-	<?php echo $pagingDiv?>
-<?php }?>
+	$mainLink = SP_WEBPATH."/webmaster-tools.php?sec=viewWebsiteSearchSummary&website_id=$websiteId&from_time=$fromTime&to_time=$toTime&search_name=" . $searchInfo['search_name'];
+	
+	// if not summary page show the filters
+	if(!$summaryPage) {
+		$directLink = $mainLink . "&order_col=$orderCol&order_val=$orderVal&pageno=$pageNo";
+		?>
+		<br><br>
+		<div style="float:left;margin-right: 10px;">
+			<a href="<?php echo $directLink?>&doc_type=pdf"><img src="<?php echo SP_IMGPATH?>/icon_pdf.png"></a> &nbsp;
+			<a href="<?php echo $directLink?>&doc_type=export"><img src="<?php echo SP_IMGPATH?>/icoExport.gif"></a> &nbsp;
+			<a target="_blank" href="<?php echo $directLink?>&doc_type=print"><img src="<?php echo SP_IMGPATH?>/print_button.gif?1"></a>
+		</div>
+		<?php
+	}
+	
+	echo $pagingDiv;
+}
+?>
 
 <div id='subcontent' style="margin-top: 0px;">
 
@@ -167,9 +179,9 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 						}													
 					}
 
-					$prevRankLink = scriptAJAXLinkHrefDialog('webmaster-tools.php', 'content', $scriptLink . "&sec=viewKeywordSearchReports", $prevRank);
-					$currRankLink = scriptAJAXLinkHrefDialog('webmaster-tools.php', 'content', $scriptLink . "&sec=viewKeywordSearchReports", $currRank);
-					$graphLink = scriptAJAXLinkHrefDialog('webmaster-tools.php', 'content', $scriptLink . "&sec=viewKeywordSearchGraphReports", '&nbsp;', 'graphicon');
+					$prevRankLink = scriptAJAXLinkHrefDialog('webmaster-tools.php', 'content', $scriptLink . "&sec=viewWebsiteSearchReports", $prevRank);
+					$currRankLink = scriptAJAXLinkHrefDialog('webmaster-tools.php', 'content', $scriptLink . "&sec=viewWebsiteSearchReports", $currRank);
+					$graphLink = scriptAJAXLinkHrefDialog('webmaster-tools.php', 'content', $scriptLink . "&sec=viewWebsiteSearchGraphReports", '&nbsp;', 'graphicon');
 					
 					// if pdf report remove links
 					if ($pdfVersion) {

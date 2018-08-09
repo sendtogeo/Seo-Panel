@@ -92,16 +92,20 @@ class GoogleAPIController extends Controller{
 			
 				try {
 					$client->refreshToken($tokenInfo['refresh_token']);
-					$newTokenInfo = $client->getAccessToken();
-					$newTokenInfo['created'] = date('Y-m-d H:i:s', $newTokenInfo['created']);
+					$newToken = $client->getAccessToken();
+					$newTokenInfo = array();
+					$newTokenInfo['created'] = date('Y-m-d H:i:s', $newToken['created']);
+					$newTokenInfo['access_token'] = $newToken['access_token'];
+					$newTokenInfo['token_type'] = $newToken['token_type'];
+					$newTokenInfo['expires_in'] = $newToken['expires_in'];
+					$newTokenInfo['refresh_token'] = $newToken['refresh_token'];
 					$this->tokenCtrler->updateUserToken($tokenInfo['id'], $newTokenInfo);
 				} catch (Exception $e) {
 					$err = $e->getMessage();
 					return "Error: Refresh token - $err";
 				}
 				
-			}			
-			
+			}
 			
 		}
 		
