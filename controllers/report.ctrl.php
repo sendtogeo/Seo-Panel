@@ -942,6 +942,8 @@ class ReportController extends Controller {
 		$reportTypes = array(
 			'keyword-position' => $this->spTextTools["Keyword Position Summary"],
 			'website-stats' => $spTextHome["Website Statistics"],
+			'website-search-reports' => $this->spTextTools['Website Search Reports'],
+			'keyword-search-reports' => $this->spTextTools['Keyword Search Reports'],
 		);
 		$this->set('reportTypes', $reportTypes);
 		$urlarg .= "&report_type=".$searchInfo['report_type'];		
@@ -1238,6 +1240,38 @@ class ReportController extends Controller {
 				$this->set('websiteRankList', $websiteRankList);
 				$this->set('websiteStats', true);
 			}
+		}
+		
+		# website search report section
+		if (empty($searchInfo['report_type']) || in_array($searchInfo['report_type'], array('website-search-reports', 'keyword-search-reports')) ) {
+			$webMasterCtrler = new WebMasterController();
+			$filterList = $searchInfo;
+			$wmMaxFromTime = strtotime('-3 days');
+			$wmMaxEndTime = strtotime('-2 days');
+			$filterList['from_time'] = $fromTime > $wmMaxFromTime ? $wmMaxFromTime : $fromTime;
+			$filterList['to_time'] = $toTime > $wmMaxEndTime ? $wmMaxEndTime : $toTime;
+			$filterList['from_time'] = date('Y-m-d', $filterList['from_time']);
+			$filterList['to_time'] = date('Y-m-d', $filterList['to_time']);
+			$filterList['website_id'] = $websiteId;
+			
+			// if website search reports
+			if (empty($searchInfo['report_type']) || ($searchInfo['report_type'] == 'website-search-reports')) {
+				$websiteSearchReport = $webMasterCtrler->getWebsiteSearchReportSummary($filterList);
+			}
+			
+			// if keyword search reports
+			if (empty($searchInfo['report_type']) || ($searchInfo['report_type'] == 'keyword-search-reports')) {
+				$keywordSearchReport = $webMasterCtrler->viewKeywordSearchSummary($filterList);
+			}
+			
+			if ($exportVersion) {
+				$exportContent .= $websiteSearchReport;
+				$exportContent .= $keywordSearchReport;
+			} else {
+				$this->set('websiteSearchReport', $websiteSearchReport);
+				$this->set('keywordSearchReport', $keywordSearchReport);
+			}
+			
 		}
 		
 		if ($exportVersion) {

@@ -313,6 +313,26 @@ if (!empty($keywordPos)) {
 	}
 	?>
 </div>
+
+<br>
+<div>
+	<?php
+	if (!empty($websiteSearchReport)) {
+		echo $websiteSearchReport;
+	}
+	?>
+</div>
+
+<br>
+<div>
+	<?php
+	if (!empty($keywordSearchReport)) {
+		echo $keywordSearchReport;
+	}
+	?>
+</div>
+
+
 </div>
 <?php
 if(!empty($printVersion) || !empty($pdfVersion)) {
