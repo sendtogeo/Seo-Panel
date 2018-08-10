@@ -1196,7 +1196,6 @@ class ReportController extends Controller {
 				
 				$exportContent .= createExportContent( array());
 				$headList = array(
-					$_SESSION['text']['common']['Id'],
 					$_SESSION['text']['common']['Website'],
 					$_SESSION['text']['common']['MOZ Rank'],
 					$_SESSION['text']['common']['Domain Authority'],
@@ -1217,7 +1216,6 @@ class ReportController extends Controller {
 				$exportContent .= createExportContent( $headList);
 				foreach ($websiteRankList as $websiteInfo) {
 					$valueList = array(
-						$websiteInfo['id'],
 						$websiteInfo['url'],
 						strip_tags($websiteInfo['mozrank']),
 						strip_tags($websiteInfo['domain_authority']),

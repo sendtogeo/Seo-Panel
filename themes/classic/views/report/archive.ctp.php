@@ -89,10 +89,13 @@ if (!empty($keywordPos)) {
 	$seCount = count($seList);
 	$colCount = empty($websiteId) ? ($seCount * 3) + 2 : ($seCount * 3) + 1;
 	?>
+	<br><br>
 	<div>
-	<?php if (empty($pdfVersion)) echo $keywordPagingDiv?>
+	<?php
+	echo showSectionHead($spTextTools['Keyword Position Summary']);
+	if (empty($pdfVersion)) echo $keywordPagingDiv;
+	?>
 	<table width="100%" border="0" cellspacing="0" cellpadding="0" class="summary" style="<?php echo $borderCollapseVal; ?>">
-		<tr><td class="topheader" colspan="<?php echo $colCount?>"><?php echo $spTextTools['Keyword Position Summary']?></td></tr>
 		<tr class="squareHead">
 			<?php
 			$linkClass = "";
@@ -109,9 +112,9 @@ if (!empty($keywordPos)) {
 			?>		
 			<?php if (empty($websiteId)) {?>
 				<td class="left" rowspan="2"><?php echo $spText['common']['Website']?></td>
-				<td rowspan="2" style="border-right:2px solid #B0C2CC;"><?php echo $linkName?></td>
+				<td rowspan="2" style="border-right:1px solid #B0C2CC;"><?php echo $linkName?></td>
 			<?php } else { ?>
-				<td class="left" rowspan="2" style="border-right:2px solid #B0C2CC;"><?php echo $linkName?></td>
+				<td class="left" rowspan="2" style="border-right:1px solid #B0C2CC;"><?php echo $linkName?></td>
 			<?php }?>
 			<?php
 			foreach ($seList as $i => $seInfo){
@@ -127,11 +130,11 @@ if (!empty($keywordPos)) {
 			    
 				if( ($i+1) == $seCount){			
 					?>
-					<td class="right" colspan="3" style="border-right:2px solid #B0C2CC;"><?php echo $linkName; ?></td>
+					<td class="right" colspan="3" style="border-right:1px solid #B0C2CC;"><?php echo $linkName; ?></td>
 					<?php	
 				}else{
 					?>
-					<td colspan="3" style="border-right:2px solid #B0C2CC;"><?php echo $linkName; ?></td>
+					<td colspan="3" style="border-right:1px solid #B0C2CC;"><?php echo $linkName; ?></td>
 					<?php
 				}
 				
@@ -146,7 +149,7 @@ if (!empty($keywordPos)) {
 				?>
 				<td><?php echo $pTxt; ?></td>
 				<td><?php echo $cTxt; ?></td>
-				<td style="border-right:2px solid #B0C2CC;">+ / -</td>
+				<td style="border-right:1px solid #B0C2CC;">+ / -</td>
 				<?php
 			}
 			?>
@@ -169,10 +172,10 @@ if (!empty($keywordPos)) {
 				?>
 				<tr class="<?php echo $class?>">				
 					<?php if (empty($websiteId)) {?>
-						<td class="<?php echo $leftBotClass?> left" width='250px;'><?php echo $listInfo['weburl']; ?></td>
-						<td class='td_br_right left' style="border-right:2px solid #B0C2CC;"><?php echo $listInfo['name'] ?></td>
+						<td class="<?php echo $leftBotClass?> left" width='250px;'><a href="javascript:void(0)"><?php echo $listInfo['weburl']; ?></a></td>
+						<td class='td_br_right left' style="border-right:1px solid #B0C2CC;"><?php echo $listInfo['name'] ?></td>
 					<?php } else { ?>
-						<td class="<?php echo $leftBotClass?> left" width='100px;' style="border-right:2px solid #B0C2CC;"><?php echo $listInfo['name']; ?></td>
+						<td class="<?php echo $leftBotClass?> left" width='100px;' style="border-right:1px solid #B0C2CC;"><?php echo $listInfo['name']; ?></td>
 					<?php }?>				
 					<?php
 					foreach ($seList as $index => $seInfo){
@@ -209,7 +212,7 @@ if (!empty($keywordPos)) {
 					    ?>
 						<td class="td_br_right"><?php echo $prevRankLink; ?></td>
 						<td class="td_br_right"><?php echo $currRankLink; ?></td>
-						<td class='td_br_right left' style="border-right:2px solid #B0C2CC; width: 50px;" nowrap><?php echo $diffOut; ?></td>
+						<td class='td_br_right left' style="border-right:1px solid #B0C2CC; width: 50px;" nowrap><?php echo $diffOut; ?></td>
 						<?php					
 					}
 					?>				
@@ -228,17 +231,18 @@ if (!empty($keywordPos)) {
 ?>
 
 <br>
+<br>
+<br>
 <div>
 	<?php
 	if (!empty($websiteStats)) {
-    	$colSpan = 16; 
+    	echo showSectionHead($spTextHome['Website Statistics']);
+    	$colSpan = 15; 
+    	if (empty($pdfVersion)) echo $websitePagingDiv;
     	?>
-    	<?php if (empty($pdfVersion)) echo $websitePagingDiv?>
     	<table width="100%" cellspacing="0" cellpadding="0" class="summary" style="<?php echo $borderCollapseVal; ?>">
-    		<tr><td class="topheader" colspan="<?php echo $colSpan?>"><?php echo $spTextHome['Website Statistics']?></td></tr>
     		<tr>
-    			<td class="subheader" style="border: none;" width="5%" rowspan="2"><?php echo $spText['common']['Id']?></td>
-    			<td class="subheader" rowspan="2"><?php echo $spTextHome['SiteNameUrl']?></td>
+    			<td class="subheader" style="border: none;" rowspan="2"><?php echo $spText['common']['Website']?></td>
     			<td class="subheaderdark" colspan="4"><?php echo $spTextHome['Ranks']?></td>
     			<td class="subheaderdark" colspan="3"><?php echo $spTextHome['Backlinks']?></td>
     			<td class="subheaderdark" colspan="2"><?php echo $spTextHome['Pages Indexed']?></td>
@@ -282,10 +286,8 @@ if (!empty($keywordPos)) {
     				$mobileUsabilityLink = scriptAJAXLinkHrefDialog('pagespeed.php', 'content', "sec=reports&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['mobile_usability_score']);
     				?>
     				<tr>
-    					<td class="content" style="border-left: none;"><?php echo $websiteInfo['id']?></td>
-    					<td class="content">
-    						<?php echo $websiteInfo['name'];?><br>
-    						<a href="<?php echo $websiteInfo['url'];?>" target="_blank"><?php echo $websiteInfo['url'];?></a>
+    					<td class="content" style="border-left: none;">
+    						<a href="javascript:void(0)"><?php echo $websiteInfo['url'];?></a>
     					</td>
     					<td class="content"><?php echo $googleRankLink;?></td>
 						<td class="contentmid"><?php echo $daLink; ?></td>

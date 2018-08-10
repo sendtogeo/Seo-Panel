@@ -1,7 +1,7 @@
 <?php
 $borderCollapseVal = $pdfVersion ? "border-collapse: collapse;" : "";
 
-if(!empty($printVersion) || !empty($pdfVersion)) {
+if(!$summaryPage && (!empty($printVersion) || !empty($pdfVersion))) {
     $pdfVersion ? showPdfHeader($spTextTools['Keyword Search Summary']) : showPrintHeader($spTextTools['Keyword Search Summary']);
     ?>
     <table width="80%" border="0" cellspacing="0" cellpadding="0" class="search">
@@ -22,11 +22,13 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 	</table>
     <?php
 } else {
+	
+	if ($summaryPage && ($searchInfo['report_type'] != 'website-search-reports')) echo "<br><br><br>";
+	echo showSectionHead($spTextTools['Website Search Summary']);
     
     // if not summary page show the filters
     if(!$summaryPage) {
-    	$scriptName = "webmaster-tools.php";
-    	echo showSectionHead($spTextTools['Website Search Summary']);
+    	$scriptName = "webmaster-tools.php";    	
     	?>
 		<form id='search_form'>
 		<?php $submitLink = "scriptDoLoadPost('webmaster-tools.php', 'search_form', 'content', '&sec=viewWebsiteSearchSummary')";?>
@@ -67,7 +69,7 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 
 	// url parameters
 	$mainLink = SP_WEBPATH."/$scriptName?sec=viewWebsiteSearchSummary&website_id=$websiteId&from_time=$fromTime&to_time=$toTime";
-	$mainLink .= "&search_name=" . $searchInfo['search_name'] . "&report_type=" . $searchInfo['report_type'];
+	$mainLink .= "&search_name=" . $searchInfo['search_name'] . "&report_type=website-search-reports";
 	
 	// if not summary page show the filters
 	if(!$summaryPage) {
@@ -82,7 +84,7 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 		<?php
 	}
 	
-	echo $pagingDiv;
+	if (empty($pdfVersion)) echo $pagingDiv;
 }
 
 $baseColCount = count($colList);
@@ -90,11 +92,6 @@ $colCount = ($baseColCount * 3) + 1;
 ?>
 <div id='subcontent' style="margin-top: 0px;">
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="summary" style="<?php echo $borderCollapseVal; ?>">
-	<?php if($summaryPage) { ?>
-		<tr>
-			<td class="topheader" colspan="<?php echo $colCount?>"><?php echo $spTextTools['Website Search Summary']?></td>
-		</tr>
-	<?php }?>
 	<tr class="squareHead">
 		<?php
 		$hrefAttr = $pdfVersion ? "" : "href='javascript:void(0)'";
@@ -120,7 +117,7 @@ $colCount = ($baseColCount * 3) + 1;
             
             $rowSpan = ($colName == "name") ? 2 : 1;
 			?>
-			<td rowspan="<?php echo $rowSpan?>" class="<?php echo $tdClass?>" colspan="3" style="border-right:2px solid #B0C2CC;"><?php echo $linkName; ?></td>
+			<td rowspan="<?php echo $rowSpan?>" class="<?php echo $tdClass?>" colspan="3" style="border-right:1px solid #B0C2CC;"><?php echo $linkName; ?></td>
 			<?php
 			
 		}
@@ -135,7 +132,7 @@ $colCount = ($baseColCount * 3) + 1;
 			?>
 			<td><?php echo $pTxt; ?></td>
 			<td><?php echo $cTxt; ?></td>
-			<td style="border-right:2px solid #B0C2CC;">+ / -</td>
+			<td style="border-right:1px solid #B0C2CC;">+ / -</td>
 			<?php
 		}
 		?>
@@ -157,7 +154,7 @@ $colCount = ($baseColCount * 3) + 1;
             $scriptLink = "website_id=$websiteId&keyword_id={$listInfo['id']}&rep=1&from_time=$fromTime&to_time=$toTime";          
 			?>
 			<tr class="<?php echo $class?>">
-				<td colspan="3" class="<?php echo $leftBotClass?> left" width='100px;' style="border-right:2px solid #B0C2CC;"><?php echo $listInfo['name']; ?></td>
+				<td colspan="3" class="<?php echo $leftBotClass?> left" width='100px;' style="border-right:1px solid #B0C2CC;"><a href="javascript:void(0)"><?php echo $listInfo['url']; ?></a></td>
 				<?php
 				foreach ($colList as $colName => $colVal){
 					if ($colName == 'name') continue;
@@ -169,6 +166,7 @@ $colCount = ($baseColCount * 3) + 1;
 					// if both ranks are existing
 					if ($prevRank != '' && $currRank != '') {
 						$rankDiff = $currRank - $prevRank;
+						$rankDiff = round($rankDiff, 2);
 						
 						if ($rankDiff > 0) {
 							$rankDiffTxt = "<font class='green'>($rankDiff)</font>";
@@ -192,7 +190,7 @@ $colCount = ($baseColCount * 3) + 1;
 				    ?>
 					<td class="td_br_right"><?php echo $prevRankLink; ?></td>
 					<td class="td_br_right"><?php echo $currRankLink; ?></td>
-					<td class='td_br_right left' style="border-right:2px solid #B0C2CC; width: 50px;" nowrap><?php echo $graphLink . " " . $rankDiffTxt; ?></td>
+					<td class='td_br_right left' style="border-right:1px solid #B0C2CC; width: 50px;" nowrap><?php echo $graphLink . " " . $rankDiffTxt; ?></td>
 					<?php					
 				}
 				?>				
@@ -205,7 +203,7 @@ $colCount = ($baseColCount * 3) + 1;
 </table>
 </div>
 <?php
-if(!empty($printVersion) || !empty($pdfVersion)) {
+if(!$summaryPage && (!empty($printVersion) || !empty($pdfVersion))) {
 	echo $pdfVersion ? showPdfFooter($spText) : showPrintFooter($spText);
 }
 ?>

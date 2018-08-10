@@ -464,7 +464,7 @@ class WebMasterController extends GoogleAPIController {
 		$scriptName = $summaryPage ? "archive.php" : "webmaster-tools.php";
 		$scriptPath = SP_WEBPATH . "/$scriptName?sec=viewWebsiteSearchSummary&website_id=$websiteId";
 		$scriptPath .= "&from_time=$fromTime&to_time=$toTime&search_name=" . $searchInfo['search_name'];
-		$scriptPath .= "&order_col=$orderCol&order_val=$orderVal&report_type=" . $searchInfo['report_type'];;
+		$scriptPath .= "&order_col=$orderCol&order_val=$orderVal&report_type=website-search-reports";
 		
 		$websiteId = intval($searchInfo['website_id']);
 		$conditions = !empty($websiteId) ? " and w.id=$websiteId" : "";
