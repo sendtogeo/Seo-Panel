@@ -279,20 +279,10 @@ class WebMasterController extends GoogleAPIController {
 				break;
 		}
 
-		if (!empty($searchInfo['from_time'])) {
-			$fromTimeTxt = addslashes($searchInfo['from_time']);
-		} else {
-			$fromTimeTxt = date('Y-m-d', strtotime('-3 days'));
-		}
-		
-		if (!empty($searchInfo['to_time'])) {
-			$toTimeTxt = addslashes($searchInfo['to_time']);
-		} else {
-			$toTimeTxt = date('Y-m-d', strtotime('-2 days'));
-		}
-		
-		$this->set('fromTime', $fromTimeTxt);
-		$this->set('toTime', $toTimeTxt);
+		$fromTime = !empty($searchInfo['from_time']) ? addslashes($searchInfo['from_time']) : date('Y-m-d', strtotime('-3 days'));
+		$toTime = !empty($searchInfo['to_time']) ? addslashes($searchInfo['to_time']) : date('Y-m-d', strtotime('-2 days'));
+		$this->set('fromTime', $fromTime);
+		$this->set('toTime', $toTime);
 	
 		$websiteController = New WebsiteController();
 		$websiteList = $websiteController->__getAllWebsitesWithActiveKeywords($userId, true);
@@ -317,14 +307,14 @@ class WebMasterController extends GoogleAPIController {
 		$this->set('orderCol', $orderCol);
 		$this->set('orderVal', $orderVal);
 		$scriptPath = SP_WEBPATH . "/webmaster-tools.php?sec=viewKeywordReports&website_id=$websiteId";
-		$scriptPath .= "&from_time=$fromTimeTxt&to_time=$toTimeTxt&search_name=" . $searchInfo['search_name'];
+		$scriptPath .= "&from_time=$fromTime&to_time=$toTime&search_name=" . $searchInfo['search_name'];
 		$scriptPath .= "&order_col=$orderCol&order_val=$orderVal";
 		
 		$conditions = !empty($websiteId) ? " and k.website_id=$websiteId" : "";
 		$conditions .= !empty($searchInfo['search_name']) ? " and k.name like '%".addslashes($searchInfo['search_name'])."%'" : "";
 		
 		$subSql = "select [cols] from keywords k, keyword_analytics r where k.id=r.keyword_id
-		and k.status=1 $conditions and r.source='$source' and r.report_date='$fromTimeTxt'";
+		and k.status=1 $conditions and r.source='$source' and r.report_date='$fromTime'";
 		
 		$sql = "
 		(" . str_replace("[cols]", "k.id,k.name,r.clicks,r.impressions,r.ctr,r.average_position", $subSql) . ")
@@ -362,7 +352,7 @@ class WebMasterController extends GoogleAPIController {
 
 			$sql = "select k.id,k.name,r.clicks,r.impressions,r.ctr,r.average_position 
 			from keywords k, keyword_analytics r where k.id=r.keyword_id
-			and k.status=1 $conditions and r.source='$source' and r.report_date='$toTimeTxt'";
+			and k.status=1 $conditions and r.source='$source' and r.report_date='$toTime'";
 			$sql .= " and k.id in(" . implode(",", $keywordIdList) . ")";
 			$reportList = $this->db->select($sql);
 			$compareReportList = array();
@@ -377,17 +367,17 @@ class WebMasterController extends GoogleAPIController {
 	
 		if ($exportVersion) {
 			$spText = $_SESSION['text'];
-			$reportHeading =  $this->spTextTools['Keyword Search Summary']."($fromTimeTxt - $toTimeTxt)";
+			$reportHeading =  $this->spTextTools['Keyword Search Summary']."($fromTime - $toTime)";
 			$exportContent .= createExportContent( array('', $reportHeading, ''));
 			$exportContent .= createExportContent( array());
 			$headList = array($spText['common']['Website'], $spText['common']['Keyword']);
 	
-			$pTxt = str_replace("-", "/", substr($fromTimeTxt, -5));
-			$cTxt = str_replace("-", "/", substr($toTimeTxt, -5));
+			$pTxt = str_replace("-", "/", substr($fromTime, -5));
+			$cTxt = str_replace("-", "/", substr($toTime, -5));
 			foreach ($this->colList as $colKey => $colLabel) {
 				if ($colKey == 'name') continue;
-				$headList[] = $colLabel . "($cTxt)";
 				$headList[] = $colLabel . "($pTxt)";
+				$headList[] = $colLabel . "($cTxt)";
 				$headList[] = $colLabel . "(+/-)";
 			}
 	
@@ -399,16 +389,16 @@ class WebMasterController extends GoogleAPIController {
 					if ($colName == 'name') continue;
 					
 					$prevRank = isset($listInfo[$colName]) ? $listInfo[$colName] : 0;
-					$currRank = isset($compareReportList[$keywordId][$colName]) ? $compareReportList[$keywordId][$colName] : 0;
+					$currRank = isset($compareReportList[$listInfo['id']][$colName]) ? $compareReportList[$listInfo['id']][$colName] : 0;
 					$rankDiff = "";
 	
 					// if both ranks are existing
 					if ($prevRank != '' && $currRank != '') {
-						$rankDiff = $prevRank - $currRank;
+						$rankDiff = $currRank - $prevRank;
 					}
-						
-					$valueList[] = $currRank;
+
 					$valueList[] = $prevRank;
+					$valueList[] = $currRank;
 					$valueList[] = $rankDiff;
 				}
 	
@@ -420,7 +410,7 @@ class WebMasterController extends GoogleAPIController {
 				
 			// if pdf export
 			if ($searchInfo['doc_type'] == "pdf") {
-				exportToPdf($this->getViewContent('webmaster/keyword_search_analytics_summary'), "keyword_search_summary_$fromTimeTxt-$toTimeTxt.pdf");
+				exportToPdf($this->getViewContent('webmaster/keyword_search_analytics_summary'), "keyword_search_summary_$fromTime-$toTime.pdf");
 			} else {
 				$this->set('searchInfo', $searchInfo);
 				$this->render('webmaster/keyword_search_analytics_summary');
@@ -437,6 +427,7 @@ class WebMasterController extends GoogleAPIController {
 		$exportVersion = false;
 		$source = $this->sourceList[0];
 		$this->set('summaryPage', $summaryPage);
+		$this->set('searchInfo', $searchInfo);
 		
 		switch($searchInfo['doc_type']){
 	
@@ -470,14 +461,16 @@ class WebMasterController extends GoogleAPIController {
 	
 		$this->set('orderCol', $orderCol);
 		$this->set('orderVal', $orderVal);
-		$scriptPath = SP_WEBPATH . "/webmaster-tools.php?sec=viewWebsiteReports&website_id=$websiteId";
+		$scriptName = $summaryPage ? "archive.php" : "webmaster-tools.php";
+		$scriptPath = SP_WEBPATH . "/$scriptName?sec=viewWebsiteSearchSummary&website_id=$websiteId";
 		$scriptPath .= "&from_time=$fromTime&to_time=$toTime&search_name=" . $searchInfo['search_name'];
-		$scriptPath .= "&order_col=$orderCol&order_val=$orderVal";
+		$scriptPath .= "&order_col=$orderCol&order_val=$orderVal&report_type=" . $searchInfo['report_type'];;
 		
 		$websiteId = intval($searchInfo['website_id']);
 		$conditions = !empty($websiteId) ? " and w.id=$websiteId" : "";
 		$conditions .= isAdmin() ? "" : " and w.user_id=$userId";
 		$conditions .= !empty($searchInfo['search_name']) ? " and w.url like '%".addslashes($searchInfo['search_name'])."%'" : "";
+		$this->set('websiteId', $websiteId);
 		
 		$subSql = "select [cols] from websites w, website_search_analytics r where w.id=r.website_id
 		and w.status=1 $conditions and r.source='$source' and r.report_date='$fromTime'";
@@ -533,38 +526,40 @@ class WebMasterController extends GoogleAPIController {
 	
 		if ($exportVersion) {
 			$spText = $_SESSION['text'];
-			$reportHeading =  $this->spTextTools['Keyword Search Summary']."($fromTime - $toTime)";
+			$reportHeading =  $this->spTextTools['Website Search Summary']."($fromTime - $toTime)";
+			$exportContent .= createExportContent( array());
+			$exportContent .= createExportContent( array());
 			$exportContent .= createExportContent( array('', $reportHeading, ''));
 			$exportContent .= createExportContent( array());
-			$headList = array($spText['common']['Website'], $spText['common']['Keyword']);
+			$headList = array($spText['common']['Website']);
 	
 			$pTxt = str_replace("-", "/", substr($fromTime, -5));
 			$cTxt = str_replace("-", "/", substr($toTime, -5));
 			foreach ($this->colList as $colKey => $colLabel) {
 				if ($colKey == 'name') continue;
-				$headList[] = $colLabel . "($cTxt)";
 				$headList[] = $colLabel . "($pTxt)";
+				$headList[] = $colLabel . "($cTxt)";
 				$headList[] = $colLabel . "(+/-)";
 			}
 	
 			$exportContent .= createExportContent($headList);
 			foreach($baseReportList as $listInfo){
 	
-				$valueList = array($websiteInfo['url'], $listInfo['name']);
+				$valueList = array($listInfo['url']);
 				foreach ($this->colList as $colName => $colVal) {
 					if ($colName == 'name') continue;
 					
 					$prevRank = isset($listInfo[$colName]) ? $listInfo[$colName] : 0;
-					$currRank = isset($compareReportList[$websiteId][$colName]) ? $compareReportList[$websiteId][$colName] : 0;
+					$currRank = isset($compareReportList[$listInfo['id']][$colName]) ? $compareReportList[$listInfo['id']][$colName] : 0;
 					$rankDiff = "";
 	
 					// if both ranks are existing
 					if ($prevRank != '' && $currRank != '') {
-						$rankDiff = $prevRank - $currRank;
+						$rankDiff = $currRank - $prevRank;
 					}
-						
-					$valueList[] = $currRank;
+
 					$valueList[] = $prevRank;
+					$valueList[] = $currRank;
 					$valueList[] = $rankDiff;
 				}
 	
@@ -583,6 +578,10 @@ class WebMasterController extends GoogleAPIController {
 			if ($summaryPage) {
 				return $this->getViewContent('webmaster/website_search_analytics_summary');
 			} else {
+				
+				$websiteList = $websiteController->__getAllWebsitesWithActiveKeywords($userId, true);
+				$this->set('websiteList', $websiteList);
+				
 				if ($searchInfo['doc_type'] == "pdf") {
 					exportToPdf($this->getViewContent('webmaster/website_search_analytics_summary'), "website_search_summary_$fromTime-$toTime.pdf");
 				} else {

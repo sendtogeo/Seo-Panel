@@ -22,10 +22,11 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 	</table>
     <?php
 } else {
-    echo showSectionHead($spTextTools['Website Search Summary']);
     
     // if not summary page show the filters
     if(!$summaryPage) {
+    	$scriptName = "webmaster-tools.php";
+    	echo showSectionHead($spTextTools['Website Search Summary']);
     	?>
 		<form id='search_form'>
 		<?php $submitLink = "scriptDoLoadPost('webmaster-tools.php', 'search_form', 'content', '&sec=viewWebsiteSearchSummary')";?>
@@ -38,6 +39,7 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 				<th width="100px"><?php echo $spText['common']['Website']?>: </th>
 				<td width="160px">
 					<select name="website_id" id="website_id" style='width:100px;' onchange="<?php echo $submitLink?>">
+						<option value="">-- <?php echo $spText['common']['Select']?> --</option>
 						<?php foreach($websiteList as $websiteInfo){?>
 							<?php if($websiteInfo['id'] == $websiteId){?>
 								<option value="<?php echo $websiteInfo['id']?>" selected><?php echo $websiteInfo['name']?></option>
@@ -59,20 +61,13 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 		</table>
 		</form>
 		<?php
-    } 
-    
-	if(empty($baseReportList)){
-		?>
-		<p class='note'>
-			<?php echo $spText['common']['No Keywords Found']?>.
-			<a href="javascript:void(0);" onclick="scriptDoLoad('keywords.php', 'content', 'sec=new&amp;website_id=')"><?php echo $spText['label']['Click Here']?></a> <?php echo $spTextKeyword['to create new keywords']?>.
-		</p>
-		<?php
-		exit;
-	}
+    } else {
+    	$scriptName = "archive.php";
+    }
 
 	// url parameters
-	$mainLink = SP_WEBPATH."/webmaster-tools.php?sec=viewWebsiteSearchSummary&website_id=$websiteId&from_time=$fromTime&to_time=$toTime&search_name=" . $searchInfo['search_name'];
+	$mainLink = SP_WEBPATH."/$scriptName?sec=viewWebsiteSearchSummary&website_id=$websiteId&from_time=$fromTime&to_time=$toTime";
+	$mainLink .= "&search_name=" . $searchInfo['search_name'] . "&report_type=" . $searchInfo['report_type'];
 	
 	// if not summary page show the filters
 	if(!$summaryPage) {
@@ -89,15 +84,20 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 	
 	echo $pagingDiv;
 }
+
+$baseColCount = count($colList);
+$colCount = ($baseColCount * 3) + 1;
 ?>
-
 <div id='subcontent' style="margin-top: 0px;">
-
-<table width="100%" border="0" cellspacing="0" cellpadding="0" class="list" style="<?php echo $borderCollapseVal; ?>">
+<table width="100%" border="0" cellspacing="0" cellpadding="0" class="summary" style="<?php echo $borderCollapseVal; ?>">
+	<?php if($summaryPage) { ?>
+		<tr>
+			<td class="topheader" colspan="<?php echo $colCount?>"><?php echo $spTextTools['Website Search Summary']?></td>
+		</tr>
+	<?php }?>
 	<tr class="squareHead">
 		<?php
 		$hrefAttr = $pdfVersion ? "" : "href='javascript:void(0)'";
-		$baseColCount = count($colList);
 		foreach (array_keys($colList) as $i => $colName){
 		    
 		    $linkClass = "";
@@ -108,7 +108,8 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
                 $oVal = 'ASC';
             }
             
-            $linkName = "<a id='sortLink' class='$linkClass' $hrefAttr onclick=\"scriptDoLoad('$mainLink&order_col=$colName&order_val=$oVal', 'content')\">$colList[$colName]</a>";
+            $headerVal = ($colName == 'name') ? $_SESSION['text']['common']['Website'] : $colList[$colName];
+            $linkName = "<a id='sortLink' class='$linkClass' $hrefAttr onclick=\"scriptDoLoad('$mainLink&order_col=$colName&order_val=$oVal', 'content')\">$headerVal</a>";
 		    
             $tdClass = "";
             if ($i == 0) {
@@ -140,7 +141,6 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 		?>
 	</tr>
 	<?php
-	$colCount = ($baseColCount * 3) + 1;
 	if (count($baseReportList) > 0) {
 		
 		$catCount = count($baseReportList);

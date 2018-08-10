@@ -601,12 +601,22 @@ function getOrderByVal($orderByVal) {
 	return $orderByVal;
 }
 
-if (!function_exists('curl_reset'))
-{
-	function curl_reset(&$ch)
-	{
+if (!function_exists('curl_reset')) {
+	
+	function curl_reset(&$ch) {
 		$ch = curl_init();
 	}
+	
 }
 
+function getRequestParamStr() {
+	$paramStr = "";
+	
+	foreach ($_REQUEST as $item => $value) {
+		$paramStr .= "&$item=" . urlencode($value);
+	}
+	
+	return $paramStr;
+	
+}
 ?>

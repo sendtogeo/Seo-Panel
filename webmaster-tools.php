@@ -54,6 +54,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$controller->viewKeywordSearchSummary($_POST);
 			break;
 			
+		case "viewWebsiteSearchSummary":
+			$controller->viewWebsiteSearchSummary($_POST);
+			break;
+			
 		case "viewKeywordSearchGraphReports":
 			$controller->viewKeywordSearchGraphReports($_POST);
 			break;
@@ -81,6 +85,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			
 		case "viewKeywordSearchSummary":
 			$controller->viewKeywordSearchSummary($_GET);
+			break;
+			
+		case "viewWebsiteSearchSummary":
+			$controller->viewWebsiteSearchSummary($_GET);
 			break;
 			
 		case "viewKeywordSearchGraphReports":

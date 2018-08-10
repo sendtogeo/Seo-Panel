@@ -69,6 +69,11 @@ foreach($menuList as $i => $menuInfo){
 					</a>
 				</li>
 				<li>
+					<a href="javascript:void(0);" onclick="scriptDoLoad('webmaster-tools.php?sec=viewWebsiteSearchSummary', 'content')">
+						<?php echo $spTextTools['Website Search Summary']?>
+					</a>
+				</li>
+				<li>
 					<a href="javascript:void(0);" onclick="scriptDoLoad('webmaster-tools.php?sec=viewWebsiteSearchReports', 'content')">
 						<?php echo $spTextTools['Website Search Reports']?>
 					</a>

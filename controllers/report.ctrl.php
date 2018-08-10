@@ -942,8 +942,8 @@ class ReportController extends Controller {
 		$reportTypes = array(
 			'keyword-position' => $this->spTextTools["Keyword Position Summary"],
 			'website-stats' => $spTextHome["Website Statistics"],
-			'website-search-reports' => $this->spTextTools['Website Search Reports'],
-			'keyword-search-reports' => $this->spTextTools['Keyword Search Reports'],
+			'website-search-reports' => $this->spTextTools['Website Search Summary'],
+			'keyword-search-reports' => $this->spTextTools['Keyword Search Summary'],
 		);
 		$this->set('reportTypes', $reportTypes);
 		$urlarg .= "&report_type=".$searchInfo['report_type'];		
@@ -1245,6 +1245,8 @@ class ReportController extends Controller {
 		# website search report section
 		if (empty($searchInfo['report_type']) || in_array($searchInfo['report_type'], array('website-search-reports', 'keyword-search-reports')) ) {
 			$webMasterCtrler = new WebMasterController();
+			$webMasterCtrler->set('spTextTools', $this->spTextTools);
+			$webMasterCtrler->spTextTools = $this->spTextTools;
 			$filterList = $searchInfo;
 			$wmMaxFromTime = strtotime('-3 days');
 			$wmMaxEndTime = strtotime('-2 days');

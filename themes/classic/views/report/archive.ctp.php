@@ -42,8 +42,8 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
     	<tr>
 		    <th><?php echo $spText['common']['Website']?>: </th>
 			<td>
-    			<select name="website_id" id="website_id"  onchange="scriptDoLoadPost('archive.php', 'search_form', 'content')" style="width: 120px;">
-    				<option value="">-- Select --</option>
+    			<select name="website_id" id="website_id"  onchange="scriptDoLoadPost('archive.php', 'search_form', 'content')" style="width: 180px;">
+    				<option value="">-- <?php echo $spText['common']['Select']?> --</option>
     				<?php foreach($siteList as $websiteInfo){?>
     					<?php if($websiteInfo['id'] == $websiteId){?>
     						<option value="<?php echo $websiteInfo['id']?>" selected><?php echo $websiteInfo['name']?></option>
@@ -55,8 +55,8 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 			</td>
 			<th><?php echo $spText['label']['Report Type']?>: </th>
 			<td>
-				<select name="report_type" id="report_type" onchange="scriptDoLoadPost('archive.php', 'search_form', 'content')" style="width: 150px;">
-					<option value="">-- Select --</option>
+				<select name="report_type" id="report_type" onchange="scriptDoLoadPost('archive.php', 'search_form', 'content')" style="width: 210px;">
+					<option value="">-- <?php echo $spText['common']['Select']?> --</option>
     				<?php foreach($reportTypes as $type => $info){?>
 						<?php if($type == $searchInfo['report_type']){?>
 							<option value="<?php echo $type?>" selected><?php echo $info?></option>
@@ -65,8 +65,6 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 						<?php }?>
 					<?php }?>
 				</select>
-			</td>
-			<td width="120px">
 				<a href="javascript:void(0);" onclick="scriptDoLoadPost('archive.php', 'search_form', 'content')" class="actionbut"><?php echo $spText['button']['Search']?></a>
 			</td>
 		</tr>
