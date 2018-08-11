@@ -4,7 +4,7 @@
 	<tr>
 		<th><?php echo $spText['common']['Website']?>: </th>
 		<td>
-			<select name="website_id" id="website_id" onchange="doLoad('website_id', 'keywords.php', 'keyword_area', 'sec=keywordbox')">
+			<select name="website_id">
 				<?php foreach($websiteList as $websiteInfo){?>
 					<?php if($websiteInfo['id'] == $websiteId){?>
 						<option value="<?php echo $websiteInfo['id']?>" selected><?php echo $websiteInfo['name']?></option>
@@ -23,10 +23,6 @@
 		</td>
 	</tr>
 	<tr>
-		<th><?php echo $spText['common']['Keyword']?>: </th>
-		<td id="keyword_area">
-			<?php echo $this->render('keyword/keywordselectbox', 'ajax'); ?>
-		</td>
 		<th><?php echo $spText['label']['Report Type']?>: </th>
 		<td>
 			<select name="attr_type">
@@ -39,7 +35,9 @@
 					<?php }?>
 				<?php }?>
 			</select>
-			<a href="javascript:void(0);" onclick="scriptDoLoadPost('webmaster-tools.php', 'search_form', 'content', '&sec=viewKeywordSearchGraphReports')" class="actionbut">
+		</td>
+		<td colspan="2">
+			<a href="javascript:void(0);" onclick="scriptDoLoadPost('webmaster-tools.php', 'search_form', 'content', '&sec=viewWebsiteSearchGraphReports')" class="actionbut">
 				<?php echo $spText['button']['Show Records']?>
 			</a>
 		</td>

@@ -179,7 +179,7 @@ $colCount = ($baseColCount * 3) + 1;
 
 					$prevRankLink = scriptAJAXLinkHrefDialog('webmaster-tools.php', 'content', $scriptLink . "&sec=viewWebsiteSearchReports", $prevRank);
 					$currRankLink = scriptAJAXLinkHrefDialog('webmaster-tools.php', 'content', $scriptLink . "&sec=viewWebsiteSearchReports", $currRank);
-					$graphLink = scriptAJAXLinkHrefDialog('webmaster-tools.php', 'content', $scriptLink . "&sec=viewWebsiteSearchGraphReports", '&nbsp;', 'graphicon');
+					$graphLink = scriptAJAXLinkHrefDialog('webmaster-tools.php', 'content', $scriptLink . "&sec=viewWebsiteSearchGraphReports&attr_type=$colName", '&nbsp;', 'graphicon');
 					
 					// if pdf report remove links
 					if ($pdfVersion) {

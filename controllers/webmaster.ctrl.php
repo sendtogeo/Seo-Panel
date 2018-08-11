@@ -258,7 +258,7 @@ class WebMasterController extends GoogleAPIController {
 	}
 	
 	# func to show webmasterkeyword report summary
-	function viewKeywordSearchSummary($searchInfo = '') {
+	function viewKeywordSearchSummary($searchInfo = '', $summaryPage = false) {
 	
 		$userId = isLoggedIn();
 		$keywordController = New KeywordController();
@@ -778,24 +778,34 @@ class WebMasterController extends GoogleAPIController {
 		// if reports not empty
 		$colList = $this->colList;
 		array_shift($colList);
+		$this->set('colList', $colList);
+		$this->set('searchInfo', $searchInfo);
+		
+		$graphColList = array();
+		if (!empty($searchInfo['attr_type'])) {
+			$graphColList[$searchInfo['attr_type']] = $colList[$searchInfo['attr_type']];
+		} else {
+			$graphColList = $colList;
+		}
+		
 		if (!empty($reportList)) {
 				
-			$dataArr = "['Date', '" . implode("', '", array_values($colList)) . "']";
+			$dataArr = "['Date', '" . implode("', '", array_values($graphColList)) . "']";
 			 
 			// loop through data list
 			foreach ($reportList as $dataInfo) {
 	
 				$valStr = "";
-				foreach ($colList as $seId => $seVal) {
+				foreach ($graphColList as $seId => $seVal) {
 					$valStr .= ", ";
 					$valStr .= !empty($dataInfo[$seId]) ? $dataInfo[$seId] : 0;
 				}
 	
-				$dataArr .= ", ['{$dataInfo['result_date']}' $valStr]";
+				$dataArr .= ", ['{$dataInfo['report_date']}' $valStr]";
 			}
 			 
 			$this->set('dataArr', $dataArr);
-			$this->set('graphTitle', $this->spTextTools['Backlinks Reports']);
+			$this->set('graphTitle', $this->spTextTools['Keyword Search Reports']);
 			$graphContent = $this->getViewContent('report/graph');
 		} else {
 			$graphContent = showErrorMsg($_SESSION['text']['common']['No Records Found'], false, true);
@@ -805,6 +815,81 @@ class WebMasterController extends GoogleAPIController {
 		$this->set('graphContent', $graphContent);
 		$this->render('webmaster/graphicalreport');
 		
+	}
+
+	# func to show website search reports in graph
+	function viewWebsiteSearchGraphReports($searchInfo = '') {
+	
+		$userId = isLoggedIn();
+	
+		if (!empty ($searchInfo['from_time'])) {
+			$fromTimeDate = addslashes($searchInfo['from_time']);
+		} else {
+			$fromTimeDate = date('Y-m-d', strtotime('-17 days'));
+		}
+	
+		if (!empty ($searchInfo['to_time'])) {
+			$toTimeDate = addslashes($searchInfo['to_time']);
+		} else {
+			$toTimeDate = date('Y-m-d', strtotime('-2 days'));
+		}
+	
+		$this->set('fromTime', $fromTimeDate);
+		$this->set('toTime', $toTimeDate);
+	
+		$websiteController = New WebsiteController();
+		$websiteList = $websiteController->__getAllWebsitesWithActiveKeywords($userId, true);
+		$this->set('websiteList', $websiteList);
+		$websiteId = empty($searchInfo['website_id']) ? $websiteList[0]['id'] : intval($searchInfo['website_id']);
+		$this->set('websiteId', $websiteId);
+	
+		$conditions = empty ($websiteId) ? "" : " and s.website_id=$websiteId";
+		$sql = "select s.* from website_search_analytics s
+		where report_date>='$fromTimeDate' and report_date<='$toTimeDate' $conditions
+		order by s.report_date";
+		$reportList = $this->db->select($sql);
+	
+		// if reports not empty
+		$colList = $this->colList;
+		array_shift($colList);
+		$this->set('colList', $colList);
+		$this->set('searchInfo', $searchInfo);
+		
+		$graphColList = array();
+		if (!empty($searchInfo['attr_type'])) {
+			$graphColList[$searchInfo['attr_type']] = $colList[$searchInfo['attr_type']];
+		} else {
+			$graphColList = $colList;	
+		}
+		
+		// format report list
+		if (!empty($reportList)) {
+	
+			$dataArr = "['Date', '" . implode("', '", array_values($graphColList)) . "']";
+	
+			// loop through data list
+			foreach ($reportList as $dataInfo) {
+	
+				$valStr = "";
+				foreach ($graphColList as $seId => $seVal) {
+					$valStr .= ", ";
+					$valStr .= !empty($dataInfo[$seId]) ? $dataInfo[$seId] : 0;
+				}
+	
+				$dataArr .= ", ['{$dataInfo['report_date']}' $valStr]";
+			}
+	
+			$this->set('dataArr', $dataArr);
+			$this->set('graphTitle', $this->spTextTools['Website Search Reports']);
+			$graphContent = $this->getViewContent('report/graph');
+		} else {
+			$graphContent = showErrorMsg($_SESSION['text']['common']['No Records Found'], false, true);
+		}
+	
+		// get graph content
+		$this->set('graphContent', $graphContent);
+		$this->render('webmaster/website_graphical_report');
+	
 	}
 
 	# func to show quick checker
