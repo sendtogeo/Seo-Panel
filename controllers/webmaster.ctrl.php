@@ -262,6 +262,10 @@ class WebMasterController extends GoogleAPIController {
 	
 		$userId = isLoggedIn();
 		$keywordController = New KeywordController();
+		$source = $this->sourceList[0];
+		$this->set('summaryPage', $summaryPage);
+		$this->set('searchInfo', $searchInfo);
+		
 		$exportVersion = false;
 		switch($searchInfo['doc_type']){
 	
@@ -285,15 +289,12 @@ class WebMasterController extends GoogleAPIController {
 		$this->set('toTime', $toTime);
 	
 		$websiteController = New WebsiteController();
-		$websiteList = $websiteController->__getAllWebsitesWithActiveKeywords($userId, true);
+		$wList = $websiteController->__getAllWebsitesWithActiveKeywords($userId, true);
+		$websiteList = array();
+		foreach ($wList as $wInfo) $websiteList[$wInfo['id']] = $wInfo;
 		$this->set('websiteList', $websiteList);
-		$websiteId = isset($searchInfo['website_id']) ? intval($searchInfo['website_id']) : $websiteList[0]['id'];
+		$websiteId = intval($searchInfo['website_id']);
 		$this->set('websiteId', $websiteId);
-		
-		$websiteInfo = $websiteController->__getWebsiteInfo($websiteId);
-		$this->set('websiteInfo', $websiteInfo);
-		$source = $this->sourceList[0];
-		$this->set('source', $source);
 	
 		// to find order col
 		if (!empty($searchInfo['order_col'])) {
@@ -306,9 +307,10 @@ class WebMasterController extends GoogleAPIController {
 	
 		$this->set('orderCol', $orderCol);
 		$this->set('orderVal', $orderVal);
-		$scriptPath = SP_WEBPATH . "/webmaster-tools.php?sec=viewKeywordReports&website_id=$websiteId";
+		$scriptName = $summaryPage ? "archive.php" : "webmaster-tools.php";
+		$scriptPath = SP_WEBPATH . "/$scriptName?sec=viewKeywordReports&website_id=$websiteId";
 		$scriptPath .= "&from_time=$fromTime&to_time=$toTime&search_name=" . $searchInfo['search_name'];
-		$scriptPath .= "&order_col=$orderCol&order_val=$orderVal";
+		$scriptPath .= "&order_col=$orderCol&order_val=$orderVal&report_type=keyword-search-reports";
 		
 		$conditions = !empty($websiteId) ? " and k.website_id=$websiteId" : "";
 		$conditions .= !empty($searchInfo['search_name']) ? " and k.name like '%".addslashes($searchInfo['search_name'])."%'" : "";
@@ -317,13 +319,13 @@ class WebMasterController extends GoogleAPIController {
 		and k.status=1 $conditions and r.source='$source' and r.report_date='$fromTime'";
 		
 		$sql = "
-		(" . str_replace("[cols]", "k.id,k.name,r.clicks,r.impressions,r.ctr,r.average_position", $subSql) . ")
+		(" . str_replace("[cols]", "k.id,k.name,k.website_id,r.clicks,r.impressions,r.ctr,r.average_position", $subSql) . ")
 		UNION
-		(select k.id,k.name,0,0,0,0 from keywords k where k.status=1 $conditions 
+		(select k.id,k.name,k.website_id,0,0,0,0 from keywords k where k.status=1 $conditions 
 		and k.id not in (". str_replace("[cols]", "distinct(k.id)", $subSql) ."))
 		order by " . addslashes($orderCol) . " " . addslashes($orderVal);
 		
-		if ($orderVal != 'name') $sql .= ", name";
+		if ($orderCol != 'name') $sql .= ", name";
 		
 		# pagination setup
 		$this->db->query($sql, true);
@@ -350,7 +352,7 @@ class WebMasterController extends GoogleAPIController {
 				$keywordIdList[] = $info['id'];
 			}
 
-			$sql = "select k.id,k.name,r.clicks,r.impressions,r.ctr,r.average_position 
+			$sql = "select k.id,k.name,k.website_id,r.clicks,r.impressions,r.ctr,r.average_position 
 			from keywords k, keyword_analytics r where k.id=r.keyword_id
 			and k.status=1 $conditions and r.source='$source' and r.report_date='$toTime'";
 			$sql .= " and k.id in(" . implode(",", $keywordIdList) . ")";
@@ -384,7 +386,7 @@ class WebMasterController extends GoogleAPIController {
 			$exportContent .= createExportContent($headList);
 			foreach($baseReportList as $listInfo){
 	
-				$valueList = array($websiteInfo['url'], $listInfo['name']);
+				$valueList = array($websiteList[$listInfo['website_id']]['url'], $listInfo['name']);
 				foreach ($this->colList as $colName => $colVal) {
 					if ($colName == 'name') continue;
 					
@@ -405,15 +407,25 @@ class WebMasterController extends GoogleAPIController {
 				$exportContent .= createExportContent( $valueList);
 			}
 			
-			exportToCsv('keyword_search_summary', $exportContent);
-		} else {
-				
-			// if pdf export
-			if ($searchInfo['doc_type'] == "pdf") {
-				exportToPdf($this->getViewContent('webmaster/keyword_search_analytics_summary'), "keyword_search_summary_$fromTime-$toTime.pdf");
+			if ($summaryPage) {
+				return $exportContent;
 			} else {
-				$this->set('searchInfo', $searchInfo);
-				$this->render('webmaster/keyword_search_analytics_summary');
+				exportToCsv('keyword_search_summary', $exportContent);
+			}
+			
+		} else {
+			
+			// if pdf export
+			if ($summaryPage) {
+				return $this->getViewContent('webmaster/keyword_search_analytics_summary');
+			} else {
+				// if pdf export
+				if ($searchInfo['doc_type'] == "pdf") {
+					exportToPdf($this->getViewContent('webmaster/keyword_search_analytics_summary'), "keyword_search_summary_$fromTime-$toTime.pdf");
+				} else {
+					$this->set('searchInfo', $searchInfo);
+					$this->render('webmaster/keyword_search_analytics_summary');
+				}
 			}
 			
 		}
@@ -475,14 +487,15 @@ class WebMasterController extends GoogleAPIController {
 		$subSql = "select [cols] from websites w, website_search_analytics r where w.id=r.website_id
 		and w.status=1 $conditions and r.source='$source' and r.report_date='$fromTime'";
 		
+		$unionOrderCol = ($orderCol == 'name') ? "url" : $orderCol;
 		$sql = "
 		(" . str_replace("[cols]", "w.id,w.url,w.name,r.clicks,r.impressions,r.ctr,r.average_position", $subSql) . ")
 		UNION
 		(select w.id,w.url,w.name,0,0,0,0 from websites w where w.status=1 $conditions 
 		and w.id not in (". str_replace("[cols]", "distinct(w.id)", $subSql) ."))
-		order by " . addslashes($orderCol) . " " . addslashes($orderVal);
+		order by " . addslashes($unionOrderCol) . " " . addslashes($orderVal);
 		
-		if ($orderVal != 'name') $sql .= ", name";
+		if ($orderCol != 'name') $sql .= ", url";
 		
 		# pagination setup
 		$this->db->query($sql, true);
@@ -636,7 +649,7 @@ class WebMasterController extends GoogleAPIController {
 			foreach ($colList as $col) $rankDiff[$col] = '';
 			
 			foreach ($colList as $col) {
-				$rankDiff[$col] = $repInfo[$col] - $prevRank[$col];
+				$rankDiff[$col] = round($repInfo[$col] - $prevRank[$col], 2);
 				
 				if ($rankDiff[$col] > 0) {
 					$rankDiff[$col] = "<font class='green'>($rankDiff[$col])</font>";
@@ -710,7 +723,7 @@ class WebMasterController extends GoogleAPIController {
 			foreach ($colList as $col) $rankDiff[$col] = '';
 				
 			foreach ($colList as $col) {
-				$rankDiff[$col] = $repInfo[$col] - $prevRank[$col];
+				$rankDiff[$col] = round($repInfo[$col] - $prevRank[$col], 2);
 		
 				if ($rankDiff[$col] > 0) {
 					$rankDiff[$col] = "<font class='green'>($rankDiff[$col])</font>";

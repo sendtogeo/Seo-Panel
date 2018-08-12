@@ -1,4 +1,4 @@
-<?php echo showSectionHead($spTextTools['Graphical Position Reports']); ?>
+<?php echo showSectionHead($spTextTools['Graphical Reports']); ?>
 <form id='search_form'>
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="search">
 	<tr>

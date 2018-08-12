@@ -1,15 +1,15 @@
 <?php
 $borderCollapseVal = $pdfVersion ? "border-collapse: collapse;" : "";
 
-if(!empty($printVersion) || !empty($pdfVersion)) {
+if(!$summaryPage && (!empty($printVersion) || !empty($pdfVersion))) {
     $pdfVersion ? showPdfHeader($spTextTools['Keyword Search Summary']) : showPrintHeader($spTextTools['Keyword Search Summary']);
     ?>
     <table width="80%" border="0" cellspacing="0" cellpadding="0" class="search">
-    	<?php if (!empty($websiteInfo['url'])) {?>
+    	<?php if (!empty($websiteId)) {?>
     		<tr>
     			<th><?php echo $spText['common']['Website']?>:</th>
         		<td>
-        			<?php echo $websiteInfo['url']; ?>
+        			<?php echo $websiteList[$websiteId]['url']; ?>
     			</td>
     		</tr>
 		<?php }?>
@@ -22,70 +22,80 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 	</table>
     <?php
 } else {
+	if ($summaryPage && ($searchInfo['report_type'] != 'keyword-search-reports')) echo "<br><br><br>";
     echo showSectionHead($spTextTools['Keyword Search Summary']);
-    ?>
-	<form id='search_form'>
-	<?php $submitLink = "scriptDoLoadPost('webmaster-tools.php', 'search_form', 'content', '&sec=viewKeywordSearchSummary')";?>
-	<table width="100%" border="0" cellspacing="0" cellpadding="0" class="search">
-		<tr>
-			<th><?php echo $spText['common']['Name']?>: </th>
-			<td>
-				<input type="text" name="search_name" value="<?php echo htmlentities($searchInfo['search_name'], ENT_QUOTES)?>" onblur="<?php echo $submitLink?>">
-			</td>
-			<th width="100px"><?php echo $spText['common']['Website']?>: </th>
-			<td width="160px">
-				<select name="website_id" id="website_id" style='width:100px;' onchange="<?php echo $submitLink?>">
-					<?php foreach($websiteList as $websiteInfo){?>
-						<?php if($websiteInfo['id'] == $websiteId){?>
-							<option value="<?php echo $websiteInfo['id']?>" selected><?php echo $websiteInfo['name']?></option>
-						<?php }else{?>
-							<option value="<?php echo $websiteInfo['id']?>"><?php echo $websiteInfo['name']?></option>
+    
+    // if not summary page show the filters
+    if(!$summaryPage) {
+    	$scriptName = "webmaster-tools.php";
+	    ?>
+		<form id='search_form'>
+		<?php $submitLink = "scriptDoLoadPost('webmaster-tools.php', 'search_form', 'content', '&sec=viewKeywordSearchSummary')";?>
+		<table width="100%" border="0" cellspacing="0" cellpadding="0" class="search">
+			<tr>
+				<th><?php echo $spText['common']['Name']?>: </th>
+				<td>
+					<input type="text" name="search_name" value="<?php echo htmlentities($searchInfo['search_name'], ENT_QUOTES)?>" onblur="<?php echo $submitLink?>">
+				</td>
+				<th width="100px"><?php echo $spText['common']['Website']?>: </th>
+				<td width="160px">
+					<select name="website_id" id="website_id" style='width:100px;' onchange="<?php echo $submitLink?>">
+						<option value="">-- <?php echo $spText['common']['Select']?> --</option>
+						<?php foreach($websiteList as $websiteInfo){?>
+							<?php if($websiteInfo['id'] == $websiteId){?>
+								<option value="<?php echo $websiteInfo['id']?>" selected><?php echo $websiteInfo['name']?></option>
+							<?php }else{?>
+								<option value="<?php echo $websiteInfo['id']?>"><?php echo $websiteInfo['name']?></option>
+							<?php }?>
 						<?php }?>
-					<?php }?>
-				</select>
-			</td>
-			<th width="100px;"><?php echo $spText['common']['Period']?>:</th>
-    		<td width="236px">
-    			<input type="text" style="width: 80px;margin-right:0px;" value="<?php echo $fromTime?>" name="from_time"/> 
-    			<img align="bottom" onclick="displayDatePicker('from_time', false, 'ymd', '-');" src="<?php echo SP_IMGPATH?>/cal.gif"/> 
-    			<input type="text" style="width: 80px;margin-right:0px;" value="<?php echo $toTime?>" name="to_time"/> 
-    			<img align="bottom" onclick="displayDatePicker('to_time', false, 'ymd', '-');" src="<?php echo SP_IMGPATH?>/cal.gif"/>
-    		</td>
-			<td><a href="javascript:void(0);" onclick="<?php echo $submitLink?>" class="actionbut"><?php echo $spText['button']['Search']?></a></td>
-		</tr>
-	</table>
-	</form>
-	<?php
-	if(empty($baseReportList)){
-		?>
-		<p class='note'>
-			<?php echo $spText['common']['No Keywords Found']?>.
-			<a href="javascript:void(0);" onclick="scriptDoLoad('keywords.php', 'content', 'sec=new&amp;website_id=')"><?php echo $spText['label']['Click Here']?></a> <?php echo $spTextKeyword['to create new keywords']?>.
-		</p>
-		<?php
-		exit;
-	}
+					</select>
+				</td>
+				<th width="100px;"><?php echo $spText['common']['Period']?>:</th>
+	    		<td width="236px">
+	    			<input type="text" style="width: 80px;margin-right:0px;" value="<?php echo $fromTime?>" name="from_time"/> 
+	    			<img align="bottom" onclick="displayDatePicker('from_time', false, 'ymd', '-');" src="<?php echo SP_IMGPATH?>/cal.gif"/> 
+	    			<input type="text" style="width: 80px;margin-right:0px;" value="<?php echo $toTime?>" name="to_time"/> 
+	    			<img align="bottom" onclick="displayDatePicker('to_time', false, 'ymd', '-');" src="<?php echo SP_IMGPATH?>/cal.gif"/>
+	    		</td>
+				<td><a href="javascript:void(0);" onclick="<?php echo $submitLink?>" class="actionbut"><?php echo $spText['button']['Search']?></a></td>
+			</tr>
+		</table>
+		</form>
+		<?php	
+    } else {
+    	$scriptName = "archive.php";
+    }
 
 	// url parameters
-	$mainLink = SP_WEBPATH."/webmaster-tools.php?sec=viewKeywordSearchSummary&website_id=$websiteId&from_time=$fromTime&to_time=$toTime&search_name=" . $searchInfo['search_name'];
-	$directLink = $mainLink . "&order_col=$orderCol&order_val=$orderVal&pageno=$pageNo";
-	?>
-	<br><br>
-	<div style="float:left;margin-right: 10px;">
-		<a href="<?php echo $directLink?>&doc_type=pdf"><img src="<?php echo SP_IMGPATH?>/icon_pdf.png"></a> &nbsp;
-		<a href="<?php echo $directLink?>&doc_type=export"><img src="<?php echo SP_IMGPATH?>/icoExport.gif"></a> &nbsp;
-		<a target="_blank" href="<?php echo $directLink?>&doc_type=print"><img src="<?php echo SP_IMGPATH?>/print_button.gif?1"></a>
-	</div>
-	<?php echo $pagingDiv?>
-<?php }?>
+	$mainLink = SP_WEBPATH."/$scriptName?sec=viewKeywordSearchSummary&website_id=$websiteId&from_time=$fromTime&to_time=$toTime";
+	$mainLink .= "&search_name=" . $searchInfo['search_name'] . "&report_type=keyword-search-reports";
+	
+	// if not summary page show the filters
+	if(!$summaryPage) {
+		$directLink = $mainLink . "&order_col=$orderCol&order_val=$orderVal&pageno=$pageNo";
+		?>
+		<br><br>
+		<div style="float:left;margin-right: 10px;">
+			<a href="<?php echo $directLink?>&doc_type=pdf"><img src="<?php echo SP_IMGPATH?>/icon_pdf.png"></a> &nbsp;
+			<a href="<?php echo $directLink?>&doc_type=export"><img src="<?php echo SP_IMGPATH?>/icoExport.gif"></a> &nbsp;
+			<a target="_blank" href="<?php echo $directLink?>&doc_type=print"><img src="<?php echo SP_IMGPATH?>/print_button.gif?1"></a>
+		</div>
+		<?php
+	}
+	
+	if (empty($pdfVersion)) echo $pagingDiv;
+}
 
+$baseColCount = count($colList);
+$colCount = ($baseColCount * 3) + 2;
+?>
 <div id='subcontent' style="margin-top: 0px;">
 
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="list" style="<?php echo $borderCollapseVal; ?>">
 	<tr class="squareHead">
+		<td rowspan="2" class="left" style="border-right:1px solid #B0C2CC;"><?php echo $spText['common']['Website']?></td>
 		<?php
 		$hrefAttr = $pdfVersion ? "" : "href='javascript:void(0)'";
-		$baseColCount = count($colList);
 		foreach (array_keys($colList) as $i => $colName){
 		    
 		    $linkClass = "";
@@ -99,15 +109,10 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
             $linkName = "<a id='sortLink' class='$linkClass' $hrefAttr onclick=\"scriptDoLoad('$mainLink&order_col=$colName&order_val=$oVal', 'content')\">$colList[$colName]</a>";
 		    
             $tdClass = "";
-            if ($i == 0) {
-            	$tdClass = "left";
-            } elseif(($i+1) == $baseColCount) {
-            	$tdClass = "right";
-            }
-            
+            if ( ($i+1) == $baseColCount) $tdClass = "right";
             $rowSpan = ($colName == "name") ? 2 : 1;
 			?>
-			<td rowspan="<?php echo $rowSpan?>" class="<?php echo $tdClass?>" colspan="3" style="border-right:2px solid #B0C2CC;"><?php echo $linkName; ?></td>
+			<td rowspan="<?php echo $rowSpan?>" class="<?php echo $tdClass?>" colspan="3" style="border-right:1px solid #B0C2CC;"><?php echo $linkName; ?></td>
 			<?php
 			
 		}
@@ -122,13 +127,12 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 			?>
 			<td><?php echo $pTxt; ?></td>
 			<td><?php echo $cTxt; ?></td>
-			<td style="border-right:2px solid #B0C2CC;">+ / -</td>
+			<td style="border-right:1px solid #B0C2CC;">+ / -</td>
 			<?php
 		}
 		?>
 	</tr>
 	<?php
-	$colCount = ($baseColCount * 3) + 1;
 	if (count($baseReportList) > 0) {
 		
 		$catCount = count($baseReportList);
@@ -145,7 +149,10 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
             $scriptLink = "website_id=$websiteId&keyword_id={$listInfo['id']}&rep=1&from_time=$fromTime&to_time=$toTime";          
 			?>
 			<tr class="<?php echo $class?>">
-				<td colspan="3" class="<?php echo $leftBotClass?> left" width='100px;' style="border-right:2px solid #B0C2CC;"><?php echo $listInfo['name']; ?></td>
+				<td class="<?php echo $leftBotClass?> left" width='100px;' style="border-right:1px solid #B0C2CC;">
+					<a href="javascript:void(0)"><?php echo $websiteList[$listInfo['website_id']]['url']; ?></a>
+				</td>
+				<td colspan="3" class="td_br_right left" width='100px;'><?php echo $listInfo['name']; ?></td>
 				<?php
 				foreach ($colList as $colName => $colVal){
 					if ($colName == 'name') continue;
@@ -157,6 +164,7 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 					// if both ranks are existing
 					if ($prevRank != '' && $currRank != '') {
 						$rankDiff = $currRank - $prevRank;
+						$rankDiff = round($rankDiff, 2);
 						
 						if ($rankDiff > 0) {
 							$rankDiffTxt = "<font class='green'>($rankDiff)</font>";
@@ -180,7 +188,7 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 				    ?>
 					<td class="td_br_right"><?php echo $prevRankLink; ?></td>
 					<td class="td_br_right"><?php echo $currRankLink; ?></td>
-					<td class='td_br_right left' style="border-right:2px solid #B0C2CC; width: 50px;" nowrap><?php echo $graphLink . " " . $rankDiffTxt; ?></td>
+					<td class='td_br_right left' style="border-right:1px solid #B0C2CC; width: 50px;" nowrap><?php echo $graphLink . " " . $rankDiffTxt; ?></td>
 					<?php					
 				}
 				?>				
@@ -193,7 +201,7 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 </table>
 </div>
 <?php
-if(!empty($printVersion) || !empty($pdfVersion)) {
+if(!$summaryPage && (!empty($printVersion) || !empty($pdfVersion))) {
 	echo $pdfVersion ? showPdfFooter($spText) : showPrintFooter($spText);
 }
 ?>

@@ -69,6 +69,16 @@ foreach($menuList as $i => $menuInfo){
 					</a>
 				</li>
 				<li>
+					<a href="javascript:void(0);" onclick="scriptDoLoad('webmaster-tools.php?sec=viewKeywordSearchReports', 'content')">
+						<?php echo $spTextTools['Keyword Search Reports']?>
+					</a>
+				</li>
+				<li>
+					<a href="javascript:void(0);" onclick="scriptDoLoad('webmaster-tools.php?sec=viewKeywordSearchGraphReports', 'content')">
+						<?php echo $spTextTools['Graphical Reports']?>(<?php echo $spText['common']['Keyword']?>)
+					</a>
+				</li>
+				<li>
 					<a href="javascript:void(0);" onclick="scriptDoLoad('webmaster-tools.php?sec=viewWebsiteSearchSummary', 'content')">
 						<?php echo $spTextTools['Website Search Summary']?>
 					</a>
@@ -79,15 +89,10 @@ foreach($menuList as $i => $menuInfo){
 					</a>
 				</li>
 				<li>
-					<a href="javascript:void(0);" onclick="scriptDoLoad('webmaster-tools.php?sec=viewKeywordSearchReports', 'content')">
-						<?php echo $spTextTools['Keyword Search Reports']?>
+					<a href="javascript:void(0);" onclick="scriptDoLoad('webmaster-tools.php?sec=viewWebsiteSearchGraphReports', 'content')">
+						<?php echo $spTextTools['Graphical Reports']?>(<?php echo $spText['common']['Website']?>)
 					</a>
 				</li>
-				<li>
-					<a href="javascript:void(0);" onclick="scriptDoLoad('webmaster-tools.php?sec=viewKeywordSearchGraphReports', 'content')">
-						<?php echo $spTextTools['Graphical Reports']?>
-					</a>
-				</li>				
 			</ul>
 			<?php
 			break;
