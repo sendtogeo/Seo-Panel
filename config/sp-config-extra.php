@@ -114,6 +114,9 @@ define('SP_VERSION_PAGE', 'http://www.seopanel.in/getversion.php');
 # seo panel theme site url
 define('SP_THEMESITE', 'http://www.seopanel.in/themes/');
 
+# seo panel cloud hosted link
+define('SP_HOSTED_LINK', "http://www.seopanel.net");
+
 # payment related variables
 define('SP_PAYMENT_CANCEL_LINK', SP_WEBPATH."/payment_cancel.php");
 define('SP_PAYMENT_RETURN_LINK', SP_WEBPATH."/payment_return.php");
