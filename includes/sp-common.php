@@ -613,6 +613,8 @@ function getRequestParamStr() {
 	$paramStr = "";
 	
 	foreach ($_REQUEST as $item => $value) {
+		$item = htmlentities($item, ENT_QUOTES);
+		$value = htmlentities($value, ENT_QUOTES);
 		$paramStr .= "&$item=" . urlencode($value);
 	}
 	
