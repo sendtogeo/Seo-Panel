@@ -65,7 +65,8 @@
 								</select>
 							</td>
 						</tr>
-						<tr>
+						<?php $pgDisplay = count($pgList) > 1 ? "" : "display:none;";?>
+						<tr style="<?php echo $pgDisplay?>">
 							<th width="28%"><?php echo $spTextSubscription['Payment Method']?>:*</th>
 							<td>
 								<select name="pg_id">
