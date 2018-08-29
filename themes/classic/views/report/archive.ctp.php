@@ -84,9 +84,9 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 <?php }?>
 
 <div id='subcontent' style="margin-top: 40px;">
-<?php 
-if (!empty($keywordPos)) {
-	$seCount = count($seList);
+<?php
+$seCount = count($seList);
+if (!empty($keywordPos) && !empty($seCount)) {
 	$colCount = empty($websiteId) ? ($seCount * 3) + 2 : ($seCount * 3) + 1;
 	?>
 	<br><br>
@@ -242,7 +242,7 @@ if (!empty($keywordPos)) {
     	?>
     	<table width="100%" cellspacing="0" cellpadding="0" class="summary" style="<?php echo $borderCollapseVal; ?>">
     		<tr>
-    			<td class="subheader" style="border: none;" rowspan="2"><?php echo $spText['common']['Website']?></td>
+    			<td class="subheaderdark" style="border: none;" rowspan="2"><?php echo $spText['common']['Website']?></td>
     			<td class="subheaderdark" colspan="4"><?php echo $spTextHome['Ranks']?></td>
     			<td class="subheaderdark" colspan="3"><?php echo $spTextHome['Backlinks']?></td>
     			<td class="subheaderdark" colspan="2"><?php echo $spTextHome['Pages Indexed']?></td>
