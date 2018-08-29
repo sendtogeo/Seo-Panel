@@ -4,7 +4,6 @@
 
 update `settings` set set_val='3.14.0' WHERE `set_name` LIKE 'SP_VERSION_NUMBER';
 
-
 CREATE TABLE IF NOT EXISTS `user_tokens` (
 `id` bigint(20) NOT NULL,
   `user_id` int(11) NOT NULL,
@@ -58,7 +57,6 @@ ALTER TABLE `keyword_analytics` MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
 
 ALTER TABLE `usertypes` CHANGE `description` `description` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;
 
-
 ALTER TABLE `seotools` ADD `priority` INT NOT NULL DEFAULT '100' AFTER `cron` ;
 
 UPDATE `seotools` SET `priority` = '10' WHERE url_section='keyword-position-checker';
@@ -66,39 +64,4 @@ UPDATE `seotools` SET `priority` = '10' WHERE url_section='keyword-position-chec
 INSERT `seotools` (`name`, `url_section` ,`user_access` ,`reportgen` ,`cron` ,`status`, `priority`)
 VALUES ('Webmaster Tools', 'webmaster-tools', '1', '1', '1', '1', '20');
 
-
 ALTER TABLE `seoplugins` ADD `priority` INT NOT NULL DEFAULT '100';
-
-
-INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
-('en', 'settings', 'SP_GOOGLE_API_CLIENT_ID', 'Google API Client Id'),
-('en', 'settings', 'SP_GOOGLE_API_CLIENT_SECRET', 'Google API Client Secret'),
-('en', 'settings', 'SP_GOOGLE_ANALYTICS_TRACK_CODE', 'Google Analytics Tracking Code'),
-('en', 'panel', 'Connections', 'Connections'),
-('en', 'myaccount', 'Connect', 'Connect'),
-('en', 'myaccount', 'Disconnect', 'Disconnect'),
-('en', 'myaccount', 'Connected', 'Connected'),
-('en', 'myaccount', 'Disconnected', 'Disconnected'),
-('en', 'login', 'Your account activated successfully', 'Your account activated successfully'),
-('en', 'login', 'user_not_activated_msg', 'User is not activated. Please check your mail for activation'),
-('en', 'subscription', 'enable_email_activation', 'Enable Email Activation'),
-('en', 'subscription', 'free_trial_period', 'Free Trial Period'),
-('en', 'register', 'user_confirm_mail_cont_1', 'Thank you for your registration with'),
-('en', 'register', 'user_confirm_mail_cont_2', 'Please click on the following link to confirm registration'),
-('en', 'register', 'user_confirm_content_1', 'Internal error occured while processing confirm request'),
-('en', 'label', 'Feature', 'Feature'),
-('en', 'label', 'Months', 'Months'),
-('en', 'label', 'Days', 'Days'),
-('en', 'common', 'Pricing', 'Pricing'),
-('en', 'register', 'Registration', 'Registration'),
-('en', 'seotools', 'webmaster-tools', 'Webmaster Tools'),
-('en', 'seotools', 'Keyword Search Reports', 'Keyword Search Reports'),
-('en', 'seotools', 'Keyword Search Summary', 'Keyword Search Summary'),
-('en', 'seotools', 'Website Search Summary', 'Website Search Summary'),
-('en', 'seotools', 'Website Search Reports', 'Website Search Reports'),
-('en', 'seotools', 'Graphical Reports', 'Graphical Reports'),
-('en', 'seotools', 'Quick Checker', 'Quick Checker'),
-('en', 'label', 'Clicks', 'Clicks'),
-('en', 'label', 'Impressions', 'Impressions'),
-('en', 'webmaster', 'Average Position', 'Average Position'),
-;
