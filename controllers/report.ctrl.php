@@ -1256,12 +1256,12 @@ class ReportController extends Controller {
 			
 			// if website search reports
 			if (empty($searchInfo['report_type']) || ($searchInfo['report_type'] == 'website-search-reports')) {
-				$websiteSearchReport = $webMasterCtrler->viewWebsiteSearchSummary($filterList, true);
+				$websiteSearchReport = $webMasterCtrler->viewWebsiteSearchSummary($filterList, true, $cronUserId);
 			}
 			
 			// if keyword search reports
 			if (empty($searchInfo['report_type']) || ($searchInfo['report_type'] == 'keyword-search-reports')) {
-				$keywordSearchReport = $webMasterCtrler->viewKeywordSearchSummary($filterList, true);
+				$keywordSearchReport = $webMasterCtrler->viewKeywordSearchSummary($filterList, true, $cronUserId);
 			}
 			
 			if ($exportVersion) {
@@ -1406,7 +1406,8 @@ class ReportController extends Controller {
             'order_val' => 'ASC',
             'doc_type' => 'print',
         );
-        $reportContent = $this->showOverallReportSummary($searchInfo, $userInfo['id']);
+	    
+        $reportContent = $this->showOverallReportSummary($searchInfo, $userInfo['id']);        
         $this->set('reportContent', $reportContent);
         
         $reportTexts = $this->getLanguageTexts('reports', $userInfo['lang_code']);

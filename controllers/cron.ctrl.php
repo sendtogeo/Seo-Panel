@@ -123,7 +123,7 @@ class CronController extends Controller {
 		    $reportCtrler = New ReportController();
 		    
 		    // check for user report schedule
-		    $repSetInfo = $reportCtrler->isGenerateReportsForUser($userInfo['id']); 
+		    $repSetInfo = $reportCtrler->isGenerateReportsForUser($userInfo['id']);
 			if (!empty($repSetInfo['generate_report'])) {
 			    
 			    $websiteCtrler = New WebsiteController();
@@ -163,6 +163,8 @@ class CronController extends Controller {
     				
     				// send email notification if enabled
     				if (SP_REPORT_EMAIL_NOTIFICATION && $repSetInfo['email_notification']) {
+    					$reportCtrler->spTextTools = $this->getLanguageTexts('seotools', $_SESSION['lang_code']);
+    					$reportCtrler->set('spTextTools', $reportCtrler->spTextTools);
     				    $reportCtrler->sentEmailNotificationForReportGen($userInfo, $repSetInfo['last_generated'], $lastGenerated);
     				}
     				

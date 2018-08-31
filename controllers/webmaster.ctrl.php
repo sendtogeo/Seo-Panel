@@ -258,9 +258,9 @@ class WebMasterController extends GoogleAPIController {
 	}
 	
 	# func to show webmasterkeyword report summary
-	function viewKeywordSearchSummary($searchInfo = '', $summaryPage = false) {
+	function viewKeywordSearchSummary($searchInfo = '', $summaryPage = false, $cronUserId=false) {
 	
-		$userId = isLoggedIn();
+		$userId = !empty($cronUserId) ? $cronUserId : isLoggedIn();
 		$keywordController = New KeywordController();
 		$source = $this->sourceList[0];
 		$this->set('summaryPage', $summaryPage);
@@ -312,7 +312,13 @@ class WebMasterController extends GoogleAPIController {
 		$scriptPath .= "&from_time=$fromTime&to_time=$toTime&search_name=" . $searchInfo['search_name'];
 		$scriptPath .= "&order_col=$orderCol&order_val=$orderVal&report_type=keyword-search-reports";
 		
-		$conditions = !empty($websiteId) ? " and k.website_id=$websiteId" : "";
+		// set website id to get exact keywords of a user
+		if (!empty($websiteId)) {
+			$conditions = " and k.website_id=$websiteId";
+		} else {
+			$conditions = " and k.website_id in (".implode(',', array_keys($websiteList)).")";
+		}
+		
 		$conditions .= !empty($searchInfo['search_name']) ? " and k.name like '%".addslashes($searchInfo['search_name'])."%'" : "";
 		
 		$subSql = "select [cols] from keywords k, keyword_analytics r where k.id=r.keyword_id
@@ -432,9 +438,9 @@ class WebMasterController extends GoogleAPIController {
 	}
 	
 	# func to show website search report summary
-	function viewWebsiteSearchSummary($searchInfo = '', $summaryPage = false) {
+	function viewWebsiteSearchSummary($searchInfo = '', $summaryPage = false, $cronUserId=false) {
 	
-		$userId = isLoggedIn();
+		$userId = !empty($cronUserId) ? $cronUserId : isLoggedIn();
 		$websiteController = New WebsiteController();
 		$exportVersion = false;
 		$source = $this->sourceList[0];

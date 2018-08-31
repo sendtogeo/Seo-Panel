@@ -69,6 +69,7 @@ if(!empty($_SERVER['REQUEST_METHOD'])){
     include_once(SP_CTRLPATH."/searchengine.ctrl.php");
     include_once(SP_CTRLPATH."/keyword.ctrl.php");
     include_once(SP_CTRLPATH."/moz.ctrl.php");
+    include_once(SP_CTRLPATH."/webmaster.ctrl.php");
 	$controller = New CronController();
 	$controller->timeStamp = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
 	
