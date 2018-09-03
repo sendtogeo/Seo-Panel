@@ -104,15 +104,24 @@ class CronController extends Controller {
 	}
 	
 	# common cron execute function
-	function executeCron($includeList=array()) {
+	function executeCron($includeList=array(), $userSelectList=array()) {
 		
 		$this->loadCronJobTools($includeList);
 		$lastGenerated = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
 		
 		$userCtrler = New UserController();
-		$userList = $userCtrler->__getAllUsers(true, true, "utype_id DESC");
+		
+		// if user list selected is not empty
+		if (!empty($userSelectList)) {
+			$userList = $userSelectList;
+		} else {
+			$userList = $userCtrler->__getAllUsers(true, true, "utype_id DESC");
+		}
 		
 		foreach($userList as $userInfo){
+			
+			// check whethere user id is existing
+			if (empty($userInfo['id'])) continue;
 			
 			// check whether user expired 
 			if (!$userCtrler->isUserExpired($userInfo['id'])) {
@@ -124,6 +133,7 @@ class CronController extends Controller {
 		    
 		    // check for user report schedule
 		    $repSetInfo = $reportCtrler->isGenerateReportsForUser($userInfo['id']);
+		    
 			if (!empty($repSetInfo['generate_report'])) {
 			    
 			    $websiteCtrler = New WebsiteController();
@@ -161,6 +171,9 @@ class CronController extends Controller {
         			// save report generated time
     				$reportCtrler->updateUserReportSetting($userInfo['id'], 'last_generated', $lastGenerated);
     				
+    				// update report generation logs
+    				$reportCtrler->updateUserReportGenerationLogs($userInfo['id'], date('Y-m-d H:i:s'));
+    				
     				// send email notification if enabled
     				if (SP_REPORT_EMAIL_NOTIFICATION && $repSetInfo['email_notification']) {
     					$reportCtrler->spTextTools = $this->getLanguageTexts('seotools', $_SESSION['lang_code']);
@@ -173,15 +186,19 @@ class CronController extends Controller {
 			}
 		}
 		
-		// reset all keywords crawl status
-		$keywordCtrler = New KeywordController();
-		$keywordCtrler->__changeCrawledStatus(0);
-		$this->debugMsg("Reset all keywords crawl status\n");
-
-		// change all website crawl status
-		$sql = "update websites set crawled=0";
-		$keywordCtrler->db->query($sql);
-		$this->debugMsg("Change all websites crawl status\n");
+		// if user selected list empty
+		if (empty($userSelectList)) {
+			
+			// reset all keywords crawl status
+			$keywordCtrler = New KeywordController();
+			$keywordCtrler->__changeCrawledStatus(0);
+			$this->debugMsg("Reset all keywords crawl status\n");
+	
+			// change all website crawl status
+			$sql = "update websites set crawled=0";
+			$keywordCtrler->db->query($sql);
+			$this->debugMsg("Change all websites crawl status\n");
+		}
 		
 	}
 	

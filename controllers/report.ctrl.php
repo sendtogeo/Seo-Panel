@@ -1326,7 +1326,17 @@ class ReportController extends Controller {
 	function updateUserReportSetting($userId, $col, $val) {
 		$sql = "Update reports_settings set $col='".addslashes($val)."' where user_id=$userId";
 		$this->db->query($sql);
-	}	
+	}
+	
+	# func to update user report generation logs
+	function updateUserReportGenerationLogs($userId, $generateDate) {
+		$dataList = array(
+			'user_id|int' => $userId,
+			'report_date' => $generateDate,
+		);
+		
+		$this->dbHelper->insertRow("user_report_logs", $dataList);
+	}
 	
 	# func to schedule reports
 	function showReportsScheduler($success=false, $postInfo='') {
