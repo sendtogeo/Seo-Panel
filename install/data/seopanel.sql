@@ -1265,7 +1265,7 @@ ON DUPLICATE KEY UPDATE `set_type`=`set_type`;
 -- Seo Panel 3.14.0 changes
 --
 
-update `settings` set set_val='3.14.1' WHERE `set_name` LIKE 'SP_VERSION_NUMBER';
+update `settings` set set_val='3.15.0' WHERE `set_name` LIKE 'SP_VERSION_NUMBER';
 
 CREATE TABLE IF NOT EXISTS `user_tokens` (
 `id` bigint(20) NOT NULL,
