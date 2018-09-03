@@ -284,7 +284,7 @@ class WebMasterController extends GoogleAPIController {
 		}
 
 		$fromTime = !empty($searchInfo['from_time']) ? addslashes($searchInfo['from_time']) : date('Y-m-d', strtotime('-3 days'));
-		$toTime = !empty($searchInfo['to_time']) ? addslashes($searchInfo['to_time']) : date('Y-m-d', strtotime('-2 days'));
+		$toTime = !empty($searchInfo['to_time']) ? addslashes($searchInfo['to_time']) : date('Y-m-d', strtotime('-3 days'));
 		$this->set('fromTime', $fromTime);
 		$this->set('toTime', $toTime);
 	
@@ -464,7 +464,7 @@ class WebMasterController extends GoogleAPIController {
 		}
 
 		$fromTime = !empty($searchInfo['from_time']) ? addslashes($searchInfo['from_time']) : date('Y-m-d', strtotime('-3 days'));
-		$toTime = !empty($searchInfo['to_time']) ? addslashes($searchInfo['to_time']) : date('Y-m-d', strtotime('-2 days'));
+		$toTime = !empty($searchInfo['to_time']) ? addslashes($searchInfo['to_time']) : date('Y-m-d', strtotime('-3 days'));
 		$this->set('fromTime', $fromTime);
 		$this->set('toTime', $toTime);
 	
@@ -625,7 +625,7 @@ class WebMasterController extends GoogleAPIController {
 		if (!empty ($searchInfo['to_time'])) {
 			$toTime = addslashes($searchInfo['to_time']);
 		} else {
-			$toTime = date('Y-m-d', strtotime('-2 days'));
+			$toTime = date('Y-m-d', strtotime('-3 days'));
 		}
 		
 		$this->set('fromTime', $fromTime);
@@ -689,7 +689,7 @@ class WebMasterController extends GoogleAPIController {
 		if (!empty ($searchInfo['to_time'])) {
 			$toTimeDate = addslashes($searchInfo['to_time']);
 		} else {
-			$toTimeDate = date('Y-m-d', strtotime('-2 days'));
+			$toTimeDate = date('Y-m-d', strtotime('-3 days'));
 		}
 		
 		$this->set('fromTime', $fromTimeDate);
@@ -764,7 +764,7 @@ class WebMasterController extends GoogleAPIController {
 		if (!empty ($searchInfo['to_time'])) {
 			$toTimeDate = addslashes($searchInfo['to_time']);
 		} else {
-			$toTimeDate = date('Y-m-d', strtotime('-2 days'));
+			$toTimeDate = date('Y-m-d', strtotime('-3 days'));
 		}
 		
 		$this->set('fromTime', $fromTimeDate);
@@ -850,7 +850,7 @@ class WebMasterController extends GoogleAPIController {
 		if (!empty ($searchInfo['to_time'])) {
 			$toTimeDate = addslashes($searchInfo['to_time']);
 		} else {
-			$toTimeDate = date('Y-m-d', strtotime('-2 days'));
+			$toTimeDate = date('Y-m-d', strtotime('-3 days'));
 		}
 	
 		$this->set('fromTime', $fromTimeDate);
@@ -931,7 +931,7 @@ class WebMasterController extends GoogleAPIController {
 			$websiteInfo = $websiteController->__getWebsiteInfo($websiteId);
 			
 			if (!empty($websiteInfo['url'])) {
-				$reportDate = date('Y-m-d', strtotime('-2 days'));
+				$reportDate = date('Y-m-d', strtotime('-3 days'));
 				
 				// store website analytics
 				$paramList = array(

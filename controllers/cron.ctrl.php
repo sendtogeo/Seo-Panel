@@ -420,7 +420,7 @@ class CronController extends Controller {
 		$websiteInfo = $this->websiteInfo;
 		
 		// report date should be less than 2 days, then only reports will be generated
-		$reportDate = date('Y-m-d', $this->timeStamp - (2 * 60 * 60 * 24));
+		$reportDate = date('Y-m-d', $this->timeStamp - (3 * 60 * 60 * 24));
 		
 		// loop through source list
 		foreach ($wmCtrler->sourceList as $source) {

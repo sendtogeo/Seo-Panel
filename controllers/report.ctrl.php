@@ -1246,8 +1246,8 @@ class ReportController extends Controller {
 			$webMasterCtrler->set('spTextTools', $this->spTextTools);
 			$webMasterCtrler->spTextTools = $this->spTextTools;
 			$filterList = $searchInfo;
-			$wmMaxFromTime = strtotime('-3 days');
-			$wmMaxEndTime = strtotime('-2 days');
+			$wmMaxFromTime = strtotime('-4 days');
+			$wmMaxEndTime = strtotime('-3 days');
 			$filterList['from_time'] = $fromTime > $wmMaxFromTime ? $wmMaxFromTime : $fromTime;
 			$filterList['to_time'] = $toTime > $wmMaxEndTime ? $wmMaxEndTime : $toTime;
 			$filterList['from_time'] = date('Y-m-d', $filterList['from_time']);
