@@ -6,7 +6,7 @@ include_once(SP_CTRLPATH."/seoplugins.ctrl.php");
 include_once(SP_CTRLPATH."/user-type.ctrl.php");
 $controller = New UserController();
 
-if(isLoggedIn() || !SP_USER_REGISTRATION){
+if($_GET['sec'] != 'pricing' && (isLoggedIn() || !SP_USER_REGISTRATION)) {
 	redirectUrl(SP_WEBPATH."/");
 }
 
@@ -15,6 +15,8 @@ $controller->view->menu = 'register';
 $controller->set('spTitle', 'Seo Tools: User Registration');
 $controller->set('spDescription', 'Seo Tools: User Registration');
 $controller->set('spKeywords', 'Seo tools User Registration');
+$controller->spTextRegister = $controller->getLanguageTexts('register', $_SESSION['lang_code']);
+$controller->set('spTextRegister', $controller->spTextRegister);
 
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	
@@ -29,7 +31,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	switch($_GET['sec']){
 		
 		case "pricing":
+			$controller->view->menu = 'pricing';
 			$controller->showPricing();
+			break;
+		
+		case "confirm":
+			$controller->confirmUser($_GET['code']);
 			break;
 
 		default:
@@ -37,5 +44,4 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			break;
 	}
 }
-
 ?>

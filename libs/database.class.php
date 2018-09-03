@@ -129,7 +129,7 @@ class Database{
     	}
     		
     	$sql = rtrim($sql, ",");
-		$sql .= " $whereCond";
+		$sql .= " WHERE $whereCond";
     		
     	// if no error occured
     	if ($this->dbConObj->query($sql)) {

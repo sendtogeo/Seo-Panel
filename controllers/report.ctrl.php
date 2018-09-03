@@ -73,6 +73,7 @@ class ReportController extends Controller {
 	function showKeywordReportSummary($searchInfo = '') {
 		
 		$userId = isLoggedIn();
+		$keywordController = New KeywordController();
 		$exportVersion = false;
 		switch($searchInfo['doc_type']){
 						
@@ -123,8 +124,8 @@ class ReportController extends Controller {
 		}
 		$this->set('websiteUrl', $websiteUrl);
 		
-		$seController = New SearchEngineController();
-		$this->seLIst = $seController->__getAllSearchEngines();
+		$seSearchUserId = isAdmin() ? "" : $userId;
+		$this->seLIst = $keywordController->getUserKeywordSearchEngineList($seSearchUserId);
 		$this->set('seList', $this->seLIst);
 		
 		// to find order col
@@ -132,7 +133,7 @@ class ReportController extends Controller {
 		    $orderCol = $searchInfo['order_col'];
 		    $orderVal = getOrderByVal($searchInfo['order_val']);
 		} else {
-		    $orderCol = $this->seLIst[0]['id'];
+		    $orderCol = $this->seLIst[array_keys($this->seLIst)[0]]['id'];
 		    $orderVal = 'ASC';    
 		}
 		
@@ -141,44 +142,42 @@ class ReportController extends Controller {
 		$scriptPath = SP_WEBPATH."/reports.php?sec=reportsum&website_id=$websiteId";
 		$scriptPath .= "&from_time=$fromTimeTxt&to_time=$toTimeTxt&search_name=" . $searchInfo['search_name'];
 		$scriptPath .= "&order_col=$orderCol&order_val=$orderVal";
-		$keywordController = New KeywordController();
-		
-		if (in_array($searchInfo['doc_type'], array("pdf", "export"))) {
-			$list = $keywordController->__getAllKeywords($userId, $websiteId, true, true, $orderVal, $searchInfo['search_name']);
-		} else {
 			
-			$conditions = " and w.status=1 and k.status=1";
-			$conditions .= isAdmin() ? "" : " and w.user_id=$userId";
-			$conditions .= !empty($websiteId) ? " and w.id=$websiteId" : "";
-			$conditions .= !empty($searchInfo['search_name']) ? " and k.name like '%".addslashes($searchInfo['search_name'])."%'" : "";
-						
-			$subSql = "select [col] from keywords k,searchresults r, websites w 
-			where k.id=r.keyword_id and k.website_id=w.id $conditions
-			and r.searchengine_id=".intval($orderCol)." and r.result_date='" . addslashes($toTimeTxt) . "'
-			group by k.id";
+		$conditions = " and w.status=1 and k.status=1";
+		$conditions .= isAdmin() ? "" : " and w.user_id=$userId";
+		$conditions .= !empty($websiteId) ? " and w.id=$websiteId" : "";
+		$conditions .= !empty($searchInfo['search_name']) ? " and k.name like '%".addslashes($searchInfo['search_name'])."%'" : "";
+					
+		$subSql = "select [col] from keywords k,searchresults r, websites w 
+		where k.id=r.keyword_id and k.website_id=w.id $conditions
+		and r.searchengine_id=".intval($orderCol)." and r.result_date='" . addslashes($toTimeTxt) . "'
+		group by k.id";
 
-			$unionOrderCol = ($orderCol == "keyword") ? "name" : "rank";
-			$sql = "(". str_replace("[col]", "k.id,k.name,min(rank) rank,w.name website,w.url weburl", $subSql) .") 
-			UNION 
-			(select k.id,k.name,1000,w.name website,w.url weburl 
-			from keywords k, websites w  
-			where w.id=k.website_id $conditions and k.id not in
-			(". str_replace("[col]", "distinct(k.id)", $subSql) ."))
-			order by $unionOrderCol $orderVal";
-			
-			# pagination setup
-			$this->db->query($sql, true);
-			$this->paging->setDivClass('pagingdiv');
-			$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
-			$pagingDiv = $this->paging->printPages($scriptPath, '', 'scriptDoLoad', 'content', "");
-			$this->set('pagingDiv', $pagingDiv);
-			$this->set('pageNo', $searchInfo['pageno']);
+		$unionOrderCol = ($orderCol == "keyword") ? "name" : "rank";
+		$sql = "(". str_replace("[col]", "k.id,k.name,min(rank) rank,w.name website,w.url weburl", $subSql) .") 
+		UNION 
+		(select k.id,k.name,1000,w.name website,w.url weburl 
+		from keywords k, websites w  
+		where w.id=k.website_id $conditions and k.id not in
+		(". str_replace("[col]", "distinct(k.id)", $subSql) ."))
+		order by $unionOrderCol $orderVal";
+		
+		if ($unionOrderCol != 'name') $sql .= ", name";
+		
+		# pagination setup
+		$this->db->query($sql, true);
+		$this->paging->setDivClass('pagingdiv');
+		$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
+		$pagingDiv = $this->paging->printPages($scriptPath, '', 'scriptDoLoad', 'content', "");
+		$this->set('pagingDiv', $pagingDiv);
+		$this->set('pageNo', $searchInfo['pageno']);
+		
+		if (!in_array($searchInfo['doc_type'], array("pdf", "export"))) {
 			$sql .= " limit ".$this->paging->start .",". $this->paging->per_page;
-				
-			# set keywords list
-			$list = $this->db->select($sql);
-			
 		}
+			
+		# set keywords list
+		$list = $this->db->select($sql);
 				
 		$indexList = array();
 		foreach($list as $keywordInfo){
@@ -921,7 +920,8 @@ class ReportController extends Controller {
 		$this->set('sectionHead', 'Overall Report Summary');
 		$userId = empty($cronUserId) ? isLoggedIn() : $cronUserId;
 		$isAdmin = isAdmin();
-		
+
+		$keywordController = New KeywordController();
 		$websiteCtrler = New WebsiteController();
 		$websiteList = $websiteCtrler->__getAllWebsites($userId, true);
 		$this->set('siteList', $websiteList);
@@ -942,6 +942,8 @@ class ReportController extends Controller {
 		$reportTypes = array(
 			'keyword-position' => $this->spTextTools["Keyword Position Summary"],
 			'website-stats' => $spTextHome["Website Statistics"],
+			'website-search-reports' => $this->spTextTools['Website Search Summary'],
+			'keyword-search-reports' => $this->spTextTools['Keyword Search Summary'],
 		);
 		$this->set('reportTypes', $reportTypes);
 		$urlarg .= "&report_type=".$searchInfo['report_type'];		
@@ -962,10 +964,10 @@ class ReportController extends Controller {
 		$this->set('fromTime', $fromTimeShort);
 		$toTimeShort = date('Y-m-d', $toTime);
 		$this->set('toTime', $toTimeShort);		
-		$urlarg .= "&from_time=$fromTimeShort&to_time=$toTimeShort&search_name=" . $searchInfo['search_name'];		
+		$urlarg .= "&from_time=$fromTimeShort&to_time=$toTimeShort&search_name=" . $searchInfo['search_name'];	
 		
-		$seController = New SearchEngineController();
-		$this->seLIst = $seController->__getAllSearchEngines();
+		$seSearchUserId = isAdmin() ? "" : $userId;
+		$this->seLIst = $keywordController->getUserKeywordSearchEngineList($seSearchUserId);
 		$this->set('seList', $this->seLIst);
 		
 		$this->set('isAdmin', $isAdmin);
@@ -982,51 +984,49 @@ class ReportController extends Controller {
     		    $orderCol = $searchInfo['order_col'];
     		    $orderVal = getOrderByVal($searchInfo['order_val']);
     		} else {
-    		    $orderCol = $this->seLIst[0]['id'];
+    		    $orderCol = $this->seLIst[array_keys($this->seLIst)[0]]['id'];
     		    $orderVal = 'ASC';    
     		}
     		
     		$this->set('orderCol', $orderCol);
     		$this->set('orderVal', $orderVal);
-    		$keywordController = New KeywordController();
 			$scriptPath .= "&report_type=keyword-position&order_col=$orderCol&order_val=$orderVal";
+			
+    		$conditions = " and w.status=1 and k.status=1";
+    		$conditions .= isAdmin() ? "" : " and w.user_id=$userId";
+    		$conditions .= !empty($websiteId) ? " and w.id=$websiteId" : "";
+    		$conditions .= !empty($searchInfo['search_name']) ? " and k.name like '%".addslashes($searchInfo['search_name'])."%'" : "";
     		
-    		if (in_array($searchInfo['doc_type'], array("pdf", "export")) || !empty($cronUserId)) {
-    			$list = $keywordController->__getAllKeywords($userId, $websiteId, true, true, $orderVal, $searchInfo['search_name']);
-    		} else {
-    				
-    			$conditions = " and w.status=1 and k.status=1";
-    			$conditions .= isAdmin() ? "" : " and w.user_id=$userId";
-    			$conditions .= !empty($websiteId) ? " and w.id=$websiteId" : "";
-    			$conditions .= !empty($searchInfo['search_name']) ? " and k.name like '%".addslashes($searchInfo['search_name'])."%'" : "";
+    		$subSql = "select [col] from keywords k,searchresults r, websites w
+    		where k.id=r.keyword_id and k.website_id=w.id $conditions
+    		and r.searchengine_id=".intval($orderCol)." and r.result_date='" . addslashes($toTimeShort) . "'
+    		group by k.id";
     		
-    			$subSql = "select [col] from keywords k,searchresults r, websites w
-    			where k.id=r.keyword_id and k.website_id=w.id $conditions
-    			and r.searchengine_id=".intval($orderCol)." and r.result_date='" . addslashes($toTimeShort) . "'
-    			group by k.id";
+    		$unionOrderCol = ($orderCol == "keyword") ? "name" : "rank";
+    		$sql = "(". str_replace("[col]", "k.id,k.name,min(rank) rank,w.name website,w.url weburl", $subSql) .")
+    		UNION
+    		(select k.id,k.name,1000,w.name website,w.url weburl
+    		from keywords k, websites w
+    		where w.id=k.website_id $conditions and k.id not in
+    		(". str_replace("[col]", "distinct(k.id)", $subSql) ."))
+    		order by $unionOrderCol $orderVal";
     		
-    			$unionOrderCol = ($orderCol == "keyword") ? "name" : "rank";
-    			$sql = "(". str_replace("[col]", "k.id,k.name,min(rank) rank,w.name website,w.url weburl", $subSql) .")
-    			UNION
-    			(select k.id,k.name,1000,w.name website,w.url weburl
-    			from keywords k, websites w
-    			where w.id=k.website_id $conditions and k.id not in
-    			(". str_replace("[col]", "distinct(k.id)", $subSql) ."))
-    			order by $unionOrderCol $orderVal";
+    		if ($unionOrderCol != 'name') $sql .= ", name";
     						
-    			# pagination setup
-    			$this->db->query($sql, true);
-    			$this->paging->setDivClass('pagingdiv');
-				$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
-    			$pagingDiv = $this->paging->printPages($scriptPath, '', 'scriptDoLoad', 'content', "");
-    			$this->set('keywordPagingDiv', $pagingDiv);
-    			$this->set('pageNo', $searchInfo['pageno']);
+    		# pagination setup
+    		$this->db->query($sql, true);
+    		$this->paging->setDivClass('pagingdiv');
+			$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
+    		$pagingDiv = $this->paging->printPages($scriptPath, '', 'scriptDoLoad', 'content', "");
+    		$this->set('keywordPagingDiv', $pagingDiv);
+    		$this->set('pageNo', $searchInfo['pageno']);
+    			
+    		if (!in_array($searchInfo['doc_type'], array("pdf", "export"))) {
     			$sql .= " limit ".$this->paging->start .",". $this->paging->per_page;
-    		
-    			# set keywords list
-    			$list = $this->db->select($sql);
-    								
     		}
+    		
+    		# set keywords list
+    		$list = $this->db->select($sql);
     		
     		$indexList = array();
     		foreach($list as $keywordInfo){
@@ -1196,7 +1196,6 @@ class ReportController extends Controller {
 				
 				$exportContent .= createExportContent( array());
 				$headList = array(
-					$_SESSION['text']['common']['Id'],
 					$_SESSION['text']['common']['Website'],
 					$_SESSION['text']['common']['MOZ Rank'],
 					$_SESSION['text']['common']['Domain Authority'],
@@ -1217,7 +1216,6 @@ class ReportController extends Controller {
 				$exportContent .= createExportContent( $headList);
 				foreach ($websiteRankList as $websiteInfo) {
 					$valueList = array(
-						$websiteInfo['id'],
 						$websiteInfo['url'],
 						strip_tags($websiteInfo['mozrank']),
 						strip_tags($websiteInfo['domain_authority']),
@@ -1240,6 +1238,40 @@ class ReportController extends Controller {
 				$this->set('websiteRankList', $websiteRankList);
 				$this->set('websiteStats', true);
 			}
+		}
+		
+		# website search report section
+		if (empty($searchInfo['report_type']) || in_array($searchInfo['report_type'], array('website-search-reports', 'keyword-search-reports')) ) {
+			$webMasterCtrler = new WebMasterController();
+			$webMasterCtrler->set('spTextTools', $this->spTextTools);
+			$webMasterCtrler->spTextTools = $this->spTextTools;
+			$filterList = $searchInfo;
+			$wmMaxFromTime = strtotime('-3 days');
+			$wmMaxEndTime = strtotime('-2 days');
+			$filterList['from_time'] = $fromTime > $wmMaxFromTime ? $wmMaxFromTime : $fromTime;
+			$filterList['to_time'] = $toTime > $wmMaxEndTime ? $wmMaxEndTime : $toTime;
+			$filterList['from_time'] = date('Y-m-d', $filterList['from_time']);
+			$filterList['to_time'] = date('Y-m-d', $filterList['to_time']);
+			$filterList['website_id'] = $websiteId;
+			
+			// if website search reports
+			if (empty($searchInfo['report_type']) || ($searchInfo['report_type'] == 'website-search-reports')) {
+				$websiteSearchReport = $webMasterCtrler->viewWebsiteSearchSummary($filterList, true, $cronUserId);
+			}
+			
+			// if keyword search reports
+			if (empty($searchInfo['report_type']) || ($searchInfo['report_type'] == 'keyword-search-reports')) {
+				$keywordSearchReport = $webMasterCtrler->viewKeywordSearchSummary($filterList, true, $cronUserId);
+			}
+			
+			if ($exportVersion) {
+				$exportContent .= $websiteSearchReport;
+				$exportContent .= $keywordSearchReport;
+			} else {
+				$this->set('websiteSearchReport', $websiteSearchReport);
+				$this->set('keywordSearchReport', $keywordSearchReport);
+			}
+			
 		}
 		
 		if ($exportVersion) {
@@ -1374,7 +1406,8 @@ class ReportController extends Controller {
             'order_val' => 'ASC',
             'doc_type' => 'print',
         );
-        $reportContent = $this->showOverallReportSummary($searchInfo, $userInfo['id']);
+	    
+        $reportContent = $this->showOverallReportSummary($searchInfo, $userInfo['id']);        
         $this->set('reportContent', $reportContent);
         
         $reportTexts = $this->getLanguageTexts('reports', $userInfo['lang_code']);

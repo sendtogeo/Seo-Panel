@@ -27,8 +27,8 @@ include_once(SP_CTRLPATH . "/seotools.ctrl.php");
 class UserTypeController extends Controller {
 	
 	public $userSpecFields = array(
-		'keywordcount','websitecount', 'searchengine_count', 'directory_submit_limit',
-		'directory_submit_daily_limit', 'site_auditor_max_page_limit', 'price',
+		'price', 'free_trial_period', 'keywordcount','websitecount', 'searchengine_count', 'directory_submit_limit',
+		'directory_submit_daily_limit', 'site_auditor_max_page_limit', 'enable_email_activation',
 	);
 	
 	/**
@@ -48,7 +48,7 @@ class UserTypeController extends Controller {
     	}
     	
     	// get seo tool access list
-    	$toolAccessList = $this->getSeoToolAccessSettings($userTypeId);
+    	$toolAccessList = $this->getSeoToolAccessSettings();
 
     	// assign new fields to user spec for seo tool access
     	foreach ($toolAccessList as $toolInfo) {
@@ -342,6 +342,7 @@ class UserTypeController extends Controller {
 			$pluginAccessList[$pluginInfo['id']] = array(
 				'name' => $pluginCol,
 				'label' => $pluginInfo['label'],
+				'status' => $pluginInfo['status'],
 				'value' => isset($userTypeSettingList[$pluginCol]) ? $userTypeSettingList[$pluginCol] : 1,
 			);
 			
@@ -372,6 +373,8 @@ class UserTypeController extends Controller {
 			$toolAccessList[$toolInfo['id']] = array(
 				'name' => $toolCol,
 				'label' => $toolInfo['name'],
+				'status' => $toolInfo['status'],
+				'url_section' => $toolInfo['url_section'],
 				'value' => isset($userTypeSettingList[$toolCol]) ? $userTypeSettingList[$toolCol] : 1,
 			);
 			
@@ -607,6 +610,53 @@ class UserTypeController extends Controller {
 		$sql = "Insert into user_specs(user_type_id, spec_column, spec_value, spec_category) values($userTypeId, '$specColumn', '$specValue', '$specCategory') 
 				ON DUPLICATE KEY UPDATE spec_value='$specValue'";
 		$this->db->query($sql);
+	}
+	
+	/**
+	 * function to get a particular user type spec value
+	 */
+	function __getUserTypeSpecValue($userTypeId, $specName) {
+		$userTypeSpecList = $this->__getUserTypeInfo($userTypeId);
+		return $userTypeSpecList['enable_email_activation'] ? isset($userTypeSpecList['enable_email_activation']) : false;
+	}
+	
+	/*
+	 * function to check whether email activation enabled for the user
+	 */
+	function isEmailActivationEnabledForUserType($userTypeId) {
+		$specValue = $this->__getUserTypeSpecValue($userTypeId, "enable_email_activation");
+		return $specValue;
+	}
+	
+	/**
+	 * function to get renew user typelist
+	 */
+	function getRenewUserTypeList($userTypeId) {
+		
+		$userTypeCtrler = new UserTypeController();
+		$userTypeInfo = $userTypeCtrler->__getUserTypeInfo($userTypeId);
+		$typeList = $userTypeCtrler->getAllUserTypes();
+		$userTypeList = array();
+			
+		// loop through the list to find the exact user types - remove the plans below current plan, disable free trial plans
+		$startAdd = false;
+		foreach ($typeList as $typeInfo) {
+		
+			// same user type selected
+			if ($typeInfo['id'] == $userTypeId) {
+				$startAdd = true;
+				if ($userTypeInfo['free_trial_period'] > 0) continue;
+			}
+		
+			// start to add
+			if ($startAdd) {
+				$userTypeList[$typeInfo['id']] = $typeInfo;
+			}
+		
+		}
+		
+		return $userTypeList;
+		
 	}
 	
 }

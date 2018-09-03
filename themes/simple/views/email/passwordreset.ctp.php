@@ -6,5 +6,5 @@
 <a href='<?php echo SP_WEBPATH?>/login.php'><?php echo $spText['label']['Click Here']?></a> <?php echo $spText['login']['to login to your account']?><br><br>
 
 <?php echo $spText['common']['Thank you']; ?>,<br>
-Seo Panel Team<br>
-<?php echo $spText['common']['Powered by']; ?> <a href="http://www.seopanel.in/">Seo Panel</a>
+<?php echo SP_COMPANY_NAME?><br>
+<a href="<?php echo SP_WEBPATH?>"><?php echo SP_WEBPATH?></a>

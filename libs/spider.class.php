@@ -301,8 +301,10 @@ class Spider{
 			curl_setopt( $this -> _CURL_RESOURCE , CURLOPT_USERAGENT, $this -> _CURLOPT_USERAGENT );
 		}
 		
-		// set custom headers
-		$this->setCustomHeaders();
+		// set custom headers for google domains
+		if (stristr($url, 'google')) {
+			$this->setCustomHeaders();
+		}
 
 		// to add the curl http headers
 		if (!empty($this ->_CURL_HTTPHEADER)) {

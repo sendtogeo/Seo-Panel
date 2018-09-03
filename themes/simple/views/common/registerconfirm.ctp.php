@@ -11,7 +11,19 @@
 	            	<?php } else { ?>
 	                	<tr>
 	                		<td colspan="2">
-	                			<?php showSuccessMsg($spText['login']['newaccountsuccess'], false); ?>
+	                			<?php
+	                			if ($error) {
+	                				echo $error;
+	                			} else {
+	                				
+		                			if($confirm){
+		                				showSuccessMsg($spText['login']['Your account activated successfully'], false);
+		                			} else {
+		                				showSuccessMsg($spText['login']['newaccountsuccess'], false);
+		                			}
+		                			
+	                			}
+	                			?>
 	                		</td>
 	                	</tr>
 	                	<tr>
@@ -21,6 +33,6 @@
             	</table>
             </div>
 		</div>
-		<?php echo getRoundTabBot(); ?>           
+		<?php echo getRoundTabBot(); ?>
     </div>
 </div>

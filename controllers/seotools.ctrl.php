@@ -32,7 +32,7 @@ class SeoToolsController extends Controller{
 		}else{
 			$sql = "select * from seotools where status=1 and user_access=1";			
 		}
-		$sql .= " order by id";
+		$sql .= " order by priority, id";
 		
 		$menuList = array();
 		$toolList = $this->db->select($sql);
@@ -100,6 +100,10 @@ class SeoToolsController extends Controller{
 				
 			case "pagespeed":
 				$defaultScript = "pagespeed.php";
+				break;
+				
+			case "webmaster-tools":
+				$defaultScript = "webmaster-tools.php";
 				break;
 
 			default:

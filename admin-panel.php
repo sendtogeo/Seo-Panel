@@ -50,6 +50,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$info['start_script'] = 'users.php?sec=my-profile';
 			$controller->index($info);
 			break;
+		
+		case "connections":
+			$info['menu_selected'] = 'my-profile';
+			$info['start_script'] = 'connections.php';
+			$controller->index($info);
+			break;
 
 		default:
 			$_GET['sec'] = addslashes($_GET['sec']);

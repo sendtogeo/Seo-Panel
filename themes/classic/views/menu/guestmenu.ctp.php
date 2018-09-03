@@ -3,6 +3,7 @@
 	$supportClass = "";
 	$loginClass = "";	
 	$registerClass = "";
+	$pricingClass = "";
 	switch($this->menu){
 		case "support":
 			$supportClass = "current";
@@ -14,6 +15,10 @@
 			
 		case "login":
 			$loginClass = "current";
+			break;
+			
+		case "pricing":
+			$pricingClass = "current";
 			break;
 			
 		case "home":
@@ -60,3 +65,11 @@
 <?php if(!isLoggedIn() && SP_USER_REGISTRATION){?>
 	<li style="float: right;"><a class="<?php echo $registerClass?>" title="register seo panel" href="<?php echo SP_WEBPATH?>/register.php"><?php echo $spText['common']['Sign Up']?></a></li>
 <?php } ?>
+
+<?php if (SP_HOSTED_VERSION) {?>
+	<li style="float: right;">
+		<a class="<?php echo $pricingClass?>" title="seo panel" href="<?php echo SP_WEBPATH?>/register.php?sec=pricing">
+			<?php echo $spText['common']['Pricing']?>
+		</a>
+	</li>
+<?php }?>

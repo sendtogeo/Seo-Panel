@@ -129,6 +129,11 @@ if(file_exists(SP_ABSPATH."/config/sp-config.php")){
             
             # if not a numeric parameter
             if (is_string($value) && !empty($value) && !is_numeric($value)) {
+            	
+            	# exclude conditions for html, javascript save to database
+            	if (in_array($name, array('SP_GOOGLE_ANALYTICS_TRACK_CODE'))) {
+            		continue;
+            	}
                
                 # Search for patterns in the value of the parameter that indicate an SQL injection
                 $pattern = '/(and|or)[\s\(\)\/\*]+(update|delete|select)\W|(select|update).+\.(password|email)|(select|update|delete).+users|<script>|<\/script>/im';

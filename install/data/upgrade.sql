@@ -1,38 +1,67 @@
 --
--- Seo Panel 3.13.0 changes
+-- Seo Panel 3.14.0 changes
 --
 
-update `settings` set set_val='3.13.0' WHERE `set_name` LIKE 'SP_VERSION_NUMBER';
+update `settings` set set_val='3.14.1' WHERE `set_name` LIKE 'SP_VERSION_NUMBER';
 
-UPDATE `currency` SET `symbol` = '£' WHERE `currency`.`id` =25;
+CREATE TABLE IF NOT EXISTS `user_tokens` (
+`id` bigint(20) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `access_token` text COLLATE utf8_unicode_ci NOT NULL,
+  `refresh_token` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `token_type` varchar(120) COLLATE utf8_unicode_ci NOT NULL,
+  `expires_in` int(11) NOT NULL DEFAULT '3600' COMMENT 'seconds',
+  `created` datetime NOT NULL,
+  `token_category` enum('google','twitter','facebook','linkedin') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'google'
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-UPDATE `searchengines` SET `regex` = '<div.*?class="?g.*?><h3 class="r"><a href="(.*?)".*?>(.*?)<\\/a>.*?<\\/div><span.*?>(.*?)<\\/span>' WHERE `url` LIKE '%google%';
+ALTER TABLE `user_tokens` ADD PRIMARY KEY (`id`);
+ALTER TABLE `user_tokens` MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
 
-INSERT INTO `settings` (`set_label`, `set_name`, `set_val`, `set_category`, `set_type`, `display`) VALUES
-('Send custom header with curl request', 'SP_SEND_CUSTOM_HEADER_IN_CURL', '1', 'report', 'bool', 1);
 
---
--- Quick web proxy plugin
---
+INSERT INTO `settings` (`set_label`, `set_name`, `set_val`, `set_category`, `set_type`, `display`) VALUES 
+('Google API Client Id', 'SP_GOOGLE_API_CLIENT_ID', '', 'google', 'large', '1'),
+('Google API Client Secret', 'SP_GOOGLE_API_CLIENT_SECRET', '', 'google', 'large', '1'),
+('Google Analytics Tracking Code', 'SP_GOOGLE_ANALYTICS_TRACK_CODE', '', 'google', 'text', '1');
 
-INSERT INTO `seoplugins` (`label`, `name`, `author`, `description`, `version`, `website`, `status`, `installed`) VALUES
-('Quick Web Proxy', 'QuickWebProxy', 'Seo Panel', 'It will help you to create a web proxy server using your hosting server or external proxy servers', '1.0.0', 'https://www.seopanel.in/plugin/l/94/quick-web-proxy/', 1, 1);
+ALTER TABLE `users` ADD column `confirm_code` varchar(120) NOT NULL DEFAULT '';
+ALTER TABLE `users` ADD column `confirm` tinyint(1) NOT NULL DEFAULT '0';
 
-CREATE TABLE IF NOT EXISTS `qwp_settings` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `set_label` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
-  `set_name` varchar(64) CHARACTER SET latin1 NOT NULL,
-  `set_val` text COLLATE utf8_unicode_ci NOT NULL,
-  `set_type` enum('small','bool','medium','large','text') CHARACTER SET latin1 DEFAULT 'small',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `set_name` (`set_name`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=2 ;
+CREATE TABLE IF NOT EXISTS `website_search_analytics` (
+`id` bigint(20) NOT NULL,
+  `website_id` int(11) NOT NULL,
+  `clicks` int(11) NOT NULL,
+  `impressions` int(11) NOT NULL,
+  `ctr` float NOT NULL,
+  `average_position` float NOT NULL,
+  `report_date` date NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
---
--- Dumping data for table `qwp_settings`
---
+ALTER TABLE `website_search_analytics` ADD `source` ENUM( 'google', 'yahoo', 'bing', 'baidu', 'yandex' ) NOT NULL DEFAULT 'google';
+ALTER TABLE `website_search_analytics` ADD PRIMARY KEY (`id`), ADD KEY `website_id` (`website_id`);
+ALTER TABLE `website_search_analytics` MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
 
-INSERT INTO `qwp_settings` (`set_label`, `set_name`, `set_val`, `set_type`) VALUES
-('Allow user to access the web proxy', 'QWP_ALLOW_USER_WEB_PROXY', '0', 'bool'),
-('Allow web server to act as a proxy', 'QWP_ALLOW_WEB_SERVER_ACT_AS_PROXY', '1', 'bool')
-ON DUPLICATE KEY UPDATE `set_type`=`set_type`;
+CREATE TABLE IF NOT EXISTS `keyword_analytics` (
+`id` bigint(20) NOT NULL,
+  `keyword_id` int(11) NOT NULL,
+  `clicks` int(11) NOT NULL,
+  `impressions` int(11) NOT NULL,
+  `ctr` float NOT NULL,
+  `average_position` float NOT NULL,
+  `report_date` date NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+ALTER TABLE `keyword_analytics` ADD `source` ENUM( 'google', 'yahoo', 'bing', 'baidu', 'yandex' ) NOT NULL DEFAULT 'google';
+ALTER TABLE `keyword_analytics` ADD PRIMARY KEY (`id`), ADD KEY `keyword_id` (`keyword_id`);
+ALTER TABLE `keyword_analytics` MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE `usertypes` CHANGE `description` `description` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;
+
+ALTER TABLE `seotools` ADD `priority` INT NOT NULL DEFAULT '100' AFTER `cron` ;
+
+UPDATE `seotools` SET `priority` = '10' WHERE url_section='keyword-position-checker';
+
+INSERT `seotools` (`name`, `url_section` ,`user_access` ,`reportgen` ,`cron` ,`status`, `priority`)
+VALUES ('Webmaster Tools', 'webmaster-tools', '1', '1', '1', '1', '20');
+
+ALTER TABLE `seoplugins` ADD `priority` INT NOT NULL DEFAULT '100';

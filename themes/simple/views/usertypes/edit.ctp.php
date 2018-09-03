@@ -67,12 +67,32 @@
 	
 	<?php if ($isPluginSubsActive) {?>
 		<tr class="blue_row">
-			<td class="td_left_col"><?php echo $spText['common']['Price']?>:</td>
+			<td class="td_left_col"><?php echo $spText['common']['Price']?>(<?php echo $spText['label']['Monthly']?>):</td>
 			<td class="td_right_col">
 				<?php echo $currencyList[SP_PAYMENT_CURRENCY]['symbol']; ?><input type="text" name="price" id="price" value="<?php echo $post['price']?>"><?php echo $errMsg['price']?>
 			</td>
 		</tr>
+		<tr class="blue_row">
+			<td class="td_left_col"><?php echo $spTextSubscription['free_trial_period']?>(<?php echo $spText['label']['Days']?>):</td>
+			<td class="td_right_col">
+				<input type="text" name="free_trial_period" id="free_trial_period" value="<?php echo $post['free_trial_period']?>"><?php echo $errMsg['free_trial_period']?>
+			</td>
+		</tr>
 	<?php }?>
+	<tr class="blue_row">
+		<td class="td_left_col"><?php echo $spTextSubscription['enable_email_activation']?>:</td>
+		<td class="td_right_col">
+			<select name="enable_email_activation" id="enable_email_activation">
+				<?php if ($post['enable_email_activation']) { ?>
+					<option value="1" selected="selected"><?php echo $_SESSION['text']['common']['Yes']?></option>
+					<option value="0"><?php echo $_SESSION['text']['common']['No']?></option>
+				<?php } else { ?>
+					<option value="1"><?php echo $_SESSION['text']['common']['Yes']?></option>
+					<option value="0" selected="selected"><?php echo $_SESSION['text']['common']['No']?></option>
+				<?php } ?>
+			</select>
+		</td>
+	</tr>
 	<tr class="blue_row">
 		<td class="td_left_col"><?php echo $spText['common']['Status']?>:</td>
 		<td class="td_right_col">

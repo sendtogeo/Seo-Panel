@@ -78,9 +78,9 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 		<a href="<?php echo $directLink?>&doc_type=export"><img src="<?php echo SP_IMGPATH?>/icoExport.gif"></a> &nbsp;
 		<a target="_blank" href="<?php echo $directLink?>&doc_type=print"><img src="<?php echo SP_IMGPATH?>/print_button.gif?1"></a>
 	</div>
-	
+	<?php echo $pagingDiv?>
 <?php }?>
-<?php echo $pagingDiv?>
+
 <div id='subcontent' style="margin-top: 0px;">
 
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="list" style="<?php echo $borderCollapseVal; ?>">
@@ -89,7 +89,7 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 		$linkClass = "";
         if ($orderCol == 'keyword') {
             $oVal = ($orderVal == 'DESC') ? "ASC" : "DESC";
-            $linkClass .= "sort_".strtolower($orderVal);
+            $linkClass .= "sort_".strtolower($oVal);
         } else {
             $oVal = 'ASC';
         }

@@ -36,6 +36,12 @@ define('SP_PLUGINDBFILE', 'database.sql');
 # The seo panel plugin menu file
 define('SP_PLUGINMENUFILE', 'menu.ctp.php');
 
+# seo panel is hosted version or not
+define('SP_HOSTED_VERSION', 0);
+
+# use sendgrid api for email sending
+define('SP_SENDGRID_API', 0);
+
 # seo panel is demo system or not
 define('SP_DEMO', 0);
 
@@ -107,6 +113,9 @@ define('SP_VERSION_PAGE', 'http://www.seopanel.in/getversion.php');
 
 # seo panel theme site url
 define('SP_THEMESITE', 'http://www.seopanel.in/themes/');
+
+# seo panel cloud hosted link
+define('SP_HOSTED_LINK', "http://www.seopanel.net");
 
 # payment related variables
 define('SP_PAYMENT_CANCEL_LINK', SP_WEBPATH."/payment_cancel.php");

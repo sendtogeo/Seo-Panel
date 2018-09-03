@@ -232,7 +232,8 @@ class WebsiteController extends Controller{
 		} else {
 			$userId = isLoggedIn();
 		}
-		
+
+		$listInfo['name'] = strip_tags($listInfo['name']);
 		$this->set('post', $listInfo);
 		$errMsg['name'] = formatErrorMsg($this->validate->checkBlank($listInfo['name']));
 		$errMsg['url'] = formatErrorMsg($this->validate->checkBlank($listInfo['url']));
@@ -325,6 +326,7 @@ class WebsiteController extends Controller{
 		}
 		
 		$listInfo['id'] = intval($listInfo['id']);
+		$listInfo['name'] = strip_tags($listInfo['name']);
 		$this->set('post', $listInfo);
 		$errMsg['name'] = formatErrorMsg($this->validate->checkBlank($listInfo['name']));
 		$errMsg['url'] = formatErrorMsg($this->validate->checkBlank($listInfo['url']));

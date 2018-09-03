@@ -239,7 +239,7 @@ class SeoPluginsController extends Controller{
 	# func to get all seo tools
 	function __getAllSeoPlugins($whereCond = ""){
 		$whereCond = !empty($whereCond) ? $whereCond : "1=1";
-		$sql = "select * from seoplugins where $whereCond order by id";
+		$sql = "select * from seoplugins where $whereCond order by priority,id";
 		$seoPluginList = $this->db->select($sql);
 		return $seoPluginList;
 	}
@@ -457,8 +457,9 @@ class SeoPluginsController extends Controller{
 	}
 	
 	# function to create helpers for main controlller
-	function createHelper($helperName) {		
-		include_once($this->pluginPath . "/".strtolower($helperName).".ctrl.php");
+	function createHelper($helperName) {
+		$pluginPath = !empty($this->pluginPath)	? $this->pluginPath : PLUGIN_PATH;
+		include_once($pluginPath . "/".strtolower($helperName).".ctrl.php");
 		$helperObj = New $helperName();
 		$helperObj->pluginPath = $this->pluginPath;
 		$helperObj->pluginId = $this->pluginId;

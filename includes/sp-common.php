@@ -131,6 +131,12 @@ function isLoggedIn() {
 	return empty($userInfo['userId']) ? false : $userInfo['userId'];
 }
 
+# function to chekc quick checker enabled for user
+function isQuickCheckerEnabled() {
+	$enabled = (isAdmin() || !SP_HOSTED_VERSION) ? true : false;
+	return $enabled;
+}
+
 # get functions
 function scriptGetAJAXLink($file, $area, $args='', $trigger='OnClick'){
 	$link = ' '.$trigger.'="scriptDoLoad('."'$file', '$area', '$args')".'"';
@@ -438,12 +444,52 @@ function sendMail($from, $fromName, $to ,$subject,$content, $attachment = ''){
 		$mail->AddAttachment($attachment);
 	}
 	
-	if(!$mail->Send()){
-		return 0;
-	}else{
-		return 1;
+	// if sendgrid api should be used, if enabled it
+	if ($mail->Host == 'smtp.sendgrid.net' && SP_SENDGRID_API) {
+		$sendLog = sendMailBySendgridAPI($mail, $to);		
+	} else {
+	
+		// normal mail send fails or not
+		if($mail->Send()){
+			$sendLog['status'] = 1;
+			$sendLog['log_message'] = "Success";
+			return true;
+		} else {
+			$sendLog['status'] = 0;
+			$sendLog['log_message'] = $mail->ErrorInfo;
+		}
+		
 	}
+	
+	return $sendLog['status'];
+	
 }
+
+function sendMailBySendgridAPI($mail, $subscriberEmail, $subscriberName = '') {
+	
+	include_once(SP_LIBPATH . "/sendgrid-php/sendgrid-php.php");
+	$from = new SendGrid\Email($mail->FromName, $mail->From);
+	$subject = $mail->Subject;
+	$to = new SendGrid\Email($subscriberName, $subscriberEmail);
+	$content = new SendGrid\Content($mail->ContentType, $mail->Body);
+	$apiKey = $mail->Password;
+	$mail = new SendGrid\Mail($from, $subject, $to, $content);
+	$sg = new \SendGrid($apiKey);
+	$response = $sg->client->mail()->send()->post($mail);
+	 
+	$statusCode = $response->statusCode();
+	if (in_array($statusCode, array("202", "200"))) {
+		$sendLog['status'] = 1;
+		$sendLog['log_message'] = "Success";
+	} else {
+		$sendLog['status'] = 0;
+		$sendLog['log_message'] = $response->body();
+	}
+	 
+	return $sendLog;
+	 
+}
+
 
 # func to sanitize data to prevent attacks
 function sanitizeData($data, $stripTags=true, $addSlashes=false) {
@@ -555,12 +601,24 @@ function getOrderByVal($orderByVal) {
 	return $orderByVal;
 }
 
-if (!function_exists('curl_reset'))
-{
-	function curl_reset(&$ch)
-	{
+if (!function_exists('curl_reset')) {
+	
+	function curl_reset(&$ch) {
 		$ch = curl_init();
 	}
+	
 }
 
+function getRequestParamStr() {
+	$paramStr = "";
+	
+	foreach ($_REQUEST as $item => $value) {
+		$item = htmlentities($item, ENT_QUOTES);
+		$value = htmlentities($value, ENT_QUOTES);
+		$paramStr .= "&$item=" . urlencode($value);
+	}
+	
+	return $paramStr;
+	
+}
 ?>

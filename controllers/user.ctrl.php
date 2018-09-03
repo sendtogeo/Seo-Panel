@@ -53,7 +53,18 @@ class UserController extends Controller{
 			$userInfo = $this->db->select($sql, true);
 			if(!empty($userInfo['id'])){
 				if($userInfo['password'] == md5($_POST['password'])){
-					if($userInfo['status'] == 1){
+					
+					// get user type spec details and verify whether to check activation or not
+					$activationStatus = true;
+					$userTypeCtrler = new UserTypeController();
+					if ($userTypeCtrler->isEmailActivationEnabledForUserType($userInfo['utype_id'])) {
+						if ($userInfo['confirm'] == 0) {
+							$activationStatus = false;
+						}
+					}
+					
+					// check for user status and activation
+					if($userInfo['status'] && $activationStatus){
 					    
     					// if login after first installation
                 	    if (!empty($_POST['lang_code']) && ($_POST['lang_code'] != 'en')) {
@@ -86,7 +97,8 @@ class UserController extends Controller{
 						}
 												
 					}else{
-						$errMsg['userName'] = formatErrorMsg($_SESSION['text']['login']["User inactive"]);
+						$msgTxt = $activationStatus ? $_SESSION['text']['login']["User inactive"] : $_SESSION['text']['login']["user_not_activated_msg"];
+						$errMsg['userName'] = formatErrorMsg($msgTxt);
 					}
 				}else{
 					$errMsg['password'] = formatErrorMsg($_SESSION['text']['login']["Password incorrect"]);
@@ -97,6 +109,30 @@ class UserController extends Controller{
 		}
 		$this->set('errMsg', $errMsg);
 		$this->index();
+	}
+	
+	# func to confirm the user registration
+	function confirmUser($confirmCode) {
+		$confirmCode = addslashes($confirmCode);
+		$sql = "select id from users where confirm_code='$confirmCode'";
+		$userInfo = $this->db->select($sql, true);
+		
+		if(!empty($userInfo['id'])){
+			
+			$sql = "update users set confirm=1,status=1 where id=".$userInfo['id'];
+			if($this->db->query($sql)){
+				$this->set('confirm', true);
+			}else{
+				$error = showErrorMsg($this->spTextRegister['user_confirm_content_1'], false);
+			}
+			
+		} else {
+			$error = showErrorMsg($this->spTextRegister['user_confirm_content_1'], false);
+		}
+		
+		$this->set('error', $error);
+		$this->render('common/registerconfirm');
+		
 	}
 	
 	# register function
@@ -140,9 +176,76 @@ class UserController extends Controller{
 		
 		// check whetehr plugin installed or not
 		if ($seopluginCtrler->isPluginActive("Subscription")) {
+			$userSpecFields = $utypeCtrler->userSpecFields;
 			$userTypeList = $utypeCtrler->getAllUserTypes();
-			$this->set('list', $userTypeList);
-			$this->set('spTextSubscription', $this->getLanguageTexts('subscription', $_SESSION['lang_code']));			
+			$list = array();
+			foreach ($userTypeList as $userType) $list[$userType['id']] = $userType;
+			$this->set('list', $list);
+			
+			$spTextSubscription = $this->getLanguageTexts('subscription', $_SESSION['lang_code']);
+			$spTextTools = $this->getLanguageTexts('seotools', $_SESSION['lang_code']);
+			$this->set('spTextSubscription', $spTextSubscription);
+			
+			// get all plugin access list
+			$pluginAccessList = $utypeCtrler->getPluginAccessSettings();
+			$pluginNameList = array();
+			foreach ($pluginAccessList as $pluginAccessInfo) {
+				if ($pluginAccessInfo['status'] == 0) continue;
+				$pluginNameList[$pluginAccessInfo['name']] = $pluginAccessInfo['label'];
+			}
+				
+			// get all seo tool access list
+			$toolAccessList = $utypeCtrler->getSeoToolAccessSettings();
+			$toolNameList = array();
+			foreach ($toolAccessList as $toolAccessInfo) {
+				if ($toolAccessInfo['status'] == 0) continue;
+				$toolNameList[$toolAccessInfo['name']] = $spTextTools[$toolAccessInfo['url_section']];
+			}
+			
+			$utypeSpecList = array();
+			$spText = $_SESSION['text'];
+			foreach ($userSpecFields as $specName) {
+				
+				if (in_array($specName, array('enable_email_activation'))) continue;
+				
+				if (stristr($specName, 'plugin_')) {
+					if (empty($pluginNameList[$specName])) continue;
+					$utypeSpecList[$specName] = $pluginNameList[$specName];
+					continue;
+				}
+				
+				if (stristr($specName, 'seotool_')) {
+					if (empty($toolNameList[$specName])) continue;
+					$utypeSpecList[$specName] = $toolNameList[$specName];
+					continue;
+				}
+				
+				switch ($specName) {
+					case "price":
+						$utypeSpecList[$specName] = $spText['common']['Price'];
+						break;
+					case "keywordcount":
+						$utypeSpecList[$specName] = $spText['common']['Keywords Count'];
+						break;
+					case "websitecount":
+						$utypeSpecList[$specName] = $spText['common']['Websites Count'];
+						break;
+					case "searchengine_count":
+						$utypeSpecList[$specName] = $spText['common']['Search Engine Count'];
+						break;
+					case "directory_submit_limit":
+						$utypeSpecList[$specName] = $spTextSubscription['Directory Submit Limit'];
+						break;
+					case "directory_submit_daily_limit":
+						$utypeSpecList[$specName] = $spTextSubscription['Directory Submit Daily Limit'];
+						break;
+					default:
+						$utypeSpecList[$specName] = $spTextSubscription[$specName];
+						
+				}
+			}			
+
+			$this->set('utypeSpecList', $utypeSpecList);						
 			$currencyCtrler = new CurrencyController();
 			$this->set('currencyList', $currencyCtrler->getCurrencyCodeMapList());
 			$this->render('common/pricing');
@@ -197,6 +300,7 @@ class UserController extends Controller{
 					
 					// get user id created
 					$userId = $this->db->getMaxId('users');
+					$error = 0;
 					
 					// check whether subscription is active
 					if ($subscriptionActive and $userId) {
@@ -212,9 +316,43 @@ class UserController extends Controller{
 							$this->set('paymentForm', $paymentForm);							
 						} else {
 							$this->__changeStatus($userId, 1);
+							
+							// if trial period is set for user type
+							if (!empty($utypeInfo['free_trial_period'])) {
+								$totalDays = intval($utypeInfo['free_trial_period']);
+								$day = date('d') + $totalDays;
+								$expiryTimeStamp = mktime(23, 59, 59, date('m'), $day, date('Y'));
+								$expiryDate = date('Y-m-d', $expiryTimeStamp);
+								$this->updateUserInfo($userId, 'expiry_date', $expiryDate);
+							}
+							
 						}						
 					}
 					
+					# get confirm code
+					if ($utypeCtrler->isEmailActivationEnabledForUserType($utypeId)) {
+						$this->__changeStatus($userId, 0);
+						$cfm = str_shuffle($userId . $userInfo['userName']);
+						$sql = "update users set confirm_code='$cfm' where id=$userId";
+						$this->db->query($sql);
+						$this->set('confirmLink', SP_WEBPATH . "/register.php?sec=confirm&code=$cfm");
+						
+						// get mail details
+						$adminInfo = $this->__getAdminInfo();
+						$adminName = $adminInfo['first_name']." ".$adminInfo['last_name'];
+						$this->set('name', $userInfo['firstName']." ".$userInfo['lastName']);
+						$subject = SP_COMPANY_NAME . " " . $this->spTextRegister['Registration'];
+						$content = $this->getViewContent('email/accountconfirmation');
+						
+						if(!sendMail($adminInfo['email'], $adminName, $userInfo['email'], $subject, $content)){
+							$error = showErrorMsg(
+								'An internal error occured while sending confirmation mail! Please <a href="'.SP_CONTACT_LINK.'">contact</a> seo panel team.',
+								false
+							);
+						}						
+					}
+					
+					$this->set('error', $error);
 					$this->render('common/registerconfirm');
 					return True;
 					
@@ -351,10 +489,10 @@ class UserController extends Controller{
 	}
 	
 	#function to get all users	
-	function __getAllUsers($active=1,$admin=true){
+	function __getAllUsers($active=1,$admin=true, $orderByCol = "username"){
 		$sql = "select * from users where status=$active";
 		$sql .= $admin ? "" : " and utype_id!=1";
-		$sql .= " order by username"; 
+		$sql .= " order by " . addslashes($orderByCol); 
 		$userList = $this->db->select($sql);
 		return $userList;
 	}
@@ -558,9 +696,9 @@ class UserController extends Controller{
 			
 			$spTextSubscription = $this->getLanguageTexts('subscription', $_SESSION['lang_code']);
 			$this->set('spTextSubscription', $spTextSubscription);
-			
 			include_once(SP_PLUGINPATH . "/Subscription/paymentgateway.ctrl.php");
-			$userTypeList = $userTypeCtrler->getAllUserTypes();
+			
+			$userTypeList = $userTypeCtrler->getRenewUserTypeList($userInfo['utype_id']);
 			$this->set('userTypeList', $userTypeList);
 			
 			$currencyCtrler = new CurrencyController();
@@ -593,7 +731,14 @@ class UserController extends Controller{
 			$adminTypeId = $utypeCtrler->getAdminUserTypeId();
 			if ($adminTypeId == $userInfo['utype_id']) {
 				$this->validate->flagErr = true;
-				$errMsg['userName'] = formatErrorMsg("You can not register as admin!!");
+				$errMsg['utype_id'] = formatErrorMsg("You can not register as admin.");
+			}
+			
+			// get renew usertype list
+			$userTypeList = $utypeCtrler->getRenewUserTypeList($userInfo['utype_id']);
+			if (!in_array($userInfo['utype_id'], array_keys($userTypeList))) {
+				$this->validate->flagErr = true;
+				$errMsg['utype_id'] = formatErrorMsg("You are not allowed to upgrade to this plan.");
 			}
 			
 			// if all form inputs are valid

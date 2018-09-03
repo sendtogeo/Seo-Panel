@@ -500,5 +500,35 @@ class KeywordController extends Controller{
 		
 	}
 	
+	function getUserKeywordSearchEngineList($userId = "") {
+		
+		$seController = New SearchEngineController();
+		$list = $seController->__getAllSearchEngines();
+		$seList = array();
+		$seDisplayList = array();
+		
+		foreach ($list as $listInfo) {
+			$seList[$listInfo['id']] = $listInfo;
+		}
+		
+		
+		$whereCond = "w.id=k.website_id and k.status=1 and w.status=1";
+		$whereCond .= !empty($userId) ? " and w.user_id=".intval($userId) : "";
+		$list = $this->dbHelper->getAllRows('keywords k, websites w', $whereCond, "distinct k.searchengines"); 
+		
+		// show only required search engines
+		foreach ($list as $keywordInfo) {
+			$keySeList = explode(":", $keywordInfo['searchengines']);
+			foreach ($keySeList as $keySeId) {
+				if (empty($seDisplayList[$keySeId])) {
+					$seDisplayList[$keySeId] = $seList[$keySeId];
+				}
+			}
+		}
+		
+		return $seDisplayList;
+		
+	}
+	
 }
 ?>
