@@ -1012,16 +1012,17 @@ class ReportController extends Controller {
     		order by $unionOrderCol $orderVal";
     		
     		if ($unionOrderCol != 'name') $sql .= ", name";
-    						
-    		# pagination setup
-    		$this->db->query($sql, true);
-    		$this->paging->setDivClass('pagingdiv');
-			$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
-    		$pagingDiv = $this->paging->printPages($scriptPath, '', 'scriptDoLoad', 'content', "");
-    		$this->set('keywordPagingDiv', $pagingDiv);
-    		$this->set('pageNo', $searchInfo['pageno']);
+    		
+    		// pagination setup, if not from cron job email send function, pdf and export action
+    		if (!in_array($searchInfo['doc_type'], array("pdf", "export")) && !$cronUserId) {
     			
-    		if (!in_array($searchInfo['doc_type'], array("pdf", "export"))) {
+    			$this->db->query($sql, true);
+    			$this->paging->setDivClass('pagingdiv');
+    			$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
+    			$pagingDiv = $this->paging->printPages($scriptPath, '', 'scriptDoLoad', 'content', "");
+    			$this->set('keywordPagingDiv', $pagingDiv);
+    			$this->set('pageNo', $searchInfo['pageno']);    			
+    			
     			$sql .= " limit ".$this->paging->start .",". $this->paging->per_page;
     		}
     		
@@ -1104,7 +1105,7 @@ class ReportController extends Controller {
 		if (empty($searchInfo['report_type']) ||  ($searchInfo['report_type'] == 'website-stats')) {
 						
 			// pagination setup
-			if (!in_array($searchInfo['doc_type'], array('export', 'pdf')) || !empty($cronUserId)) {
+			if (!in_array($searchInfo['doc_type'], array('export', 'pdf')) && !$cronUserId) {
 				$scriptPath .= "&report_type=website-stats";
 				$info['pageno'] = intval($info['pageno']);
 				$sql = "select * from websites w where w.status=1";

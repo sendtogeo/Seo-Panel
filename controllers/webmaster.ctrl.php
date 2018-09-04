@@ -333,15 +333,16 @@ class WebMasterController extends GoogleAPIController {
 		
 		if ($orderCol != 'name') $sql .= ", name";
 		
-		# pagination setup
-		$this->db->query($sql, true);
-		$this->paging->setDivClass('pagingdiv');
-		$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
-		$pagingDiv = $this->paging->printPages($scriptPath, '', 'scriptDoLoad', 'content', "");
-		$this->set('pagingDiv', $pagingDiv);
-		$this->set('pageNo', $searchInfo['pageno']);
-		
-		if (!in_array($searchInfo['doc_type'], array("pdf", "export"))) {
+		// pagination setup, if not from cron job email send function, pdf and export action
+		if (!in_array($searchInfo['doc_type'], array("pdf", "export")) && !$cronUserId) {
+			
+			$this->db->query($sql, true);
+			$this->paging->setDivClass('pagingdiv');
+			$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
+			$pagingDiv = $this->paging->printPages($scriptPath, '', 'scriptDoLoad', 'content', "");
+			$this->set('pagingDiv', $pagingDiv);
+			$this->set('pageNo', $searchInfo['pageno']);
+			
 			$sql .= " limit ".$this->paging->start .",". $this->paging->per_page;
 		}
 		
@@ -503,15 +504,16 @@ class WebMasterController extends GoogleAPIController {
 		
 		if ($orderCol != 'name') $sql .= ", url";
 		
-		# pagination setup
-		$this->db->query($sql, true);
-		$this->paging->setDivClass('pagingdiv');
-		$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
-		$pagingDiv = $this->paging->printPages($scriptPath, '', 'scriptDoLoad', 'content', "");
-		$this->set('pagingDiv', $pagingDiv);
-		$this->set('pageNo', $searchInfo['pageno']);
-		
-		if (!in_array($searchInfo['doc_type'], array("pdf", "export"))) {
+		// pagination setup, if not from cron job email send function, pdf and export action
+		if (!in_array($searchInfo['doc_type'], array("pdf", "export")) && !$cronUserId) {
+
+			$this->db->query($sql, true);
+			$this->paging->setDivClass('pagingdiv');
+			$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
+			$pagingDiv = $this->paging->printPages($scriptPath, '', 'scriptDoLoad', 'content', "");
+			$this->set('pagingDiv', $pagingDiv);
+			$this->set('pageNo', $searchInfo['pageno']);
+			
 			$sql .= " limit ".$this->paging->start .",". $this->paging->per_page;
 		}
 		
