@@ -1451,7 +1451,7 @@ class ReportController extends Controller {
 		$this->set('fromTime', $fromTimeDate);
 		$this->set('toTime', $toTimeDate);
 		
-		$userList = $userCtrler->__getAllUsers();
+		$userList = $userCtrler->__getAllUsersHavingWebsite();
 		$this->set('userList', $userList);
 		
 		if (!empty($searchInfo['user_id'])) {
