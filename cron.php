@@ -20,47 +20,47 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-if(!empty($_SERVER['REQUEST_METHOD'])){
+// if(!empty($_SERVER['REQUEST_METHOD'])){
 	
-	# to section to generate report from admin area
-	include_once("includes/sp-load.php");
-	checkAdminLoggedIn();
-	include_once(SP_CTRLPATH."/cron.ctrl.php");
-    include_once(SP_CTRLPATH."/moz.ctrl.php");
-	$controller = New CronController();
-	$controller->timeStamp = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
-	$controller->set('spTextTools', $controller->getLanguageTexts('seotools', $_SESSION['lang_code']));
-	$controller->set('spTextPanel', $controller->getLanguageTexts('panel', $_SESSION['lang_code']));
-	$controller->spTextKeyword = $controller->getLanguageTexts('keyword', $_SESSION['lang_code']);
-	$controller->set('spTextKeyword', $controller->spTextKeyword);
+// 	# to section to generate report from admin area
+// 	include_once("includes/sp-load.php");
+// 	checkAdminLoggedIn();
+// 	include_once(SP_CTRLPATH."/cron.ctrl.php");
+//     include_once(SP_CTRLPATH."/moz.ctrl.php");
+// 	$controller = New CronController();
+// 	$controller->timeStamp = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
+// 	$controller->set('spTextTools', $controller->getLanguageTexts('seotools', $_SESSION['lang_code']));
+// 	$controller->set('spTextPanel', $controller->getLanguageTexts('panel', $_SESSION['lang_code']));
+// 	$controller->spTextKeyword = $controller->getLanguageTexts('keyword', $_SESSION['lang_code']);
+// 	$controller->set('spTextKeyword', $controller->spTextKeyword);
 	
-	if($_SERVER['REQUEST_METHOD'] == 'POST'){
+// 	if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		
-		switch($_POST['sec']){
+// 		switch($_POST['sec']){
 			
-			case "generate":
-				$controller->executeReportGenerationScript($_POST);
-				break;
-		}
+// 			case "generate":
+// 				$controller->executeReportGenerationScript($_POST);
+// 				break;
+// 		}
 		
-	}else{
-		switch($_GET['sec']){
+// 	}else{
+// 		switch($_GET['sec']){
 			
-			case "generate":
-				$controller->routeCronJob($_GET['website_id'], $_GET['repTools']);
-				break;
+// 			case "generate":
+// 				$controller->routeCronJob($_GET['website_id'], $_GET['repTools']);
+// 				break;
 			
-			case "croncommand":
-				$controller->showCronCommand();
-				break;				
+// 			case "croncommand":
+// 				$controller->showCronCommand();
+// 				break;				
 	
-			default:
-				$controller->showReportGenerationManager();
-				break;
-		}
-	}	
+// 			default:
+// 				$controller->showReportGenerationManager();
+// 				break;
+// 		}
+// 	}	
 	
-}else{
+// }else{
 	
 	# the section for generate reports using system cron job
 	include_once("includes/sp-load.php");
@@ -91,9 +91,9 @@ if(!empty($_SERVER['REQUEST_METHOD'])){
 	}
 	
 	// call cronjob function
-	echo "\n=== Cron job execution started on - " . date("Y-m-d H:i:s") . " ===\n";
+	echo "\n\n=== Cron job execution started on - " . date("Y-m-d H:i:s") . " ===\n";
 	$controller->executeCron($includeList, $userList);
-	echo "\n=== Cron job execution completed on - " . date("Y-m-d H:i:s") . " ===\n";
+	echo "\n=== Cron job execution completed on - " . date("Y-m-d H:i:s") . " ===\n\n";
 	
 	// delete crawl logs before 2 months
 	include_once(SP_CTRLPATH."/crawllog.ctrl.php");
@@ -101,5 +101,5 @@ if(!empty($_SERVER['REQUEST_METHOD'])){
 	$crawlLog->clearCrawlLog(SP_CRAWL_LOG_CLEAR_TIME);
 	echo "Clearing crawl logs before " . SP_CRAWL_LOG_CLEAR_TIME . " days";
 	
-}
+// }
 ?>

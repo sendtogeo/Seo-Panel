@@ -19,3 +19,4 @@ INSERT INTO `texts` (`category`, `label`, `content`) VALUES
 ('panel', 'Report Generation Logs', 'Report Generation Logs'),
 ('settings', 'Authorised redirect URI', 'Authorised redirect URI'),
 ('settings', 'click-to-get-google-api-client-id', 'Click here to get Google API Client Id'),
+('home', 'Overall Report Summary', 'Overall Report Summary'),

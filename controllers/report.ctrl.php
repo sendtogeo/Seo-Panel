@@ -917,7 +917,7 @@ class ReportController extends Controller {
 				break;
 		}
 		
-		$this->set('sectionHead', 'Overall Report Summary');
+		$this->set('sectionHead', $spTextHome['Overall Report Summary']);
 		$userId = empty($cronUserId) ? isLoggedIn() : $cronUserId;
 		$isAdmin = isAdmin();
 
