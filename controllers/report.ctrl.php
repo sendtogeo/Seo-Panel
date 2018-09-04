@@ -1441,5 +1441,43 @@ class ReportController extends Controller {
 		    echo "Reports send successfully to ".$userInfo['email']."\n";
 		}
 	}
+	
+	# func to show user report generation logs
+	function showReportGenerationLogs($searchInfo = '') {
+	
+		$userCtrler = New UserController();
+		$fromTimeDate = !empty ($searchInfo['from_time']) ? addslashes($searchInfo['from_time']) : date('Y-m-d', strtotime('-1 days'));
+		$toTimeDate = !empty ($searchInfo['to_time']) ? addslashes($searchInfo['to_time']) : date('Y-m-d');
+		$this->set('fromTime', $fromTimeDate);
+		$this->set('toTime', $toTimeDate);
+		
+		$userList = $userCtrler->__getAllUsers();
+		$this->set('userList', $userList);
+		
+		if (!empty($searchInfo['user_id'])) {
+			$logUserList = array($userCtrler->__getUserInfo($searchInfo['user_id']));
+			$this->set('userId', intval($searchInfo['user_id']));
+		} else {
+			$logUserList = $userList;
+		}
+		
+		$this->set('logUserList', $logUserList);
+		
+		$whereCond = "report_date >='$fromTimeDate 00:00:00' and report_date<='$toTimeDate 23:59:59'";
+		$whereCond .= !empty($searchInfo['user_id']) ? " and user_id=" . intval($searchInfo['user_id']) : "";
+		$whereCond .= " order by report_date desc";
+		$list = $this->dbHelper->getAllRows("user_report_logs", $whereCond, "id,user_id,date(report_date) as report_date");
+		
+		// loop through the list
+		$logList = array();
+		foreach ($list as $listInfo) {
+			$logList[$listInfo['report_date']][$listInfo['user_id']] = 1;
+		}
+		
+		$this->set('logDateList', getDateRange($fromTimeDate, $toTimeDate));
+		$this->set('logList', $logList);	
+		$this->render('report/report_generation_logs');
+	
+	}
 }
 ?>
