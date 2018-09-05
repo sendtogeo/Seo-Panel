@@ -1085,3 +1085,15 @@ div.tab button.active {	background-color: #ccc;}
     text-align: left;
     background-color: #DAE5EE;
 }
+
+#cust_tab th#head {
+    text-align: left;
+    background-color: #bfd5e7;
+}
+
+.tablesorter th {
+	cursor: pointer;
+	background-image: url(../../../images/bg.gif);
+    background-position: right center;
+    background-repeat: no-repeat;
+}

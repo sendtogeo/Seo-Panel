@@ -36,6 +36,7 @@
 <table id="cust_tab">
 	<thead>
 		<tr class="listHead">
+			<th><?php echo $spText['common']['Id']?></th>
 			<th><?php echo $spText['common']['User']?></th>
 			<?php foreach ($logDateList as $logDate) {?>
 				<th><?php echo $logDate?></th>
@@ -43,8 +44,9 @@
 		</tr>
 	</thead>	
 	<tbody>
-		<?php foreach ($logUserList as $userInfo) {?>
+		<?php foreach ($logUserList as $i => $userInfo) {?>
 			<tr>
+				<td><?php echo $i + 1?></td>
 				<td><?php echo $userInfo['username']?></td>
 				<?php foreach ($logDateList as $logDate) {?>
 					<td>

@@ -921,7 +921,9 @@ class WebMasterController extends GoogleAPIController {
 		$this->set('websiteList', $websiteList);
 		$websiteId = empty ($searchInfo['website_id']) ? $websiteList[0]['id'] : intval($searchInfo['website_id']);
 		$this->set('websiteId', $websiteId);
-		$this->render('webmaster/quick_checker');		
+		$this->set('fromTime', date('Y-m-d', strtotime('-10 days')));
+		$this->set('toTime', date('Y-m-d', strtotime('-3 days')));
+		$this->render('webmaster/quick_checker');
 	}
 
 	# func to do quick report
@@ -931,14 +933,16 @@ class WebMasterController extends GoogleAPIController {
 			$websiteId = intval($searchInfo['website_id']);
 			$websiteController = New WebsiteController();
 			$websiteInfo = $websiteController->__getWebsiteInfo($websiteId);
+			$this->set('websiteInfo', $websiteInfo);			
 			
 			if (!empty($websiteInfo['url'])) {
-				$reportDate = date('Y-m-d', strtotime('-3 days'));
+				$reportStartDate = !empty($searchInfo['from_time']) ? $searchInfo['from_time'] : date('Y-m-d', strtotime('-10 days'));
+				$reportEndDate = !empty($searchInfo['to_time']) ? $searchInfo['to_time'] : date('Y-m-d', strtotime('-3 days'));
 				
 				// store website analytics
 				$paramList = array(
-					'startDate' => $reportDate,
-					'endDate' => $reportDate,
+					'startDate' => $reportStartDate,
+					'endDate' => $reportEndDate,
 				);
 				
 				// query results from api and verify no error occured
@@ -952,7 +956,6 @@ class WebMasterController extends GoogleAPIController {
 						'impressions' => !empty($reportInfo->impressions) ? $reportInfo->impressions : 0,
 						'ctr' => !empty($reportInfo->ctr) ? $reportInfo->ctr * 100 : 0,
 						'average_position' => !empty($reportInfo->position) ? $reportInfo->position : 0,
-						'report_date' => $reportDate,
 						'source' => $source,
 					);
 					
@@ -960,8 +963,8 @@ class WebMasterController extends GoogleAPIController {
 					
 					// find keyword reports
 					$paramList = array(
-						'startDate' => $reportDate,
-						'endDate' => $reportDate,
+						'startDate' => $reportStartDate,
+						'endDate' => $reportEndDate,
 						'dimensions' => ['query'],
 					);
 						
@@ -985,7 +988,7 @@ class WebMasterController extends GoogleAPIController {
 			}
 		} 
 			
-		showErrorMsg("Website not found.");
+		showErrorMsg("Website not found in webmaster tools.");
 		
 	}
 	
