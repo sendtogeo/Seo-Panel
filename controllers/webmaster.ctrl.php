@@ -987,8 +987,9 @@ class WebMasterController extends GoogleAPIController {
 				}
 			}
 		} 
-			
-		showErrorMsg("Website not found in webmaster tools.");
+		
+		$errorMsg = !empty($result['msg']) ? $result['msg'] : "Internal error occured while accessing webmaster tools."; 
+		showErrorMsg($errorMsg);
 		
 	}
 	
