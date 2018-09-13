@@ -31,13 +31,23 @@
 </table>
 </form>
 
+<script type="text/javascript">
+$(document).ready(function() { 
+    $("table").tablesorter({ 
+		sortList: [[2,0]]
+    });
+});
+</script>
+
 <br><br>
 <div id='subcontent'>
-<table id="cust_tab">
+<table id="cust_tab" class="tablesorter">
 	<thead>
 		<tr class="listHead">
 			<th><?php echo $spText['common']['Id']?></th>
 			<th><?php echo $spText['common']['User']?></th>
+			<th><?php echo $spText['common']['User Type']?></th>
+			<th><?php echo $spTextUser['Expiry Date']?></th>
 			<?php foreach ($logDateList as $logDate) {?>
 				<th><?php echo $logDate?></th>
 			<?php }?>
@@ -48,6 +58,8 @@
 			<tr>
 				<td><?php echo $i + 1?></td>
 				<td><?php echo $userInfo['username']?></td>
+				<td><?php echo $userTypeList[$userInfo['utype_id']]['user_type']?></td>
+				<td><?php echo $userInfo['expiry_date']?></td>
 				<?php foreach ($logDateList as $logDate) {?>
 					<td>
 						<?php 

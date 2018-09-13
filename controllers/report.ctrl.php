@@ -1455,6 +1455,11 @@ class ReportController extends Controller {
 		$userList = $userCtrler->__getAllUsersHavingWebsite();
 		$this->set('userList', $userList);
 		
+		$userTypeCtrler = new UserTypeController();
+		$typeList = $userTypeCtrler->__getAllUserTypeList();
+		foreach ($typeList as $info) $userTypeList[$info['id']] = $info; 
+		$this->set('userTypeList', $userTypeList);
+		
 		if (!empty($searchInfo['user_id'])) {
 			$logUserList = array($userCtrler->__getUserInfo($searchInfo['user_id']));
 			$this->set('userId', intval($searchInfo['user_id']));
@@ -1476,7 +1481,8 @@ class ReportController extends Controller {
 		}
 		
 		$this->set('logDateList', getDateRange($fromTimeDate, $toTimeDate));
-		$this->set('logList', $logList);	
+		$this->set('logList', $logList);
+		$this->set('spTextUser', $this->getLanguageTexts('user', $_SESSION['lang_code']));
 		$this->render('report/report_generation_logs');
 	
 	}

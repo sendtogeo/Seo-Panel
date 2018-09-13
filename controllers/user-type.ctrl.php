@@ -429,7 +429,7 @@ class UserTypeController extends Controller {
 	function getAllUserTypes($includeAdmin = false) {
 		$sql = "select * from usertypes where status=1";
 		$sql .= empty($includeAdmin) ? " and id!=1" : "";
-		$sql .= " order by id";
+		echo $sql .= " order by id";
 		$uTypeList = $this->db->select($sql);
 		$userTypeList = array();
 		$priceList = array();
@@ -657,6 +657,14 @@ class UserTypeController extends Controller {
 		
 		return $userTypeList;
 		
+	}
+	
+	/*
+	 * function to get all user types
+	 */
+	function __getAllUserTypeList() {
+		$list = $this->dbHelper->getAllRows("usertypes");
+		return $list;
 	}
 	
 }
