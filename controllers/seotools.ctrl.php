@@ -151,5 +151,34 @@ class SeoToolsController extends Controller{
 		$sql = "update seotools set $col=$status where id=$seoToolId";
 		$this->db->query($sql);
 	}
+
+	# func to edit seo tool
+	function editSeoTool($info, $error=false){
+	
+		if($error){
+			$this->set('post', $info);
+		}else{
+			$info['pid'] = intval($info['pid']);
+			$this->set('post', $this->__getSeoToolInfo($info['pid']));
+		}
+	
+		$this->render('seotools/editseotool');
+	}
+
+	function updateSeoTool($listInfo){
+	
+		$listInfo['id'] = intval($listInfo['id']);
+		$this->set('post', $listInfo);
+		$errMsg['priority'] = formatErrorMsg($this->validate->checkNumber($listInfo['priority']));
+		if(!$this->validate->flagErr){
+			$sql = "update seotools set	priority='".intval($listInfo['priority'])."' where id={$listInfo['id']}";
+			$this->db->query($sql);
+			$this->listSeoTools();
+		}else{
+			$this->set('errMsg', $errMsg);
+			$this->editSeoTool($listInfo, true);
+		}
+	}
+	
 }
 ?>

@@ -18,6 +18,7 @@ $(document).ready(function() {
 			<th><?php echo $spText['common']['Reports']?></th>
 			<th><?php echo $spText['label']['Cron']?></th>
 			<th><?php echo $spText['common']['Status']?></th>
+			<th><?php echo $spText['common']['Action']?></th>
 		</tr>
 	</thead>
 	<tbody>
@@ -49,6 +50,12 @@ $(document).ready(function() {
 				<td><?php echo $reportgenLink;?></td>
 				<td><?php echo $cronLink;?></td>
 				<td><?php echo $activateLink;?></td>
+				<td>
+					<select name="action" id="action<?php echo $listInfo['id']?>" onchange="doAction('seo-tools-manager.php', 'content', 'pid=<?php echo $listInfo['id']?>', 'action<?php echo $listInfo['id']?>')">
+						<option value="select">-- <?php echo $spText['common']['Select']?> --</option>
+						<option value="edit"><?php echo $spText['common']['Edit']?></option>
+					</select>
+				</td>
 			</tr>
 			<?php
 		}

@@ -30,6 +30,11 @@ $controller->set('spTextPanel', $controller->getLanguageTexts('panel', $_SESSION
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	
 	switch($_POST['sec']){
+		
+		case "update":
+			$controller->updateSeoTool($_POST);
+			break;
+			
 	}
 	
 }else{
@@ -59,6 +64,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$controller->listSeoTools();
 			break;
 			
+		case "edit":
+			$controller->editSeoTool($_GET);
+			break;
 
 		default:
 			$controller->listSeoTools();

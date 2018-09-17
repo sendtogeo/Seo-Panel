@@ -106,6 +106,34 @@ class WebMasterController extends GoogleAPIController {
 		return $result;
 		
 	}
+	
+	function __generateKeywordId($websiteId, $keywordName) {
+		$keywordId = 0;
+		$dataList = array(
+			'website_id|int' => $websiteId,
+			'name' => $keywordName,
+			'status' => 1,
+		);
+		
+		if ($this->dbHelper->insertRow("webmaster_keywords", $dataList) ) {
+			$keywordId = $this->db->getMaxId("webmaster_keywords");
+		}
+		
+		return $keywordId;
+	}
+
+	function __getWebmasterKeywordInfo($keywordId){
+		$keywordId = intval($keywordId);
+		$listInfo = $this->dbHelper->getRow("webmaster_keywords", " id=$keywordId");
+		return !empty($listInfo['id']) ? $listInfo : false;
+	}
+
+	function __getWebmasterKeywords($websiteId = false) {
+		$websiteId = intval($websiteId);
+		$whereCond = !empty($websiteId) ? " website_id=$websiteId" : "";
+		$keywordList = $this->dbHelper->getAllRows("webmaster_keywords", $whereCond);
+		return !empty($keywordList) ? $keywordList : false;
+	}
 
 	/*
 	 * function to store website results
@@ -115,49 +143,42 @@ class WebMasterController extends GoogleAPIController {
 		$websiteCtrler = new WebsiteController();
 		$websiteInfo = $websiteCtrler->__getWebsiteInfo($websiteId);		
 		$wherecond = "website_id=$websiteId and status=1";
-		$keywordList = $this->dbHelper->getAllRows('keywords', $wherecond);
+		$list = $this->dbHelper->getAllRows('webmaster_keywords', $wherecond);
+		$keywordList = array();
+		foreach ($list as $info) $keywordList[$info['name']] = $info;
 		$result['status'] = true;
+			
+		$paramList = array(
+			'startDate' => $reportDate,
+			'endDate' => $reportDate,
+			'dimensions' => ['query'],
+		);
 		
-		// if keyword existing
-		if (!empty($keywordList)) {
+		// query results from api and verify no error occured
+		$result = $this->getQueryResults($websiteInfo['user_id'], $websiteInfo['url'], $paramList);
+		if ($result['status']) {
 			
-			$paramList = array(
-				'startDate' => $reportDate,
-				'endDate' => $reportDate,
-				'dimensions' => ['query'],
-			);
-			
-			// query results from api and verify no error occured
-			$result = $this->getQueryResults($websiteInfo['user_id'], $websiteInfo['url'], $paramList);
-			if ($result['status']) {
+			// loop through the result list
+			foreach ($result['resultList'] as $reportInfo) {
+				$keywordName = $reportInfo['keys'][0];
 				
-				$keywordAnalytics = array();
-				foreach ($result['resultList'] as $resInfo) {
-					$keywordAnalytics[$resInfo['keys'][0]] = $resInfo;
-				}
+				// check if keyword is already existing in the db table, else insert it
+				$keywordId = isset($keywordList[$keywordName]) ? intval($keywordList[$keywordName]['id']) : 0;
+				if ($keywordId == 0) {$keywordId = $this->__generateKeywordId($websiteInfo['id'], $keywordName);}
 				
-				// for each keyword list
-				foreach ($keywordList as $keywordInfo) {
-					
-					// if keyword present in api response results
-					if (isset($keywordAnalytics[$keywordInfo['name']])) {
-						$reportInfo = $keywordAnalytics[$keywordInfo['name']];
-						$info = array(
-							'clicks' => $reportInfo['clicks'],
-							'impressions' => $reportInfo['impressions'],
-							'ctr' => $reportInfo['ctr'] * 100,
-							'average_position' => $reportInfo['position'],
-							'report_date' => $reportDate,
-							'source' => $source,
-						);
-						
-						$this->insertKeywordAnalytics($keywordInfo['id'], $info);
-						
-					}
-					
-				}				
+				$info = array(
+					'clicks' => $reportInfo['clicks'],
+					'impressions' => $reportInfo['impressions'],
+					'ctr' => round($reportInfo['ctr'] * 100, 2),
+					'average_position' => $reportInfo['position'],
+					'report_date' => $reportDate,
+					'source' => $source,
+				);
+				
+				$this->insertKeywordAnalytics($keywordId, $info);
+				
 			}
-			
+						
 		}
 
 		// if keyword report generated successfully
