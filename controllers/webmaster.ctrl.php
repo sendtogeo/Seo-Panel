@@ -128,9 +128,7 @@ class WebMasterController extends GoogleAPIController {
 		return !empty($listInfo['id']) ? $listInfo : false;
 	}
 
-	function __getWebmasterKeywords($websiteId = false) {
-		$websiteId = intval($websiteId);
-		$whereCond = !empty($websiteId) ? " website_id=$websiteId" : "";
+	function __getWebmasterKeywords($whereCond = false) {
 		$keywordList = $this->dbHelper->getAllRows("webmaster_keywords", $whereCond);
 		return !empty($keywordList) ? $keywordList : false;
 	}
@@ -141,9 +139,8 @@ class WebMasterController extends GoogleAPIController {
 	function storeWebsiteAnalytics($websiteId, $reportDate, $source = "google") {		
 		$websiteId = intval($websiteId);
 		$websiteCtrler = new WebsiteController();
-		$websiteInfo = $websiteCtrler->__getWebsiteInfo($websiteId);		
-		$wherecond = "website_id=$websiteId and status=1";
-		$list = $this->dbHelper->getAllRows('webmaster_keywords', $wherecond);
+		$websiteInfo = $websiteCtrler->__getWebsiteInfo($websiteId);
+		$list = $this->__getWebmasterKeywords("website_id=$websiteId and status=1");
 		$keywordList = array();
 		foreach ($list as $info) $keywordList[$info['name']] = $info;
 		$result['status'] = true;
