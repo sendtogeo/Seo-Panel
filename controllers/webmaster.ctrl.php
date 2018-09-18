@@ -301,7 +301,7 @@ class WebMasterController extends GoogleAPIController {
 				break;
 		}
 
-		$fromTime = !empty($searchInfo['from_time']) ? addslashes($searchInfo['from_time']) : date('Y-m-d', strtotime('-3 days'));
+		$fromTime = !empty($searchInfo['from_time']) ? addslashes($searchInfo['from_time']) : date('Y-m-d', strtotime('-4 days'));
 		$toTime = !empty($searchInfo['to_time']) ? addslashes($searchInfo['to_time']) : date('Y-m-d', strtotime('-3 days'));
 		$this->set('fromTime', $fromTime);
 		$this->set('toTime', $toTime);
@@ -422,6 +422,7 @@ class WebMasterController extends GoogleAPIController {
 					// if both ranks are existing
 					if ($prevRank != '' && $currRank != '') {
 						$rankDiff = $currRank - $prevRank;
+						if ($colName == 'average_position') $rankDiff = $rankDiff * -1;
 					}
 
 					$valueList[] = $prevRank;
@@ -482,7 +483,7 @@ class WebMasterController extends GoogleAPIController {
 				break;
 		}
 
-		$fromTime = !empty($searchInfo['from_time']) ? addslashes($searchInfo['from_time']) : date('Y-m-d', strtotime('-3 days'));
+		$fromTime = !empty($searchInfo['from_time']) ? addslashes($searchInfo['from_time']) : date('Y-m-d', strtotime('-4 days'));
 		$toTime = !empty($searchInfo['to_time']) ? addslashes($searchInfo['to_time']) : date('Y-m-d', strtotime('-3 days'));
 		$this->set('fromTime', $fromTime);
 		$this->set('toTime', $toTime);
@@ -595,6 +596,7 @@ class WebMasterController extends GoogleAPIController {
 					// if both ranks are existing
 					if ($prevRank != '' && $currRank != '') {
 						$rankDiff = $currRank - $prevRank;
+						if ($colName == 'average_position') $rankDiff = $rankDiff * -1;
 					}
 
 					$valueList[] = $prevRank;

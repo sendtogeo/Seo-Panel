@@ -4,7 +4,7 @@ $borderCollapseVal = $pdfVersion ? "border-collapse: collapse;" : "";
 if(!$summaryPage && (!empty($printVersion) || !empty($pdfVersion))) {
     $pdfVersion ? showPdfHeader($spTextTools['Keyword Search Summary']) : showPrintHeader($spTextTools['Keyword Search Summary']);
     ?>
-    <table width="80%" border="0" cellspacing="0" cellpadding="0" class="search">
+    <table width="80%" class="search">
     	<?php if (!empty($websiteInfo['url'])) {?>
     		<tr>
     			<th><?php echo $spText['common']['Website']?>:</th>
@@ -32,7 +32,7 @@ if(!$summaryPage && (!empty($printVersion) || !empty($pdfVersion))) {
     	?>
 		<form id='search_form'>
 		<?php $submitLink = "scriptDoLoadPost('webmaster-tools.php', 'search_form', 'content', '&sec=viewWebsiteSearchSummary')";?>
-		<table width="100%" border="0" cellspacing="0" cellpadding="0" class="search">
+		<table width="100%" class="search">
 			<tr>
 				<th><?php echo $spText['common']['Name']?>: </th>
 				<td>
@@ -91,8 +91,8 @@ $baseColCount = count($colList);
 $colCount = ($baseColCount * 3) + 1;
 ?>
 <div id='subcontent' style="margin-top: 0px;">
-<table width="100%" border="0" cellspacing="0" cellpadding="0" class="summary" style="<?php echo $borderCollapseVal; ?>">
-	<tr class="squareHead">
+<table id="cust_tab">
+	<tr>
 		<?php
 		$hrefAttr = $pdfVersion ? "" : "href='javascript:void(0)'";
 		foreach (array_keys($colList) as $i => $colName){
@@ -107,54 +107,36 @@ $colCount = ($baseColCount * 3) + 1;
             
             $headerVal = ($colName == 'name') ? $_SESSION['text']['common']['Website'] : $colList[$colName];
             $linkName = "<a id='sortLink' class='$linkClass' $hrefAttr onclick=\"scriptDoLoad('$mainLink&order_col=$colName&order_val=$oVal', 'content')\">$headerVal</a>";
-		    
-            $tdClass = "";
-            if ($i == 0) {
-            	$tdClass = "left";
-            } elseif(($i+1) == $baseColCount) {
-            	$tdClass = "right";
-            }
-            
-            $rowSpan = ($colName == "name") ? 2 : 1;
+		    $rowSpan = ($colName == "name") ? 2 : 1;
 			?>
-			<td rowspan="<?php echo $rowSpan?>" class="<?php echo $tdClass?>" colspan="3" style="border-right:1px solid #B0C2CC;"><?php echo $linkName; ?></td>
+			<th id="head" rowspan="<?php echo $rowSpan?>" colspan="3"><?php echo $linkName; ?></th>
 			<?php
 			
 		}
 		?>
 	</tr>	
-	<tr class="squareSubHead">
+	<tr>
 		<?php
 		$pTxt = str_replace("-", "/", substr($fromTime, -5));
 		$cTxt = str_replace("-", "/", substr($toTime, -5));
 		foreach ($colList as $colName => $colVal) {
 			if ($colName == 'name') continue;
 			?>
-			<td><?php echo $pTxt; ?></td>
-			<td><?php echo $cTxt; ?></td>
-			<td style="border-right:1px solid #B0C2CC;">+ / -</td>
+			<th><?php echo $pTxt; ?></th>
+			<th><?php echo $cTxt; ?></th>
+			<th>+ / -</th>
 			<?php
 		}
 		?>
 	</tr>
 	<?php
 	if (count($baseReportList) > 0) {
-		
-		$catCount = count($baseReportList);
-		$i = 0;
 		foreach($baseReportList as $listInfo){
-			$keywordId = $listInfo['id'];
-			$class = ($i % 2) ? "blue_row" : "white_row";
-			
-			if( !$i || ($catCount != ($i + 1)) ){
-                $leftBotClass = "td_left_border td_br_right";
-                $rightBotClass = "td_br_right";
-            }
-            
+			$keywordId = $listInfo['id'];            
             $scriptLink = "website_id=$websiteId&keyword_id={$listInfo['id']}&rep=1&from_time=$fromTime&to_time=$toTime";          
 			?>
-			<tr class="<?php echo $class?>">
-				<td colspan="3" class="<?php echo $leftBotClass?> left" width='100px;' style="border-right:1px solid #B0C2CC;"><a href="javascript:void(0)"><?php echo $listInfo['url']; ?></a></td>
+			<tr>
+				<td colspan="3"><a href="javascript:void(0)"><?php echo $listInfo['url']; ?></a></td>
 				<?php
 				foreach ($colList as $colName => $colVal){
 					if ($colName == 'name') continue;
@@ -167,13 +149,14 @@ $colCount = ($baseColCount * 3) + 1;
 					if ($prevRank != '' && $currRank != '') {
 						$rankDiff = $currRank - $prevRank;
 						$rankDiff = round($rankDiff, 2);
+						if ($colName == 'average_position') $rankDiff = $rankDiff * -1;
 						
 						if ($rankDiff > 0) {
 							$rankDiffTxt = "<font class='green'>($rankDiff)</font>";
 						} else if ($rankDiff < 0) {
 							$rankDiffTxt = "<font class='red'>($rankDiff)</font>";
 						} else {
-							$rankDiffTxt = "0";
+							$rankDiffTxt = "";
 						}													
 					}
 
@@ -188,15 +171,14 @@ $colCount = ($baseColCount * 3) + 1;
 						$graphLink = str_replace("href='javascript:void(0);'", "", $graphLink);
 					}
 				    ?>
-					<td class="td_br_right"><?php echo $prevRankLink; ?></td>
-					<td class="td_br_right"><?php echo $currRankLink; ?></td>
-					<td class='td_br_right left' style="border-right:1px solid #B0C2CC; width: 50px;" nowrap><?php echo $graphLink . " " . $rankDiffTxt; ?></td>
+					<td><?php echo $prevRankLink; ?></td>
+					<td><?php echo $currRankLink; ?></td>
+					<td><?php echo $graphLink . " " . $rankDiffTxt; ?></td>
 					<?php					
 				}
 				?>				
 			</tr>
 			<?php
-			$i++;
 		}
 	}
 	?>
