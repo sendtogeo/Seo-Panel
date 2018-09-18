@@ -142,7 +142,7 @@ class WebMasterController extends GoogleAPIController {
 		$websiteInfo = $websiteCtrler->__getWebsiteInfo($websiteId);
 		$list = $this->__getWebmasterKeywords("website_id=$websiteId and status=1");
 		$keywordList = array();
-		foreach ($list as $info) $keywordList[$info['name']] = $info;
+		if (!empty($list)) {foreach ($list as $info) $keywordList[$info['name']] = $info;}
 		$result['status'] = true;
 			
 		$paramList = array(
@@ -672,18 +672,23 @@ class WebMasterController extends GoogleAPIController {
 		# loop through rank
 		foreach ($reportList as $key => $repInfo) {
 			
-			foreach ($colList as $col) $rankDiff[$col] = '';
+			// if not the first row, find differences in rank
+			if ($key)  {
 			
-			foreach ($colList as $col) {
-				$rankDiff[$col] = round($repInfo[$col] - $prevRank[$col], 2);
+				foreach ($colList as $col) $rankDiff[$col] = '';
 				
-				if ($rankDiff[$col] > 0) {
-					$rankDiff[$col] = "<font class='green'>($rankDiff[$col])</font>";
-				} elseif ($rankDiff[$col] < 0) {
-					$rankDiff[$col] = "<font class='red'>($rankDiff[$col])</font>";
-				}
+				foreach ($colList as $col) {
+					$rankDiff[$col] = round($repInfo[$col] - $prevRank[$col], 2);	
+	
+					if (empty($rankDiff[$col])) continue;
+						
+					if ($col == "average_position" ) $rankDiff[$col] = $rankDiff[$col] * -1;
+					$rankClass = ($rankDiff[$col] > 0) ? 'green' : 'red';
+						
+					$rankDiff[$col] = "<font class='$rankClass'>($rankDiff[$col])</font>";
+					$reportList[$key]['rank_diff_'.$col] = empty($rankDiff[$col]) ? '' : $rankDiff[$col];
 					
-				$reportList[$key]['rank_diff_'.$col] = empty($rankDiff[$col]) ? '' : $rankDiff[$col];
+				}
 				
 			}
 			
@@ -715,20 +720,19 @@ class WebMasterController extends GoogleAPIController {
 		$this->set('fromTime', $fromTimeDate);
 		$this->set('toTime', $toTimeDate);
 	
-		$keywordController = New KeywordController();
 		if(!empty($searchInfo['keyword_id']) && !empty($searchInfo['rep'])){				
 			$searchInfo['keyword_id'] = intval($searchInfo['keyword_id']);
-			$keywordInfo = $keywordController->__getKeywordInfo($searchInfo['keyword_id']);
+			$keywordInfo = $this->__getWebmasterKeywordInfo($searchInfo['keyword_id']);
 			$searchInfo['website_id'] = $keywordInfo['website_id'];
 		}
 	
 		$websiteController = New WebsiteController();
-		$websiteList = $websiteController->__getAllWebsitesWithActiveKeywords($userId, true);
+		$websiteList = $websiteController->__getAllWebsites($userId, true);
 		$this->set('websiteList', $websiteList);
 		$websiteId = empty ($searchInfo['website_id']) ? $websiteList[0]['id'] : intval($searchInfo['website_id']);
 		$this->set('websiteId', $websiteId);
 	
-		$keywordList = $keywordController->__getAllKeywords($userId, $websiteId, true);
+		$keywordList = $this->__getWebmasterKeywords("website_id=$websiteId  and status=1 order by name");
 		$this->set('keywordList', $keywordList);
 		$keywordId = empty ($searchInfo['keyword_id']) ? $keywordList[0]['id'] : $searchInfo['keyword_id'];
 		$this->set('keywordId', $keywordId);
@@ -745,20 +749,23 @@ class WebMasterController extends GoogleAPIController {
 		
 		# loop through rank
 		foreach ($reportList as $key => $repInfo) {
+			
+			// if not the first row, find differences in rank
+			if ($key)  {
 				
-			foreach ($colList as $col) $rankDiff[$col] = '';
-				
-			foreach ($colList as $col) {
-				$rankDiff[$col] = round($repInfo[$col] - $prevRank[$col], 2);
-		
-				if ($rankDiff[$col] > 0) {
-					$rankDiff[$col] = "<font class='green'>($rankDiff[$col])</font>";
-				} elseif ($rankDiff[$col] < 0) {
-					$rankDiff[$col] = "<font class='red'>($rankDiff[$col])</font>";
-				}
+				foreach ($colList as $col) $rankDiff[$col] = '';
 					
-				$reportList[$key]['rank_diff_'.$col] = empty($rankDiff[$col]) ? '' : $rankDiff[$col];
-		
+				foreach ($colList as $col) {
+					$rankDiff[$col] = round($repInfo[$col] - $prevRank[$col], 2);
+					if (empty($rankDiff[$col])) continue;
+					
+					if ($col == "average_position" ) $rankDiff[$col] = $rankDiff[$col] * -1;
+					$rankClass = ($rankDiff[$col] > 0) ? 'green' : 'red';
+					
+					$rankDiff[$col] = "<font class='$rankClass'>($rankDiff[$col])</font>";
+					$reportList[$key]['rank_diff_'.$col] = empty($rankDiff[$col]) ? '' : $rankDiff[$col];			
+				}
+				
 			}
 				
 			foreach ($colList as $col) $prevRank[$col] = $repInfo[$col];
@@ -790,20 +797,19 @@ class WebMasterController extends GoogleAPIController {
 		$this->set('fromTime', $fromTimeDate);
 		$this->set('toTime', $toTimeDate);
 	
-		$keywordController = New KeywordController();
 		if(!empty($searchInfo['keyword_id']) && !empty($searchInfo['rep'])){				
 			$searchInfo['keyword_id'] = intval($searchInfo['keyword_id']);
-			$keywordInfo = $keywordController->__getKeywordInfo($searchInfo['keyword_id']);
+			$keywordInfo = $this->__getWebmasterKeywordInfo($searchInfo['keyword_id']);
 			$searchInfo['website_id'] = $keywordInfo['website_id'];
 		}
 	
 		$websiteController = New WebsiteController();
-		$websiteList = $websiteController->__getAllWebsitesWithActiveKeywords($userId, true);
+		$websiteList = $websiteController->__getAllWebsites($userId, true);
 		$this->set('websiteList', $websiteList);
 		$websiteId = empty ($searchInfo['website_id']) ? $websiteList[0]['id'] : intval($searchInfo['website_id']);
 		$this->set('websiteId', $websiteId);
 	
-		$keywordList = $keywordController->__getAllKeywords($userId, $websiteId, true);
+		$keywordList = $this->__getWebmasterKeywords("website_id=$websiteId  and status=1 order by name");
 		$this->set('keywordList', $keywordList);
 		$keywordId = empty ($searchInfo['keyword_id']) ? $keywordList[0]['id'] : $searchInfo['keyword_id'];
 		$this->set('keywordId', $keywordId);
@@ -823,7 +829,9 @@ class WebMasterController extends GoogleAPIController {
 		$graphColList = array();
 		if (!empty($searchInfo['attr_type'])) {
 			$graphColList[$searchInfo['attr_type']] = $colList[$searchInfo['attr_type']];
+			if ($searchInfo['attr_type'] == 'average_position') { $this->set('reverseDir', true);}
 		} else {
+			array_pop($colList);
 			$graphColList = $colList;
 		}
 		
@@ -877,7 +885,7 @@ class WebMasterController extends GoogleAPIController {
 		$this->set('toTime', $toTimeDate);
 	
 		$websiteController = New WebsiteController();
-		$websiteList = $websiteController->__getAllWebsitesWithActiveKeywords($userId, true);
+		$websiteList = $websiteController->__getAllWebsites($userId, true);
 		$this->set('websiteList', $websiteList);
 		$websiteId = empty($searchInfo['website_id']) ? $websiteList[0]['id'] : intval($searchInfo['website_id']);
 		$this->set('websiteId', $websiteId);
@@ -897,7 +905,9 @@ class WebMasterController extends GoogleAPIController {
 		$graphColList = array();
 		if (!empty($searchInfo['attr_type'])) {
 			$graphColList[$searchInfo['attr_type']] = $colList[$searchInfo['attr_type']];
+			if ($searchInfo['attr_type'] == 'average_position') { $this->set('reverseDir', true);}
 		} else {
+			array_pop($colList);
 			$graphColList = $colList;	
 		}
 		
@@ -1009,6 +1019,14 @@ class WebMasterController extends GoogleAPIController {
 		$errorMsg = !empty($result['msg']) ? $result['msg'] : "Internal error occured while accessing webmaster tools."; 
 		showErrorMsg($errorMsg);
 		
+	}
+
+	# func to show keyword select box
+	function showKeywordSelectBox($websiteId, $keywordId = ""){
+		$websiteId = intval($websiteId);
+		$this->set('keywordList', $this->__getWebmasterKeywords("website_id=$websiteId and status=1 order by name"));
+		$this->set('keywordId', $keywordId);
+		$this->render('keyword/keywordselectbox');
 	}
 	
 }

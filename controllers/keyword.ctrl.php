@@ -90,7 +90,7 @@ class KeywordController extends Controller{
 	# func to show keyword select box
 	function showKeywordSelectBox($userId='', $websiteId='', $keywordId=''){
 		$this->set('keywordList', $this->__getAllKeywords($userId, $websiteId, true));
-		$this->set('wkeywordId', $keywordId);
+		$this->set('keywordId', $keywordId);
 		$this->render('keyword/keywordselectbox');
 	}
 	
