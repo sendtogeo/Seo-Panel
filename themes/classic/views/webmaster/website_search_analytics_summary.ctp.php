@@ -102,7 +102,7 @@ $colCount = ($baseColCount * 3) + 1;
                 $oVal = ($orderVal == 'DESC') ? "ASC" : "DESC";
                 $linkClass .= "sort_".strtolower($orderVal);
             } else {
-                $oVal = 'ASC';
+                $oVal = 'DESC';
             }
             
             $headerVal = ($colName == 'name') ? $_SESSION['text']['common']['Website'] : $colList[$colName];
@@ -145,19 +145,17 @@ $colCount = ($baseColCount * 3) + 1;
 					$currRank = isset($compareReportList[$keywordId][$colName]) ? $compareReportList[$keywordId][$colName] : 0;
 					$rankDiffTxt = "";
 					
-					// if both ranks are existing
-					if ($prevRank != '' && $currRank != '') {
-						$rankDiff = $currRank - $prevRank;
-						$rankDiff = round($rankDiff, 2);
-						if ($colName == 'average_position') $rankDiff = $rankDiff * -1;
-						
-						if ($rankDiff > 0) {
-							$rankDiffTxt = "<font class='green'>($rankDiff)</font>";
-						} else if ($rankDiff < 0) {
-							$rankDiffTxt = "<font class='red'>($rankDiff)</font>";
-						} else {
-							$rankDiffTxt = "";
-						}													
+					// check rank difference
+					$rankDiff = $currRank - $prevRank;
+					$rankDiff = round($rankDiff, 2);
+					if ($colName == 'average_position') $rankDiff = $rankDiff * -1;
+					
+					if ($rankDiff > 0) {
+						$rankDiffTxt = "<font class='green'>($rankDiff)</font>";
+					} else if ($rankDiff < 0) {
+						$rankDiffTxt = "<font class='red'>($rankDiff)</font>";
+					} else {
+						$rankDiffTxt = "";
 					}
 
 					$prevRankLink = scriptAJAXLinkHrefDialog('webmaster-tools.php', 'content', $scriptLink . "&sec=viewWebsiteSearchReports", $prevRank);

@@ -339,13 +339,13 @@ class WebMasterController extends GoogleAPIController {
 		
 		$conditions .= !empty($searchInfo['search_name']) ? " and k.name like '%".addslashes($searchInfo['search_name'])."%'" : "";
 		
-		$subSql = "select [cols] from keywords k, keyword_analytics r where k.id=r.keyword_id
+		$subSql = "select [cols] from webmaster_keywords k, keyword_analytics r where k.id=r.keyword_id
 		and k.status=1 $conditions and r.source='$source' and r.report_date='$fromTime'";
 		
 		$sql = "
 		(" . str_replace("[cols]", "k.id,k.name,k.website_id,r.clicks,r.impressions,r.ctr,r.average_position", $subSql) . ")
 		UNION
-		(select k.id,k.name,k.website_id,0,0,0,0 from keywords k where k.status=1 $conditions 
+		(select k.id,k.name,k.website_id,0,0,0,0 from webmaster_keywords k where k.status=1 $conditions 
 		and k.id not in (". str_replace("[cols]", "distinct(k.id)", $subSql) ."))
 		order by " . addslashes($orderCol) . " " . addslashes($orderVal);
 		
@@ -353,14 +353,12 @@ class WebMasterController extends GoogleAPIController {
 		
 		// pagination setup, if not from cron job email send function, pdf and export action
 		if (!in_array($searchInfo['doc_type'], array("pdf", "export")) && !$cronUserId) {
-			
 			$this->db->query($sql, true);
 			$this->paging->setDivClass('pagingdiv');
 			$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
 			$pagingDiv = $this->paging->printPages($scriptPath, '', 'scriptDoLoad', 'content', "");
 			$this->set('pagingDiv', $pagingDiv);
-			$this->set('pageNo', $searchInfo['pageno']);
-			
+			$this->set('pageNo', $searchInfo['pageno']);			
 			$sql .= " limit ".$this->paging->start .",". $this->paging->per_page;
 		}
 		
@@ -378,7 +376,7 @@ class WebMasterController extends GoogleAPIController {
 			}
 
 			$sql = "select k.id,k.name,k.website_id,r.clicks,r.impressions,r.ctr,r.average_position 
-			from keywords k, keyword_analytics r where k.id=r.keyword_id
+			from webmaster_keywords k, keyword_analytics r where k.id=r.keyword_id
 			and k.status=1 $conditions and r.source='$source' and r.report_date='$toTime'";
 			$sql .= " and k.id in(" . implode(",", $keywordIdList) . ")";
 			$reportList = $this->db->select($sql);
