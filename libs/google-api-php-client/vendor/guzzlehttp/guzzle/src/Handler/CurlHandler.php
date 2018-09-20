@@ -40,7 +40,7 @@ class CurlHandler
         
         /////////////////////////////////// StartCustom code by seo panel////////////////////////
         // add proxy details to handle. Custom code added by seo panel team
-        list($easy->handle, $proxyId) = \ProxyController::addProxyToCurlHandle($easy->handle);
+        list($easy->handle, $proxyId) = \ProxyController::addProxyToCurlHandle($easy->handle, SP_ENABLE_PROXY_GOOGLE_API);
         
         // Custom code added by seo panel team
         $ret['page'] = curl_exec( $easy->handle );

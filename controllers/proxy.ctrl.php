@@ -400,11 +400,11 @@ class ProxyController extends Controller{
 	}
 	
 	// function to add proxy to curl handle
-	public static function addProxyToCurlHandle($curlHandle) {
+	public static function addProxyToCurlHandle($curlHandle, $noProxy = false) {
 		$proxyId = 0;
 		
 		// to use proxy if proxy enabled
-		if (SP_ENABLE_PROXY) {
+		if (SP_ENABLE_PROXY && !$noProxy) {
 		
 			$proxyCtrler = New self();
 			if ($proxyInfo = $proxyCtrler->getRandomProxy()) {
