@@ -40,6 +40,8 @@ $(document).ready(function() {
 </script>
 
 <br><br>
+<b>Current Time:</b> <?php echo date("Y-m-d H:i:s <b>T(P)</b>"); ?>
+<br><br>
 <div id='subcontent'>
 <table id="cust_tab" class="tablesorter">
 	<thead>

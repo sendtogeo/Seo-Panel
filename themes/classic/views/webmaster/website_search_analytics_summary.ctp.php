@@ -133,7 +133,7 @@ $colCount = ($baseColCount * 3) + 1;
 	if (count($baseReportList) > 0) {
 		foreach($baseReportList as $listInfo){
 			$keywordId = $listInfo['id'];            
-            $scriptLink = "website_id=$websiteId&keyword_id={$listInfo['id']}&rep=1&from_time=$fromTime&to_time=$toTime";          
+            $scriptLink = "website_id={$listInfo['id']}&rep=1&from_time=$fromTime&to_time=$toTime";          
 			?>
 			<tr>
 				<td colspan="3"><a href="javascript:void(0)"><?php echo $listInfo['url']; ?></a></td>
