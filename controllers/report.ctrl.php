@@ -1413,8 +1413,6 @@ class ReportController extends Controller {
             'report_type' => '',
             'from_time' => date('Y-m-d', $fromTime),
             'to_time' => date('Y-m-d', $toTime),
-            'order_col' => 1,
-            'order_val' => 'ASC',
             'doc_type' => 'print',
         );
 	    

@@ -158,7 +158,9 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
                 $leftBotClass = "td_left_border td_br_right";
                 $rightBotClass = "td_br_right";
             }
-            $scriptLink = "website_id=$websiteId&keyword_id={$listInfo['id']}&rep=1&from_time=$fromTime&to_time=$toTime";          
+            
+            $rangeFromTime = date('Y-m-d', strtotime('-14 days', strtotime($fromTime)));
+            $scriptLink = "website_id=$websiteId&keyword_id={$listInfo['id']}&rep=1&from_time=$rangeFromTime&to_time=$toTime";          
 			?>
 			<tr class="<?php echo $class?>">				
 				<?php if (empty($websiteId)) {?>
