@@ -132,7 +132,8 @@ $colCount = ($baseColCount * 3) + 2;
 	<?php
 		foreach($baseReportList as $listInfo){
 			$keywordId = $listInfo['id'];
-			$scriptLink = "website_id=$websiteId&keyword_id={$listInfo['id']}&rep=1&from_time=$fromTime&to_time=$toTime";          
+			$rangeFromTime = date('Y-m-d', strtotime('-14 days', strtotime($fromTime)));
+			$scriptLink = "website_id=$websiteId&keyword_id={$listInfo['id']}&rep=1&from_time=$rangeFromTime&to_time=$toTime";          
 			?>
 			<tr>
 				<td>
