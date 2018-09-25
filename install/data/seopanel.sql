@@ -1346,6 +1346,9 @@ CREATE TABLE IF NOT EXISTS `webmaster_keywords` (
 ALTER TABLE `webmaster_keywords` ADD PRIMARY KEY (`id`), ADD KEY `website_id` (`website_id`);
 ALTER TABLE `webmaster_keywords` MODIFY `id` bigint(24) unsigned NOT NULL AUTO_INCREMENT;
 
+INSERT INTO `settings` (`set_label`, `set_name`, `set_val`, `set_category`, `set_type`, `display`) VALUES
+('Enable Proxy for Google API', 'SP_ENABLE_PROXY_GOOGLE_API', '1', 'proxy', 'bool', 1);
+
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
