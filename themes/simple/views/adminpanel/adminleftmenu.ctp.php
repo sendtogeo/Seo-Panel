@@ -67,6 +67,7 @@ foreach($menuList as $i => $menuInfo){
 				<?php }?>
 				<?php if (isAdmin()) {?>
     				<li><a href="javascript:void(0);" onclick="scriptDoLoad('cron.php', 'content')"><?php echo $spTextPanel['Report Generation Manager']?></a></li>
+    				<li><a href="javascript:void(0);" onclick="scriptDoLoad('reports.php?sec=report_gen_logs', 'content')"><?php echo $spTextPanel['Report Generation Logs']?></a></li>
     				<li><a href="javascript:void(0);" onclick="scriptDoLoad('cron.php?sec=croncommand', 'content')"><?php echo $spTextPanel['Cron Command']?></a></li>
 					<li><a href="javascript:void(0);" onclick="scriptDoLoad('settings.php?sec=reportsettings', 'content')"><?php echo $spTextPanel['Global Reports Settings']?></a></li>
 				<?php }?>

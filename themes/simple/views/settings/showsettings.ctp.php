@@ -30,7 +30,7 @@ if ($category == "moz") {
 	</div>
 	<div id="topnewsbox" style="margin-bottom: 20px;">
 		<a class="bold_link" href="https://developers.google.com/adwords/api/docs/guides/authentication" target="_blank">
-			<?php echo "Click here to get Google API Client Id"; ?> &gt;&gt;
+			<?php echo $spTextSettings['click-to-get-google-api-client-id']; ?> &gt;&gt;
 		</a>
 	</div>
 	<?php
@@ -165,7 +165,7 @@ if ($category == "moz") {
 	if ($category == "google") {
 		?>
 		<tr class="white_row">
-			<td class="td_left_col"><?php echo "Authorised redirect URI"?></td>
+			<td class="td_left_col"><?php echo $spTextSettings["Authorised redirect URI"]?></td>
 			<td class="td_right_col"><?php echo SP_WEBPATH . "/admin-panel.php?sec=connections&action=connect_return&category=google"?></td>
 		</tr>
 		<?php
