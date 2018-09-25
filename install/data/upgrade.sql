@@ -25,11 +25,3 @@ ALTER TABLE `webmaster_keywords` MODIFY `id` bigint(24) unsigned NOT NULL AUTO_I
 
 INSERT INTO `settings` (`set_label`, `set_name`, `set_val`, `set_category`, `set_type`, `display`) VALUES
 ('Enable Proxy for Google API', 'SP_ENABLE_PROXY_GOOGLE_API', '1', 'proxy', 'bool', 1);
-
-INSERT INTO `texts` (`category`, `label`, `content`) VALUES
-('panel', 'Report Generation Logs', 'Report Generation Logs'),
-('settings', 'Authorised redirect URI', 'Authorised redirect URI'),
-('settings', 'click-to-get-google-api-client-id', 'Click here to get Google API Client Id'),
-('home', 'Overall Report Summary', 'Overall Report Summary'),
-('seotools', 'Edit Seo Tool', 'Edit Seo Tool'),
-('settings', 'SP_ENABLE_PROXY_GOOGLE_API', 'Enable Proxy for Google API'),

@@ -949,7 +949,7 @@ class WebMasterController extends GoogleAPIController {
 		$this->set('websiteList', $websiteList);
 		$websiteId = empty ($searchInfo['website_id']) ? $websiteList[0]['id'] : intval($searchInfo['website_id']);
 		$this->set('websiteId', $websiteId);
-		$this->set('fromTime', date('Y-m-d', strtotime('-6 days')));
+		$this->set('fromTime', date('Y-m-d', strtotime('-4 days')));
 		$this->set('toTime', date('Y-m-d', strtotime('-3 days')));
 		$this->render('webmaster/quick_checker');
 	}
