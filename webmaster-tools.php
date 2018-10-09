@@ -102,6 +102,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		case "viewWebsiteSearchGraphReports":
 			$controller->viewWebsiteSearchGraphReports($_GET);
 			break;
+			
+		case "keywordbox":
+			$controller->showKeywordSelectBox($_GET['website_id']);
+			break;
 
 		default:
 			$controller->viewKeywordSearchSummary($_GET);

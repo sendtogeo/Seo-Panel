@@ -14009,6 +14009,14 @@ ALTER TABLE `texts`
 ALTER TABLE `translators`
   MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
 
+INSERT INTO `texts` (`category`, `label`, `content`) VALUES
+('panel', 'Report Generation Logs', 'Report Generation Logs'),
+('settings', 'Authorised redirect URI', 'Authorised redirect URI'),
+('settings', 'click-to-get-google-api-client-id', 'Click here to get Google API Client Id'),
+('home', 'Overall Report Summary', 'Overall Report Summary'),
+('seotools', 'Edit Seo Tool', 'Edit Seo Tool'),
+('settings', 'SP_ENABLE_PROXY_GOOGLE_API', 'Enable Proxy for Google API');
+
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

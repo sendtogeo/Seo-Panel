@@ -61,7 +61,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
 		case "schedule":
 			$controller->saveReportSchedule($_POST);
-			break;	
+			break;
+
+		case "report_gen_logs":
+			checkAdminLoggedIn();
+			$controller->showReportGenerationLogs($_POST);
+			break;
 			
 		default:
 			$controller->showReports($_POST);
@@ -85,6 +90,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
 		case "schedule":
 			$controller->showReportsScheduler(false, $_GET);
+			break;
+
+		case "report_gen_logs":
+			checkAdminLoggedIn();
+			$controller->showReportGenerationLogs($_GET);
 			break;
 						
 		default:

@@ -659,5 +659,13 @@ class UserTypeController extends Controller {
 		
 	}
 	
+	/*
+	 * function to get all user types
+	 */
+	function __getAllUserTypeList() {
+		$list = $this->dbHelper->getAllRows("usertypes");
+		return $list;
+	}
+	
 }
 ?>

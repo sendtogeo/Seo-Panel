@@ -318,14 +318,17 @@ class SeoPluginsController extends Controller{
 		$listInfo['id'] = intval($listInfo['id']);
 		$this->set('post', $listInfo);
 		$errMsg['plugin_name'] = formatErrorMsg($this->validate->checkBlank($listInfo['plugin_name']));
+		$errMsg['priority'] = formatErrorMsg($this->validate->checkNumber($listInfo['priority']));
 		if(!$this->validate->flagErr){
 			$sql = "update seoplugins set
-						label='".addslashes($listInfo['plugin_name'])."'
+						label='".addslashes($listInfo['plugin_name'])."',
+						priority='".intval($listInfo['priority'])."'
 						where id={$listInfo['id']}";
 			$this->db->query($sql);
 			$this->listSeoPlugins();
 		}else{
 			$this->set('errMsg', $errMsg);
+			$listInfo['label'] = $listInfo['plugin_name'];
 			$this->editSeoPlugin($listInfo, true);
 		}
 	}

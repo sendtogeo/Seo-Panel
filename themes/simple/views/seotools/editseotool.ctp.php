@@ -1,16 +1,12 @@
-<?php echo showSectionHead($spTextPlugin['Edit Seo Plugin']); ?>
-<form id="updateplugin">
+<?php echo showSectionHead($spTextTools['Edit Seo Tool']); ?>
+<form id="update_seo_tool">
 <input type="hidden" name="sec" value="update"/>
 <input type="hidden" name="id" value="<?php echo $post['id']?>"/>
 
 <table id="cust_tab" >
 	<tr class="form_head">
-		<th><?php echo $spTextPlugin['Edit Seo Plugin']?></th>
+		<th><?php echo $spTextTools['Edit Seo Tool']?></th>
 		<th>&nbsp;</th>
-	</tr>
-	<tr class="form_data">
-		<td><?php echo $spTextPlugin['Plugin Name']?>:</td>
-		<td><input type="text" name="plugin_name" value="<?php echo $post['label']?>"><?php echo $errMsg['plugin_name']?></td>
 	</tr>
 	<tr class="form_data">
 		<td><?php echo $spText['common']['Priority']?>:</td>
@@ -21,10 +17,10 @@
 <table width="100%" class="actionSec">
 	<tr>
     	<td style="padding-top: 6px;text-align:right;">
-    		<a onclick="scriptDoLoad('seo-plugins-manager.php', 'content')" href="javascript:void(0);" class="actionbut">
+    		<a onclick="scriptDoLoad('seo-tools-manager.php', 'content')" href="javascript:void(0);" class="actionbut">
          		<?php echo $spText['button']['Cancel']?>
          	</a>&nbsp;
-         	<?php $actFun = SP_DEMO ? "alertDemoMsg()" : "confirmSubmit('seo-plugins-manager.php', 'updateplugin', 'content')"; ?>
+         	<?php $actFun = SP_DEMO ? "alertDemoMsg()" : "confirmSubmit('seo-tools-manager.php', 'update_seo_tool', 'content')"; ?>
          	<a onclick="<?php echo $actFun?>" href="javascript:void(0);" class="actionbut">
          		<?php echo $spText['button']['Proceed']?>
          	</a>

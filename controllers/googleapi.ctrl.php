@@ -98,7 +98,10 @@ class GoogleAPIController extends Controller{
 					$newTokenInfo['access_token'] = $newToken['access_token'];
 					$newTokenInfo['token_type'] = $newToken['token_type'];
 					$newTokenInfo['expires_in'] = $newToken['expires_in'];
-					$newTokenInfo['refresh_token'] = $newToken['refresh_token'];
+					
+					// comment refresh token update to test the perfomnace
+					/*$newTokenInfo['refresh_token'] = $newToken['refresh_token'];*/
+					
 					$this->tokenCtrler->updateUserToken($tokenInfo['id'], $newTokenInfo);
 				} catch (Exception $e) {
 					$err = $e->getMessage();

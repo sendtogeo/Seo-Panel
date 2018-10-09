@@ -106,6 +106,32 @@ class WebMasterController extends GoogleAPIController {
 		return $result;
 		
 	}
+	
+	function __generateKeywordId($websiteId, $keywordName) {
+		$keywordId = 0;
+		$dataList = array(
+			'website_id|int' => $websiteId,
+			'name' => $keywordName,
+			'status' => 1,
+		);
+		
+		if ($this->dbHelper->insertRow("webmaster_keywords", $dataList) ) {
+			$keywordId = $this->db->getMaxId("webmaster_keywords");
+		}
+		
+		return $keywordId;
+	}
+
+	function __getWebmasterKeywordInfo($keywordId){
+		$keywordId = intval($keywordId);
+		$listInfo = $this->dbHelper->getRow("webmaster_keywords", " id=$keywordId");
+		return !empty($listInfo['id']) ? $listInfo : false;
+	}
+
+	function __getWebmasterKeywords($whereCond = false) {
+		$keywordList = $this->dbHelper->getAllRows("webmaster_keywords", $whereCond);
+		return !empty($keywordList) ? $keywordList : false;
+	}
 
 	/*
 	 * function to store website results
@@ -113,51 +139,43 @@ class WebMasterController extends GoogleAPIController {
 	function storeWebsiteAnalytics($websiteId, $reportDate, $source = "google") {		
 		$websiteId = intval($websiteId);
 		$websiteCtrler = new WebsiteController();
-		$websiteInfo = $websiteCtrler->__getWebsiteInfo($websiteId);		
-		$wherecond = "website_id=$websiteId and status=1";
-		$keywordList = $this->dbHelper->getAllRows('keywords', $wherecond);
+		$websiteInfo = $websiteCtrler->__getWebsiteInfo($websiteId);
+		$list = $this->__getWebmasterKeywords("website_id=$websiteId and status=1");
+		$keywordList = array();
+		if (!empty($list)) {foreach ($list as $info) $keywordList[$info['name']] = $info;}
 		$result['status'] = true;
+			
+		$paramList = array(
+			'startDate' => $reportDate,
+			'endDate' => $reportDate,
+			'dimensions' => ['query'],
+		);
 		
-		// if keyword existing
-		if (!empty($keywordList)) {
+		// query results from api and verify no error occured
+		$result = $this->getQueryResults($websiteInfo['user_id'], $websiteInfo['url'], $paramList);
+		if ($result['status']) {
 			
-			$paramList = array(
-				'startDate' => $reportDate,
-				'endDate' => $reportDate,
-				'dimensions' => ['query'],
-			);
-			
-			// query results from api and verify no error occured
-			$result = $this->getQueryResults($websiteInfo['user_id'], $websiteInfo['url'], $paramList);
-			if ($result['status']) {
+			// loop through the result list
+			foreach ($result['resultList'] as $reportInfo) {
+				$keywordName = $reportInfo['keys'][0];
 				
-				$keywordAnalytics = array();
-				foreach ($result['resultList'] as $resInfo) {
-					$keywordAnalytics[$resInfo['keys'][0]] = $resInfo;
-				}
+				// check if keyword is already existing in the db table, else insert it
+				$keywordId = isset($keywordList[$keywordName]) ? intval($keywordList[$keywordName]['id']) : 0;
+				if ($keywordId == 0) {$keywordId = $this->__generateKeywordId($websiteInfo['id'], $keywordName);}
 				
-				// for each keyword list
-				foreach ($keywordList as $keywordInfo) {
-					
-					// if keyword present in api response results
-					if (isset($keywordAnalytics[$keywordInfo['name']])) {
-						$reportInfo = $keywordAnalytics[$keywordInfo['name']];
-						$info = array(
-							'clicks' => $reportInfo['clicks'],
-							'impressions' => $reportInfo['impressions'],
-							'ctr' => $reportInfo['ctr'] * 100,
-							'average_position' => $reportInfo['position'],
-							'report_date' => $reportDate,
-							'source' => $source,
-						);
-						
-						$this->insertKeywordAnalytics($keywordInfo['id'], $info);
-						
-					}
-					
-				}				
+				$info = array(
+					'clicks' => $reportInfo['clicks'],
+					'impressions' => $reportInfo['impressions'],
+					'ctr' => round($reportInfo['ctr'] * 100, 2),
+					'average_position' => $reportInfo['position'],
+					'report_date' => $reportDate,
+					'source' => $source,
+				);
+				
+				$this->insertKeywordAnalytics($keywordId, $info);
+				
 			}
-			
+						
 		}
 
 		// if keyword report generated successfully
@@ -283,8 +301,8 @@ class WebMasterController extends GoogleAPIController {
 				break;
 		}
 
-		$fromTime = !empty($searchInfo['from_time']) ? addslashes($searchInfo['from_time']) : date('Y-m-d', strtotime('-3 days'));
-		$toTime = !empty($searchInfo['to_time']) ? addslashes($searchInfo['to_time']) : date('Y-m-d', strtotime('-2 days'));
+		$fromTime = !empty($searchInfo['from_time']) ? addslashes($searchInfo['from_time']) : date('Y-m-d', strtotime('-4 days'));
+		$toTime = !empty($searchInfo['to_time']) ? addslashes($searchInfo['to_time']) : date('Y-m-d', strtotime('-3 days'));
 		$this->set('fromTime', $fromTime);
 		$this->set('toTime', $toTime);
 	
@@ -321,27 +339,26 @@ class WebMasterController extends GoogleAPIController {
 		
 		$conditions .= !empty($searchInfo['search_name']) ? " and k.name like '%".addslashes($searchInfo['search_name'])."%'" : "";
 		
-		$subSql = "select [cols] from keywords k, keyword_analytics r where k.id=r.keyword_id
+		$subSql = "select [cols] from webmaster_keywords k, keyword_analytics r where k.id=r.keyword_id
 		and k.status=1 $conditions and r.source='$source' and r.report_date='$fromTime'";
 		
 		$sql = "
 		(" . str_replace("[cols]", "k.id,k.name,k.website_id,r.clicks,r.impressions,r.ctr,r.average_position", $subSql) . ")
 		UNION
-		(select k.id,k.name,k.website_id,0,0,0,0 from keywords k where k.status=1 $conditions 
+		(select k.id,k.name,k.website_id,0,0,0,0 from webmaster_keywords k where k.status=1 $conditions 
 		and k.id not in (". str_replace("[cols]", "distinct(k.id)", $subSql) ."))
 		order by " . addslashes($orderCol) . " " . addslashes($orderVal);
 		
 		if ($orderCol != 'name') $sql .= ", name";
 		
-		# pagination setup
-		$this->db->query($sql, true);
-		$this->paging->setDivClass('pagingdiv');
-		$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
-		$pagingDiv = $this->paging->printPages($scriptPath, '', 'scriptDoLoad', 'content', "");
-		$this->set('pagingDiv', $pagingDiv);
-		$this->set('pageNo', $searchInfo['pageno']);
-		
-		if (!in_array($searchInfo['doc_type'], array("pdf", "export"))) {
+		// pagination setup, if not from cron job email send function, pdf and export action
+		if (!in_array($searchInfo['doc_type'], array("pdf", "export")) && !$cronUserId) {
+			$this->db->query($sql, true);
+			$this->paging->setDivClass('pagingdiv');
+			$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
+			$pagingDiv = $this->paging->printPages($scriptPath, '', 'scriptDoLoad', 'content', "");
+			$this->set('pagingDiv', $pagingDiv);
+			$this->set('pageNo', $searchInfo['pageno']);			
 			$sql .= " limit ".$this->paging->start .",". $this->paging->per_page;
 		}
 		
@@ -359,7 +376,7 @@ class WebMasterController extends GoogleAPIController {
 			}
 
 			$sql = "select k.id,k.name,k.website_id,r.clicks,r.impressions,r.ctr,r.average_position 
-			from keywords k, keyword_analytics r where k.id=r.keyword_id
+			from webmaster_keywords k, keyword_analytics r where k.id=r.keyword_id
 			and k.status=1 $conditions and r.source='$source' and r.report_date='$toTime'";
 			$sql .= " and k.id in(" . implode(",", $keywordIdList) . ")";
 			$reportList = $this->db->select($sql);
@@ -403,6 +420,7 @@ class WebMasterController extends GoogleAPIController {
 					// if both ranks are existing
 					if ($prevRank != '' && $currRank != '') {
 						$rankDiff = $currRank - $prevRank;
+						if ($colName == 'average_position') $rankDiff = $rankDiff * -1;
 					}
 
 					$valueList[] = $prevRank;
@@ -463,8 +481,8 @@ class WebMasterController extends GoogleAPIController {
 				break;
 		}
 
-		$fromTime = !empty($searchInfo['from_time']) ? addslashes($searchInfo['from_time']) : date('Y-m-d', strtotime('-3 days'));
-		$toTime = !empty($searchInfo['to_time']) ? addslashes($searchInfo['to_time']) : date('Y-m-d', strtotime('-2 days'));
+		$fromTime = !empty($searchInfo['from_time']) ? addslashes($searchInfo['from_time']) : date('Y-m-d', strtotime('-4 days'));
+		$toTime = !empty($searchInfo['to_time']) ? addslashes($searchInfo['to_time']) : date('Y-m-d', strtotime('-3 days'));
 		$this->set('fromTime', $fromTime);
 		$this->set('toTime', $toTime);
 	
@@ -503,15 +521,16 @@ class WebMasterController extends GoogleAPIController {
 		
 		if ($orderCol != 'name') $sql .= ", url";
 		
-		# pagination setup
-		$this->db->query($sql, true);
-		$this->paging->setDivClass('pagingdiv');
-		$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
-		$pagingDiv = $this->paging->printPages($scriptPath, '', 'scriptDoLoad', 'content', "");
-		$this->set('pagingDiv', $pagingDiv);
-		$this->set('pageNo', $searchInfo['pageno']);
-		
-		if (!in_array($searchInfo['doc_type'], array("pdf", "export"))) {
+		// pagination setup, if not from cron job email send function, pdf and export action
+		if (!in_array($searchInfo['doc_type'], array("pdf", "export")) && !$cronUserId) {
+
+			$this->db->query($sql, true);
+			$this->paging->setDivClass('pagingdiv');
+			$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
+			$pagingDiv = $this->paging->printPages($scriptPath, '', 'scriptDoLoad', 'content', "");
+			$this->set('pagingDiv', $pagingDiv);
+			$this->set('pageNo', $searchInfo['pageno']);
+			
 			$sql .= " limit ".$this->paging->start .",". $this->paging->per_page;
 		}
 		
@@ -575,6 +594,7 @@ class WebMasterController extends GoogleAPIController {
 					// if both ranks are existing
 					if ($prevRank != '' && $currRank != '') {
 						$rankDiff = $currRank - $prevRank;
+						if ($colName == 'average_position') $rankDiff = $rankDiff * -1;
 					}
 
 					$valueList[] = $prevRank;
@@ -625,7 +645,7 @@ class WebMasterController extends GoogleAPIController {
 		if (!empty ($searchInfo['to_time'])) {
 			$toTime = addslashes($searchInfo['to_time']);
 		} else {
-			$toTime = date('Y-m-d', strtotime('-2 days'));
+			$toTime = date('Y-m-d', strtotime('-3 days'));
 		}
 		
 		$this->set('fromTime', $fromTime);
@@ -652,18 +672,23 @@ class WebMasterController extends GoogleAPIController {
 		# loop through rank
 		foreach ($reportList as $key => $repInfo) {
 			
-			foreach ($colList as $col) $rankDiff[$col] = '';
+			// if not the first row, find differences in rank
+			if ($key)  {
 			
-			foreach ($colList as $col) {
-				$rankDiff[$col] = round($repInfo[$col] - $prevRank[$col], 2);
+				foreach ($colList as $col) $rankDiff[$col] = '';
 				
-				if ($rankDiff[$col] > 0) {
-					$rankDiff[$col] = "<font class='green'>($rankDiff[$col])</font>";
-				} elseif ($rankDiff[$col] < 0) {
-					$rankDiff[$col] = "<font class='red'>($rankDiff[$col])</font>";
-				}
+				foreach ($colList as $col) {
+					$rankDiff[$col] = round($repInfo[$col] - $prevRank[$col], 2);	
+	
+					if (empty($rankDiff[$col])) continue;
+						
+					if ($col == "average_position" ) $rankDiff[$col] = $rankDiff[$col] * -1;
+					$rankClass = ($rankDiff[$col] > 0) ? 'green' : 'red';
+						
+					$rankDiff[$col] = "<font class='$rankClass'>($rankDiff[$col])</font>";
+					$reportList[$key]['rank_diff_'.$col] = empty($rankDiff[$col]) ? '' : $rankDiff[$col];
 					
-				$reportList[$key]['rank_diff_'.$col] = empty($rankDiff[$col]) ? '' : $rankDiff[$col];
+				}
 				
 			}
 			
@@ -689,26 +714,25 @@ class WebMasterController extends GoogleAPIController {
 		if (!empty ($searchInfo['to_time'])) {
 			$toTimeDate = addslashes($searchInfo['to_time']);
 		} else {
-			$toTimeDate = date('Y-m-d', strtotime('-2 days'));
+			$toTimeDate = date('Y-m-d', strtotime('-3 days'));
 		}
 		
 		$this->set('fromTime', $fromTimeDate);
 		$this->set('toTime', $toTimeDate);
 	
-		$keywordController = New KeywordController();
 		if(!empty($searchInfo['keyword_id']) && !empty($searchInfo['rep'])){				
 			$searchInfo['keyword_id'] = intval($searchInfo['keyword_id']);
-			$keywordInfo = $keywordController->__getKeywordInfo($searchInfo['keyword_id']);
+			$keywordInfo = $this->__getWebmasterKeywordInfo($searchInfo['keyword_id']);
 			$searchInfo['website_id'] = $keywordInfo['website_id'];
 		}
 	
 		$websiteController = New WebsiteController();
-		$websiteList = $websiteController->__getAllWebsitesWithActiveKeywords($userId, true);
+		$websiteList = $websiteController->__getAllWebsites($userId, true);
 		$this->set('websiteList', $websiteList);
 		$websiteId = empty ($searchInfo['website_id']) ? $websiteList[0]['id'] : intval($searchInfo['website_id']);
 		$this->set('websiteId', $websiteId);
 	
-		$keywordList = $keywordController->__getAllKeywords($userId, $websiteId, true);
+		$keywordList = $this->__getWebmasterKeywords("website_id=$websiteId  and status=1 order by name");
 		$this->set('keywordList', $keywordList);
 		$keywordId = empty ($searchInfo['keyword_id']) ? $keywordList[0]['id'] : $searchInfo['keyword_id'];
 		$this->set('keywordId', $keywordId);
@@ -725,20 +749,23 @@ class WebMasterController extends GoogleAPIController {
 		
 		# loop through rank
 		foreach ($reportList as $key => $repInfo) {
+			
+			// if not the first row, find differences in rank
+			if ($key)  {
 				
-			foreach ($colList as $col) $rankDiff[$col] = '';
-				
-			foreach ($colList as $col) {
-				$rankDiff[$col] = round($repInfo[$col] - $prevRank[$col], 2);
-		
-				if ($rankDiff[$col] > 0) {
-					$rankDiff[$col] = "<font class='green'>($rankDiff[$col])</font>";
-				} elseif ($rankDiff[$col] < 0) {
-					$rankDiff[$col] = "<font class='red'>($rankDiff[$col])</font>";
-				}
+				foreach ($colList as $col) $rankDiff[$col] = '';
 					
-				$reportList[$key]['rank_diff_'.$col] = empty($rankDiff[$col]) ? '' : $rankDiff[$col];
-		
+				foreach ($colList as $col) {
+					$rankDiff[$col] = round($repInfo[$col] - $prevRank[$col], 2);
+					if (empty($rankDiff[$col])) continue;
+					
+					if ($col == "average_position" ) $rankDiff[$col] = $rankDiff[$col] * -1;
+					$rankClass = ($rankDiff[$col] > 0) ? 'green' : 'red';
+					
+					$rankDiff[$col] = "<font class='$rankClass'>($rankDiff[$col])</font>";
+					$reportList[$key]['rank_diff_'.$col] = empty($rankDiff[$col]) ? '' : $rankDiff[$col];			
+				}
+				
 			}
 				
 			foreach ($colList as $col) $prevRank[$col] = $repInfo[$col];
@@ -764,26 +791,25 @@ class WebMasterController extends GoogleAPIController {
 		if (!empty ($searchInfo['to_time'])) {
 			$toTimeDate = addslashes($searchInfo['to_time']);
 		} else {
-			$toTimeDate = date('Y-m-d', strtotime('-2 days'));
+			$toTimeDate = date('Y-m-d', strtotime('-3 days'));
 		}
 		
 		$this->set('fromTime', $fromTimeDate);
 		$this->set('toTime', $toTimeDate);
 	
-		$keywordController = New KeywordController();
 		if(!empty($searchInfo['keyword_id']) && !empty($searchInfo['rep'])){				
 			$searchInfo['keyword_id'] = intval($searchInfo['keyword_id']);
-			$keywordInfo = $keywordController->__getKeywordInfo($searchInfo['keyword_id']);
+			$keywordInfo = $this->__getWebmasterKeywordInfo($searchInfo['keyword_id']);
 			$searchInfo['website_id'] = $keywordInfo['website_id'];
 		}
 	
 		$websiteController = New WebsiteController();
-		$websiteList = $websiteController->__getAllWebsitesWithActiveKeywords($userId, true);
+		$websiteList = $websiteController->__getAllWebsites($userId, true);
 		$this->set('websiteList', $websiteList);
 		$websiteId = empty ($searchInfo['website_id']) ? $websiteList[0]['id'] : intval($searchInfo['website_id']);
 		$this->set('websiteId', $websiteId);
 	
-		$keywordList = $keywordController->__getAllKeywords($userId, $websiteId, true);
+		$keywordList = $this->__getWebmasterKeywords("website_id=$websiteId  and status=1 order by name");
 		$this->set('keywordList', $keywordList);
 		$keywordId = empty ($searchInfo['keyword_id']) ? $keywordList[0]['id'] : $searchInfo['keyword_id'];
 		$this->set('keywordId', $keywordId);
@@ -803,7 +829,9 @@ class WebMasterController extends GoogleAPIController {
 		$graphColList = array();
 		if (!empty($searchInfo['attr_type'])) {
 			$graphColList[$searchInfo['attr_type']] = $colList[$searchInfo['attr_type']];
+			if ($searchInfo['attr_type'] == 'average_position') { $this->set('reverseDir', true);}
 		} else {
+			array_pop($colList);
 			$graphColList = $colList;
 		}
 		
@@ -850,14 +878,14 @@ class WebMasterController extends GoogleAPIController {
 		if (!empty ($searchInfo['to_time'])) {
 			$toTimeDate = addslashes($searchInfo['to_time']);
 		} else {
-			$toTimeDate = date('Y-m-d', strtotime('-2 days'));
+			$toTimeDate = date('Y-m-d', strtotime('-3 days'));
 		}
 	
 		$this->set('fromTime', $fromTimeDate);
 		$this->set('toTime', $toTimeDate);
 	
 		$websiteController = New WebsiteController();
-		$websiteList = $websiteController->__getAllWebsitesWithActiveKeywords($userId, true);
+		$websiteList = $websiteController->__getAllWebsites($userId, true);
 		$this->set('websiteList', $websiteList);
 		$websiteId = empty($searchInfo['website_id']) ? $websiteList[0]['id'] : intval($searchInfo['website_id']);
 		$this->set('websiteId', $websiteId);
@@ -877,7 +905,9 @@ class WebMasterController extends GoogleAPIController {
 		$graphColList = array();
 		if (!empty($searchInfo['attr_type'])) {
 			$graphColList[$searchInfo['attr_type']] = $colList[$searchInfo['attr_type']];
+			if ($searchInfo['attr_type'] == 'average_position') { $this->set('reverseDir', true);}
 		} else {
+			array_pop($colList);
 			$graphColList = $colList;	
 		}
 		
@@ -919,7 +949,9 @@ class WebMasterController extends GoogleAPIController {
 		$this->set('websiteList', $websiteList);
 		$websiteId = empty ($searchInfo['website_id']) ? $websiteList[0]['id'] : intval($searchInfo['website_id']);
 		$this->set('websiteId', $websiteId);
-		$this->render('webmaster/quick_checker');		
+		$this->set('fromTime', date('Y-m-d', strtotime('-4 days')));
+		$this->set('toTime', date('Y-m-d', strtotime('-3 days')));
+		$this->render('webmaster/quick_checker');
 	}
 
 	# func to do quick report
@@ -929,14 +961,16 @@ class WebMasterController extends GoogleAPIController {
 			$websiteId = intval($searchInfo['website_id']);
 			$websiteController = New WebsiteController();
 			$websiteInfo = $websiteController->__getWebsiteInfo($websiteId);
+			$this->set('websiteInfo', $websiteInfo);			
 			
 			if (!empty($websiteInfo['url'])) {
-				$reportDate = date('Y-m-d', strtotime('-2 days'));
+				$reportStartDate = !empty($searchInfo['from_time']) ? $searchInfo['from_time'] : date('Y-m-d', strtotime('-10 days'));
+				$reportEndDate = !empty($searchInfo['to_time']) ? $searchInfo['to_time'] : date('Y-m-d', strtotime('-3 days'));
 				
 				// store website analytics
 				$paramList = array(
-					'startDate' => $reportDate,
-					'endDate' => $reportDate,
+					'startDate' => $reportStartDate,
+					'endDate' => $reportEndDate,
 				);
 				
 				// query results from api and verify no error occured
@@ -950,7 +984,6 @@ class WebMasterController extends GoogleAPIController {
 						'impressions' => !empty($reportInfo->impressions) ? $reportInfo->impressions : 0,
 						'ctr' => !empty($reportInfo->ctr) ? $reportInfo->ctr * 100 : 0,
 						'average_position' => !empty($reportInfo->position) ? $reportInfo->position : 0,
-						'report_date' => $reportDate,
 						'source' => $source,
 					);
 					
@@ -958,8 +991,8 @@ class WebMasterController extends GoogleAPIController {
 					
 					// find keyword reports
 					$paramList = array(
-						'startDate' => $reportDate,
-						'endDate' => $reportDate,
+						'startDate' => $reportStartDate,
+						'endDate' => $reportEndDate,
 						'dimensions' => ['query'],
 					);
 						
@@ -982,9 +1015,18 @@ class WebMasterController extends GoogleAPIController {
 				}
 			}
 		} 
-			
-		showErrorMsg("Website not found.");
 		
+		$errorMsg = !empty($result['msg']) ? $result['msg'] : "Internal error occured while accessing webmaster tools."; 
+		showErrorMsg($errorMsg);
+		
+	}
+
+	# func to show keyword select box
+	function showKeywordSelectBox($websiteId, $keywordId = ""){
+		$websiteId = intval($websiteId);
+		$this->set('keywordList', $this->__getWebmasterKeywords("website_id=$websiteId and status=1 order by name"));
+		$this->set('keywordId', $keywordId);
+		$this->render('keyword/keywordselectbox');
 	}
 	
 }

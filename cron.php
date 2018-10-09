@@ -73,8 +73,27 @@ if(!empty($_SERVER['REQUEST_METHOD'])){
 	$controller = New CronController();
 	$controller->timeStamp = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
 	
-	$includeList = array();   // the only included seo tools id 
-	$controller->executeCron($includeList);
+	$includeList = array();
+	$userList = array();
+	
+	// check whether user is passed with script as argument
+	if (!empty($argv[1])) {
+		$userId = intval($argv[1]);
+		$userCtrler = new UserController();
+		$userInfo = $userCtrler->__getUserInfo($userId);
+		$userList[] = $userInfo;
+		
+		// check whether seo tools id passed with the script as second argument
+		if (!empty($argv[2])) {
+			$includeList[] = intval($argv[2]);
+		}
+		
+	}
+	
+	// call cronjob function
+	echo "\n\n=== Cron job execution started on - " . date("Y-m-d H:i:s") . " ===\n";
+	$controller->executeCron($includeList, $userList);
+	echo "\n=== Cron job execution completed on - " . date("Y-m-d H:i:s") . " ===\n\n";
 	
 	// delete crawl logs before 2 months
 	include_once(SP_CTRLPATH."/crawllog.ctrl.php");

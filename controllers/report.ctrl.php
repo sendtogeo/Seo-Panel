@@ -917,7 +917,7 @@ class ReportController extends Controller {
 				break;
 		}
 		
-		$this->set('sectionHead', 'Overall Report Summary');
+		$this->set('sectionHead', $spTextHome['Overall Report Summary']);
 		$userId = empty($cronUserId) ? isLoggedIn() : $cronUserId;
 		$isAdmin = isAdmin();
 
@@ -1012,16 +1012,17 @@ class ReportController extends Controller {
     		order by $unionOrderCol $orderVal";
     		
     		if ($unionOrderCol != 'name') $sql .= ", name";
-    						
-    		# pagination setup
-    		$this->db->query($sql, true);
-    		$this->paging->setDivClass('pagingdiv');
-			$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
-    		$pagingDiv = $this->paging->printPages($scriptPath, '', 'scriptDoLoad', 'content', "");
-    		$this->set('keywordPagingDiv', $pagingDiv);
-    		$this->set('pageNo', $searchInfo['pageno']);
+    		
+    		// pagination setup, if not from cron job email send function, pdf and export action
+    		if (!in_array($searchInfo['doc_type'], array("pdf", "export")) && !$cronUserId) {
     			
-    		if (!in_array($searchInfo['doc_type'], array("pdf", "export"))) {
+    			$this->db->query($sql, true);
+    			$this->paging->setDivClass('pagingdiv');
+    			$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
+    			$pagingDiv = $this->paging->printPages($scriptPath, '', 'scriptDoLoad', 'content', "");
+    			$this->set('keywordPagingDiv', $pagingDiv);
+    			$this->set('pageNo', $searchInfo['pageno']);    			
+    			
     			$sql .= " limit ".$this->paging->start .",". $this->paging->per_page;
     		}
     		
@@ -1104,7 +1105,7 @@ class ReportController extends Controller {
 		if (empty($searchInfo['report_type']) ||  ($searchInfo['report_type'] == 'website-stats')) {
 						
 			// pagination setup
-			if (!in_array($searchInfo['doc_type'], array('export', 'pdf')) || !empty($cronUserId)) {
+			if (!in_array($searchInfo['doc_type'], array('export', 'pdf')) && !$cronUserId) {
 				$scriptPath .= "&report_type=website-stats";
 				$info['pageno'] = intval($info['pageno']);
 				$sql = "select * from websites w where w.status=1";
@@ -1246,8 +1247,8 @@ class ReportController extends Controller {
 			$webMasterCtrler->set('spTextTools', $this->spTextTools);
 			$webMasterCtrler->spTextTools = $this->spTextTools;
 			$filterList = $searchInfo;
-			$wmMaxFromTime = strtotime('-3 days');
-			$wmMaxEndTime = strtotime('-2 days');
+			$wmMaxFromTime = strtotime('-4 days');
+			$wmMaxEndTime = strtotime('-3 days');
 			$filterList['from_time'] = $fromTime > $wmMaxFromTime ? $wmMaxFromTime : $fromTime;
 			$filterList['to_time'] = $toTime > $wmMaxEndTime ? $wmMaxEndTime : $toTime;
 			$filterList['from_time'] = date('Y-m-d', $filterList['from_time']);
@@ -1326,7 +1327,17 @@ class ReportController extends Controller {
 	function updateUserReportSetting($userId, $col, $val) {
 		$sql = "Update reports_settings set $col='".addslashes($val)."' where user_id=$userId";
 		$this->db->query($sql);
-	}	
+	}
+	
+	# func to update user report generation logs
+	function updateUserReportGenerationLogs($userId, $generateDate) {
+		$dataList = array(
+			'user_id|int' => $userId,
+			'report_date' => $generateDate,
+		);
+		
+		$this->dbHelper->insertRow("user_report_logs", $dataList);
+	}
 	
 	# func to schedule reports
 	function showReportsScheduler($success=false, $postInfo='') {
@@ -1402,8 +1413,6 @@ class ReportController extends Controller {
             'report_type' => '',
             'from_time' => date('Y-m-d', $fromTime),
             'to_time' => date('Y-m-d', $toTime),
-            'order_col' => 1,
-            'order_val' => 'ASC',
             'doc_type' => 'print',
         );
 	    
@@ -1430,6 +1439,50 @@ class ReportController extends Controller {
 		} else {
 		    echo "Reports send successfully to ".$userInfo['email']."\n";
 		}
+	}
+	
+	# func to show user report generation logs
+	function showReportGenerationLogs($searchInfo = '') {
+	
+		$userCtrler = New UserController();
+		$fromTimeDate = !empty ($searchInfo['from_time']) ? addslashes($searchInfo['from_time']) : date('Y-m-d', strtotime('-1 days'));
+		$toTimeDate = !empty ($searchInfo['to_time']) ? addslashes($searchInfo['to_time']) : date('Y-m-d');
+		$this->set('fromTime', $fromTimeDate);
+		$this->set('toTime', $toTimeDate);
+		
+		$userList = $userCtrler->__getAllUsersHavingWebsite();
+		$this->set('userList', $userList);
+		
+		$userTypeCtrler = new UserTypeController();
+		$typeList = $userTypeCtrler->__getAllUserTypeList();
+		foreach ($typeList as $info) $userTypeList[$info['id']] = $info; 
+		$this->set('userTypeList', $userTypeList);
+		
+		if (!empty($searchInfo['user_id'])) {
+			$logUserList = array($userCtrler->__getUserInfo($searchInfo['user_id']));
+			$this->set('userId', intval($searchInfo['user_id']));
+		} else {
+			$logUserList = $userList;
+		}
+		
+		$this->set('logUserList', $logUserList);
+		
+		$whereCond = "report_date >='$fromTimeDate 00:00:00' and report_date<='$toTimeDate 23:59:59'";
+		$whereCond .= !empty($searchInfo['user_id']) ? " and user_id=" . intval($searchInfo['user_id']) : "";
+		$whereCond .= " order by report_date desc";
+		$list = $this->dbHelper->getAllRows("user_report_logs", $whereCond, "id,user_id,date(report_date) as report_date");
+		
+		// loop through the list
+		$logList = array();
+		foreach ($list as $listInfo) {
+			$logList[$listInfo['report_date']][$listInfo['user_id']] = 1;
+		}
+		
+		$this->set('logDateList', getDateRange($fromTimeDate, $toTimeDate));
+		$this->set('logList', $logList);
+		$this->set('spTextUser', $this->getLanguageTexts('user', $_SESSION['lang_code']));
+		$this->render('report/report_generation_logs');
+	
 	}
 }
 ?>

@@ -621,4 +621,19 @@ function getRequestParamStr() {
 	return $paramStr;
 	
 }
+
+// get dates in between a date range
+function getDateRange($first, $last, $step = '+1 day', $outputFormat = 'Y-m-d' ) {
+
+	$dates = array();
+	$current = strtotime($first);
+	$last = strtotime($last);
+
+	while( $current <= $last ) {
+		$dates[] = date($outputFormat, $current);
+		$current = strtotime($step, $current);
+	}
+
+	return $dates;
+}
 ?>
