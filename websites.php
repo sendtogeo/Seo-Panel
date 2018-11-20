@@ -25,6 +25,7 @@ checkLoggedIn();
 include_once(SP_CTRLPATH."/website.ctrl.php");
 include_once(SP_CTRLPATH."/keyword.ctrl.php");
 include_once(SP_CTRLPATH."/user-type.ctrl.php");
+include_once(SP_CTRLPATH."/webmaster.ctrl.php");
 $controller = New WebsiteController();
 $controller->view->menu = 'seotools';
 $controller->layout = 'ajax';
@@ -78,6 +79,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		
 		case "import":
 			$controller->importWebsiteFromCsv($_POST);
+			break;		
+		
+		case "importWebmasterTools":
+			$controller->importWebmasterToolsWebsites($_POST);
 			break;
 			
 		default:

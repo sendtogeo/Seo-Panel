@@ -532,6 +532,58 @@ class WebsiteController extends Controller{
 			
 	}
 	
+	function importWebmasterToolsWebsites($info) {
+		$userId = isAdmin() ? intval($info['userid']) : isLoggedIn();
+		$count = 0;
+		$resultInfo = array(
+			'total' => 0,
+			'valid' => 0,
+			'invalid' => 0,
+		);
+		
+		
+		// verify the limit for the user
+		if (!$this->validateWebsiteCount($userId)) {
+			showErrorMsg($this->spTextWeb["Your website count already reached the limit"]);
+		}
+		
+		$gapiCtrler = new WebMasterController();
+		$websiteList = $gapiCtrler->getAllSites($userId);
+		
+		// loop through website list
+		foreach ($websiteList as $websiteInfo) {
+			
+			if ($websiteInfo['permissionLevel'] != 'siteOwner') continue;
+			
+			// chekc whether website existing or not
+			if (!$this->__checkWebsiteUrl($websiteInfo['siteUrl'])) {
+				$websiteName = formatUrl($websiteInfo['siteUrl'], false);
+				$websiteName = Spider::removeTrailingSlash($websiteName);
+				$listInfo['name'] = $websiteName;
+				$listInfo['url'] = $websiteInfo['siteUrl'];
+				$listInfo['title'] = $websiteName;
+				$listInfo['description'] = $websiteName;
+				$listInfo['keywords'] = $websiteName;
+				$listInfo['status'] = 1;
+				$listInfo['userid'] = $userId;
+				$return = $this->createWebsite($listInfo, true);
+				
+				// if success, check of number of websites can be added
+				if ($return[0] == 'success') {
+					$count++;
+					
+					if ($this->validateWebsiteCount($userId, $count)) {
+						break;
+					}
+					
+				}
+				
+			}
+			
+		}
+		
+	}
+	
 	function importWebsiteFromCsv($info) {
 		
 		// if csv file is not uploaded

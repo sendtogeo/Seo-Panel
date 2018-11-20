@@ -7,9 +7,7 @@ if (!empty($msg)) {
 		<font class="success"><?php echo $msg?></font>
 	</p>
 	<?php 
-}
-	
-$scriptUrl = SP_WEBPATH . "/websites.php";	
+}	
 
 if(!empty($validationMsg)){
 	?>
@@ -56,7 +54,7 @@ if(!empty($validationMsg)){
     		<a onclick="scriptDoLoad('websites.php', 'content')" href="javascript:void(0);" class="actionbut">
          		<?php echo $spText['button']['Cancel']?>
          	</a>&nbsp;
-         	<?php $actFun = SP_DEMO ? "alertDemoMsg()" : "scriptDoLoadPost('websites.php', 'projectform', 'content')"; ?>
+         	<?php $actFun = SP_DEMO ? "alertDemoMsg()" : "confirmSubmit('websites.php', 'projectform', 'content')"; ?>
          	<a onclick="<?php echo $actFun?>" href="javascript:void(0);" class="actionbut">
          		<?php echo $spText['button']['Proceed']?>
          	</a>
