@@ -114,6 +114,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		
 		case "import":
 			$controller->showImportWebsites($_GET);
+			break;		
+		
+		case "importWebmasterTools":
+			$controller->showimportWebmasterToolsWebsites($_GET);
 			break;
 		
 		case "crawlmeta":

@@ -492,6 +492,30 @@ class WebsiteController extends Controller{
 		$this->set('escape', '\\');
 		$this->render('website/importwebsites');
 	}
+	
+	function showimportWebmasterToolsWebsites() {
+		
+		$userId = isLoggedIn();
+		$this->set('spTextTools', $this->getLanguageTexts('seotools', $_SESSION['lang_code']));
+		$userCtrler = New UserController();
+		$userList = $userCtrler->__getAllUsers();
+		
+		// get all users
+		if(isAdmin()){
+			$this->set('userList', $userList);
+			$this->set('userSelected', empty($info['userid']) ? $userId : $info['userid']);
+			$this->set('isAdmin', 1);
+		} else {
+			$this->set('userName', $userList[$userId]['username']);
+		}
+
+		// Check the user website count for validation
+		if (!isAdmin()) {
+			$this->setValidationMessageForLimit($userId);
+		}
+		
+		$this->render('website/import_webmaster_tools_websites');
+	}
 
 	# function to set validation message for the limit
 	function setValidationMessageForLimit($userId) {

@@ -34,6 +34,11 @@ foreach($menuList as $i => $menuInfo){
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('websites.php', 'content')"><?php echo $spTextPanel['Website Manager']?></a></li>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('websites.php', 'content', 'sec=new')"><?php echo $spTextPanel['New Website']?></a></li>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('websites.php', 'content', 'sec=import')"><?php echo $spTextPanel['Import Websites']?></a></li>
+				<li>
+					<a href="javascript:void(0);" onclick="scriptDoLoad('websites.php', 'content', 'sec=importWebmasterTools')">
+						<?php echo $spTextPanel['Import Websites']?>(<?php echo $spTextTools['webmaster-tools']?>)
+					</a>
+				</li>
 			</ul>
 			<?php
 			break;
