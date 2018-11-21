@@ -492,30 +492,6 @@ class WebsiteController extends Controller{
 		$this->set('escape', '\\');
 		$this->render('website/importwebsites');
 	}
-	
-	function showimportWebmasterToolsWebsites() {
-		
-		$userId = isLoggedIn();
-		$this->set('spTextTools', $this->getLanguageTexts('seotools', $_SESSION['lang_code']));
-		$userCtrler = New UserController();
-		$userList = $userCtrler->__getAllUsers();
-		
-		// get all users
-		if(isAdmin()){
-			$this->set('userList', $userList);
-			$this->set('userSelected', empty($info['userid']) ? $userId : $info['userid']);
-			$this->set('isAdmin', 1);
-		} else {
-			$this->set('userName', $userList[$userId]['username']);
-		}
-
-		// Check the user website count for validation
-		if (!isAdmin()) {
-			$this->setValidationMessageForLimit($userId);
-		}
-		
-		$this->render('website/import_webmaster_tools_websites');
-	}
 
 	# function to set validation message for the limit
 	function setValidationMessageForLimit($userId) {
@@ -530,58 +506,6 @@ class WebsiteController extends Controller{
 		$this->set('validationMsg', $validationMsg);
 		return $validationMsg;
 			
-	}
-	
-	function importWebmasterToolsWebsites($info) {
-		$userId = isAdmin() ? intval($info['userid']) : isLoggedIn();
-		$count = 0;
-		$resultInfo = array(
-			'total' => 0,
-			'valid' => 0,
-			'invalid' => 0,
-		);
-		
-		
-		// verify the limit for the user
-		if (!$this->validateWebsiteCount($userId)) {
-			showErrorMsg($this->spTextWeb["Your website count already reached the limit"]);
-		}
-		
-		$gapiCtrler = new WebMasterController();
-		$websiteList = $gapiCtrler->getAllSites($userId);
-		
-		// loop through website list
-		foreach ($websiteList as $websiteInfo) {
-			
-			if ($websiteInfo['permissionLevel'] != 'siteOwner') continue;
-			
-			// chekc whether website existing or not
-			if (!$this->__checkWebsiteUrl($websiteInfo['siteUrl'])) {
-				$websiteName = formatUrl($websiteInfo['siteUrl'], false);
-				$websiteName = Spider::removeTrailingSlash($websiteName);
-				$listInfo['name'] = $websiteName;
-				$listInfo['url'] = $websiteInfo['siteUrl'];
-				$listInfo['title'] = $websiteName;
-				$listInfo['description'] = $websiteName;
-				$listInfo['keywords'] = $websiteName;
-				$listInfo['status'] = 1;
-				$listInfo['userid'] = $userId;
-				$return = $this->createWebsite($listInfo, true);
-				
-				// if success, check of number of websites can be added
-				if ($return[0] == 'success') {
-					$count++;
-					
-					if ($this->validateWebsiteCount($userId, $count)) {
-						break;
-					}
-					
-				}
-				
-			}
-			
-		}
-		
 	}
 	
 	function importWebsiteFromCsv($info) {
@@ -712,6 +636,107 @@ class WebsiteController extends Controller{
 			return true;
 		}
 			
+	}
+	
+	function showimportWebmasterToolsWebsites() {
+		
+		$userId = isLoggedIn();
+		$this->set('spTextTools', $this->getLanguageTexts('seotools', $_SESSION['lang_code']));
+		$userCtrler = New UserController();
+		$userList = $userCtrler->__getAllUsers();
+		
+		// get all users
+		if(isAdmin()){
+			$this->set('userList', $userList);
+			$this->set('userSelected', empty($info['userid']) ? $userId : $info['userid']);
+			$this->set('isAdmin', 1);
+		} else {
+			$this->set('userName', $userList[$userId]['username']);
+		}
+
+		// Check the user website count for validation
+		if (!isAdmin()) {
+			$this->setValidationMessageForLimit($userId);
+		}
+		
+		$this->render('website/import_webmaster_tools_websites');
+	}
+	
+	function importWebmasterToolsWebsites($info) {
+		$userId = isAdmin() ? intval($info['userid']) : isLoggedIn();
+		$limitReached = false;
+		$importList = array();
+	
+		// verify the limit for the user
+		if (!$this->validateWebsiteCount($userId)) {
+			showErrorMsg($this->spTextWeb["Your website count already reached the limit"]);
+		}
+	
+		$gapiCtrler = new WebMasterController();
+		$result = $gapiCtrler->getAllSites($userId);
+		
+		// check whether error occured while api call
+		if (!$result['status']) {
+			showErrorMsg($result['msg']);
+		}
+	
+		// loop through website list
+		foreach ($result['resultList'] as $websiteInfo) {
+				
+			if ($websiteInfo->permissionLevel != 'siteOwner') continue;
+				
+			// chekc whether website existing or not
+			if (!$this->__checkWebsiteUrl($websiteInfo->siteUrl) && !$this->__checkWebsiteUrl(Spider::removeTrailingSlash($websiteInfo->siteUrl))) {
+				$websiteName = formatUrl($websiteInfo->siteUrl, false);
+				$websiteName = Spider::removeTrailingSlash($websiteName);
+				$listInfo['name'] = $websiteName;
+				$listInfo['url'] = $websiteInfo->siteUrl;
+				$listInfo['title'] = $websiteName;
+				$listInfo['description'] = $websiteName;
+				$listInfo['keywords'] = $websiteName;
+				$listInfo['status'] = 1;
+				$listInfo['userid'] = $userId;
+				$return = $this->createWebsite($listInfo, true);
+	
+				// if success, check of number of websites can be added
+				if ($return[0] == 'success') {
+					$importList[] = $websiteInfo->siteUrl;
+
+					// if reached website add limit
+					if (!$this->validateWebsiteCount($userId)) {
+						$limitReached = true;
+						break;
+					}
+						
+				}
+	
+			}
+				
+		}
+		
+		// show results	
+		showSuccessMsg("<b>".$this->spTextWeb["Successfully imported following websites"]."</b>:", false);
+		foreach ($importList as $url) showSuccessMsg($url, false);
+		
+		// if website add limit reached
+		if ($limitReached) {
+			showErrorMsg($this->spTextWeb["Your website count already reached the limit"]);
+		}		
+	
+	}
+	
+	function addToWebmasterTools($websiteId) {
+		$webisteInfo = $this->__getWebsiteInfo($websiteId);
+		$gapiCtrler = new WebMasterController();
+		$result = $gapiCtrler->addWebsite($webisteInfo['url'], $webisteInfo['user_id']);
+		
+		// chekc whether error occured while api call
+		if ($result['status']) {
+			showSuccessMsg($this->spTextWeb["Website successfully added to webmaster tools"] . ": " . $webisteInfo['url'], false);
+		} else {
+			showErrorMsg($result['msg'], false);
+		}
+		
 	}
 		
 }

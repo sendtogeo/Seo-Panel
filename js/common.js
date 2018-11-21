@@ -181,7 +181,7 @@ function doAction(scriptUrl, scriptPos, scriptArgs, actionDiv) {
 	
 		default:
 			if(spdemo){
-				if((actVal == 'delete') || (actVal == 'Activate') || (actVal == 'Inactivate') || (actVal == 'recheckreport') 
+				if((actVal == 'delete') || (actVal == 'Activate') || (actVal == 'Inactivate') || (actVal == 'recheckreport') || (actVal == 'addToWebmasterTools')
 					|| (actVal == 'showrunproject') || (actVal == 'checkscore') || (actVal == 'deletepage') || (actVal == 'upgrade') || (actVal == 'reinstall') ){
 					alertDemoMsg();
 					return false;

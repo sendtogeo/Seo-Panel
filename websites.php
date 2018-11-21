@@ -135,6 +135,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		    $websiteInfo = $controller->__getWebsiteInfo($websiteId);
 		    print '<input type="hidden" name="weburl" id="weburl" value="'.$websiteInfo['url'].'">';
 		    break;
+		
+		case "addToWebmasterTools":
+			$controller->addToWebmasterTools($_GET['websiteId']);
+			$controller->listWebsites($_GET);
+			break;
 			
 		default:
 			$controller->listWebsites($_GET);

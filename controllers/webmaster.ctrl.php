@@ -137,6 +137,34 @@ class WebMasterController extends GoogleAPIController {
 	
 	}
 	
+	/*
+	 * function to get all sites added in webmaster tools
+	 */
+	function addWebsite($siteUrl, $userId) {
+		$result = array('status' => false);
+	
+		try {
+				
+			$client = $this->getAuthClient($userId);
+				
+			// check whether client created successfully
+			if (!is_object($client)) {
+				$result['msg'] = $client;
+				return $result;
+			}
+				
+			$service = new Google_Service_Webmasters($client);
+			$resultList = $service->sites->add($siteUrl);
+			$result['status'] = true;				
+		}  catch (Exception $e) {
+			$err = $e->getMessage();
+			$result['msg'] = "Error: get all sites - $err";
+		}
+	
+		return $result;
+	
+	}
+	
 	
 	function __generateKeywordId($websiteId, $keywordName) {
 		$keywordId = 0;

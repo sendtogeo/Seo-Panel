@@ -54,7 +54,7 @@ if(!empty($validationMsg)){
     		<a onclick="scriptDoLoad('websites.php', 'content')" href="javascript:void(0);" class="actionbut">
          		<?php echo $spText['button']['Cancel']?>
          	</a>&nbsp;
-         	<?php $actFun = SP_DEMO ? "alertDemoMsg()" : "confirmSubmit('websites.php', 'projectform', 'content')"; ?>
+         	<?php $actFun = SP_DEMO ? "alertDemoMsg()" : "confirmSubmit('websites.php', 'projectform', 'import_result_div')"; ?>
          	<a onclick="<?php echo $actFun?>" href="javascript:void(0);" class="actionbut">
          		<?php echo $spText['button']['Proceed']?>
          	</a>
@@ -62,3 +62,4 @@ if(!empty($validationMsg)){
 	</tr>
 </table>
 </form>
+<div id="import_result_div"></div>
