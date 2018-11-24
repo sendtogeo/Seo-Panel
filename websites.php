@@ -84,6 +84,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		case "importWebmasterTools":
 			$controller->importWebmasterToolsWebsites($_POST);
 			break;
+		
+		case "submitSitemap":
+			$controller->submitSitemap($_POST);
+			break;
 			
 		default:
 			$controller->listWebsites($_POST);
@@ -139,6 +143,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		case "addToWebmasterTools":
 			$controller->addToWebmasterTools($_GET['websiteId']);
 			$controller->listWebsites($_GET);
+			break;
+		
+		case "submitSitemap":
+			$controller->showSubmitSitemap($_GET);
 			break;
 			
 		default:

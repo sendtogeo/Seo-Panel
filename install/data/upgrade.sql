@@ -14,7 +14,9 @@ ALTER TABLE `crawl_log` CHANGE `ref_id` `ref_id` TEXT CHARACTER SET utf8 COLLATE
 
 
 INSERT INTO `texts` (`category`, `label`, `content`) VALUES
+('website', 'Sitemap successfully added to webmaster tools', 'Sitemap successfully added to webmaster tools'),
+('panel', 'Submit Sitemap', 'Submit Sitemap'),
 ('website', 'Website successfully added to webmaster tools', 'Website successfully added to webmaster tools'),
 ('website', 'Successfully imported following websites', 'Successfully imported following websites'),
-('website', 'Add to Webmaster Tools', 'Add to Webmaster Tools'),
+('website', 'Add to Webmaster Tools', 'Add to Webmaster Tools');
 

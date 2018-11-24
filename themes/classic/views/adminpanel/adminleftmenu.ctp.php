@@ -39,6 +39,11 @@ foreach($menuList as $i => $menuInfo){
 						<?php echo $spTextPanel['Import Websites']?>(<?php echo $spTextTools['webmaster-tools']?>)
 					</a>
 				</li>
+				<li>
+					<a href="javascript:void(0);" onclick="scriptDoLoad('websites.php', 'content', 'sec=submitSitemap')">
+						<?php echo $spTextPanel['Submit Sitemap']?>(<?php echo $spTextTools['webmaster-tools']?>)
+					</a>
+				</li>
 			</ul>
 			<?php
 			break;

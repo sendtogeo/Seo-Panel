@@ -738,6 +738,43 @@ class WebsiteController extends Controller{
 		}
 		
 	}
+	
+	// func to show submit sitemap form
+	function showSubmitSitemap($info) {
+		$userId = isLoggedIn();
+		$this->set('websiteList', $this->__getAllWebsites($userId, true));
+		$this->render('sitemap/submit_sitemap');
+	}
+	
+	// func to submit sitemap
+	function submitSitemap($info) {
+		
+		$webisteInfo = $this->__getWebsiteInfo($info['website_id']);
+		$spTextWebproxy = $this->getLanguageTexts('QuickWebProxy', $_SESSION['lang_code']);
+		
+		if (empty($info['sitemap_url'])) {
+			showErrorMsg($spTextWebproxy["Please enter a valid url"]);
+		}
+		
+		$info['sitemap_url'] = addHttpToUrl($info['sitemap_url']);
+		
+		// if website url not correct
+		if (!preg_match("/". preg_quote($webisteInfo['url'], '/') ."/i", $info['sitemap_url'])) {
+			showErrorMsg($spTextWebproxy["Please enter a valid url"]);
+		}
+		
+		// call webmaster api
+		$gapiCtrler = new WebMasterController();
+		$result = $gapiCtrler->submitSitemap($webisteInfo['url'], $info['sitemap_url'], $webisteInfo['user_id']);
+		
+		// check whether error occured while api call
+		if ($result['status']) {
+			showSuccessMsg($this->spTextWeb["Sitemap successfully added to webmaster tools"] . ": " . $info['sitemap_url']);
+		} else {
+			showErrorMsg($result['msg'], false);
+		}
+		
+	}
 		
 }
 ?>
