@@ -732,7 +732,10 @@ class WebsiteController extends Controller{
 		
 		// chekc whether error occured while api call
 		if ($result['status']) {
-			showSuccessMsg($this->spTextWeb["Website successfully added to webmaster tools"] . ": " . $webisteInfo['url'], false);
+			$activateUrl = "https://www.google.com/webmasters/verification/verification?tid=alternate&siteUrl=" . $webisteInfo['url'];
+			$successMsg = $this->spTextWeb["Website successfully added to webmaster tools"] . ": " . $webisteInfo['url'] . "<br><br>";
+			$successMsg .= "<a href='$activateUrl' target='_blank'>Click Here</a> to activate the website in webmaster tools.";
+			showSuccessMsg($successMsg, false);
 		} else {
 			showErrorMsg($result['msg'], false);
 		}
@@ -743,6 +746,7 @@ class WebsiteController extends Controller{
 	function showSubmitSitemap($info) {
 		$userId = isLoggedIn();
 		$this->set('websiteList', $this->__getAllWebsites($userId, true));
+		$this->set('spTextTools', $this->getLanguageTexts('seotools', $_SESSION['lang_code']));
 		$this->render('sitemap/submit_sitemap');
 	}
 	
