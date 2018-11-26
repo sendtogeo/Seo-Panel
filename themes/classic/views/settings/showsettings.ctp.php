@@ -29,7 +29,7 @@ if ($category == "moz") {
 		</a>
 	</div>
 	<div id="topnewsbox" style="margin-bottom: 20px;">
-		<a class="bold_link" href="https://developers.google.com/adwords/api/docs/guides/authentication" target="_blank">
+		<a class="bold_link" href="http://docs.seopanel.in/user_guide/settings.html#google-oauth2-credentials" target="_blank">
 			<?php echo $spTextSettings['click-to-get-google-api-client-id']; ?> &gt;&gt;
 		</a>
 	</div>
