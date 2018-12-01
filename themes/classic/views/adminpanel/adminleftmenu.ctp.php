@@ -40,8 +40,8 @@ foreach($menuList as $i => $menuInfo){
 					</a>
 				</li>
 				<li>
-					<a href="javascript:void(0);" onclick="scriptDoLoad('websites.php', 'content', 'sec=submitSitemap')">
-						<?php echo $spTextPanel['Submit Sitemap']?>(<?php echo $spTextTools['webmaster-tools']?>)
+					<a href="javascript:void(0);" onclick="scriptDoLoad('websites.php', 'content', 'sec=listSitemap')">
+						<?php echo $spTextPanel['Sitemaps']?>(<?php echo $spTextTools['webmaster-tools']?>)
 					</a>
 				</li>
 			</ul>

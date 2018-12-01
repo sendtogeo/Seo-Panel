@@ -138,7 +138,7 @@ class WebMasterController extends GoogleAPIController {
 	}
 	
 	/*
-	 * function to get all sites added in webmaster tools
+	 * function to submit website to webmaster tools
 	 */
 	function addWebsite($siteUrl, $userId) {
 		$result = array('status' => false);
@@ -166,7 +166,7 @@ class WebMasterController extends GoogleAPIController {
 	}
 	
 	/*
-	 * function to get all sites added in webmaster tools
+	 * function to submit sitemap to webmaster tools
 	 */
 	function submitSitemap($siteUrl, $sitemapUrl, $userId) {
 		$result = array('status' => false);
@@ -184,6 +184,35 @@ class WebMasterController extends GoogleAPIController {
 			$service = new Google_Service_Webmasters($client);
 			$resultList = $service->sitemaps->submit($siteUrl, $sitemapUrl);
 			$result['status'] = true;				
+		}  catch (Exception $e) {
+			$err = $e->getMessage();
+			$result['msg'] = "Error: submit sitemap - $err";
+		}
+	
+		return $result;
+	
+	}
+	
+	/*
+	 * function to get all sitemaps submitted in webmaster tools
+	 */
+	function getAllSitemap($siteUrl, $userId) {
+		$result = array('status' => false);
+	
+		try {
+				
+			$client = $this->getAuthClient($userId);
+				
+			// check whether client created successfully
+			if (!is_object($client)) {
+				$result['msg'] = $client;
+				return $result;
+			}
+				
+			$service = new Google_Service_Webmasters($client);
+			$resultList = $service->sitemaps->listSitemaps($siteUrl);			
+			$result['resultList'] = $resultList['sitemap'];
+			$result['status'] = true;
 		}  catch (Exception $e) {
 			$err = $e->getMessage();
 			$result['msg'] = "Error: submit sitemap - $err";

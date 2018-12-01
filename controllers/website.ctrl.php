@@ -742,6 +742,56 @@ class WebsiteController extends Controller{
 		
 	}
 	
+	// func to list sitemaps
+	function listSitemap($info) {
+		$userId = isLoggedIn();
+		$this->set('spTextTools', $this->getLanguageTexts('seotools', $_SESSION['lang_code']));
+		$this->set('spTextSitemap', $this->getLanguageTexts('sitemap', $_SESSION['lang_code']));
+		$this->set('spTextHome', $this->getLanguageTexts('home', $_SESSION['lang_code']));
+		$this->set('spTextDirectory', $this->getLanguageTexts('directory', $_SESSION['lang_code']));
+		$websiteList = $this->__getAllWebsites($userId, true);
+		$this->set('websiteList', $websiteList);
+		$websiteid = !empty($info['website_id']) ? intval($info['website_id']) : $websiteList[0]['id'];	$websiteid =6;
+		$whereCond = " website_id=$websiteid and status=1";
+		$sitemapList = $this->dbHelper->getAllRows("webmaster_sitemaps", $whereCond);
+		$this->set('list', $sitemapList);
+		$this->render('sitemap/list_webmaster_sitemap_list');
+	}
+	
+	// func to import webmaster tools sitemaps
+	function importWebmasterToolsSitemaps($websiteId) {
+		$webisteInfo = $this->__getWebsiteInfo($websiteId);
+
+		// call webmaster api
+		$gapiCtrler = new WebMasterController();
+		$result = $gapiCtrler->getAllSitemap($webisteInfo['url'], $webisteInfo['user_id']);
+		
+		// check whether error occured while api call
+		if ($result['status']) {
+			
+			// loop through webmaster tools list
+			foreach ($result['resultList'] as $sitemapInfo) {
+				
+				$dataList = array(
+					'website_id|int' => $websiteId,
+					'path' => $sitemapInfo->path,
+					'last_submitted' => date('Y-m-d H:i:s', strtotime($sitemapInfo->lastSubmitted)),
+					'last_downloaded' => date('Y-m-d H:i:s', strtotime($sitemapInfo->lastDownloaded)),
+					'is_pending|int' => $sitemapInfo->isPending,
+					'warnings|int' => $sitemapInfo->warnings,
+					'errors|int' => $sitemapInfo->errors,
+					'submitted|int' => $sitemapInfo->contents[0]['submitted'],
+					'indexed|int' => $sitemapInfo->contents[0]['indexed'],
+				);
+				
+				$this->dbHelper->insertRow("webmaster_sitemaps", $dataList);
+				
+			}
+			
+		}
+		
+	}
+	
 	// func to show submit sitemap form
 	function showSubmitSitemap($info) {
 		$userId = isLoggedIn();

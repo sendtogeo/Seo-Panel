@@ -51,7 +51,7 @@ if(!empty($validationMsg)){
 <table width="100%" class="actionSec">
 	<tr>
     	<td style="padding-top: 6px;text-align:right;">
-    		<a onclick="scriptDoLoad('websites.php?sec=submitSitemap', 'content')" href="javascript:void(0);" class="actionbut">
+    		<a onclick="scriptDoLoad('websites.php?sec=listSitemap', 'content')" href="javascript:void(0);" class="actionbut">
          		<?php echo $spText['button']['Cancel']?>
          	</a>&nbsp;
          	<?php $actFun = SP_DEMO ? "alertDemoMsg()" : "confirmSubmit('websites.php', 'projectform', 'import_result_div')"; ?>

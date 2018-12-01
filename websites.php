@@ -145,6 +145,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$controller->listWebsites($_GET);
 			break;
 		
+		case "listSitemap":
+			$controller->listSitemap($_GET);
+			break;
+		
 		case "submitSitemap":
 			$controller->showSubmitSitemap($_GET);
 			break;
