@@ -25,6 +25,7 @@ checkLoggedIn();
 include_once(SP_CTRLPATH."/website.ctrl.php");
 include_once(SP_CTRLPATH."/keyword.ctrl.php");
 include_once(SP_CTRLPATH."/user-type.ctrl.php");
+include_once(SP_CTRLPATH."/webmaster.ctrl.php");
 $controller = New WebsiteController();
 $controller->view->menu = 'seotools';
 $controller->layout = 'ajax';
@@ -78,6 +79,14 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		
 		case "import":
 			$controller->importWebsiteFromCsv($_POST);
+			break;		
+		
+		case "importWebmasterTools":
+			$controller->importWebmasterToolsWebsites($_POST);
+			break;
+		
+		case "submitSitemap":
+			$controller->submitSitemap($_POST);
 			break;
 			
 		default:
@@ -114,6 +123,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		
 		case "import":
 			$controller->showImportWebsites($_GET);
+			break;		
+		
+		case "importWebmasterTools":
+			$controller->showimportWebmasterToolsWebsites($_GET);
 			break;
 		
 		case "crawlmeta":
@@ -126,6 +139,15 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		    $websiteInfo = $controller->__getWebsiteInfo($websiteId);
 		    print '<input type="hidden" name="weburl" id="weburl" value="'.$websiteInfo['url'].'">';
 		    break;
+		
+		case "addToWebmasterTools":
+			$controller->addToWebmasterTools($_GET['websiteId']);
+			$controller->listWebsites($_GET);
+			break;
+		
+		case "submitSitemap":
+			$controller->showSubmitSitemap($_GET);
+			break;
 			
 		default:
 			$controller->listWebsites($_GET);

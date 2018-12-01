@@ -13945,7 +13945,18 @@ INSERT INTO `texts` (`id`, `lang_code`, `category`, `label`, `content`, `changed
 (13937, 'el', 'label', 'Email Body', 'Email Body', '2018-08-23 06:15:54'),
 (13938, 'el', 'label', 'Feature', 'Χαρακτηριστικό', '2018-08-23 06:15:54'),
 (13939, 'el', 'label', 'Impressions', 'Impressions', '2018-08-23 06:15:54'),
-(13940, 'el', 'label', 'Months', 'Μήνες', '2018-08-23 06:15:54');
+(13940, 'el', 'label', 'Months', 'Μήνες', '2018-08-23 06:15:54'),
+(13942, 'en', 'panel', 'Report Generation Logs', 'Report Generation Logs', '2018-09-25 20:13:43'),
+(13943, 'en', 'settings', 'Authorised redirect URI', 'Authorised redirect URI', '2018-09-25 20:13:43'),
+(13944, 'en', 'settings', 'click-to-get-google-api-client-id', 'Click here to get Google API Client Id', '2018-09-25 20:13:43'),
+(13945, 'en', 'home', 'Overall Report Summary', 'Overall Report Summary', '2018-09-25 20:13:43'),
+(13946, 'en', 'seotools', 'Edit Seo Tool', 'Edit Seo Tool', '2018-09-25 20:13:43'),
+(13947, 'en', 'settings', 'SP_ENABLE_PROXY_GOOGLE_API', 'Enable Proxy for Google API', '2018-09-25 20:13:43'),
+(13948, 'en', 'website', 'Sitemap successfully added to webmaster tools', 'Sitemap successfully added to webmaster tools', '2018-11-26 19:02:56'),
+(13949, 'en', 'panel', 'Submit Sitemap', 'Submit Sitemap', '2018-11-26 19:02:56'),
+(13950, 'en', 'website', 'Website successfully added to webmaster tools', 'Website successfully added to webmaster tools', '2018-11-26 19:02:56'),
+(13951, 'en', 'website', 'Successfully imported following websites', 'Successfully imported following websites', '2018-11-26 19:02:56'),
+(13952, 'en', 'website', 'Add to Webmaster Tools', 'Add to Webmaster Tools', '2018-11-26 19:02:56');
 
 DROP TABLE IF EXISTS `translators`;
 CREATE TABLE `translators` (
@@ -14004,18 +14015,10 @@ ALTER TABLE `translators`
 
 
 ALTER TABLE `texts`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13942;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13953;
 
 ALTER TABLE `translators`
   MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
-
-INSERT INTO `texts` (`category`, `label`, `content`) VALUES
-('panel', 'Report Generation Logs', 'Report Generation Logs'),
-('settings', 'Authorised redirect URI', 'Authorised redirect URI'),
-('settings', 'click-to-get-google-api-client-id', 'Click here to get Google API Client Id'),
-('home', 'Overall Report Summary', 'Overall Report Summary'),
-('seotools', 'Edit Seo Tool', 'Edit Seo Tool'),
-('settings', 'SP_ENABLE_PROXY_GOOGLE_API', 'Enable Proxy for Google API');
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

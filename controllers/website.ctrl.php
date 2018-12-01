@@ -637,6 +637,148 @@ class WebsiteController extends Controller{
 		}
 			
 	}
+	
+	function showimportWebmasterToolsWebsites() {
+		
+		$userId = isLoggedIn();
+		$this->set('spTextTools', $this->getLanguageTexts('seotools', $_SESSION['lang_code']));
+		$userCtrler = New UserController();
+		$userList = $userCtrler->__getAllUsers();
+		
+		// get all users
+		if(isAdmin()){
+			$this->set('userList', $userList);
+			$this->set('userSelected', empty($info['userid']) ? $userId : $info['userid']);
+			$this->set('isAdmin', 1);
+		} else {
+			$this->set('userName', $userList[$userId]['username']);
+		}
+
+		// Check the user website count for validation
+		if (!isAdmin()) {
+			$this->setValidationMessageForLimit($userId);
+		}
+		
+		$this->render('website/import_webmaster_tools_websites');
+	}
+	
+	function importWebmasterToolsWebsites($info) {
+		$userId = isAdmin() ? intval($info['userid']) : isLoggedIn();
+		$limitReached = false;
+		$importList = array();
+	
+		// verify the limit for the user
+		if (!$this->validateWebsiteCount($userId)) {
+			showErrorMsg($this->spTextWeb["Your website count already reached the limit"]);
+		}
+	
+		$gapiCtrler = new WebMasterController();
+		$result = $gapiCtrler->getAllSites($userId);
+		
+		// check whether error occured while api call
+		if (!$result['status']) {
+			showErrorMsg($result['msg']);
+		}
+	
+		// loop through website list
+		foreach ($result['resultList'] as $websiteInfo) {
+				
+			if ($websiteInfo->permissionLevel != 'siteOwner') continue;
+				
+			// chekc whether website existing or not
+			if (!$this->__checkWebsiteUrl($websiteInfo->siteUrl) && !$this->__checkWebsiteUrl(Spider::removeTrailingSlash($websiteInfo->siteUrl))) {
+				$websiteName = formatUrl($websiteInfo->siteUrl, false);
+				$websiteName = Spider::removeTrailingSlash($websiteName);
+				$listInfo['name'] = $websiteName;
+				$listInfo['url'] = $websiteInfo->siteUrl;
+				$listInfo['title'] = $websiteName;
+				$listInfo['description'] = $websiteName;
+				$listInfo['keywords'] = $websiteName;
+				$listInfo['status'] = 1;
+				$listInfo['userid'] = $userId;
+				$return = $this->createWebsite($listInfo, true);
+	
+				// if success, check of number of websites can be added
+				if ($return[0] == 'success') {
+					$importList[] = $websiteInfo->siteUrl;
+
+					// if reached website add limit
+					if (!$this->validateWebsiteCount($userId)) {
+						$limitReached = true;
+						break;
+					}
+						
+				}
+	
+			}
+				
+		}
+		
+		// show results	
+		showSuccessMsg("<b>".$this->spTextWeb["Successfully imported following websites"]."</b>:", false);
+		foreach ($importList as $url) showSuccessMsg($url, false);
+		
+		// if website add limit reached
+		if ($limitReached) {
+			showErrorMsg($this->spTextWeb["Your website count already reached the limit"]);
+		}		
+	
+	}
+	
+	function addToWebmasterTools($websiteId) {
+		$webisteInfo = $this->__getWebsiteInfo($websiteId);
+		$gapiCtrler = new WebMasterController();
+		$result = $gapiCtrler->addWebsite($webisteInfo['url'], $webisteInfo['user_id']);
+		
+		// chekc whether error occured while api call
+		if ($result['status']) {
+			$activateUrl = "https://www.google.com/webmasters/verification/verification?tid=alternate&siteUrl=" . $webisteInfo['url'];
+			$successMsg = $this->spTextWeb["Website successfully added to webmaster tools"] . ": " . $webisteInfo['url'] . "<br><br>";
+			$successMsg .= "<a href='$activateUrl' target='_blank'>Click Here</a> to activate the website in webmaster tools.";
+			showSuccessMsg($successMsg, false);
+		} else {
+			showErrorMsg($result['msg'], false);
+		}
+		
+	}
+	
+	// func to show submit sitemap form
+	function showSubmitSitemap($info) {
+		$userId = isLoggedIn();
+		$this->set('websiteList', $this->__getAllWebsites($userId, true));
+		$this->set('spTextTools', $this->getLanguageTexts('seotools', $_SESSION['lang_code']));
+		$this->render('sitemap/submit_sitemap');
+	}
+	
+	// func to submit sitemap
+	function submitSitemap($info) {
+		
+		$webisteInfo = $this->__getWebsiteInfo($info['website_id']);
+		$spTextWebproxy = $this->getLanguageTexts('QuickWebProxy', $_SESSION['lang_code']);
+		
+		if (empty($info['sitemap_url'])) {
+			showErrorMsg($spTextWebproxy["Please enter a valid url"]);
+		}
+		
+		$info['sitemap_url'] = addHttpToUrl($info['sitemap_url']);
+		
+		// if website url not correct
+		if (!preg_match("/". preg_quote($webisteInfo['url'], '/') ."/i", $info['sitemap_url'])) {
+			showErrorMsg($spTextWebproxy["Please enter a valid url"]);
+		}
+		
+		// call webmaster api
+		$gapiCtrler = new WebMasterController();
+		$result = $gapiCtrler->submitSitemap($webisteInfo['url'], $info['sitemap_url'], $webisteInfo['user_id']);
+		
+		// check whether error occured while api call
+		if ($result['status']) {
+			showSuccessMsg($this->spTextWeb["Sitemap successfully added to webmaster tools"] . ": " . $info['sitemap_url']);
+		} else {
+			showErrorMsg($result['msg'], false);
+		}
+		
+	}
 		
 }
 ?>

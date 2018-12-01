@@ -573,16 +573,17 @@ class UserTypeController extends Controller {
 		foreach ($pluginUserTypeObj->specColList as $specCol => $specColInfo) {
 			
 			// if validation is set
-			if (!empty($specColInfo['validation'])) {
+			if (!empty($specColInfo['custom_validation'])) {
+				$errMsg[$specCol] = formatErrorMsg($specColInfo['custom_validation']->$specColInfo['validation']($settingsInfo[$specCol]));
+			} else if (!empty($specColInfo['validation'])) {
 				$errMsg[$specCol] = formatErrorMsg($this->validate->$specColInfo['validation']($settingsInfo[$specCol]));
-				
-				// if error occured
-				if ($this->validate->flagErr) {
-					$this->set('errMsg', $errMsg);
-					$this->editPluginUserTypeSettings($settingsInfo['user_type_id'], $pluginId, $settingsInfo['class_name'], $settingsInfo);
-					exit;
-				}
-				
+			}	
+			
+			// if error occured
+			if (!empty($this->validate->flagErr) || !empty($errMsg[$specCol])) {
+				$this->set('errMsg', $errMsg);
+				$this->editPluginUserTypeSettings($settingsInfo['user_type_id'], $pluginId, $settingsInfo['class_name'], $settingsInfo);
+				exit;
 			}
 			
 		}		

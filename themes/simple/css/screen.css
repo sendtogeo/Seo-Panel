@@ -1096,6 +1096,14 @@ div.tab button.active {	background-color: #ccc;}
 #cust_tab tr.form_head th:nth-child(2) { border-left: 0px }
 #cust_tab tr.form_data td:nth-child(1) { text-align: right; }
 
+#cust_tab td p {
+    font-size: 12px;
+    color: #676B50;
+    margin: 0px;
+    padding-left: 5px;
+    padding-bottom: 4px;
+}
+
 .tablesorter th {
 	cursor: pointer;
 	background-image: url(../../../images/bg.gif);

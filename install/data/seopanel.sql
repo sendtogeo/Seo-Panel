@@ -851,7 +851,7 @@ INSERT INTO `settings` (`id`, `set_label`, `set_name`, `set_val`, `set_category`
 (40, 'API Secret', 'API_SECRET', '', 'api', 'medium', 1),
 (41, 'Company Name', 'SP_COMPANY_NAME', 'Seo Panel', 'system', 'medium', 1),
 (42, 'Currency', 'SP_PAYMENT_CURRENCY', 'USD', 'system', 'medium', 1),
-(43, 'Seo Panel version', 'SP_VERSION_NUMBER', '3.13.0', 'system', 'medium', 0),
+(43, 'Seo Panel version', 'SP_VERSION_NUMBER', '3.16.0', 'system', 'medium', 0),
 (44, 'Moz API Link', 'SP_MOZ_API_LINK', 'http://lsapi.seomoz.com/linkscape', 'moz', 'medium', 0),
 (45, 'Moz API Link', 'SP_MOZ_API_ACCESS_ID', '', 'moz', 'large', 1),
 (46, 'Moz API Link', 'SP_MOZ_API_SECRET', '', 'moz', 'large', 1),
@@ -1265,8 +1265,6 @@ ON DUPLICATE KEY UPDATE `set_type`=`set_type`;
 -- Seo Panel 3.14.0 changes
 --
 
-update `settings` set set_val='3.15.0' WHERE `set_name` LIKE 'SP_VERSION_NUMBER';
-
 CREATE TABLE IF NOT EXISTS `user_tokens` (
 `id` bigint(20) NOT NULL,
   `user_id` int(11) NOT NULL,
@@ -1348,6 +1346,14 @@ ALTER TABLE `webmaster_keywords` MODIFY `id` bigint(24) unsigned NOT NULL AUTO_I
 
 INSERT INTO `settings` (`set_label`, `set_name`, `set_val`, `set_category`, `set_type`, `display`) VALUES
 ('Enable Proxy for Google API', 'SP_ENABLE_PROXY_GOOGLE_API', '1', 'proxy', 'bool', 1);
+
+ALTER TABLE `crawl_log` CHANGE `crawl_link` `crawl_link` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL;
+
+ALTER TABLE `crawl_log` CHANGE `crawl_referer` `crawl_referer` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;
+
+ALTER TABLE crawl_log DROP INDEX ref_id;
+
+ALTER TABLE `crawl_log` CHANGE `ref_id` `ref_id` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
