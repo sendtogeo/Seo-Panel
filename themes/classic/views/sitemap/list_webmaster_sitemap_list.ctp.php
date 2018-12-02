@@ -8,6 +8,29 @@ $(document).ready(function() {
 });
 </script>
 
+<form id='search_form'>
+	<?php $submitLink = "scriptDoLoadPost('websites.php', 'search_form', 'content', '&sec=listSitemap')";?>
+	<table width="100%" class="search">
+		<tr>
+			<th><?php echo $spText['common']['Website']?>: </th>
+			<td>
+				<select name="website_id" id="website_id" onchange="<?php echo $submitLink?>">
+					<?php foreach($websiteList as $websiteInfo){?>
+						<?php if($websiteInfo['id'] == $websiteId){
+							$websiteUrl = $websiteInfo['url'];
+							?>
+							<option value="<?php echo $websiteInfo['id']?>" selected><?php echo $websiteInfo['name']?></option>
+						<?php }else{?>
+							<option value="<?php echo $websiteInfo['id']?>"><?php echo $websiteInfo['name']?></option>
+						<?php }?>
+					<?php }?>
+				</select>
+				<a href="javascript:void(0);" onclick="<?php echo $submitLink?>" class="actionbut"><?php echo $spText['button']['Search']?></a>
+			</td>
+		</tr>
+	</table>
+</form>
+
 <table id="cust_tab" class="tablesorter">
 	<thead>
 		<tr class="listHead">
@@ -25,29 +48,46 @@ $(document).ready(function() {
 	</thead>
 	<tbody>
 		<?php
-		foreach($list as $listInfo){
+		if (count($list) > 0) {
+			foreach($list as $listInfo){
+				?>
+				<tr>
+					<td><?php echo $listInfo['id'];?></td>
+					<td><?php echo $listInfo['path'];?></td>
+					<td><?php echo $listInfo['submitted'];?></td>
+					<td><?php echo $listInfo['indexed'];?></td>
+					<td>
+						<?php if ($listInfo['errors']) { ?>
+							<a class='error' target="_blank" href="https://www.google.com/webmasters/tools/sitemap-details?siteUrl=<?php echo $websiteUrl?>&sitemapUrl=<?php echo $listInfo['path']?>">
+								<font class='error bold'><?php echo $listInfo['errors']?></font>
+							</a>
+						<?php } else {
+							echo $listInfo['errors'];
+						}?>
+					</td>
+					<td>
+						<?php echo $listInfo['warnings'] ? "<font class='bold'>{$listInfo['warnings']}</font>" : $listInfo['warnings']; ?>
+					</td>
+					<td>
+						<?php echo $listInfo['is_pending'] ? "<font class='error bold'>{$spText['common']['Yes']}</font>" : $spText['common']['No'];?>
+					</td>
+					<td><?php echo $listInfo['last_submitted'];?></td>
+					<td><?php echo $listInfo['last_downloaded'];?></td>
+					<td>
+						<select name="action" id="action<?php echo $listInfo['id']?>" onchange="doAction('seo-tools-manager.php', 'content', 'pid=<?php echo $listInfo['id']?>', 'action<?php echo $listInfo['id']?>')">
+							<option value="select">-- <?php echo $spText['common']['Select']?> --</option>
+							<option value="delete"><?php echo $spText['common']['Delete']?></option>
+						</select>
+					</td>
+				</tr>
+				<?php
+			}
+		
+		} else{
 			?>
-			<tr>
-				<td><?php echo $listInfo['id'];?></td>
-				<td><?php echo $listInfo['path'];?></td>
-				<td><?php echo $listInfo['submitted'];?></td>
-				<td><?php echo $listInfo['indexed'];?></td>
-				<td><?php echo $listInfo['errors'];?></td>
-				<td><?php echo $listInfo['warnings'];?></td>
-				<td>
-					<?php echo $listInfo['is_pending'] ? $spText['common']['Yes'] : $spText['common']['No'];?>
-				</td>
-				<td><?php echo $listInfo['last_submitted'];?></td>
-				<td><?php echo $listInfo['last_downloaded'];?></td>
-				<td>
-					<select name="action" id="action<?php echo $listInfo['id']?>" onchange="doAction('seo-tools-manager.php', 'content', 'pid=<?php echo $listInfo['id']?>', 'action<?php echo $listInfo['id']?>')">
-						<option value="select">-- <?php echo $spText['common']['Select']?> --</option>
-						<option value="delete"><?php echo $spText['common']['Delete']?></option>
-					</select>
-				</td>
-			</tr>
-			<?php
-		}
+			<tr><td colspan="19"><b><?php echo $_SESSION['text']['common']['No Records Found']?></b></tr>
+			<?php	
+		} 
 		?>
 	</tbody>
 </table>
@@ -55,8 +95,12 @@ $(document).ready(function() {
 <table width="100%" class="actionSec">
 	<tr>
     	<td style="padding-top: 6px;text-align:right;">
-    		<a href="javascript:void(0);" onclick="scriptDoLoad('websites.php', 'content', 'sec=submitSitemap')" class="actionbut" >
-				<?php echo $spTextPanel['Submit Sitemap']?> &gt;&gt;
+    		<a href="javascript:void(0);" onclick="scriptDoLoad('websites.php', 'content', 'sec=syncSitemaps&website_id=<?php echo $websiteId?>')" class="actionbut" >
+				<?php echo $spTextSitemap['Sync Sitemaps']?>
+			</a>
+			&nbsp;&nbsp;
+    		<a href="javascript:void(0);" onclick="scriptDoLoad('websites.php', 'content', 'sec=submitSitemap&website_id=<?php echo $websiteId?>')" class="actionbut" >
+				<?php echo $spTextPanel['Submit Sitemap']?>
 			</a>
     	</td>
 	</tr>

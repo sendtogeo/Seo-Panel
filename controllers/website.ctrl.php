@@ -751,8 +751,9 @@ class WebsiteController extends Controller{
 		$this->set('spTextDirectory', $this->getLanguageTexts('directory', $_SESSION['lang_code']));
 		$websiteList = $this->__getAllWebsites($userId, true);
 		$this->set('websiteList', $websiteList);
-		$websiteid = !empty($info['website_id']) ? intval($info['website_id']) : $websiteList[0]['id'];	$websiteid =6;
-		$whereCond = " website_id=$websiteid and status=1";
+		$websiteId = !empty($info['website_id']) ? intval($info['website_id']) : $websiteList[0]['id'];
+		$this->set('websiteId', $websiteId);
+		$whereCond = " website_id=$websiteId and status=1";
 		$sitemapList = $this->dbHelper->getAllRows("webmaster_sitemaps", $whereCond);
 		$this->set('list', $sitemapList);
 		$this->render('sitemap/list_webmaster_sitemap_list');
@@ -760,6 +761,7 @@ class WebsiteController extends Controller{
 	
 	// func to import webmaster tools sitemaps
 	function importWebmasterToolsSitemaps($websiteId) {
+		$websiteId = intval($websiteId);
 		$webisteInfo = $this->__getWebsiteInfo($websiteId);
 
 		// call webmaster api
@@ -769,12 +771,14 @@ class WebsiteController extends Controller{
 		// check whether error occured while api call
 		if ($result['status']) {
 			
+			// change status of all sitemaps
+			$dataList = array('status' => 0);
+			$this->dbHelper->updateRow("webmaster_sitemaps", $dataList, " website_id=$websiteId");
+			
 			// loop through webmaster tools list
 			foreach ($result['resultList'] as $sitemapInfo) {
 				
 				$dataList = array(
-					'website_id|int' => $websiteId,
-					'path' => $sitemapInfo->path,
 					'last_submitted' => date('Y-m-d H:i:s', strtotime($sitemapInfo->lastSubmitted)),
 					'last_downloaded' => date('Y-m-d H:i:s', strtotime($sitemapInfo->lastDownloaded)),
 					'is_pending|int' => $sitemapInfo->isPending,
@@ -782,12 +786,24 @@ class WebsiteController extends Controller{
 					'errors|int' => $sitemapInfo->errors,
 					'submitted|int' => $sitemapInfo->contents[0]['submitted'],
 					'indexed|int' => $sitemapInfo->contents[0]['indexed'],
+					'status' => 1,
 				);
 				
-				$this->dbHelper->insertRow("webmaster_sitemaps", $dataList);
+				$rowInfo = $this->dbHelper->getRow("webmaster_sitemaps", " website_id=$websiteId and path='$sitemapInfo->path'");
+				if (!empty($rowInfo['id'])) {
+					$this->dbHelper->updateRow("webmaster_sitemaps", $dataList, " id=" . $rowInfo['id']);
+				} else {
+					$dataList['website_id|int'] = $websiteId;
+					$dataList['path'] = $sitemapInfo->path;
+					$this->dbHelper->insertRow("webmaster_sitemaps", $dataList);
+				}
 				
 			}
 			
+			showSuccessMsg($this->spTextWeb["Successfully sync sitemaps from webmaster tools"], false);
+			
+		} else {
+			showErrorMsg($result['msg'], false);
 		}
 		
 	}
@@ -796,15 +812,15 @@ class WebsiteController extends Controller{
 	function showSubmitSitemap($info) {
 		$userId = isLoggedIn();
 		$this->set('websiteList', $this->__getAllWebsites($userId, true));
+		$this->set('websiteId', intval($info['website_id']));
 		$this->set('spTextTools', $this->getLanguageTexts('seotools', $_SESSION['lang_code']));
 		$this->render('sitemap/submit_sitemap');
 	}
 	
 	// func to submit sitemap
-	function submitSitemap($info) {
-		
+	function submitSitemap($info) {		
 		$webisteInfo = $this->__getWebsiteInfo($info['website_id']);
-		$spTextWebproxy = $this->getLanguageTexts('QuickWebProxy', $_SESSION['lang_code']);
+		$spTextWebproxy = $this->getLanguageTexts('QuickWebProxy', $_SESSION['lang_code']);		
 		
 		if (empty($info['sitemap_url'])) {
 			showErrorMsg($spTextWebproxy["Please enter a valid url"]);
@@ -824,6 +840,10 @@ class WebsiteController extends Controller{
 		// check whether error occured while api call
 		if ($result['status']) {
 			showSuccessMsg($this->spTextWeb["Sitemap successfully added to webmaster tools"] . ": " . $info['sitemap_url']);
+			
+			// update seo panel webmaster tool sitemaps
+			$this->importWebmasterToolsSitemaps($webisteInfo['id']);
+			
 		} else {
 			showErrorMsg($result['msg'], false);
 		}
