@@ -215,7 +215,33 @@ class WebMasterController extends GoogleAPIController {
 			$result['status'] = true;
 		}  catch (Exception $e) {
 			$err = $e->getMessage();
-			$result['msg'] = "Error: submit sitemap - $err";
+			$result['msg'] = "Error: get all sitemaps - $err";
+		}
+	
+		return $result;
+	
+	}
+	/*
+	 * function to submit sitemap to webmaster tools
+	 */
+	function deleteWebsiteSitemap($siteUrl, $sitemapUrl, $userId) {
+		$result = array('status' => false);
+	
+		try {
+			
+			// check whether client created successfully
+			$client = $this->getAuthClient($userId);
+			if (!is_object($client)) {
+				$result['msg'] = $client;
+				return $result;
+			}
+				
+			$service = new Google_Service_Webmasters($client);
+			$resultList = $service->sitemaps->delete($siteUrl, $sitemapUrl);
+			$result['status'] = true;
+		}  catch (Exception $e) {
+			$err = $e->getMessage();
+			$result['msg'] = "Error: delete sitemap - $err";
 		}
 	
 		return $result;

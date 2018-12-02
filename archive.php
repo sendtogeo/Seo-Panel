@@ -33,6 +33,8 @@ $controller->spTextTools = $controller->getLanguageTexts('seotools', $_SESSION['
 $controller->set('spTextTools', $controller->spTextTools);
 $controller->spTextKeyword = $controller->getLanguageTexts('keyword', $_SESSION['lang_code']);
 $controller->set('spTextKeyword', $controller->spTextKeyword);
+$controller->spTextPanel = $controller->getLanguageTexts('panel', $_SESSION['lang_code']);
+$controller->set('spTextPanel', $controller->spTextPanel);
 
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	

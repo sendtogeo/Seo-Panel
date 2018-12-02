@@ -329,6 +329,15 @@ if (!empty($keywordPos) && !empty($seCount)) {
 <br>
 <div>
 	<?php
+	if (!empty($sitemapReport)) {
+		echo $sitemapReport;
+	}
+	?>
+</div>
+
+<br>
+<div>
+	<?php
 	if (!empty($keywordSearchReport)) {
 		echo $keywordSearchReport;
 	}

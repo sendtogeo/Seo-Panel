@@ -1265,12 +1265,19 @@ class ReportController extends Controller {
 				$keywordSearchReport = $webMasterCtrler->viewKeywordSearchSummary($filterList, true, $cronUserId);
 			}
 			
+			// if sitemap reports
+			if (empty($searchInfo['report_type']) || ($searchInfo['report_type'] == 'sitemap-reports')) {
+				$websiteCtrler->set('spTextPanel', $this->spTextPanel);
+				$sitemapReport = $websiteCtrler->listSitemap($filterList, true, $cronUserId);
+			}
+			
 			if ($exportVersion) {
 				$exportContent .= $websiteSearchReport;
 				$exportContent .= $keywordSearchReport;
 			} else {
 				$this->set('websiteSearchReport', $websiteSearchReport);
 				$this->set('keywordSearchReport', $keywordSearchReport);
+				$this->set('sitemapReport', $sitemapReport);
 			}
 			
 		}

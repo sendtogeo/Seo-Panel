@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS `webmaster_sitemaps` (
 
 
 INSERT INTO `texts` (`category`, `label`, `content`) VALUES
+('website', 'Successfully deleted sitemap from webmaster tools', 'Successfully deleted sitemap from webmaster tools'),
 ('website', 'Successfully sync sitemaps from webmaster tools', 'Successfully sync sitemaps from webmaster tools'),
 ('sitemap', 'Sync Sitemaps', 'Sync Sitemaps'),
 ('common', 'Errors', 'Errors'),

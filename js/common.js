@@ -182,7 +182,8 @@ function doAction(scriptUrl, scriptPos, scriptArgs, actionDiv) {
 		default:
 			if(spdemo){
 				if((actVal == 'delete') || (actVal == 'Activate') || (actVal == 'Inactivate') || (actVal == 'recheckreport') || (actVal == 'addToWebmasterTools')
-					|| (actVal == 'showrunproject') || (actVal == 'checkscore') || (actVal == 'deletepage') || (actVal == 'upgrade') || (actVal == 'reinstall') ){
+					|| (actVal == 'showrunproject') || (actVal == 'checkscore') || (actVal == 'deletepage') || (actVal == 'upgrade') || (actVal == 'reinstall') 
+					|| (actVal == 'deleteSitemap')){
 					alertDemoMsg();
 					return false;
 				}

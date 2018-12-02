@@ -743,7 +743,7 @@ class WebsiteController extends Controller{
 	}
 	
 	// func to list sitemaps
-	function listSitemap($info) {
+	function listSitemap($info, $summaryPage = false, $cronUserId=false) {
 		$userId = isLoggedIn();
 		$this->set('spTextTools', $this->getLanguageTexts('seotools', $_SESSION['lang_code']));
 		$this->set('spTextSitemap', $this->getLanguageTexts('sitemap', $_SESSION['lang_code']));
@@ -756,7 +756,15 @@ class WebsiteController extends Controller{
 		$whereCond = " website_id=$websiteId and status=1";
 		$sitemapList = $this->dbHelper->getAllRows("webmaster_sitemaps", $whereCond);
 		$this->set('list', $sitemapList);
-		$this->render('sitemap/list_webmaster_sitemap_list');
+		$this->set('summaryPage', $summaryPage);
+		
+		// if pdf export
+		if ($summaryPage) {
+			return $this->getViewContent('sitemap/list_webmaster_sitemap_list');
+		} else {
+			$this->render('sitemap/list_webmaster_sitemap_list');
+		}
+		
 	}
 	
 	// func to import webmaster tools sitemaps
@@ -839,7 +847,7 @@ class WebsiteController extends Controller{
 		
 		// check whether error occured while api call
 		if ($result['status']) {
-			showSuccessMsg($this->spTextWeb["Sitemap successfully added to webmaster tools"] . ": " . $info['sitemap_url']);
+			showSuccessMsg($this->spTextWeb["Sitemap successfully added to webmaster tools"] . ": " . $info['sitemap_url'], false);
 			
 			// update seo panel webmaster tool sitemaps
 			$this->importWebmasterToolsSitemaps($webisteInfo['id']);
@@ -849,6 +857,31 @@ class WebsiteController extends Controller{
 		}
 		
 	}
+
+	function deleteWebmasterToolSitemap($sitemapId) {
+		$sitemapId = intval($sitemapId);
+		$sitemapInfo = $this->dbHelper->getRow("webmaster_sitemaps", "id=$sitemapId");
+		
+		if (empty($sitemapInfo['id'])) {
+			showErrorMsg("Please provide a valid sitemap id");
+		}
+		
+		$webisteInfo = $this->__getWebsiteInfo($sitemapInfo['website_id']);
+		$gapiCtrler = new WebMasterController();		
+		$result = $gapiCtrler->deleteWebsiteSitemap($webisteInfo['url'], $sitemapInfo['path'], $webisteInfo['user_id']);
+	
+		// check whether error occured while api call
+		if ($result['status']) {
+			$this->dbHelper->updateRow("webmaster_sitemaps", array('status' => 0), "id=$sitemapId");
+			showSuccessMsg($this->spTextWeb["Successfully deleted sitemap from webmaster tools"], false);
+		} else {
+			showErrorMsg($result['msg'], false);
+		}
+		
+		$this->listSitemap(array('website_id' => $sitemapInfo['website_id']));
+	
+	}
+	
 		
 }
 ?>

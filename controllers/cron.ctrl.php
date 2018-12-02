@@ -432,7 +432,11 @@ class CronController extends Controller {
 			$wmCtrler->storeWebsiteAnalytics($websiteInfo['id'], $reportDate, $source);
 		}		
 
-		$this->debugMsg("Saved webmaster tools results of <b>{$this->websiteInfo['name']}</b>.....<br>\n");
+		$this->debugMsg("Saved webmaster tools analytics results of <b>{$this->websiteInfo['name']}</b>.....<br>\n");
+		
+		// update webmaster tools sitemaps
+		$websiteController = New WebsiteController();
+		$websiteController->importWebmasterToolsSitemaps($websiteId);
 		
 	}
 	

@@ -162,6 +162,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$controller->importWebmasterToolsSitemaps($websiteId);
 			$controller->listSitemap($_GET);
 			break;
+		
+		case "deleteSitemap":
+			$controller->deleteWebmasterToolSitemap($_GET['id']);
+			break;
 			
 		default:
 			$controller->listWebsites($_GET);
