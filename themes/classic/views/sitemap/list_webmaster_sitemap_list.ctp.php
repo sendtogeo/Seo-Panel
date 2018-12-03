@@ -1,4 +1,7 @@
-<?php echo showSectionHead($spTextPanel['Sitemaps'] . "(" . $spTextTools['webmaster-tools'] . ")" ); ?>
+<?php 
+if ($summaryPage && ($searchInfo['report_type'] != 'sitemap-reports')) echo "<br><br><br>";
+echo showSectionHead($spTextPanel['Sitemaps'] . "(" . $spTextTools['webmaster-tools'] . ")" );
+?>
 
 <script type="text/javascript">
 $(document).ready(function() { 
@@ -16,6 +19,7 @@ $(document).ready(function() {
 				<th><?php echo $spText['common']['Website']?>: </th>
 				<td>
 					<select name="website_id" id="website_id" onchange="<?php echo $submitLink?>">
+						<option value="">-- <?php echo $spText['common']['Select']?> --</option>
 						<?php foreach($websiteList as $websiteInfo){?>
 							<?php if($websiteInfo['id'] == $websiteId){
 								$websiteUrl = $websiteInfo['url'];
@@ -37,7 +41,7 @@ $(document).ready(function() {
 <table id="cust_tab" class="tablesorter">
 	<thead>
 		<tr class="listHead">
-			<th><?php echo $spText['common']['Id']?></th>
+			<th style="width: 30px;"><?php echo $spText['common']['Id']?></th>
 			<th><?php echo $spText['common']['Url']?></th>
 			<th><?php echo $spText['common']['Total']?></th>
 			<th><?php echo $spTextHome['Indexed']?></th>
@@ -46,7 +50,13 @@ $(document).ready(function() {
 			<th><?php echo $spTextDirectory['Pending']?></th>
 			<th><?php echo $spTextSitemap['Submitted']?></th>
 			<th><?php echo $spTextSitemap['Downloaded']?></th>
-			<th><?php echo $spText['common']['Action']?></th>
+			<?php if (!$summaryPage) {
+				$colCount = 10;
+				?>
+				<th><?php echo $spText['common']['Action']?></th>
+			<?php } else {
+				$colCount = 9;
+			}?>
 		</tr>
 	</thead>
 	<tbody>
@@ -76,19 +86,21 @@ $(document).ready(function() {
 					</td>
 					<td><?php echo $listInfo['last_submitted'];?></td>
 					<td><?php echo $listInfo['last_downloaded'];?></td>
-					<td>
-						<select name="action" id="action<?php echo $listInfo['id']?>" onchange="doAction('websites.php', 'content', 'id=<?php echo $listInfo['id']?>', 'action<?php echo $listInfo['id']?>')">
-							<option value="select">-- <?php echo $spText['common']['Select']?> --</option>
-							<option value="deleteSitemap"><?php echo $spText['common']['Delete']?></option>
-						</select>
-					</td>
+					<?php if (!$summaryPage) {?>
+						<td>
+							<select name="action" id="action<?php echo $listInfo['id']?>" onchange="doAction('websites.php', 'content', 'id=<?php echo $listInfo['id']?>', 'action<?php echo $listInfo['id']?>')">
+								<option value="select">-- <?php echo $spText['common']['Select']?> --</option>
+								<option value="deleteSitemap"><?php echo $spText['common']['Delete']?></option>
+							</select>
+						</td>
+					<?php }?>
 				</tr>
 				<?php
 			}
 		
 		} else{
 			?>
-			<tr><td colspan="10"><b><?php echo $_SESSION['text']['common']['No Records Found']?></b></tr>
+			<tr><td colspan="<?php echo $colCount?>"><b><?php echo $_SESSION['text']['common']['No Records Found']?></b></tr>
 			<?php	
 		} 
 		?>
@@ -100,10 +112,12 @@ $(document).ready(function() {
 	<table class="actionSec">
 		<tr>
 	    	<td style="padding-top: 6px;text-align:right;">
-	    		<a href="javascript:void(0);" onclick="scriptDoLoad('websites.php', 'content', 'sec=syncSitemaps&website_id=<?php echo $websiteId?>')" class="actionbut" >
-					<?php echo $spTextSitemap['Sync Sitemaps']?>
-				</a>
-				&nbsp;&nbsp;
+	    		<?php if (!empty($websiteId)) {?>
+		    		<a href="javascript:void(0);" onclick="scriptDoLoad('websites.php', 'content', 'sec=syncSitemaps&website_id=<?php echo $websiteId?>')" class="actionbut" >
+						<?php echo $spTextSitemap['Sync Sitemaps']?>
+					</a>
+					&nbsp;&nbsp;
+				<?php }?>
 	    		<a href="javascript:void(0);" onclick="scriptDoLoad('websites.php', 'content', 'sec=submitSitemap&website_id=<?php echo $websiteId?>')" class="actionbut" >
 					<?php echo $spTextPanel['Submit Sitemap']?>
 				</a>

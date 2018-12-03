@@ -943,6 +943,7 @@ class ReportController extends Controller {
 			'keyword-position' => $this->spTextTools["Keyword Position Summary"],
 			'website-stats' => $spTextHome["Website Statistics"],
 			'website-search-reports' => $this->spTextTools['Website Search Summary'],
+			'sitemap-reports' => $this->spTextTools['Sitemap Reports Summary'],
 			'keyword-search-reports' => $this->spTextTools['Keyword Search Summary'],
 		);
 		$this->set('reportTypes', $reportTypes);
@@ -1242,7 +1243,7 @@ class ReportController extends Controller {
 		}
 		
 		# website search report section
-		if (empty($searchInfo['report_type']) || in_array($searchInfo['report_type'], array('website-search-reports', 'keyword-search-reports')) ) {
+		if (empty($searchInfo['report_type']) || in_array($searchInfo['report_type'], array('website-search-reports', 'keyword-search-reports', 'sitemap-reports')) ) {
 			$webMasterCtrler = new WebMasterController();
 			$webMasterCtrler->set('spTextTools', $this->spTextTools);
 			$webMasterCtrler->spTextTools = $this->spTextTools;

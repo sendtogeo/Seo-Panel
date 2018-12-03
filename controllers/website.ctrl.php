@@ -744,17 +744,21 @@ class WebsiteController extends Controller{
 	
 	// func to list sitemaps
 	function listSitemap($info, $summaryPage = false, $cronUserId=false) {
-		$userId = isLoggedIn();
+		$userId = !empty($cronUserId) ? $cronUserId : isLoggedIn();
 		$this->set('spTextTools', $this->getLanguageTexts('seotools', $_SESSION['lang_code']));
 		$this->set('spTextSitemap', $this->getLanguageTexts('sitemap', $_SESSION['lang_code']));
 		$this->set('spTextHome', $this->getLanguageTexts('home', $_SESSION['lang_code']));
 		$this->set('spTextDirectory', $this->getLanguageTexts('directory', $_SESSION['lang_code']));
-		$websiteList = $this->__getAllWebsites($userId, true);
+		
+		$websiteList = $this->dbHelper->getAllRows("websites", "user_id=$userId and status=1");
 		$this->set('websiteList', $websiteList);
-		$websiteId = !empty($info['website_id']) ? intval($info['website_id']) : $websiteList[0]['id'];
+		$websiteId = isset($info['website_id']) ? intval($info['website_id']) : $websiteList[0]['id'];
 		$this->set('websiteId', $websiteId);
-		$whereCond = " website_id=$websiteId and status=1";
+		
+		$whereCond = "status=1";
+		$whereCond .= !empty($websiteId) ? " and website_id=$websiteId" : "";
 		$sitemapList = $this->dbHelper->getAllRows("webmaster_sitemaps", $whereCond);
+		
 		$this->set('list', $sitemapList);
 		$this->set('summaryPage', $summaryPage);
 		
