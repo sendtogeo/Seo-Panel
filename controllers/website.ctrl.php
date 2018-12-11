@@ -750,7 +750,7 @@ class WebsiteController extends Controller{
 		$this->set('spTextHome', $this->getLanguageTexts('home', $_SESSION['lang_code']));
 		$this->set('spTextDirectory', $this->getLanguageTexts('directory', $_SESSION['lang_code']));
 		
-		$websiteList = $this->dbHelper->getAllRows("websites", "user_id=$userId and status=1");
+		$websiteList = $this->__getAllWebsites($userId, true);
 		$this->set('websiteList', $websiteList);
 		$websiteId = isset($info['website_id']) ? intval($info['website_id']) : $websiteList[0]['id'];
 		$this->set('websiteId', $websiteId);

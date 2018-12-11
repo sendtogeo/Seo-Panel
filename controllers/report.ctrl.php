@@ -1424,6 +1424,8 @@ class ReportController extends Controller {
             'doc_type' => 'print',
         );
 	    
+	    $this->spTextPanel = $this->getLanguageTexts('panel', $_SESSION['lang_code']);
+	    
         $reportContent = $this->showOverallReportSummary($searchInfo, $userInfo['id']);        
         $this->set('reportContent', $reportContent);
         

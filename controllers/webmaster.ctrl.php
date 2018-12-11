@@ -450,7 +450,7 @@ class WebMasterController extends GoogleAPIController {
 	
 		$websiteController = New WebsiteController();
 		$wList = $websiteController->__getAllWebsitesWithActiveKeywords($userId, true);
-		$websiteList = array();
+		$websiteList = array(0);
 		foreach ($wList as $wInfo) $websiteList[$wInfo['id']] = $wInfo;
 		$this->set('websiteList', $websiteList);
 		$websiteId = intval($searchInfo['website_id']);

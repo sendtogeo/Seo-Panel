@@ -437,6 +437,7 @@ class CronController extends Controller {
 		// update webmaster tools sitemaps
 		$websiteController = New WebsiteController();
 		$websiteController->importWebmasterToolsSitemaps($websiteId);
+		$this->debugMsg("Saved webmaster tools sitemaps of <b>{$this->websiteInfo['name']}</b>.....<br>\n");		
 		
 	}
 	
