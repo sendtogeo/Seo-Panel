@@ -449,7 +449,7 @@ class WebMasterController extends GoogleAPIController {
 		$this->set('toTime', $toTime);
 	
 		$websiteController = New WebsiteController();
-		$wList = $websiteController->__getAllWebsitesWithActiveKeywords($userId, true);
+		$wList = $websiteController->__getAllWebsites($userId, true);
 		$websiteList = array(0);
 		foreach ($wList as $wInfo) $websiteList[$wInfo['id']] = $wInfo;
 		$this->set('websiteList', $websiteList);
@@ -482,7 +482,7 @@ class WebMasterController extends GoogleAPIController {
 		$conditions .= !empty($searchInfo['search_name']) ? " and k.name like '%".addslashes($searchInfo['search_name'])."%'" : "";
 		
 		$subSql = "select [cols] from webmaster_keywords k, keyword_analytics r where k.id=r.keyword_id
-		and k.status=1 $conditions and r.source='$source' and r.report_date='$fromTime'";
+		and k.status=1 $conditions and r.source='$source' and r.report_date='$toTime'";
 		
 		$sql = "
 		(" . str_replace("[cols]", "k.id,k.name,k.website_id,r.clicks,r.impressions,r.ctr,r.average_position", $subSql) . ")
@@ -519,7 +519,7 @@ class WebMasterController extends GoogleAPIController {
 
 			$sql = "select k.id,k.name,k.website_id,r.clicks,r.impressions,r.ctr,r.average_position 
 			from webmaster_keywords k, keyword_analytics r where k.id=r.keyword_id
-			and k.status=1 $conditions and r.source='$source' and r.report_date='$toTime'";
+			and k.status=1 $conditions and r.source='$source' and r.report_date='$fromTime'";
 			$sql .= " and k.id in(" . implode(",", $keywordIdList) . ")";
 			$reportList = $this->db->select($sql);
 			$compareReportList = array();
@@ -555,8 +555,8 @@ class WebMasterController extends GoogleAPIController {
 				foreach ($this->colList as $colName => $colVal) {
 					if ($colName == 'name') continue;
 					
-					$prevRank = isset($listInfo[$colName]) ? $listInfo[$colName] : 0;
-					$currRank = isset($compareReportList[$listInfo['id']][$colName]) ? $compareReportList[$listInfo['id']][$colName] : 0;
+					$currRank = isset($listInfo[$colName]) ? $listInfo[$colName] : 0;
+					$prevRank = isset($compareReportList[$listInfo['id']][$colName]) ? $compareReportList[$listInfo['id']][$colName] : 0;
 					$rankDiff = "";
 	
 					// if both ranks are existing
