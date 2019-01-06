@@ -26,6 +26,12 @@ include_once(SP_CTRLPATH."/directory.ctrl.php");
 $controller = New IndexController();
 $controller->view->menu = 'home';
 
+// set site details according to customizer plugin
+$custSiteInfo = getCustomizerDetails();
+if (!empty($custSiteInfo['site_title'])) $controller->set('spTitle', $custSiteInfo['site_title']);
+if (!empty($custSiteInfo['site_description'])) $controller->set('spDescription', $custSiteInfo['site_description']);
+if (!empty($custSiteInfo['site_keywords'])) $controller->set('spKeywords', $custSiteInfo['site_keywords']);
+
 if($_SERVER['REQUEST_METHOD'] == 'GET'){
 
 	switch($_GET['sec']){

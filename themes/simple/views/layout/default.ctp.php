@@ -3,10 +3,11 @@
 <head>
     <meta content="text/html; charset=UTF-8" http-equiv="content-type" />
     <?php
+    $custSiteInfo = getCustomizerDetails();
     $spTitle = empty($spTitle) ? SP_TITLE : $spTitle;
     $spDescription = empty($spDescription) ? SP_DESCRIPTION : $spDescription;
     $spKeywords = empty($spKeywords) ? SP_KEYWORDS : $spKeywords;
-    $spKey = "v" . substr(SP_INSTALLED, 2);  
+    $spKey = "v" . substr(SP_INSTALLED, 2);    
     ?>
     <title><?php echo stripslashes($spTitle)?></title>
     <meta name="description" content="<?php echo $spDescription?>" />
@@ -17,7 +18,7 @@
     <?php if (in_array($_SESSION['lang_code'], array('ar', 'he', 'fa'))) {?>
     	<link rel="stylesheet" type="text/css" href="<?php echo SP_CSSPATH?>/screen_rtl.css?<?php echo $spKey?>" media="all" />
     <?php }?>
-    <link rel="shortcut icon" href="<?php echo SP_IMGPATH?>/favicon.ico" />
+    <link rel="shortcut icon" href="<?php echo !empty($custSiteInfo['site_favicon']) ? $custSiteInfo['site_favicon'] : SP_IMGPATH . "/favicon.ico"?>" />
     <script type="text/javascript" src="<?php echo SP_JSPATH?>/jquery-1.10.1.min.js?<?php echo $spKey?>"></script>
     <script type="text/javascript" src="<?php echo SP_JSPATH?>/common.js?<?php echo $spKey?>"></script>
     <script type="text/javascript" src="<?php echo SP_JSPATH?>/popup.js?<?php echo $spKey?>"></script>
@@ -37,15 +38,14 @@ var wantproceed = '<?php  echo $spText['label']['wantproceed']; ?>';
     <div id="Header">
     
     	<div id="round_content_header">
-    
             <?php include_once(SP_VIEWPATH."/menu/topmenu.ctp.php");?>
-            
-            <div style="width:300px;">
-            	<a href="<?php echo SP_WEBPATH; ?>" style="text-decoration: none; padding: 0px;"><h1 style="width:200px;">Seo Panel</h1></a>
+            <div>
+            	<div id="logo_div"><img src="<?php echo !empty($custSiteInfo['site_logo']) ? $custSiteInfo['site_logo'] : SP_IMGPATH . "/logo.jpg";?>"></img></div>
+            	<div id="logo_text"><?php echo !empty($custSiteInfo['site_name']) ? $custSiteInfo['site_name'] : "Seo Panel"?></div>
             </div>
         
             <!-- TABS -->
-            <div id="Tabs">
+            <div id="Tabs" style="clear: both;">
                 <ul id="MainTabs">
                     <?php
                     $userInfo = @Session::readSession('userInfo');

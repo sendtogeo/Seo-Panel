@@ -238,16 +238,24 @@ div#Wrapper {
 	background-color: white;
 }
 
-#Header h1 {
-	padding: 10px 0 10px 50px;
-	margin: 7px 0 0 30px;
-	font-size: 30px;
+#Header #logo_div {
+	padding: 10px 0 10px 0px;
+	margin: 7px 4px 0 0px;
+	width: 60px;
+	float: left;
+	text-align: right;
+	overflow: hidden;	
+}
+
+#Header #logo_text {
+	padding: 13px 0 10px 0px;
+	margin: 7px 0 0 0px;
+	font-size: 36px;
 	font-weight: bold;
 	color: #ABABAB;
 	text-align: left;
-	background: url('../../../images/logo.jpg') no-repeat 0px 0px;
 	height:35px;
-	font-style: normal;
+	float: left;
 }
 
 #Header h1 span {

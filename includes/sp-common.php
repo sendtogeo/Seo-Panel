@@ -636,4 +636,18 @@ function getDateRange($first, $last, $step = '+1 day', $outputFormat = 'Y-m-d' )
 
 	return $dates;
 }
+
+function getCustomizerDetails() {
+    $custSiteInfo = array();
+    
+    // check whetehr plugin installed or not
+    $seopluginCtrler =  new SeoPluginsController();
+    if ($seopluginCtrler->isPluginActive("customizer")) {
+        $infoList = $seopluginCtrler->dbHelper->getAllRows("cust_site_details", "status=1");
+        foreach ($infoList as $info) $custSiteInfo[$info['col_name']] = $info['col_value'];
+    }
+    
+    return $custSiteInfo;
+    
+}
 ?>

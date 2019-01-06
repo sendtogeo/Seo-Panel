@@ -113,16 +113,6 @@ class Controller extends Seopanel{
 			
 			if ($layout == 'default') {
 				$this->set('translatorInfo', $this->getTranslatorInfo());
-				
-				// check whetehr plugin installed or not
-				$seopluginCtrler =  new SeoPluginsController();
-				if ($seopluginCtrler->isPluginActive("customizer")) {
-					$custSiteInfo = array();
-					$infoList = $this->dbHelper->getAllRows("cust_site_details", "status=1");
-					foreach ($infoList as $info) $custSiteInfo[$info['col_name']] = $info['col_value'];
-					$this->set('custSiteInfo', $custSiteInfo);
-				}
-				
 			}
 			
 		}
