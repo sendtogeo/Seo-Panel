@@ -650,4 +650,39 @@ function getCustomizerDetails() {
     return $custSiteInfo;
     
 }
+
+// function to get customizer pages[home,support,aboutus]
+function getCustomizerPage($pageName='home') {
+    $blogInfo = array();
+    $pageName = addslashes($pageName);
+    
+    // check whetehr plugin installed or not
+    $seopluginCtrler =  new SeoPluginsController();
+    if ($seopluginCtrler->isPluginActive("customizer")) {
+        $langCode = !empty($_SESSION['lang_code']) ? $_SESSION['lang_code'] : "en";
+        $whereCond = "status=1 and link_page='$pageName'";
+        $blogInfo = $seopluginCtrler->dbHelper->getRow("cust_blogs", $whereCond . " and lang_code='$langCode'");
+        
+        // empty blog and language is not en, check en content
+        if (empty($blogInfo['id']) && ($langCode != 'en')) {
+            $blogInfo = $seopluginCtrler->dbHelper->getRow("cust_blogs", $whereCond . " and lang_code='en'");
+        }
+        
+        // if blog is not empty
+        if (!empty($blogInfo['blog_content'])) {
+            $blogInfo['blog_content'] = convertMarkdownToHtml($blogInfo['blog_content']);
+        }
+        
+    }
+    
+    return $blogInfo;
+    
+}
+
+function convertMarkdownToHtml($pageCont) {
+    include_once(SP_LIBPATH."/Parsedown.php");
+    $Parsedown = new Parsedown();
+    $pageCont = $Parsedown->text($pageCont);
+    return $pageCont;
+}
 ?>
