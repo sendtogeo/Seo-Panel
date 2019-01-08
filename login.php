@@ -26,9 +26,12 @@ include_once(SP_CTRLPATH."/user.ctrl.php");
 $controller = New UserController();
 $controller->view->menu = 'login';
 
-$controller->set('spTitle', 'Seo Panel: Login section');
-$controller->set('spDescription', 'Login to Seo Panel and utilise seo tools and plugins to increase the perfomance of your site.');
-$controller->set('spKeywords', 'Seo Panel Login section');
+// set site details according to customizer plugin
+$custSiteInfo = getCustomizerDetails();
+$siteName = !empty($custSiteInfo['site_name']) ? $custSiteInfo['site_name'] : "Seo Panel";
+$controller->set('spTitle', "$siteName: Login section");
+$controller->set('spDescription', "Login to $siteName and utilise seo tools and plugins to increase the perfomance of your site.");
+$controller->set('spKeywords', "$siteName Login section");
 
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	
@@ -39,7 +42,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			break;
 
 		case "requestpass":			
-			$controller->set('spTitle', 'Seo panel forgot password');
+			$controller->set('spTitle', "$siteName forgot password");
 			$controller->requestPassword($_POST['email']);
             break;
 		
@@ -56,7 +59,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			break;
 		
 		case "forgot":	
-			$controller->set('spTitle', 'Seo Panel forgot password');
+			$controller->set('spTitle', "$siteName forgot password");
 			$controller->forgotPasswordForm();
 			break;
 
