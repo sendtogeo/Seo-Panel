@@ -1,43 +1,48 @@
 <?php
-	$homeClass = "";
-	$supportClass = "";
-	$loginClass = "";	
-	$registerClass = "";
-	$pricingClass = "";
-	switch($this->menu){
-		case "support":
-			$supportClass = "current";
-			break;			
-		
-		case "register":
-			$registerClass = "current";
-			break;
-			
-		case "login":
-			$loginClass = "current";
-			break;
-			
-		case "pricing":
-			$pricingClass = "current";
-			break;
-			
-		case "home":
-		default:
-			$homeClass = "current";
-			break;
-	}
-
-	// reduce menu padding if larger text languages
-	if (in_array($_SESSION['lang_code'], array('ru'))) {
-	    ?>
-	    <style>
-	    #Tabs ul#MainTabs a:link,#Tabs ul#MainTabs a:visited {
-	    	padding: 6px 10px;
-	    }
-	    </style>
-	    <?php
-	}
+$homeClass = "";
+$supportClass = "";
+$loginClass = "";	
+$registerClass = "";
+$pricingClass = "";
+$blogClass = "";
+switch($this->menu){
+	case "support":
+		$supportClass = "current";
+		break;			
 	
+	case "register":
+		$registerClass = "current";
+		break;
+		
+	case "login":
+		$loginClass = "current";
+		break;
+		
+	case "pricing":
+		$pricingClass = "current";
+		break;
+		
+	case "home":
+	default:
+		$homeClass = "current";
+		break;
+		
+	case "blog":
+	default:
+		$blogClass = "current";
+		break;
+}
+
+// reduce menu padding if larger text languages
+if (in_array($_SESSION['lang_code'], array('ru'))) {
+    ?>
+    <style>
+    #Tabs ul#MainTabs a:link,#Tabs ul#MainTabs a:visited {
+    	padding: 6px 10px;
+    }
+    </style>
+    <?php
+}	
 ?>
 <li><a class="<?php echo $homeClass?>" href="<?php echo SP_WEBPATH?>/"><?php echo $spText['common']['Home']?></a></li>
 <li><a class="" href="<?php echo SP_WEBPATH?>/seo-tools.php"><?php echo $spText['common']['Seo Tools']?></a></li>
@@ -49,6 +54,10 @@
 <?php } else if(empty($custSiteInfo)) {?>
 	<li><a href="<?php echo SP_DONATE_LINK?>" target="_blank"><?php echo $spText['common']['Donate']?></a></li>
 <?php }?>
+
+<?php if (!empty($custSiteInfo['plugin_active'])) {?>
+	<li><a href="<?php echo SP_WEBPATH?>/blog.php" class="<?php echo $blogClass?>" ><?php echo $spText['common']['Blog']?></a></li>
+<?php } ?>
 
 <li style="padding-left: 2px;">
 	<a href="<?php echo !empty($custSiteInfo['twitter_page_url']) ? $custSiteInfo['twitter_page_url'] : "https://twitter.com/seopanel"?>" class="twitter-follow-button" data-show-count="false" data-show-screen-name="false" data-dnt="true">Follow @seopanel</a>

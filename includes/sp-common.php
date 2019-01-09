@@ -641,10 +641,11 @@ function getCustomizerDetails() {
     $custSiteInfo = array();
     
     // check whetehr plugin installed or not
-    $seopluginCtrler =  new SeoPluginsController();
+    $seopluginCtrler = new SeoPluginsController();
     if ($seopluginCtrler->isPluginActive("customizer")) {
         $infoList = $seopluginCtrler->dbHelper->getAllRows("cust_site_details", "status=1");
         foreach ($infoList as $info) $custSiteInfo[$info['col_name']] = $info['col_value'];
+        $custSiteInfo['plugin_active'] = 1;
     }
     
     return $custSiteInfo;
@@ -657,7 +658,7 @@ function getCustomizerPage($pageName='home') {
     $pageName = addslashes($pageName);
     
     // check whetehr plugin installed or not
-    $seopluginCtrler =  new SeoPluginsController();
+    $seopluginCtrler = new SeoPluginsController();
     if ($seopluginCtrler->isPluginActive("customizer")) {
         $langCode = !empty($_SESSION['lang_code']) ? $_SESSION['lang_code'] : "en";
         $whereCond = "status=1 and link_page='$pageName'";
@@ -684,5 +685,10 @@ function convertMarkdownToHtml($pageCont) {
     $Parsedown = new Parsedown();
     $pageCont = $Parsedown->text($pageCont);
     return $pageCont;
+}
+
+function isPluginActivated($pluginName) {
+	$seopluginCtrler = new SeoPluginsController();
+	return $seopluginCtrler->isPluginActive($pluginName);
 }
 ?>
