@@ -25,10 +25,24 @@ class BlogController extends Controller{
 
 	# func to show all blogs
 	function listBlogs($info=''){
-		$whereCond = "status=1 and link_page='' order by created_time desc";
+		$whereCond = "status=1 and link_page=''";
+		$whereCond .= !empty($info['tag']) ? " and tags like '%".addslashes($info['tag'])."%'" : "";
+		$whereCond .= !empty($info['search']) ? " and blog_content like '%".addslashes($info['search'])."%'" : "";
+		$whereCond .= " order by created_time desc";
 		$blogList = $this->dbHelper->getAllRows("cust_blogs", $whereCond);
 		$this->set('blogList', $blogList);
 		$this->render('blog/blog_list');
+	}
+
+	# func to show a blog
+	function showBlog($blogId){
+		$whereCond = "status=1 and id=" . intval($blogId);
+		$blogInfo = $this->dbHelper->getRow("cust_blogs", $whereCond);
+		$this->set('spTitle', $blogInfo['meta_title']);
+		$this->set('spDescription', $blogInfo['meta_description']);
+		$this->set('spKeywords', $blogInfo['meta_keywords']);
+		$this->set('blogInfo', $blogInfo);
+		$this->render('blog/blog_show');
 	}	
 		
 }

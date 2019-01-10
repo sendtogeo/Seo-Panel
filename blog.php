@@ -29,13 +29,27 @@ $siteName = !empty($custSiteInfo['site_name']) ? $custSiteInfo['site_name'] : "S
 $controller->set('spTitle', "$siteName: Blog");
 $controller->set('spDescription', "$siteName: Blog with latest news");
 $controller->set('spKeywords', "$siteName blog, $siteName latest news");
-		
-if($_SERVER['REQUEST_METHOD'] == 'GET'){
+
+if($_SERVER['REQUEST_METHOD'] == 'POST'){
+	
+	switch($_POST['sec']){
+	
+		default:
+			$controller->listBlogs($_POST);
+			break;
+			
+	}
+	
+} else if($_SERVER['REQUEST_METHOD'] == 'GET'){
 
 	switch($_GET['sec']){
 
 		default:
-		    $controller->listBlogs();
+			if (!empty($_GET['id'])) {
+				$controller->showBlog($_GET['id']);
+			} else {
+				$controller->listBlogs($_GET);
+			}
 			break;
 	}
 }
