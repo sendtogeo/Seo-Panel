@@ -28,8 +28,20 @@ class BlogController extends Controller{
 		$whereCond = "status=1 and link_page=''";
 		$whereCond .= !empty($info['tag']) ? " and tags like '%".addslashes($info['tag'])."%'" : "";
 		$whereCond .= !empty($info['search']) ? " and blog_content like '%".addslashes($info['search'])."%'" : "";
+		$countInfo = $this->dbHelper->getRow("cust_blogs", $whereCond, "count(*) count");
+		$totalPageCount = ($countInfo['count'] / SP_PAGINGNO) + 1;
+		$currPage = intval($info['page']);
+		$currPage = $currPage ? $currPage : 1;
+		
 		$whereCond .= " order by created_time desc";
+		$start = ($currPage - 1) * SP_PAGINGNO;
+		$whereCond .= " limit $start," . SP_PAGINGNO;
 		$blogList = $this->dbHelper->getAllRows("cust_blogs", $whereCond);
+		
+		$olderPage = ($currPage < $totalPageCount) ? $currPage + 1 : 0;
+		$newerPage = ($currPage > 1) ? $currPage - 1 : 0;
+		$this->set('olderPage', $olderPage);
+		$this->set('newerPage', $newerPage);		
 		$this->set('blogList', $blogList);
 		$this->render('blog/blog_list');
 	}

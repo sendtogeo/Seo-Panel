@@ -24,6 +24,19 @@
             	<?php
             }
             ?>
+            
+            <?php if (!empty($olderPage)) { ?>
+	            <div style="float: left;width: 40%;">
+	            	<a href="<?php echo SP_WEBPATH."/blog.php?page=$olderPage";?>">&lt;&lt; Older Posts</a>
+	            </div>
+            <?php }?>
+            
+            <?php if (!empty($newerPage)) { ?>
+	            <div style="float: right;width: 40%;">
+	            	<a href="<?php echo SP_WEBPATH."/blog.php?page=$newerPage";?>">Newer Posts &gt;&gt;</a>
+	            </div>
+            <?php }?>
+            
 		</div>
 		<?php echo getRoundTabBot(); ?>
     </div>
