@@ -29,7 +29,7 @@ class BlogController extends Controller{
 		$whereCond .= !empty($info['tag']) ? " and tags like '%".addslashes($info['tag'])."%'" : "";
 		$whereCond .= !empty($info['search']) ? " and blog_content like '%".addslashes($info['search'])."%'" : "";
 		$countInfo = $this->dbHelper->getRow("cust_blogs", $whereCond, "count(*) count");
-		$totalPageCount = ($countInfo['count'] / SP_PAGINGNO) + 1;
+		$totalPageCount = ceil(($countInfo['count'] / SP_PAGINGNO));
 		$currPage = intval($info['page']);
 		$currPage = $currPage ? $currPage : 1;
 		
@@ -37,6 +37,9 @@ class BlogController extends Controller{
 		$start = ($currPage - 1) * SP_PAGINGNO;
 		$whereCond .= " limit $start," . SP_PAGINGNO;
 		$blogList = $this->dbHelper->getAllRows("cust_blogs", $whereCond);
+		$blogBaseLink = SP_WEBPATH . "/blog.php?search=".$info['search']."&tag=".$info['tag'];
+		$this->set("blogBaseLink", $blogBaseLink);
+		$this->set("post", $info);
 		
 		$olderPage = ($currPage < $totalPageCount) ? $currPage + 1 : 0;
 		$newerPage = ($currPage > 1) ? $currPage - 1 : 0;

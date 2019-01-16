@@ -4,7 +4,7 @@
         <div id="round_content">
             <div class="blog_search">
             	<form action="<?php echo SP_WEBPATH . "/blog.php"?>" method="post">
-            		<input type="text" name="search" value="" placeholder="Search..">
+            		<input type="text" name="search" value="<?php echo $post['search']?>" placeholder="Search..">
             	</form>
             </div>
             <?php
@@ -19,21 +19,32 @@
             		<div class="blog_body">
             			<p><?php echo convertMarkdownToHtml($blogInfo['blog_content'])?></p>
             		</div>
+	            	<div class="blog_tags">
+	            		<?php
+	            		$tagList = explode(",", $blogInfo['tags']);
+	            		foreach ($tagList as $tag) {
+	            			if (!empty($tag)) {
+	            				?>
+	            				<a href="<?php echo SP_WEBPATH . "/blog.php?tag=$tag";?>"><?php echo $tag;?></a>
+	            				<?php
+	            			}
+	            		}
+	            		?>
+	            	</div>
             	</div>
-            	<br>
             	<?php
             }
             ?>
             
             <?php if (!empty($olderPage)) { ?>
 	            <div style="float: left;width: 40%;">
-	            	<a href="<?php echo SP_WEBPATH."/blog.php?page=$olderPage";?>">&lt;&lt; Older Posts</a>
+	            	<a href="<?php echo $blogBaseLink . "&page=$olderPage";?>">&lt;&lt; Older Posts</a>
 	            </div>
             <?php }?>
             
             <?php if (!empty($newerPage)) { ?>
 	            <div style="float: right;width: 40%;">
-	            	<a href="<?php echo SP_WEBPATH."/blog.php?page=$newerPage";?>">Newer Posts &gt;&gt;</a>
+	            	<a href="<?php echo $blogBaseLink . "&page=$newerPage";?>">Newer Posts &gt;&gt;</a>
 	            </div>
             <?php }?>
             

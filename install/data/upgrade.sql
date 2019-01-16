@@ -21,6 +21,11 @@ CREATE TABLE IF NOT EXISTS `webmaster_sitemaps` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
 
+update  `featured_directories` set status=0 WHERE `directory_name` LIKE 'beta-i.org';
+INSERT INTO `featured_directories` (`directory_name`, `directory_link`, `google_pagerank`, `coupon_code`, `coupon_offer`, `status`)
+VALUES ('directorymaximizer.com', 'http://www.directorymaximizer.com/af.php?af=207564&ad=5&p=1', '6', '', '', '1');
+
+
 INSERT INTO `texts` (`category`, `label`, `content`) VALUES
 ('common', 'Blog', 'Blog'),
 ('seotools', 'Sitemap Reports Summary', 'Sitemap Reports Summary'),
