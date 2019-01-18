@@ -57,8 +57,11 @@ define('SP_PLUGININFOFILE', 'plugin.xml');
 # seo panel theme info xml file
 define('SP_THEMEINFOFILE', 'theme.xml');
 
+# seo panel main site
+define('SP_MAIN_SITE', 'https://www.seopanel.in');
+
 # seo panel plugin site info
-define('SP_PLUGINSITE', 'http://www.seopanel.in/plugins/');
+define('SP_PLUGINSITE', SP_MAIN_SITE . '/plugins/');
 
 # The seo panel plugin upgrade db file
 define('SP_PLUGINUPGRADEFILE', 'upgrade.sql');
@@ -91,28 +94,28 @@ define('SP_FORUM_LINK', 'http://forum.seopanel.in/');
 define('SP_SUPPORT_LINK', 'http://support.seofreetools.net/');
 
 # The seo panel contact page
-define('SP_CONTACT_LINK', 'http://www.seopanel.in/contact/');
+define('SP_CONTACT_LINK', SP_MAIN_SITE . '/contact/');
 
 # The seo panel donate page
-define('SP_DONATE_LINK', 'http://www.seopanel.in/donate/');
+define('SP_DONATE_LINK', SP_MAIN_SITE . '/donate/');
 
 # The seo panel download page
-define('SP_DOWNLOAD_LINK', 'http://www.seopanel.in/download/');
+define('SP_DOWNLOAD_LINK', SP_MAIN_SITE . '/download/');
 
 # The seo panel demo page
-define('SP_DEMO_LINK', 'http://www.seopanel.in/demo/');
+define('SP_DEMO_LINK', SP_MAIN_SITE . '/demo/');
 
 # The seo panel news page
-define('SP_NEWS_PAGE', 'http://www.seopanel.in/news.php');
+define('SP_NEWS_PAGE', SP_MAIN_SITE . '/news.php');
 
 # The seo panel sponsors
-define('SP_SPONSOR_PAGE', 'http://www.seopanel.in/sponsors.php');
+define('SP_SPONSOR_PAGE', SP_MAIN_SITE . '/sponsors.php');
 
 # The seo panel version page
-define('SP_VERSION_PAGE', 'http://www.seopanel.in/getversion.php');
+define('SP_VERSION_PAGE', SP_MAIN_SITE . '/getversion.php');
 
 # seo panel theme site url
-define('SP_THEMESITE', 'http://www.seopanel.in/themes/');
+define('SP_THEMESITE', SP_MAIN_SITE . '/themes/');
 
 # seo panel cloud hosted link
 define('SP_HOSTED_LINK', "http://www.seopanel.net");

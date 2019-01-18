@@ -141,19 +141,23 @@ class SettingsController extends Controller{
 	}
 	
 	# func to show about us of seo panel
-	function showAboutUs() {
+	function showAboutUs($info) {
 	    
 	    $blogContent = getCustomizerPage('aboutus');
 	    if (!empty($blogContent['blog_content'])) {
 	        $this->set('blogContent', $blogContent);
 	    } else {
-    		$sql = "select t.*,l.lang_name from translators t,languages l where t.lang_code=l.lang_code";
-    		$transList = $this->db->select($sql); 
-    		$this->set('transList', $transList);
+	    	
+	    	if ($info['subsec'] != "sponsors") {
+	    		$sql = "select t.*,l.lang_name from translators t,languages l where t.lang_code=l.lang_code";
+	    		$transList = $this->db->select($sql); 
+	    		$this->set('transList', $transList);
+	    	}
     		
     		include_once(SP_CTRLPATH."/information.ctrl.php");
     		$infoCtrler = new InformationController();
     		$this->set('sponsors', $infoCtrler->getSponsors());
+    		$this->set('subSec', $info['subsec']);
 	    }
 	    
 		$this->render('settings/aboutus');
