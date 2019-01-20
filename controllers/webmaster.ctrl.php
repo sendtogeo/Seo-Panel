@@ -31,7 +31,7 @@ class WebMasterController extends GoogleAPIController {
 	var $colList = array();	
 	
 	function WebMasterController() {
-		parent::Controller();
+		parent::__construct();
 
 		$this->spTextWB = $this->getLanguageTexts('webmaster', $_SESSION['lang_code']);
 		$this->set('spTextWB', $this->spTextWB);
