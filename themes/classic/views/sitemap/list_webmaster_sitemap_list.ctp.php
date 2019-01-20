@@ -61,7 +61,7 @@ $(document).ready(function() {
 	</thead>
 	<tbody>
 		<?php
-		if (count($list) > 0) {
+		if (!empty($list)) {
 			foreach($list as $listInfo){
 				?>
 				<tr>
@@ -112,8 +112,9 @@ $(document).ready(function() {
 	<table class="actionSec">
 		<tr>
 	    	<td style="padding-top: 6px;text-align:right;">
-	    		<?php if (!empty($websiteId)) {?>
-		    		<a href="javascript:void(0);" onclick="scriptDoLoad('websites.php', 'content', 'sec=syncSitemaps&website_id=<?php echo $websiteId?>')" class="actionbut" >
+	    		<?php if (!empty($websiteId) && !SP_HOSTED_VERSION) {?>
+	    			<?php $actFun = SP_DEMO ? "alertDemoMsg()" : "confirmLoad('websites.php', 'content', 'sec=syncSitemaps&website_id=$websiteId')"; ?>
+		    		<a href="javascript:void(0);" onclick="<?php echo $actFun?>" class="actionbut" >
 						<?php echo $spTextSitemap['Sync Sitemaps']?>
 					</a>
 					&nbsp;&nbsp;

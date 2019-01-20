@@ -221,7 +221,17 @@ class CronController extends Controller {
 			$seoTools = $this->repTools;
 		}
 		
+		// check whethre user access to seo tools and plugins
+		$userCtrler = New UserController();
+		$userInfo = $userCtrler->__getUserInfo($this->websiteInfo['user_id']);
+		$userTypeCtrler = new UserTypeController();
+		$toolAccessList = $userTypeCtrler->getSeoToolAccessSettings($userInfo['utype_id']);
+		
 		foreach ($seoTools as $cronInfo) {
+		    
+		    // check whether user have acccess to the tool
+		    if (empty($toolAccessList[$cronInfo['id']]['value'])) continue;
+		    
 			switch($cronInfo['url_section']){
 				
 				case "webmaster-tools":
@@ -249,6 +259,7 @@ class CronController extends Controller {
 					break;
 			}
 		}
+		
 	}
 	
 	# func to generate search engine saturation reports from cron

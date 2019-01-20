@@ -86,6 +86,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			break;
 		
 		case "submitSitemap":
+		    if (SP_DEMO) return false;
 			$controller->submitSitemap($_POST);
 			break;
 		
@@ -158,12 +159,14 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			break;
 		
 		case "syncSitemaps":
+		    if (SP_DEMO) return false;
 			$websiteId = $_GET['website_id'];
 			$controller->importWebmasterToolsSitemaps($websiteId);
 			$controller->listSitemap($_GET);
 			break;
 		
 		case "deleteSitemap":
+		    if (SP_DEMO) return false;
 			$controller->deleteWebmasterToolSitemap($_GET['id']);
 			break;
 			

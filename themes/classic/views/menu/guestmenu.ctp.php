@@ -28,7 +28,6 @@ switch($this->menu){
 		break;
 		
 	case "blog":
-	default:
 		$blogClass = "current";
 		break;
 }
