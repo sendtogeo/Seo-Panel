@@ -225,12 +225,19 @@ class CronController extends Controller {
 		$userCtrler = New UserController();
 		$userInfo = $userCtrler->__getUserInfo($this->websiteInfo['user_id']);
 		$userTypeCtrler = new UserTypeController();
-		$toolAccessList = $userTypeCtrler->getSeoToolAccessSettings($userInfo['utype_id']);
+		
+		// check whethere user is admin
+		if ($userInfo['utype_id'] == $userTypeCtrler->getAdminUserTypeId()) {
+		    $isAdmin = true;
+		} else {
+		    $isAdmin = false;
+		    $toolAccessList = $userTypeCtrler->getSeoToolAccessSettings($userInfo['utype_id']);
+		}		
 		
 		foreach ($seoTools as $cronInfo) {
 		    
 		    // check whether user have acccess to the tool
-		    if (empty($toolAccessList[$cronInfo['id']]['value'])) continue;
+		    if (!$isAdmin && empty($toolAccessList[$cronInfo['id']]['value']) ) continue;
 		    
 			switch($cronInfo['url_section']){
 				
