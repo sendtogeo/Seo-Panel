@@ -47,12 +47,7 @@ var wantproceed = '<?php  echo $spText['label']['wantproceed']; ?>';
             <!-- TABS -->
             <div id="Tabs" style="clear: both;">
                 <ul id="MainTabs">
-                    <?php
-                    $userInfo = @Session::readSession('userInfo');
-                    $userType = empty($userInfo['userType']) ? "guest" : $userInfo['userType'];
-                    $userType = (!isAdmin() && $userType != 'guest') ? "user" :  $userType;
-                    include(SP_VIEWPATH.'/menu/'.$userType.'menu.ctp.php');
-                    ?>
+                    <?php include(SP_VIEWPATH.'/menu/main_menu.ctp.php');?>
                 </ul>
             </div>
         </div>
