@@ -9,23 +9,26 @@
             </div>
             <?php
             foreach ($blogList as $blogInfo) {
+            	$publishedTime = strtotime($blogInfo['updated_time'])
             	?>
             	<div class="blog_section">
             		<div class="blog_List_head">
             			<a href="<?php echo SP_WEBPATH . "/blog.php?id=" . $blogInfo['id']?>">
             				<?php echo $blogInfo['blog_title']?>
             			</a>
+            			<p>Posted on <?php echo date('F d, Y', $publishedTime);?> by Admin</p>
             		</div>
             		<div class="blog_body">
             			<p><?php echo convertMarkdownToHtml($blogInfo['blog_content'])?></p>
             		</div>
 	            	<div class="blog_tags">
+	            		Tags: 
 	            		<?php
 	            		$tagList = explode(",", $blogInfo['tags']);
 	            		foreach ($tagList as $tag) {
 	            			if (!empty($tag)) {
 	            				?>
-	            				<a href="<?php echo SP_WEBPATH . "/blog.php?tag=$tag";?>"><?php echo $tag;?></a>
+	            				<a href="<?php echo SP_WEBPATH . "/blog.php?tag=$tag";?>"><?php echo $tag;?></a>&nbsp;
 	            				<?php
 	            			}
 	            		}
@@ -37,13 +40,13 @@
             ?>
             
             <?php if (!empty($olderPage)) { ?>
-	            <div style="float: left;width: 40%;">
+	            <div style="float: left;width: 40%;" class="blog_paginate_div">
 	            	<a href="<?php echo $blogBaseLink . "&page=$olderPage";?>">&lt;&lt; Older Posts</a>
 	            </div>
             <?php }?>
             
             <?php if (!empty($newerPage)) { ?>
-	            <div style="float: right;width: 40%;">
+	            <div style="float: left;width: 40%;" class="blog_paginate_div">
 	            	<a href="<?php echo $blogBaseLink . "&page=$newerPage";?>">Newer Posts &gt;&gt;</a>
 	            </div>
             <?php }?>
@@ -52,8 +55,3 @@
 		<?php echo getRoundTabBot(); ?>
     </div>
 </div>
-<style>
-.blog_section{margin: 26px 10px; padding: 6px;}
-.blog_search{float: right;text-align: right;}
-.blog_List_head A{font-size: 30px; font-weight: bold;text-decoration: none;color: #445566;}
-</style>
