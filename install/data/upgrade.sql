@@ -27,6 +27,8 @@ VALUES ('directorymaximizer.com', 'http://www.directorymaximizer.com/af.php?af=2
 
 
 INSERT INTO `texts` (`category`, `label`, `content`) VALUES
+('blog', 'Newer Posts', 'Newer Posts'),
+('blog', 'Older Posts', 'Older Posts'),
 ('webmaster', 'Error: Google api connection failed', 'Error: Google api connection failed'),
 ('webmaster', 'Click here to connect to your google account', 'Click here to connect to your google account'),
 ('common', 'Blog', 'Blog'),

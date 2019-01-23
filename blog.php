@@ -29,6 +29,7 @@ $siteName = !empty($custSiteInfo['site_name']) ? $custSiteInfo['site_name'] : "S
 $controller->set('spTitle', "$siteName: Blog");
 $controller->set('spDescription', "$siteName: Blog with latest news");
 $controller->set('spKeywords', "$siteName blog, $siteName latest news");
+$controller->set('spBlogText', $controller->getLanguageTexts('blog', $_SESSION['lang_code']));
 
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	

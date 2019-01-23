@@ -41,13 +41,13 @@
             
             <?php if (!empty($olderPage)) { ?>
 	            <div style="float: left;width: 40%;" class="blog_paginate_div">
-	            	<a href="<?php echo $blogBaseLink . "&page=$olderPage";?>">&lt;&lt; Older Posts</a>
+	            	<a href="<?php echo $blogBaseLink . "&page=$olderPage";?>">&lt;&lt; <?php echo $spBlogText['Older Posts']?></a>
 	            </div>
             <?php }?>
             
             <?php if (!empty($newerPage)) { ?>
 	            <div style="float: left;width: 40%;" class="blog_paginate_div">
-	            	<a href="<?php echo $blogBaseLink . "&page=$newerPage";?>">Newer Posts &gt;&gt;</a>
+	            	<a href="<?php echo $blogBaseLink . "&page=$newerPage";?>"><?php echo $spBlogText['Newer Posts']?> &gt;&gt;</a>
 	            </div>
             <?php }?>
             
