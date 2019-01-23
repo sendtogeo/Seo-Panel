@@ -83,7 +83,7 @@ if(!$summaryPage && (!empty($printVersion) || !empty($pdfVersion))) {
 		<?php
 	}
 	
-	if (empty($pdfVersion)) echo $pagingDiv;
+	if (empty($pdfVersion) && empty($cronUserId)) echo $pagingDiv;
 }
 
 $baseColCount = count($colList);

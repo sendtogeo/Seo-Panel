@@ -347,7 +347,7 @@ if (!empty($keywordPos) && !empty($seCount)) {
 
 </div>
 <?php
-if(!empty($printVersion) || !empty($pdfVersion)) {
+if(empty($cronUserId) && (!empty($printVersion) || !empty($pdfVersion))) {
 	echo $pdfVersion ? showPdfFooter($spText) : showPrintFooter($spText);
 }
 ?>

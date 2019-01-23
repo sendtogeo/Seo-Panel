@@ -395,8 +395,14 @@ function readFileContent($fileName) {
 
 # func to show printer footer
 function showPrintFooter($spText) {
+	$custSiteInfo = getCustomizerDetails();
+	if (!empty($custSiteInfo['footer_copyright'])) {
+		$copyrightTxt = str_replace('[year]', date('Y'), $custSiteInfo['footer_copyright']);
+	} else {
+		$copyrightTxt = str_replace('[year]', date('Y'), $spText['common']['copyright']);
+	}
     ?>
-    <div style="clear: both; margin-top: 10px;"><?php echo str_replace('[year]', date('Y'), $spText['common']['copyright'])?></div>
+    <div style="clear: both; margin-top: 10px;"><?php echo $copyrightTxt;?></div>
     </body>
     </html>
 	<?php
@@ -578,7 +584,12 @@ function showPdfHeader($headMsg = '') {
 
 # func to show pdf footer
 function showPdfFooter($spText) {
-	$copyrightTxt = str_replace("www.seopanel.in", "<a href='http://www.seopanel.in'>www.seopanel.in</a>", $spText['common']['copyright']);
+	$custSiteInfo = getCustomizerDetails();
+	if (!empty($custSiteInfo['footer_copyright'])) {
+		$copyrightTxt = str_replace('[year]', date('Y'), $custSiteInfo['footer_copyright']);
+	} else {
+		$copyrightTxt = str_replace("www.seopanel.in", "<a href='http://www.seopanel.in'>www.seopanel.in</a>", $spText['common']['copyright']);
+	}
     ?>
     <div style="clear: both; margin-top: 30px;font-size: 12px; text-align: center;"><?php echo str_replace('[year]', date('Y'), $copyrightTxt)?></div>
 	<?php

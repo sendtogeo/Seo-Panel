@@ -425,6 +425,7 @@ class WebMasterController extends GoogleAPIController {
 		$source = $this->sourceList[0];
 		$this->set('summaryPage', $summaryPage);
 		$this->set('searchInfo', $searchInfo);
+		$this->set('cronUserId', $cronUserId);
 		
 		$exportVersion = false;
 		switch($searchInfo['doc_type']){
@@ -494,7 +495,7 @@ class WebMasterController extends GoogleAPIController {
 		if ($orderCol != 'name') $sql .= ", name";
 		
 		// pagination setup, if not from cron job email send function, pdf and export action
-		if (!in_array($searchInfo['doc_type'], array("pdf", "export")) && !$cronUserId) {
+		if (!in_array($searchInfo['doc_type'], array("pdf", "export"))) {
 			$this->db->query($sql, true);
 			$this->paging->setDivClass('pagingdiv');
 			$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
