@@ -683,9 +683,7 @@ class ReportController extends Controller {
 			$seStart = $this->seList[$seInfoId]['start'] + $this->seList[$seInfoId]['start_offset'];
 			while(empty($result['error']) && ($seStart < $this->seList[$seInfoId]['max_results']) ){
 				$logId = $result['log_id'];
-				if(SP_DEBUG){
-					$crawlInfo['log_message'] = "Started at: $seStart";
-				}
+				$crawlInfo['log_message'] = "Started at: $seStart";
 				$crawlLogCtrl->updateCrawlLog($logId, $crawlInfo);
 				sleep(SP_CRAWL_DELAY);
 				$seUrl = str_replace('[--start--]', $seStart, $searchUrl);
