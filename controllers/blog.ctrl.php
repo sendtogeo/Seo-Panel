@@ -26,7 +26,7 @@ class BlogController extends Controller{
 	# func to show all blogs
 	function listBlogs($info=''){
 		$whereCond = "status=1 and link_page=''";
-		$whereCond .= !empty($info['tag']) ? " and tags like '%".addslashes($info['tag'])."%'" : "";
+		$whereCond .= !empty($info['tag']) ? " and tags like '%".addslashes(trim(urldecode($info['tag'])))."%'" : "";
 		$whereCond .= !empty($info['search']) ? " and blog_content like '%".addslashes($info['search'])."%'" : "";
 		$countInfo = $this->dbHelper->getRow("cust_blogs", $whereCond, "count(*) count");
 		$totalPageCount = ceil(($countInfo['count'] / SP_PAGINGNO));

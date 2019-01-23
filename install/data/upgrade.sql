@@ -27,6 +27,8 @@ VALUES ('directorymaximizer.com', 'http://www.directorymaximizer.com/af.php?af=2
 
 
 INSERT INTO `texts` (`category`, `label`, `content`) VALUES
+('blog', 'NothingFound_text2', 'Sorry, but nothing matched your search criteria. Please try again with some different keywords.'),
+('blog', 'Nothing Found', 'Nothing Found'),
 ('blog', 'Newer Posts', 'Newer Posts'),
 ('blog', 'Older Posts', 'Older Posts'),
 ('webmaster', 'Error: Google api connection failed', 'Error: Google api connection failed'),

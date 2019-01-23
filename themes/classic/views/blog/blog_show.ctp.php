@@ -22,9 +22,10 @@
             		<?php
             		$tagList = explode(",", $blogInfo['tags']);
             		foreach ($tagList as $tag) {
+	            		$tag = trim($tag);
             			if (!empty($tag)) {
             				?>
-            				<a href="<?php echo SP_WEBPATH . "/blog.php?tag=$tag";?>"><?php echo $tag;?></a>
+            				<a href="<?php echo SP_WEBPATH . "/blog.php?tag=". urlencode($tag);?>"><?php echo $tag;?></a>
             				<?php
             			}
             		}
