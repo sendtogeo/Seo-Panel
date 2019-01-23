@@ -207,7 +207,7 @@ function formatDate($date) {
 
 function addHttpToUrl($url){
 	if(!stristr($url, 'http://') && !stristr($url, 'https://')){
-		$url = 'http://'.$url;
+		$url = 'http://'.trim($url);
 	}
 	return $url;
 }
