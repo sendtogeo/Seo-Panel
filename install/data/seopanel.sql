@@ -1382,6 +1382,23 @@ update  `featured_directories` set status=0 WHERE `directory_name` LIKE 'beta-i.
 INSERT INTO `featured_directories` (`directory_name`, `directory_link`, `google_pagerank`, `coupon_code`, `coupon_offer`, `status`)
 VALUES ('directorymaximizer.com', 'http://www.directorymaximizer.com/af.php?af=207564&ad=5&p=1', '6', '', '', '1');
 
+INSERT INTO `user_specs` (`user_type_id`, `spec_column`, `spec_value`, `spec_category`) VALUES
+(2, 'searchengine_count', '3', 'system'),
+(2, 'directory_submit_limit', '150', 'system'),
+(2, 'directory_submit_daily_limit', '100', 'system'),
+(2, 'site_auditor_max_page_limit', '500', 'system'),
+(2, 'plugin_1', '1', 'system'),
+(2, 'plugin_2', '1', 'system'),
+(2, 'plugin_3', '1', 'system'),
+(2, 'seotool_1', '1', 'system'),
+(2, 'seotool_2', '1', 'system'),
+(2, 'seotool_3', '1', 'system'),
+(2, 'seotool_4', '1', 'system'),
+(2, 'seotool_5', '1', 'system'),
+(2, 'seotool_6', '1', 'system'),
+(2, 'seotool_7', '1', 'system'),
+(2, 'seotool_8', '1', 'system');
+
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
