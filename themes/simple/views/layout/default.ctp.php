@@ -47,12 +47,7 @@ var wantproceed = '<?php  echo $spText['label']['wantproceed']; ?>';
             <!-- TABS -->
             <div id="Tabs" style="clear: both;">
                 <ul id="MainTabs">
-                    <?php
-                    $userInfo = @Session::readSession('userInfo');
-                    $userType = empty($userInfo['userType']) ? "guest" : $userInfo['userType'];
-                    $userType = (!isAdmin() && $userType != 'guest') ? "user" :  $userType;
-                    include(SP_VIEWPATH.'/menu/'.$userType.'menu.ctp.php');
-                    ?>
+                    <?php include(SP_VIEWPATH.'/menu/main_menu.ctp.php');?>
                 </ul>
             </div>
         </div>
@@ -79,7 +74,7 @@ var wantproceed = '<?php  echo $spText['label']['wantproceed']; ?>';
 </div>
 <div id="tmp"><form name="tmp" id="tmp"></form></div>
 <div id="dialogContent" style="display:none;"></div>
-<?php if(empty($_COOKIE['hidenews']) && !SP_HOSTED_VERSION){ ?>
+<?php if(empty($_COOKIE['hidenews']) && !SP_HOSTED_VERSION && empty($custSiteInfo['disable_news'])){ ?>
 	<script>scriptDoLoad('<?php echo SP_WEBPATH?>/index.php?sec=news', 'newsalert');</script>
 <?php }?>
 <?php

@@ -6,7 +6,7 @@ if ($isPluginSubsActive) {
 } else {
 	?>
 	<div id="topnewsbox">
-		<a class="bold_link" href="http://www.seopanel.in/plugin/l/65/membership-subscription/" target="_blank">
+		<a class="bold_link" href="<?php echo SP_MAIN_SITE?>/plugin/l/65/membership-subscription/" target="_blank">
 			<?php echo $spTextSubscription['click-activate-pay-plugin']; ?> &gt;&gt;
 		</a>
 	</div>
