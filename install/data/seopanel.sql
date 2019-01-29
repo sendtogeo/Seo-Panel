@@ -1380,7 +1380,7 @@ CREATE TABLE IF NOT EXISTS `webmaster_sitemaps` (
 
 update  `featured_directories` set status=0 WHERE `directory_name` LIKE 'beta-i.org';
 INSERT INTO `featured_directories` (`directory_name`, `directory_link`, `google_pagerank`, `coupon_code`, `coupon_offer`, `status`)
-VALUES ('directorymaximizer.com', 'http://www.directorymaximizer.com/af.php?af=207564&ad=5&p=1', '6', '', '', '1');
+VALUES ('directorymaximizer.com', 'http://www.directorymaximizer.com/af.php?af=207564&ad=5&p=1', '6', '', 0, '1');
 
 INSERT INTO `user_specs` (`user_type_id`, `spec_column`, `spec_value`, `spec_category`) VALUES
 (2, 'searchengine_count', '3', 'system'),
