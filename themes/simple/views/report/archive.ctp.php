@@ -329,6 +329,15 @@ if (!empty($keywordPos) && !empty($seCount)) {
 <br>
 <div>
 	<?php
+	if (!empty($sitemapReport)) {
+		echo $sitemapReport;
+	}
+	?>
+</div>
+
+<br>
+<div>
+	<?php
 	if (!empty($keywordSearchReport)) {
 		echo $keywordSearchReport;
 	}
@@ -338,7 +347,7 @@ if (!empty($keywordPos) && !empty($seCount)) {
 
 </div>
 <?php
-if(!empty($printVersion) || !empty($pdfVersion)) {
+if(empty($cronUserId) && (!empty($printVersion) || !empty($pdfVersion))) {
 	echo $pdfVersion ? showPdfFooter($spText) : showPrintFooter($spText);
 }
 ?>

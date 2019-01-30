@@ -109,8 +109,12 @@ class Controller extends Seopanel{
 		if(empty($layout) || ($layout == 'default')){
 			if(!empty($this->layout)){
 				$layout = $this->layout;
-			}			
-			if ($layout == 'default') $this->set('translatorInfo', $this->getTranslatorInfo());
+			}
+			
+			if ($layout == 'default') {
+				$this->set('translatorInfo', $this->getTranslatorInfo());
+			}
+			
 		}
 		$this->view->data = $this->data;
 		$this->view->render($viewFile, $layout);

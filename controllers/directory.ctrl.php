@@ -666,16 +666,7 @@ class DirectoryController extends Controller{
 	# function to show featured directories
 	function showFeaturedSubmission($info="") {
 	    $dirList = $this->getAllFeaturedDirectories();
-	    $this->set('list', $dirList);    
-	    /*if (empty($info['dir_id'])) {
-	        $selDirInfo = $dirList[1];
-	        $selDirId = $selDirInfo['id'];
-	    } else {
-	        $selDirId = intval($info['dir_id']); 
-	        $selDirInfo = $dirList[$selDirId];   
-	    }
-	    $this->set('selDirId', $selDirId);
-	    $this->set('selDirInfo', $selDirInfo);*/ 	    
+	    $this->set('list', $dirList);
 		$this->render('directory/featuredsubmission');
 	}	
 	

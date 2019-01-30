@@ -21,47 +21,38 @@
  ***************************************************************************/
 
 include_once("includes/sp-load.php");
-checkLoggedIn();
-isHavingWebsite();
-include_once(SP_CTRLPATH."/seoplugins.ctrl.php");
-$controller = New SeoPluginsController();
-$controller->view->menu = 'seoplugins';
-$controller->spTextPlugin = $controller->getLanguageTexts('plugin', $_SESSION['lang_code']);
-$controller->set('spTextPlugin', $controller->spTextPlugin);
-
-// set site details according to customizer plugin
+include_once(SP_CTRLPATH."/blog.ctrl.php");
+$controller = New BlogController();
+$controller->view->menu = 'blog';
 $custSiteInfo = getCustomizerDetails();
 $siteName = !empty($custSiteInfo['site_name']) ? $custSiteInfo['site_name'] : "Seo Panel";
-$controller->set('spTitle', "$siteName: Provides latest seo plugins to increase and track the performace your website");
-$controller->set('spDescription', "Its an open source software and also you can develop your own seo plugins for $siteName. Download new seo plugins and install into your $siteName software and increase your site perfomance.");
-$controller->set('spKeywords', "$siteName plugins,latest seo plugins,download seo plugins,install seo plugins,develop seo plugins");
+$controller->set('spTitle', "$siteName: Blog");
+$controller->set('spDescription', "$siteName: Blog with latest news");
+$controller->set('spKeywords', "$siteName blog, $siteName latest news");
+$controller->set('spBlogText', $controller->getLanguageTexts('blog', $_SESSION['lang_code']));
 
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	
 	switch($_POST['sec']){
-			
+	
 		default:
-			$controller->manageSeoPlugins($_REQUEST, 'post');
+			$controller->listBlogs($_POST);
 			break;
+			
 	}
 	
-}else{
+} else if($_SERVER['REQUEST_METHOD'] == 'GET'){
+
 	switch($_GET['sec']){
 
-		case "show":
-			$controller->showSeoPlugins($_GET);
-			break;
-			
 		default:
-			
-			// if plugin id existing present
-			if (!empty($_GET['pid'])) {
-				$controller->manageSeoPlugins($_REQUEST, 'get');
+			if (!empty($_GET['id'])) {
+				$controller->showBlog($_GET['id']);
 			} else {
-				$controller->showSeoPlugins($_GET);
+				$controller->listBlogs($_GET);
 			}
-			
 			break;
 	}
 }
+
 ?>

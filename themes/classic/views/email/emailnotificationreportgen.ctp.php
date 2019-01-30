@@ -8,10 +8,12 @@
 <?php echo $reportContent; ?>
 
 <br><br><br><br>
-<?php 
+<?php
+$custSiteInfo = getCustomizerDetails();
 $reportLink = SP_WEBPATH."/admin-panel.php?menu_selected=report-manager&start_script=archive&website_id=0";
-echo str_replace('[LOGIN_LINK]', "<a href='$reportLink'>{$loginTexts['Login']}</a>", $reportTexts['report_email_body_text2']); ?><br><br>
-
+echo str_replace('[LOGIN_LINK]', "<a href='$reportLink'>{$loginTexts['Login']}</a>", $reportTexts['report_email_body_text2']); 
+?>
+<br><br>
 <table cellspacing="0" cellpadding="0" width="100%">
 	<tbody>
 		<tr style="height: 11px;">
@@ -22,9 +24,13 @@ echo str_replace('[LOGIN_LINK]', "<a href='$reportLink'>{$loginTexts['Login']}</
 		</tr>
 		<tr style="height: 20px;">
 			<td style="vertical-align: middle; font-size: 11px; padding: 5px; margin: 0pt;">
-			<div style="word-wrap: break-word;">
-				<p style="font-size: 11px; color: rgb(169, 169, 169);"><?php echo str_replace('[year]', date('Y'), $spText['common']['copyright']); ?></p>
-			</div>
+		    	<?php if (!empty($custSiteInfo['footer_copyright'])) {?>
+		    		<div style="word-wrap: break-word;"><?php echo str_replace('[year]', date('Y'), $custSiteInfo['footer_copyright'])?></div>
+		    	<?php } else {?>
+					<div style="word-wrap: break-word;">
+						<p style="font-size: 11px; color: rgb(169, 169, 169);"><?php echo str_replace('[year]', date('Y'), $spText['common']['copyright']); ?></p>
+					</div>
+				<?php }?>
 			</td>
 		</tr>
 	</tbody>

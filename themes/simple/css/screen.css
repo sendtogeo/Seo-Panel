@@ -238,16 +238,24 @@ div#Wrapper {
 	background-color: white;
 }
 
-#Header h1 {
-	padding: 10px 0 10px 50px;
-	margin: 7px 0 0 30px;
-	font-size: 30px;
+#Header #logo_div {
+	padding: 10px 0 10px 0px;
+	margin: 7px 4px 0 0px;
+	width: 60px;
+	float: left;
+	text-align: right;
+	overflow: hidden;	
+}
+
+#Header #logo_text {
+	padding: 13px 0 10px 0px;
+	margin: 7px 0 0 0px;
+	font-size: 36px;
 	font-weight: bold;
 	color: #ABABAB;
 	text-align: left;
-	background: url('../../../images/logo.jpg') no-repeat 0px 0px;
 	height:35px;
-	font-style: normal;
+	float: left;
 }
 
 #Header h1 span {
@@ -1110,3 +1118,14 @@ div.tab button.active {	background-color: #ccc;}
     background-position: right center;
     background-repeat: no-repeat;
 }
+
+.blog_section{margin: 26px 20px; padding: 10px 6px;}
+.blog_search{float: right;text-align: right;margin: 4px 10px}
+.blog_search input{width: 200px;}
+.blog_List_head {margin: 10px 0px 28px;}
+.blog_List_head p{font-size: 10px;}
+.blog_List_head A{font-size: 30px; font-weight: bold;text-decoration: none;color: #445566;}
+.blog_tags{font-size: 10px; margin-top: 20px;}
+.blog_tags A {text-decoration: none;}
+.blog_paginate_div{margin: 10px 20px;}
+.blog_paginate_div A{text-decoration: none; color: #666666}

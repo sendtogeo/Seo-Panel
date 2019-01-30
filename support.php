@@ -24,14 +24,17 @@ include_once("includes/sp-load.php");
 include_once(SP_CTRLPATH."/index.ctrl.php");
 $controller = New IndexController();
 $controller->view->menu = 'support';
-$controller->set('spTitle', 'Seo Panel: Support System provides latest seo services');
-$controller->set('spDescription', 'Seo Panel support system will provides 1000 Directory Package,New Search Engines,New Seo Tools,New Seo Plugins,New Skin,Customization,Report Bugs,Support Tickets');
-$controller->set('spKeywords', 'seo panel support,1000 Directory Package,New Search Engines,New Seo Tools,New Seo Plugins,New Skin,Customization,Report Bugs,Support Tickets');
+$blogContent = getCustomizerPage('support');
+
+$controller->set('spTitle', !empty($blogContent['meta_title']) ? $blogContent['meta_title'] : 'Seo Panel: Support System provides latest seo services');
+$controller->set('spDescription', !empty($blogContent['meta_description']) ? $blogContent['meta_description'] : 'Seo Panel support system will provides 1000 Directory Package,New Search Engines,New Seo Tools,New Seo Plugins,New Skin,Customization,Report Bugs,Support Tickets');
+$controller->set('spKeywords', !empty($blogContent['meta_keywords']) ? $blogContent['meta_keywords'] : 'seo panel support,1000 Directory Package,New Search Engines,New Seo Tools,New Seo Plugins,New Skin,Customization,Report Bugs,Support Tickets');
 if($_SERVER['REQUEST_METHOD'] == 'GET'){
 
 	switch($_GET['sec']){
 
 		default:
+		    $controller->set('blogContent', $blogContent);
 			$controller->showSupport();
 			break;
 	}

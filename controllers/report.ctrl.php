@@ -683,7 +683,9 @@ class ReportController extends Controller {
 			$seStart = $this->seList[$seInfoId]['start'] + $this->seList[$seInfoId]['start_offset'];
 			while(empty($result['error']) && ($seStart < $this->seList[$seInfoId]['max_results']) ){
 				$logId = $result['log_id'];
-				$crawlInfo['log_message'] = "Started at: $seStart";
+				if(SP_DEBUG){
+					$crawlInfo['log_message'] = "Started at: $seStart";
+				}
 				$crawlLogCtrl->updateCrawlLog($logId, $crawlInfo);
 				sleep(SP_CRAWL_DELAY);
 				$seUrl = str_replace('[--start--]', $seStart, $searchUrl);
@@ -943,6 +945,7 @@ class ReportController extends Controller {
 			'keyword-position' => $this->spTextTools["Keyword Position Summary"],
 			'website-stats' => $spTextHome["Website Statistics"],
 			'website-search-reports' => $this->spTextTools['Website Search Summary'],
+			'sitemap-reports' => $this->spTextTools['Sitemap Reports Summary'],
 			'keyword-search-reports' => $this->spTextTools['Keyword Search Summary'],
 		);
 		$this->set('reportTypes', $reportTypes);
@@ -1242,7 +1245,7 @@ class ReportController extends Controller {
 		}
 		
 		# website search report section
-		if (empty($searchInfo['report_type']) || in_array($searchInfo['report_type'], array('website-search-reports', 'keyword-search-reports')) ) {
+		if (empty($searchInfo['report_type']) || in_array($searchInfo['report_type'], array('website-search-reports', 'keyword-search-reports', 'sitemap-reports')) ) {
 			$webMasterCtrler = new WebMasterController();
 			$webMasterCtrler->set('spTextTools', $this->spTextTools);
 			$webMasterCtrler->spTextTools = $this->spTextTools;
@@ -1265,12 +1268,19 @@ class ReportController extends Controller {
 				$keywordSearchReport = $webMasterCtrler->viewKeywordSearchSummary($filterList, true, $cronUserId);
 			}
 			
+			// if sitemap reports
+			if (empty($searchInfo['report_type']) || ($searchInfo['report_type'] == 'sitemap-reports')) {
+				$websiteCtrler->set('spTextPanel', $this->spTextPanel);
+				$sitemapReport = $websiteCtrler->listSitemap($filterList, true, $cronUserId);
+			}
+			
 			if ($exportVersion) {
 				$exportContent .= $websiteSearchReport;
 				$exportContent .= $keywordSearchReport;
 			} else {
 				$this->set('websiteSearchReport', $websiteSearchReport);
 				$this->set('keywordSearchReport', $keywordSearchReport);
+				$this->set('sitemapReport', $sitemapReport);
 			}
 			
 		}
@@ -1415,6 +1425,8 @@ class ReportController extends Controller {
             'to_time' => date('Y-m-d', $toTime),
             'doc_type' => 'print',
         );
+	    
+	    $this->spTextPanel = $this->getLanguageTexts('panel', $_SESSION['lang_code']);
 	    
         $reportContent = $this->showOverallReportSummary($searchInfo, $userInfo['id']);        
         $this->set('reportContent', $reportContent);

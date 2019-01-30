@@ -207,7 +207,7 @@ function formatDate($date) {
 
 function addHttpToUrl($url){
 	if(!stristr($url, 'http://') && !stristr($url, 'https://')){
-		$url = 'http://'.$url;
+		$url = 'http://'.trim($url);
 	}
 	return $url;
 }
@@ -395,8 +395,14 @@ function readFileContent($fileName) {
 
 # func to show printer footer
 function showPrintFooter($spText) {
+	$custSiteInfo = getCustomizerDetails();
+	if (!empty($custSiteInfo['footer_copyright'])) {
+		$copyrightTxt = str_replace('[year]', date('Y'), $custSiteInfo['footer_copyright']);
+	} else {
+		$copyrightTxt = str_replace('[year]', date('Y'), $spText['common']['copyright']);
+	}
     ?>
-    <div style="clear: both; margin-top: 10px;"><?php echo str_replace('[year]', date('Y'), $spText['common']['copyright'])?></div>
+    <div style="clear: both; margin-top: 10px;"><?php echo $copyrightTxt;?></div>
     </body>
     </html>
 	<?php
@@ -578,7 +584,12 @@ function showPdfHeader($headMsg = '') {
 
 # func to show pdf footer
 function showPdfFooter($spText) {
-	$copyrightTxt = str_replace("www.seopanel.in", "<a href='http://www.seopanel.in'>www.seopanel.in</a>", $spText['common']['copyright']);
+	$custSiteInfo = getCustomizerDetails();
+	if (!empty($custSiteInfo['footer_copyright'])) {
+		$copyrightTxt = str_replace('[year]', date('Y'), $custSiteInfo['footer_copyright']);
+	} else {
+		$copyrightTxt = str_replace("www.seopanel.in", "<a href='http://www.seopanel.in'>www.seopanel.in</a>", $spText['common']['copyright']);
+	}
     ?>
     <div style="clear: both; margin-top: 30px;font-size: 12px; text-align: center;"><?php echo str_replace('[year]', date('Y'), $copyrightTxt)?></div>
 	<?php
@@ -635,5 +646,60 @@ function getDateRange($first, $last, $step = '+1 day', $outputFormat = 'Y-m-d' )
 	}
 
 	return $dates;
+}
+
+function getCustomizerDetails() {
+    $custSiteInfo = array();
+    
+    // check whetehr plugin installed or not
+    $seopluginCtrler = new SeoPluginsController();
+    if ($seopluginCtrler->isPluginActive("customizer")) {
+        $infoList = $seopluginCtrler->dbHelper->getAllRows("cust_site_details", "status=1");
+        foreach ($infoList as $info) $custSiteInfo[$info['col_name']] = $info['col_value'];
+        $custSiteInfo['plugin_active'] = 1;
+    }
+    
+    return $custSiteInfo;
+    
+}
+
+// function to get customizer pages[home,support,aboutus]
+function getCustomizerPage($pageName='home') {
+    $blogInfo = array();
+    $pageName = addslashes($pageName);
+    
+    // check whetehr plugin installed or not
+    $seopluginCtrler = new SeoPluginsController();
+    if ($seopluginCtrler->isPluginActive("customizer")) {
+        $langCode = !empty($_SESSION['lang_code']) ? $_SESSION['lang_code'] : "en";
+        $whereCond = "status=1 and link_page='$pageName'";
+        $blogInfo = $seopluginCtrler->dbHelper->getRow("cust_blogs", $whereCond . " and lang_code='$langCode'");
+        
+        // empty blog and language is not en, check en content
+        if (empty($blogInfo['id']) && ($langCode != 'en')) {
+            $blogInfo = $seopluginCtrler->dbHelper->getRow("cust_blogs", $whereCond . " and lang_code='en'");
+        }
+        
+        // if blog is not empty
+        if (!empty($blogInfo['blog_content'])) {
+            $blogInfo['blog_content'] = convertMarkdownToHtml($blogInfo['blog_content']);
+        }
+        
+    }
+    
+    return $blogInfo;
+    
+}
+
+function convertMarkdownToHtml($pageCont) {
+    include_once(SP_LIBPATH."/Parsedown.php");
+    $Parsedown = new Parsedown();
+    $pageCont = $Parsedown->text($pageCont);
+    return $pageCont;
+}
+
+function isPluginActivated($pluginName) {
+	$seopluginCtrler = new SeoPluginsController();
+	return $seopluginCtrler->isPluginActive($pluginName);
 }
 ?>

@@ -17,7 +17,7 @@
 	<tr>
 		<td>
 		<p><?php echo $spTextPanel['alsocheckfollowlink']?></p>
-		<p><a target="_blank" href="http://www.seopanel.in/install/setup-cron/" class="infobox">http://www.seopanel.in/install/setup-cron/</a></p>
+		<p><a target="_blank" href="<?php echo SP_MAIN_SITE?>/install/setup-cron/" class="infobox"><?php echo SP_MAIN_SITE?>/install/setup-cron/</a></p>
 		</td>
 	</tr>
 </table>

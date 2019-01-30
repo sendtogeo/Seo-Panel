@@ -34,7 +34,7 @@ class GoogleAPIController extends Controller{
 	 * contructor
 	 */
 	function GoogleAPIController() {
-		parent::Controller();
+		parent::__construct();
 		$this->tokenCtrler = new UserTokenController();
 	}
 	
@@ -80,7 +80,10 @@ class GoogleAPIController extends Controller{
 			
 			// if token not set for the user
 			if (empty($tokenInfo['access_token'])) {
-				return "Error: Access token not set for the user.";
+			    $spTextWebmaster = $this->getLanguageTexts('webmaster', $_SESSION['lang_code']);
+			    $errorText = $spTextWebmaster["Error: Google api connection failed"] . ". ";
+			    $errorText .= "<a href='".SP_WEBPATH ."/admin-panel.php?sec=connections' target='_blank'>{$spTextWebmaster['Click here to connect to your google account']}.</a>";
+                return $errorText;
 			}
 			
 			// set token info

@@ -343,7 +343,7 @@ class UserTypeController extends Controller {
 				'name' => $pluginCol,
 				'label' => $pluginInfo['label'],
 				'status' => $pluginInfo['status'],
-				'value' => isset($userTypeSettingList[$pluginCol]) ? $userTypeSettingList[$pluginCol] : 1,
+				'value' => isset($userTypeSettingList[$pluginCol]) ? $userTypeSettingList[$pluginCol] : 0,
 			);
 			
 		}
@@ -367,7 +367,7 @@ class UserTypeController extends Controller {
 			$userTypeSettingList = $this->getUserTypeSpec($userTypeId, "system");
 		}
 		
-		// loop through plugin list
+		// loop through tools list
 		foreach ($toolList as $i => $toolInfo) {
 			$toolCol = 'seotool_' . $toolInfo['id'];
 			$toolAccessList[$toolInfo['id']] = array(
@@ -375,7 +375,7 @@ class UserTypeController extends Controller {
 				'label' => $toolInfo['name'],
 				'status' => $toolInfo['status'],
 				'url_section' => $toolInfo['url_section'],
-				'value' => isset($userTypeSettingList[$toolCol]) ? $userTypeSettingList[$toolCol] : 1,
+				'value' => isset($userTypeSettingList[$toolCol]) ? $userTypeSettingList[$toolCol] : 0,
 			);
 			
 		}
@@ -618,7 +618,7 @@ class UserTypeController extends Controller {
 	 */
 	function __getUserTypeSpecValue($userTypeId, $specName) {
 		$userTypeSpecList = $this->__getUserTypeInfo($userTypeId);
-		return $userTypeSpecList['enable_email_activation'] ? isset($userTypeSpecList['enable_email_activation']) : false;
+		return $userTypeSpecList[$specName] ? isset($userTypeSpecList[$specName]) : false;
 	}
 	
 	/*

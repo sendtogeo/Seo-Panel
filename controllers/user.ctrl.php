@@ -108,7 +108,7 @@ class UserController extends Controller{
 			}
 		}
 		$this->set('errMsg', $errMsg);
-		$this->index();
+		$this->index($_POST);
 	}
 	
 	# func to confirm the user registration

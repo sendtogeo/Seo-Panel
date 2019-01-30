@@ -26,9 +26,12 @@ include_once(SP_CTRLPATH."/adminpanel.ctrl.php");
 $controller = New AdminPanelController();
 $controller->view->menu = 'adminpanel';
 
-$controller->set('spTitle', 'Seo Panel: User control panel for manage settings');
-$controller->set('spDescription', 'User control panel for manage settings');
-$controller->set('spKeywords', 'Seo Panel settings,User control panel,manage seo panel settings');
+// set site details according to customizer plugin
+$custSiteInfo = getCustomizerDetails();
+$siteName = !empty($custSiteInfo['site_name']) ? $custSiteInfo['site_name'] : "Seo Panel";
+$controller->set('spTitle', "$siteName: User control panel for manage settings");
+$controller->set('spDescription', "$siteName user control panel for manage settings");
+$controller->set('spKeywords', "$siteName settings,User control panel,manage $siteName settings");
 $controller->spTextPanel = $controller->getLanguageTexts('panel', $_SESSION['lang_code']);
 $controller->set('spTextPanel', $controller->spTextPanel);
 $controller->set('spTextTools', $controller->getLanguageTexts('seotools', $_SESSION['lang_code']));

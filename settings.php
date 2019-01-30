@@ -62,7 +62,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			break;
 		
 		case "aboutus":
-			$controller->showAboutUs();
+			$controller->showAboutUs($_GET);
 			break;
 		
 		case "version":

@@ -83,7 +83,7 @@ if(!$summaryPage && (!empty($printVersion) || !empty($pdfVersion))) {
 		<?php
 	}
 	
-	if (empty($pdfVersion)) echo $pagingDiv;
+	if (empty($pdfVersion) && empty($cronUserId)) echo $pagingDiv;
 }
 
 $baseColCount = count($colList);
@@ -144,8 +144,8 @@ $colCount = ($baseColCount * 3) + 2;
 				foreach ($colList as $colName => $colVal){
 					if ($colName == 'name') continue;
 					
-					$prevRank = isset($listInfo[$colName]) ? $listInfo[$colName] : 0;
-					$currRank = isset($compareReportList[$keywordId][$colName]) ? $compareReportList[$keywordId][$colName] : 0;
+					$currRank = isset($listInfo[$colName]) ? $listInfo[$colName] : 0;
+					$prevRank = isset($compareReportList[$keywordId][$colName]) ? $compareReportList[$keywordId][$colName] : 0;
 					$rankDiffTxt = "";
 					
 					// find rank difefrence

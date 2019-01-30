@@ -31,7 +31,7 @@ class WebMasterController extends GoogleAPIController {
 	var $colList = array();	
 	
 	function WebMasterController() {
-		parent::Controller();
+		parent::__construct();
 
 		$this->spTextWB = $this->getLanguageTexts('webmaster', $_SESSION['lang_code']);
 		$this->set('spTextWB', $this->spTextWB);
@@ -138,7 +138,7 @@ class WebMasterController extends GoogleAPIController {
 	}
 	
 	/*
-	 * function to get all sites added in webmaster tools
+	 * function to submit website to webmaster tools
 	 */
 	function addWebsite($siteUrl, $userId) {
 		$result = array('status' => false);
@@ -166,7 +166,7 @@ class WebMasterController extends GoogleAPIController {
 	}
 	
 	/*
-	 * function to get all sites added in webmaster tools
+	 * function to submit sitemap to webmaster tools
 	 */
 	function submitSitemap($siteUrl, $sitemapUrl, $userId) {
 		$result = array('status' => false);
@@ -187,6 +187,61 @@ class WebMasterController extends GoogleAPIController {
 		}  catch (Exception $e) {
 			$err = $e->getMessage();
 			$result['msg'] = "Error: submit sitemap - $err";
+		}
+	
+		return $result;
+	
+	}
+	
+	/*
+	 * function to get all sitemaps submitted in webmaster tools
+	 */
+	function getAllSitemap($siteUrl, $userId) {
+		$result = array('status' => false);
+	
+		try {
+				
+			$client = $this->getAuthClient($userId);
+				
+			// check whether client created successfully
+			if (!is_object($client)) {
+				$result['msg'] = $client;
+				return $result;
+			}
+				
+			$service = new Google_Service_Webmasters($client);
+			$resultList = $service->sitemaps->listSitemaps($siteUrl);			
+			$result['resultList'] = $resultList['sitemap'];
+			$result['status'] = true;
+		}  catch (Exception $e) {
+			$err = $e->getMessage();
+			$result['msg'] = "Error: get all sitemaps - $err";
+		}
+	
+		return $result;
+	
+	}
+	/*
+	 * function to submit sitemap to webmaster tools
+	 */
+	function deleteWebsiteSitemap($siteUrl, $sitemapUrl, $userId) {
+		$result = array('status' => false);
+	
+		try {
+			
+			// check whether client created successfully
+			$client = $this->getAuthClient($userId);
+			if (!is_object($client)) {
+				$result['msg'] = $client;
+				return $result;
+			}
+				
+			$service = new Google_Service_Webmasters($client);
+			$resultList = $service->sitemaps->delete($siteUrl, $sitemapUrl);
+			$result['status'] = true;
+		}  catch (Exception $e) {
+			$err = $e->getMessage();
+			$result['msg'] = "Error: delete sitemap - $err";
 		}
 	
 		return $result;
@@ -370,6 +425,7 @@ class WebMasterController extends GoogleAPIController {
 		$source = $this->sourceList[0];
 		$this->set('summaryPage', $summaryPage);
 		$this->set('searchInfo', $searchInfo);
+		$this->set('cronUserId', $cronUserId);
 		
 		$exportVersion = false;
 		switch($searchInfo['doc_type']){
@@ -394,8 +450,8 @@ class WebMasterController extends GoogleAPIController {
 		$this->set('toTime', $toTime);
 	
 		$websiteController = New WebsiteController();
-		$wList = $websiteController->__getAllWebsitesWithActiveKeywords($userId, true);
-		$websiteList = array();
+		$wList = $websiteController->__getAllWebsites($userId, true);
+		$websiteList = array(0);
 		foreach ($wList as $wInfo) $websiteList[$wInfo['id']] = $wInfo;
 		$this->set('websiteList', $websiteList);
 		$websiteId = intval($searchInfo['website_id']);
@@ -427,7 +483,7 @@ class WebMasterController extends GoogleAPIController {
 		$conditions .= !empty($searchInfo['search_name']) ? " and k.name like '%".addslashes($searchInfo['search_name'])."%'" : "";
 		
 		$subSql = "select [cols] from webmaster_keywords k, keyword_analytics r where k.id=r.keyword_id
-		and k.status=1 $conditions and r.source='$source' and r.report_date='$fromTime'";
+		and k.status=1 $conditions and r.source='$source' and r.report_date='$toTime'";
 		
 		$sql = "
 		(" . str_replace("[cols]", "k.id,k.name,k.website_id,r.clicks,r.impressions,r.ctr,r.average_position", $subSql) . ")
@@ -439,7 +495,7 @@ class WebMasterController extends GoogleAPIController {
 		if ($orderCol != 'name') $sql .= ", name";
 		
 		// pagination setup, if not from cron job email send function, pdf and export action
-		if (!in_array($searchInfo['doc_type'], array("pdf", "export")) && !$cronUserId) {
+		if (!in_array($searchInfo['doc_type'], array("pdf", "export"))) {
 			$this->db->query($sql, true);
 			$this->paging->setDivClass('pagingdiv');
 			$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
@@ -464,7 +520,7 @@ class WebMasterController extends GoogleAPIController {
 
 			$sql = "select k.id,k.name,k.website_id,r.clicks,r.impressions,r.ctr,r.average_position 
 			from webmaster_keywords k, keyword_analytics r where k.id=r.keyword_id
-			and k.status=1 $conditions and r.source='$source' and r.report_date='$toTime'";
+			and k.status=1 $conditions and r.source='$source' and r.report_date='$fromTime'";
 			$sql .= " and k.id in(" . implode(",", $keywordIdList) . ")";
 			$reportList = $this->db->select($sql);
 			$compareReportList = array();
@@ -500,8 +556,8 @@ class WebMasterController extends GoogleAPIController {
 				foreach ($this->colList as $colName => $colVal) {
 					if ($colName == 'name') continue;
 					
-					$prevRank = isset($listInfo[$colName]) ? $listInfo[$colName] : 0;
-					$currRank = isset($compareReportList[$listInfo['id']][$colName]) ? $compareReportList[$listInfo['id']][$colName] : 0;
+					$currRank = isset($listInfo[$colName]) ? $listInfo[$colName] : 0;
+					$prevRank = isset($compareReportList[$listInfo['id']][$colName]) ? $compareReportList[$listInfo['id']][$colName] : 0;
 					$rankDiff = "";
 	
 					// if both ranks are existing

@@ -221,7 +221,24 @@ class CronController extends Controller {
 			$seoTools = $this->repTools;
 		}
 		
+		// check whethre user access to seo tools and plugins
+		$userCtrler = New UserController();
+		$userInfo = $userCtrler->__getUserInfo($this->websiteInfo['user_id']);
+		$userTypeCtrler = new UserTypeController();
+		
+		// check whethere user is admin
+		if ($userInfo['utype_id'] == $userTypeCtrler->getAdminUserTypeId()) {
+		    $isAdmin = true;
+		} else {
+		    $isAdmin = false;
+		    $toolAccessList = $userTypeCtrler->getSeoToolAccessSettings($userInfo['utype_id']);
+		}		
+		
 		foreach ($seoTools as $cronInfo) {
+		    
+		    // check whether user have acccess to the tool
+		    if (!$isAdmin && empty($toolAccessList[$cronInfo['id']]['value']) ) continue;
+		    
 			switch($cronInfo['url_section']){
 				
 				case "webmaster-tools":
@@ -249,6 +266,7 @@ class CronController extends Controller {
 					break;
 			}
 		}
+		
 	}
 	
 	# func to generate search engine saturation reports from cron
@@ -432,7 +450,12 @@ class CronController extends Controller {
 			$wmCtrler->storeWebsiteAnalytics($websiteInfo['id'], $reportDate, $source);
 		}		
 
-		$this->debugMsg("Saved webmaster tools results of <b>{$this->websiteInfo['name']}</b>.....<br>\n");
+		$this->debugMsg("Saved webmaster tools analytics results of <b>{$this->websiteInfo['name']}</b>.....<br>\n");
+		
+		// update webmaster tools sitemaps
+		$websiteController = New WebsiteController();
+		$websiteController->importWebmasterToolsSitemaps($websiteId);
+		$this->debugMsg("Saved webmaster tools sitemaps of <b>{$this->websiteInfo['name']}</b>.....<br>\n");		
 		
 	}
 	

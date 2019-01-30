@@ -13956,7 +13956,23 @@ INSERT INTO `texts` (`id`, `lang_code`, `category`, `label`, `content`, `changed
 (13949, 'en', 'panel', 'Submit Sitemap', 'Submit Sitemap', '2018-11-26 19:02:56'),
 (13950, 'en', 'website', 'Website successfully added to webmaster tools', 'Website successfully added to webmaster tools', '2018-11-26 19:02:56'),
 (13951, 'en', 'website', 'Successfully imported following websites', 'Successfully imported following websites', '2018-11-26 19:02:56'),
-(13952, 'en', 'website', 'Add to Webmaster Tools', 'Add to Webmaster Tools', '2018-11-26 19:02:56');
+(13952, 'en', 'website', 'Add to Webmaster Tools', 'Add to Webmaster Tools', '2018-11-26 19:02:56'),
+(13953, 'en', 'blog', 'Newer Posts', 'Newer Posts', '2019-01-23 20:08:22'),
+(13954, 'en', 'blog', 'Older Posts', 'Older Posts', '2019-01-23 20:08:22'),
+(13955, 'en', 'webmaster', 'Error: Google api connection failed', 'Error: Google api connection failed', '2019-01-23 20:08:22'),
+(13956, 'en', 'webmaster', 'Click here to connect to your google account', 'Click here to connect to your google account', '2019-01-23 20:08:22'),
+(13957, 'en', 'common', 'Blog', 'Blog', '2019-01-23 20:08:22'),
+(13958, 'en', 'seotools', 'Sitemap Reports Summary', 'Sitemap Reports Summary', '2019-01-23 20:08:22'),
+(13959, 'en', 'website', 'Successfully deleted sitemap from webmaster tools', 'Successfully deleted sitemap from webmaster tools', '2019-01-23 20:08:22'),
+(13960, 'en', 'website', 'Successfully sync sitemaps from webmaster tools', 'Successfully sync sitemaps from webmaster tools', '2019-01-23 20:08:22'),
+(13961, 'en', 'sitemap', 'Sync Sitemaps', 'Sync Sitemaps', '2019-01-23 20:08:22'),
+(13962, 'en', 'common', 'Errors', 'Errors', '2019-01-23 20:08:22'),
+(13963, 'en', 'common', 'Warnings', 'Warnings', '2019-01-23 20:08:22'),
+(13964, 'en', 'sitemap', 'Submitted', 'Submitted', '2019-01-23 20:08:22'),
+(13965, 'en', 'sitemap', 'Downloaded', 'Downloaded', '2019-01-23 20:08:22'),
+(13966, 'en', 'panel', 'Sitemaps', 'Sitemaps', '2019-01-23 20:08:22'),
+(13967, 'en', 'blog', 'Nothing Found', 'Nothing Found', '2019-01-23 20:51:58'),
+(13968, 'en', 'blog', 'NothingFound_text2', 'Sorry, but nothing matched your search criteria. Please try again with some different keywords.', '2019-01-23 20:54:55');
 
 DROP TABLE IF EXISTS `translators`;
 CREATE TABLE `translators` (
@@ -14015,7 +14031,7 @@ ALTER TABLE `translators`
 
 
 ALTER TABLE `texts`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13953;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13969;
 
 ALTER TABLE `translators`
   MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
