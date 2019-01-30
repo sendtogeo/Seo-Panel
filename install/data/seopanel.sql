@@ -642,7 +642,7 @@ CREATE TABLE IF NOT EXISTS `information_list` (
 ) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 INSERT INTO `information_list` (`id`, `info_type`, `content`, `update_date`) VALUES
-(1, 'news', '	<a style="text-decoration: none" href="http://www.seopanel.in/aboutus/sponsors/" target="_blank" id=''news_info''>\n		<b style="color:red;">New*</b> <b>Donate</b> <b style="color: green">$250</b> \n		and become a <b>premium sponsor of Seo Panel</b>. Also get <b>all plugins</b> we develop for Free!\n	</a>\n	', '2016-12-16');
+(1, 'news', '	<a style="text-decoration: none" href="http://www.seopanel.in/aboutus/sponsors/" target="_blank" id=''news_info''>\n		<b style="color:red;">New*</b> <b>Donate</b> <b style="color: green">$500</b> \n		and become a <b>premium sponsor of Seo Panel</b>. Also get <b>all plugins</b> we develop for Free!\n	</a>\n	', '2016-12-16');
 
 CREATE TABLE IF NOT EXISTS `keywordcrontracker` (
 `id` bigint(20) unsigned NOT NULL,
