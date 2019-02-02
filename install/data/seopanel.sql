@@ -851,7 +851,7 @@ INSERT INTO `settings` (`id`, `set_label`, `set_name`, `set_val`, `set_category`
 (40, 'API Secret', 'API_SECRET', '', 'api', 'medium', 1),
 (41, 'Company Name', 'SP_COMPANY_NAME', 'Seo Panel', 'system', 'medium', 1),
 (42, 'Currency', 'SP_PAYMENT_CURRENCY', 'USD', 'system', 'medium', 1),
-(43, 'Seo Panel version', 'SP_VERSION_NUMBER', '3.17.0', 'system', 'medium', 0),
+(43, 'Seo Panel version', 'SP_VERSION_NUMBER', '3.18.0', 'system', 'medium', 0),
 (44, 'Moz API Link', 'SP_MOZ_API_LINK', 'http://lsapi.seomoz.com/linkscape', 'moz', 'medium', 0),
 (45, 'Moz API Link', 'SP_MOZ_API_ACCESS_ID', '', 'moz', 'large', 1),
 (46, 'Moz API Link', 'SP_MOZ_API_SECRET', '', 'moz', 'large', 1),
@@ -1358,8 +1358,6 @@ ALTER TABLE `crawl_log` CHANGE `ref_id` `ref_id` TEXT CHARACTER SET utf8 COLLATE
 --
 -- Seo Panel 3.17.0 changes
 --
-
-update `settings` set set_val='3.17.0' WHERE `set_name` LIKE 'SP_VERSION_NUMBER';
 
 CREATE TABLE IF NOT EXISTS `webmaster_sitemaps` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
