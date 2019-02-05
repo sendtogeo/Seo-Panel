@@ -691,6 +691,13 @@ function getCustomizerPage($pageName='home') {
     
 }
 
+// function to get customizer pages[guest,user,admin,top]
+function getCustomizerMenu($menuName) {
+	$controller = new Controller();		
+	$custComp = $controller->createComponent("Customizer_Helper");
+	return $custComp->getCustomizerMenu($menuName, $_SESSION['lang_code']);
+}
+
 function convertMarkdownToHtml($pageCont) {
     include_once(SP_LIBPATH."/Parsedown.php");
     $Parsedown = new Parsedown();
