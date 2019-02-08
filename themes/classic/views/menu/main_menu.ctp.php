@@ -71,9 +71,10 @@ if (!empty($menuInfo['item_list'])) {
 	foreach ($menuInfo['item_list'] as $menuItem) {
 		$linkTarget = ($menuItem['window_target'] == 'new_tab') ? "_blank" : "";
 		$liStyle = ($menuItem['float_type'] == 'right') ? "float: right" : "";
+		$currClass = stristr($menuItem['url'], $_SERVER['SCRIPT_NAME']) ? "current" : "";
 		?>
 		<li style="<?php echo $liStyle?>">
-			<a href="<?php echo $menuItem['url']?>" target="<?php echo $linkTarget?>" style="<?php echo $linkStyle?>">
+			<a href="<?php echo $menuItem['url']?>" target="<?php echo $linkTarget?>" style="<?php echo $linkStyle?>" class="<?php echo $currClass?>">
 				<?php echo $menuItem['label']?>
 			</a>
 		</li>
