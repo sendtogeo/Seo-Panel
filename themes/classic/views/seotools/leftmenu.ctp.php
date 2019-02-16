@@ -93,6 +93,11 @@ foreach($menuList as $i => $menuInfo){
 						<?php echo $spTextTools['Graphical Reports']?>(<?php echo $spText['common']['Website']?>)
 					</a>
 				</li>
+				<li>
+					<a href="javascript:void(0);" onclick="scriptDoLoad('websites.php', 'content', 'sec=listSitemap')">
+						<?php echo $spTextPanel['Sitemaps']?>(<?php echo $spTextTools['webmaster-tools']?>)
+					</a>
+				</li>
 			</ul>
 			<?php
 			break;
