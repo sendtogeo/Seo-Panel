@@ -140,6 +140,7 @@ class DirectoryController extends Controller{
 
 	# func to create captcha image in system
 	function __getCreatedCaptchaUrl($captchaUrl, $submitUrl, $phpsessid){
+		$captchaUrlInfo = ['url' => $captchaUrl, 'code' => ''];
 		
 		$spider = new Spider();
 		$spider->_CURLOPT_REFERER = $submitUrl;
@@ -157,9 +158,18 @@ class DirectoryController extends Controller{
 			fwrite($fp, $ret['page']);
 			fclose($fp);
 			$captchaUrl = SP_WEBPATH. "/tmp/" .$captchaFile ."?rand=".mktime();	
+			$captchaUrlInfo['url'] = $captchaUrl;
+			
+			// check for captcha bypass plugin enabled or not
+			if (isPluginActivated("CaptchaBypass")) {
+				$seopluginCtrler = new SeoPluginsController();
+				$pluginCtrler = $seopluginCtrler->createPluginObject("CaptchaBypass");
+				$captchaUrlInfo['code'] = $pluginCtrler->solveCaptchaImage(['img_path' => SP_TMPPATH."/".$captchaFile]);
+			}
+			
 		}
 		
-		return $captchaUrl; 
+		return $captchaUrlInfo; 
 	}
 	
 	# func to show submission page
@@ -283,7 +293,8 @@ class DirectoryController extends Controller{
 				}
 
 				# to get stored image path if hot linking is prevented
-				$captchaUrl = $this->__getCreatedCaptchaUrl($captchaUrl, $dirInfo['submit_url'], $phpsessid);
+				$captchaUrlInfo = $this->__getCreatedCaptchaUrl($captchaUrl, $dirInfo['submit_url'], $phpsessid);
+				$captchaUrl = $captchaUrlInfo['url'];
 				
 			} else {
 
@@ -295,6 +306,7 @@ class DirectoryController extends Controller{
 				
 			}			
 			
+			$this->set('captchaCode', !empty($captchaUrlInfo['code']) ? $captchaUrlInfo['code'] : "");
 			$this->set('captchaUrl', $captchaUrl);
 			$this->set('addParams', $addParams);
 

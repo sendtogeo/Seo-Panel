@@ -57,7 +57,7 @@
 				<?php if(!empty($imageHash)){?>
 					<input type="hidden" name="<?php echo $dirInfo['imagehash_col']?>" value="<?php echo $imageHash?>">
 				<?php }?>
-				<input type="text" name="<?php echo $dirInfo['cptcha_col']?>" value="" id='captcha'>
+				<input type="text" name="<?php echo $dirInfo['cptcha_col']?>" value="<?php echo $captchaCode;?>" id='captcha'>
 				<p><img src='<?php echo $captchaUrl?>'></p>
 			</td>
 		</tr>
