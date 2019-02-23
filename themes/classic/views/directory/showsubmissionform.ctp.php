@@ -38,7 +38,7 @@
 		<td class="td_left_col"><?php echo $spText['common']['Page Authority']?>:</td>
 		<td class="td_right_col"><?php echo $dirInfo['page_authority']?></td>
 	</tr>		
-	<tr class="white_row">
+	<tr class="white_row" id="category_col">
 		<td class="td_left_col"><?php echo $spText['common']['Category']?>:</td>
 		<td class="td_right_col"><?php echo $categorySel?></td>
 	</tr>
@@ -90,3 +90,21 @@
 	</tr>
 </table>
 </form>
+
+<script>
+var catSelectStr = "<?php echo $catSelectStr?>";
+var catList = catSelectStr.split(",");
+var found = 0;
+for (var i = 0; i < catList.length; i++) {
+	$('#category_col option:contains(' + catList[i].trim() + ')').each(function() {
+		$(this).attr('selected', 'selected');
+		found = 1;
+		return true;
+	});
+
+	if (found) {
+		break;
+	}
+	
+}
+</script>

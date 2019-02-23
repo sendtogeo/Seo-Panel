@@ -244,7 +244,10 @@ class DirectoryController extends Controller{
 		if(!empty($matches[0])){
 			
 			$categorysel = $matches[0];
-			$catList = explode(',', $websiteInfo['category']);
+			$this->set('catSelectStr', $websiteInfo['category']);
+			
+			// replaced with jquery script
+			/*$catList = explode(',', $websiteInfo['category']);
 			if(count($catList) > 0){
 				foreach($catList as $category){
 					$category = trim($category);
@@ -255,7 +258,7 @@ class DirectoryController extends Controller{
 				if($count <= 0){
 					$categorysel = $matches[0];
 				}
-			}
+			}*/
 
 			$categorysel = str_replace("ADD_CATEGORY_ID[]", $dirInfo['category_col'], $categorysel);
 			$this->set('categorySel', $categorysel);
