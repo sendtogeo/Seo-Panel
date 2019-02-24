@@ -57,8 +57,16 @@
 				<?php if(!empty($imageHash)){?>
 					<input type="hidden" name="<?php echo $dirInfo['imagehash_col']?>" value="<?php echo $imageHash?>">
 				<?php }?>
+				<?php
+				$captchaCodeError = "";
+				if ( stristr($captchaCode, 'Error:')) {
+				    $captchaCodeError = formatErrorMsg($captchaCode);
+				    $captchaCode = "";
+				}
+				?>
 				<input type="text" name="<?php echo $dirInfo['cptcha_col']?>" value="<?php echo $captchaCode;?>" id='captcha'>
 				<p><img src='<?php echo $captchaUrl?>'></p>
+				<?php echo $captchaCodeError?>
 			</td>
 		</tr>
 	<?php } ?>		
