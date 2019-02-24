@@ -91,7 +91,7 @@
          	<a onclick="scriptDoLoad('directories.php?sec=reload&website_id=<?php echo $websiteId?>&dir_id=<?php echo $dirInfo['id']?>', 'subcontent')" href="javascript:void(0);" class="actionbut">
          		<?php echo $spText['button']['Reload']?>
          	</a>&nbsp;
-         	<a onclick="checkSubmitInfo('directories.php', 'submissionForm', 'subcontent', '<?php echo $dirInfo['category_col']?>')" href="javascript:void(0);" class="actionbut">
+         	<a onclick="checkSubmitInfo('directories.php', 'submissionForm', 'subcontent', '<?php echo $dirInfo['category_col']?>')" href="javascript:void(0);" class="actionbut" id="dir_submit_but">
          		<?php echo $spText['button']['Submit']?>
          	</a>
     	</td>
@@ -120,4 +120,10 @@ for (var i = 0; i < catList.length; i++) {
 	}
 	
 }
+
+<?php if (defined("CB_ENABLE_DIR_AUTO_SUBMISSION") && CB_ENABLE_DIR_AUTO_SUBMISSION) {?>
+    setTimeout(function() {
+        $('#dir_submit_but').trigger('click');
+    }, <?php echo CB_DIR_AUTO_SUBMISSION_INTERVAL * 1000?>);
+<?php }?>
 </script>
