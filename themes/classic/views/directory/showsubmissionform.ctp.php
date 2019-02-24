@@ -92,11 +92,16 @@
 </form>
 
 <script>
+jQuery.expr[':'].icontains = function(a, i, m) {
+  return jQuery(a).text().toUpperCase()
+      .indexOf(m[3].toUpperCase()) >= 0;
+};
+
 var catSelectStr = "<?php echo $catSelectStr?>";
 var catList = catSelectStr.split(",");
 var found = 0;
 for (var i = 0; i < catList.length; i++) {
-	$('#category_col option:contains(' + catList[i].trim() + ')').each(function() {
+	$('#category_col option:icontains(' + catList[i].trim() + ')').each(function() {
 		$(this).attr('selected', 'selected');
 		found = 1;
 		return true;
