@@ -307,6 +307,11 @@ class DirectoryController extends Controller{
 					$addParams = "&DO_MATH=$sumMath&Anti_Spam_Field=$sumMath";
 				}
 				
+				if (isPluginActivated("CaptchaBypass")) {
+					$seopluginCtrler = new SeoPluginsController();
+					$pluginCtrler = $seopluginCtrler->createPluginObject("CaptchaBypass");
+				}
+				
 			}			
 			
 			$this->set('captchaCode', !empty($captchaUrlInfo['code']) ? $captchaUrlInfo['code'] : "");
