@@ -70,7 +70,26 @@ class Customizer_Helper extends Controller{
 	
 		return $menuInfo;
 	
-	}		
+	}
+	
+	// function to get custom theme styles
+	function getThemeCustomStyles($themeId) {
+		$style = "";
+	
+		// check whether plugin installed or not
+		if (isPluginActivated("customizer")) {
+			$whereCond = "theme_id=". intval($themeId) . " and status=1 order by priority desc";
+			$styleList = $this->dbHelper->getAllRows("cust_styles", $whereCond);
+			
+			foreach ($styleList as $styleInfo) {
+				$style .= $styleInfo['style_content'] . "\n\n";
+			}
+			
+		}
+		
+		return $style;
+		
+	}
 		
 }
 ?>

@@ -84,6 +84,12 @@ class ThemesController extends Controller{
 		return $themeInfo;
 	}
 	
+	# func to get active theme info
+	function __getActiveTheme() {
+		$themeInfo = $this->dbHelper->getRow($this->tableName, "status=1");
+		return $themeInfo;
+	}
+	
 	# func to list  theme info
 	function listThemeInfo($themeId){
 	    $themeId = intval($themeId);		
