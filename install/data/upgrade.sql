@@ -24,6 +24,21 @@ ALTER TABLE `social_media_links`
   ADD CONSTRAINT `social_media_links_web_rel` FOREIGN KEY (`website_id`) REFERENCES `websites` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
 COMMIT;
 
+CREATE TABLE `social_media_link_results` (
+  `id` bigint(20) NOT NULL,
+  `sm_link_id` int(11) NOT NULL,
+  `likes` int(11) NOT NULL DEFAULT '0',
+  `followers` int(11) NOT NULL DEFAULT '0',
+  `report_date` date NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
+ALTER TABLE `social_media_link_results` ADD PRIMARY KEY (`id`), ADD KEY `social_media_link_rel` (`sm_link_id`);
+ALTER TABLE `social_media_link_results` MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `social_media_link_results`
+  ADD CONSTRAINT `social_media_link_rel` FOREIGN KEY (`sm_link_id`) REFERENCES `social_media_links` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
+COMMIT;
+
 
 INSERT INTO `texts` (`category`, `label`, `content`) VALUES 
 ('settings', 'Send Email', 'Send Email'),
