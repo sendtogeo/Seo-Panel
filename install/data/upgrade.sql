@@ -39,8 +39,14 @@ ALTER TABLE `social_media_link_results`
   ADD CONSTRAINT `social_media_link_rel` FOREIGN KEY (`sm_link_id`) REFERENCES `social_media_links` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
 COMMIT;
 
+INSERT INTO `seotools` (`id`, `name`, `url_section`, `user_access`, `reportgen`, `cron`, `priority`, `status`) 
+VALUES (NULL, 'Social Media Manager', 'sm-manager', '1', '1', '1', '100', '1');
+
+
 
 INSERT INTO `texts` (`category`, `label`, `content`) VALUES 
+('seotools', 'Social Media Links', 'Social Media Links'),
+('seotools', 'sm-manager', 'Social Media Manager'),
 ('settings', 'Send Email', 'Send Email'),
 ('panel', 'Test Email Settings', 'Test Email Settings');
 

@@ -233,6 +233,15 @@ foreach($menuList as $i => $menuInfo){
 			</ul>
 			<?php
 			break;
+
+		case "sm-manager":
+			?>
+			<ul id='subui'>
+				<script type="text/javascript">scriptList[<?php echo $i?>] = 'social_media.php';</script>	
+				<li><a href="javascript:void(0);" onclick="scriptDoLoad('social_media.php', 'content')"><?php echo $spTextTools['Social Media Links']?></a></li>
+			</ul>
+			<?php
+			break;
 	}
 	?>
 	</li>
