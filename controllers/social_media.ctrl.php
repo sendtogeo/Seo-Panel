@@ -51,6 +51,10 @@ class SocialMediaController extends Controller{
     			"label" => "Pinterest",
     			"regex" => "",
     		],
+    		"youtube" => [
+    			"label" => "Youtube",
+    			"regex" => "",
+    		],
     	];
     
     	parent::__construct();
