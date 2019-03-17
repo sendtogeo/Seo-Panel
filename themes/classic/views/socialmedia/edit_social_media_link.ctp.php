@@ -2,9 +2,9 @@
 $headText = ($editAction == 'updateSocialMediaLink') ? $spTextSMC['Edit Social Media Link'] : $spTextSMC['New Social Media Link'];
 echo showSectionHead($headText);
 ?>
-<form id="edit_form">
+<form id="edit_form" onsubmit="return false;">
 <input type="hidden" name="sec" value="<?php echo $editAction?>"/>
-<?php if ($editAction == 'updateSocialmediaLink') {?>
+<?php if ($editAction == 'updateSocialMediaLink') {?>
 	<input type="hidden" name="id" value="<?php echo $post['id']?>"/>
 <?php }?>
 <table id="cust_tab">
@@ -15,9 +15,9 @@ echo showSectionHead($headText);
 	<tr class="form_data">
 		<td><?php echo $spText['label']['Type']?>:</td>
 		<td>
-			<select name="service_name">
+			<select name="type">
 				<?php foreach($serviceList as $serviceName => $serviceInfo){?>
-					<?php if($serviceName == $post['service_name']){?>
+					<?php if($serviceName == $post['type']){?>
 						<option value="<?php echo $serviceName?>" selected><?php echo $serviceInfo['label']?></option>
 					<?php }else{?>
 						<option value="<?php echo $serviceName?>"><?php echo $serviceInfo['label']?></option>
@@ -48,7 +48,7 @@ echo showSectionHead($headText);
 	</tr>
 	<tr class="form_data">
 		<td><?php echo $spText['common']['Link']?>:</td>
-		<td><input type="url" name="link" value="<?php echo $post['link']?>" style="width: 400px;"><?php echo $errMsg['link']?></td>
+		<td><input type="url" name="url" value="<?php echo $post['url']?>" style="width: 400px;"><?php echo $errMsg['url']?></td>
 	</tr>
 </table>
 <br>
@@ -58,7 +58,7 @@ echo showSectionHead($headText);
     		<a onclick="scriptDoLoad('<?php echo $pageScriptPath?>', 'content')" href="javascript:void(0);" class="actionbut">
          		<?php echo $spText['button']['Cancel']?>
          	</a>&nbsp;
-         	<?php $actFun = SP_DEMO ? "alertDemoMsg()" : "scriptDoLoadPost('$pageScriptPath', 'edit_form', 'content')"; ?>
+         	<?php $actFun = SP_DEMO ? "alertDemoMsg()" : "confirmSubmit('$pageScriptPath', 'edit_form', 'content')"; ?>
          	<a onclick="<?php echo $actFun?>" href="javascript:void(0);" class="actionbut">
          		<?php echo $spText['button']['Proceed']?>
          	</a>

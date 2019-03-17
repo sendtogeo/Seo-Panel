@@ -38,6 +38,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 	
     switch($_POST['sec']){
         
+        case "updateSocialMediaLink":
+            $controller->verifyActionAllowed($_POST['id']);
+            $controller->updateSocialMediaLink($_POST);
+            break;
+        
         case "createSocialMediaLink":
             $controller->createSocialMediaLink($_POST);
             break;
@@ -49,7 +54,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 	
 } else {
 	
-	switch($_GET['sec']) {
+    switch($_GET['sec']) {
+        
+        case "Activate":
+            $controller->verifyActionAllowed($_GET['id']);
+            $controller->__changeStatus($_GET['id'], 1);
+            $controller->showSocialMediaLinks($_GET);
+            break;
+            
+        case "Inactivate":
+            $controller->verifyActionAllowed($_GET['id']);
+            $controller->__changeStatus($_GET['id'], 0);
+            $controller->showSocialMediaLinks($_GET);
+            break;
+        
+        case "delete":
+            $controller->verifyActionAllowed($_GET['id']);
+            $controller->deleteSocialMediaLink($_GET['id']);
+            break;
+        
+        case "edit":
+            $controller->editSocialMediaLink($_GET['id']);
+            break;
 	    
 	    case "newSocialMediaLink":
 	        $controller->newSocialMediaLink($_GET);

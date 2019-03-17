@@ -2,7 +2,7 @@
 echo showSectionHead($spTextTools['Social Media Links']);
 $searchFun = "scriptDoLoadPost('$pageScriptPath', 'searchForm', 'content')";
 ?>
-<form name="searchForm" id="searchForm">
+<form name="searchForm" id="searchForm" onsubmit="return false;">
 <table width="100%" class="search">
 	<tr>
 		<th><?php echo $spText['common']['Name']?>: </th>
@@ -24,10 +24,10 @@ $searchFun = "scriptDoLoadPost('$pageScriptPath', 'searchForm', 'content')";
 	<tr>
 		<th><?php echo $spText['label']['Type']?>: </th>
 		<td>
-			<select name="service_name" id="service_name" onchange="<?php echo $searchFun?>">
+			<select name="type" id="type" onchange="<?php echo $searchFun?>">
 				<option value="">-- <?php echo $spText['common']['Select']?> --</option>
 				<?php foreach($serviceList as $serviceName => $serviceInfo){?>
-					<?php if($serviceName == $searchInfo['service_name']){?>
+					<?php if($serviceName == $searchInfo['type']){?>
 						<option value="<?php echo $serviceName?>" selected><?php echo $serviceInfo['label']?></option>
 					<?php }else{?>
 						<option value="<?php echo $serviceName?>"><?php echo $serviceInfo['label']?></option>
@@ -61,6 +61,7 @@ $searchFun = "scriptDoLoadPost('$pageScriptPath', 'searchForm', 'content')";
 	<tr>
 		<th><?php echo $spText['common']['Id']?></th>
 		<th><?php echo $spText['common']['Name']?></th>
+		<th><?php echo $spText['label']['Type']?></th>
     	<th><?php echo $spText['common']['Link']?></th>
     	<th><?php echo $spText['common']['Website']?></th>
 		<th><?php echo $spText['common']['Status']?></th>
@@ -69,11 +70,12 @@ $searchFun = "scriptDoLoadPost('$pageScriptPath', 'searchForm', 'content')";
 	<?php
 	if(count($list) > 0) {
 		foreach($list as $i => $listInfo){
-		    $projectLink = scriptAJAXLinkHref($pageScriptPath, 'content', "sec=editSocialMediaLink&id={$listInfo['id']}", "{$listInfo['name']}");
+		    $projectLink = scriptAJAXLinkHref($pageScriptPath, 'content', "sec=edit&id={$listInfo['id']}", "{$listInfo['name']}");
 			?>
 			<tr>
 				<td width="40px"><?php echo $listInfo['id']?></td>
-				<td><?php echo $projectLink?></td>				
+				<td><?php echo $projectLink?></td>
+				<td><?php echo $serviceList[$listInfo['type']]['label']?></td>
 				<td><?php echo $listInfo['url']?></td>				
 				<td><?php echo $listInfo['website_name']?></td>
 				<td><?php echo $listInfo['status'] ? $spText['common']["Active"] : $spText['common']["Inactive"];?></td>
@@ -91,8 +93,8 @@ $searchFun = "scriptDoLoadPost('$pageScriptPath', 'searchForm', 'content')";
 						onchange="doAction('<?php echo $pageScriptPath?>', 'content', 'id=<?php echo $listInfo['id']?>&pageno=<?php echo $pageNo?>', 'action<?php echo $listInfo['id']?>')">
 						<option value="select">-- <?php echo $spText['common']['Select']?> --</option>
 						<option value="<?php echo $statAction?>"><?php echo $statLabel?></option>
-                        <option value="editSocialMediaLink"><?php echo $spText['common']['Edit']?></option>
-					    <option value="deleteSocialMediaLink"><?php echo $spText['common']['Delete']?></option>
+                        <option value="edit"><?php echo $spText['common']['Edit']?></option>
+					    <option value="delete"><?php echo $spText['common']['Delete']?></option>
 					</select>
 				</td>
 			</tr>
@@ -100,7 +102,7 @@ $searchFun = "scriptDoLoadPost('$pageScriptPath', 'searchForm', 'content')";
 		}
 	}else{
 		?>
-		<tr><td colspan="6"><b><?php echo $_SESSION['text']['common']['No Records Found']?></b></tr>
+		<tr><td colspan="7"><b><?php echo $_SESSION['text']['common']['No Records Found']?></b></tr>
 		<?php
 	} 
 	?>
