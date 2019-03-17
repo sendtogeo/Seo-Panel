@@ -25,12 +25,13 @@ class SocialMediaController extends Controller{
     
     var $linkTable = "social_media_links";
     var $linkReportTable = "social_media_link_results";
-    var $layout = "ajax";    
-    var $serviceColList;    
+    var $layout = "ajax";
+    var $pageScriptPath = 'social_media.php';
+    var $serviceList;
     
     function __construct() {
     	 
-    	$this->serviceColList = [
+    	$this->serviceList = [
     		"facebook" => [
     			"label" => "Facebook",
     			"regex" => "",
@@ -57,14 +58,26 @@ class SocialMediaController extends Controller{
     		],
     	];
     
+    	$this->set('pageScriptPath', $this->pageScriptPath);
+    	$this->set( 'serviceList', $this->serviceList );
+    	
     	parent::__construct();
     }
     
-    function showSocialMediaLinks($info = '') {
+    function showSocialMediaLinks($searchInfo = '') {
 
     	$userId = isLoggedIn();
-		$pageScriptPath = 'social_media.php';
+    	$this->set('searchInfo', $searchInfo);
     	$sql = "select l.*, w.name as website_name from $this->linkTable l, websites w where l.website_id=w.id";
+    	
+    	// search conditions
+    	$sql .= !empty($searchInfo['name']) ? " and l.name like '%".addslashes($searchInfo['name'])."%'" : "";
+    	$sql .= !empty($searchInfo['website_id']) ? " and l.website_id=".intval($searchInfo['website_id']) : "";
+    	$sql .= !empty($searchInfo['service_name']) ? " and `type`='".addslashes($searchInfo['service_name'])."'" : "";
+    	
+    	if (!empty($searchInfo['status'])) {
+    	    $sql .= ($searchInfo['status'] == 'active') ? " and l.status=1" : " and l.status=0"; 
+    	}
     	
     	$webSiteCtrler = new WebsiteController();
     	$websiteList = $webSiteCtrler->__getAllWebsites($userId, true);
@@ -74,14 +87,30 @@ class SocialMediaController extends Controller{
     	$this->db->query( $sql, true );
     	$this->paging->setDivClass( 'pagingdiv' );
     	$this->paging->loadPaging( $this->db->noRows, SP_PAGINGNO );
-    	$pagingDiv = $this->paging->printPages( $pgScriptPath, '', 'scriptDoLoad', 'content', 'layout=ajax' );
+    	$pagingDiv = $this->paging->printPages( $this->pageScriptPath, 'searchForm', 'scriptDoLoadPost', 'content', '' );
     	$this->set( 'pagingDiv', $pagingDiv );
     	$sql .= " limit " . $this->paging->start . "," . $this->paging->per_page;
     	 
     	$linkList = $this->db->select( $sql );
     	$this->set( 'list', $linkList );
     	$this->set( 'pageNo', $_GET ['pageno'] );
-    	$this->render( 'socialmedia/show_social_media_links' );
+    	$this->render( 'socialmedia/show_social_media_links');
+    }
+    
+    function newSocialMediaLink($info = '') {        
+        $this->set('post', $info);
+        $webSiteCtrler = new WebsiteController();
+        $websiteList = $webSiteCtrler->__getAllWebsites($userId, true);
+        $this->set( 'websiteList', $websiteList );
+                
+        $this->set('editAction', 'createSocialMediaLink');
+        $this->render( 'socialmedia/edit_social_media_link');        
+    }
+    
+    function createSocialMediaLink($info = '') {
+        
+        $this->newSocialMediaLink($info);
+        
     }
 	
 }

@@ -106,7 +106,7 @@ class SeoToolsController extends Controller{
 				$defaultScript = "webmaster-tools.php";
 				break;
 				
-			case "sm-manager":
+			case "sm-checker":
 				$defaultScript = "social_media.php";
 				break;
 

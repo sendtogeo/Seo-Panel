@@ -20,9 +20,8 @@ CREATE TABLE `social_media_links` (
 
 ALTER TABLE `social_media_links` ADD PRIMARY KEY (`id`), ADD KEY `social_media_links_web_rel` (`website_id`);
 ALTER TABLE `social_media_links` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-ALTER TABLE `social_media_links`
-  ADD CONSTRAINT `social_media_links_web_rel` FOREIGN KEY (`website_id`) REFERENCES `websites` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
-COMMIT;
+ALTER TABLE `social_media_links` ADD CONSTRAINT `social_media_links_web_rel` FOREIGN KEY (`website_id`) REFERENCES `websites` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
+ALTER TABLE `social_media_links` ADD UNIQUE( `website_id`, `url`);
 
 CREATE TABLE `social_media_link_results` (
   `id` bigint(20) NOT NULL,
@@ -35,18 +34,19 @@ CREATE TABLE `social_media_link_results` (
 
 ALTER TABLE `social_media_link_results` ADD PRIMARY KEY (`id`), ADD KEY `social_media_link_rel` (`sm_link_id`);
 ALTER TABLE `social_media_link_results` MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
-ALTER TABLE `social_media_link_results`
-  ADD CONSTRAINT `social_media_link_rel` FOREIGN KEY (`sm_link_id`) REFERENCES `social_media_links` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
-COMMIT;
+ALTER TABLE `social_media_link_results` ADD CONSTRAINT `social_media_link_rel` FOREIGN KEY (`sm_link_id`) REFERENCES `social_media_links` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
 
 INSERT INTO `seotools` (`id`, `name`, `url_section`, `user_access`, `reportgen`, `cron`, `priority`, `status`) 
-VALUES (NULL, 'Social Media Manager', 'sm-manager', '1', '1', '1', '100', '1');
+VALUES (NULL, 'Social Media Checker', 'sm-checker', '1', '1', '1', '100', '1');
 
 
 
-INSERT INTO `texts` (`category`, `label`, `content`) VALUES 
+INSERT INTO `texts` (`category`, `label`, `content`) VALUES
+('socialmedia', 'New Social Media Link', 'New Social Media Link'),
+('socialmedia', 'Edit Social Media Link', 'Edit Social Media Link'),
+('common', 'Link', 'Link'),
 ('seotools', 'Social Media Links', 'Social Media Links'),
-('seotools', 'sm-manager', 'Social Media Manager'),
+('seotools', 'sm-checker', 'Social Media Checker'),
 ('settings', 'Send Email', 'Send Email'),
 ('panel', 'Test Email Settings', 'Test Email Settings');
 

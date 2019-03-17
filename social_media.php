@@ -24,37 +24,41 @@ include_once("includes/sp-load.php");
 checkLoggedIn();
 
 // check for access to seo tool
-isUserHaveAccessToSeoTool("sm-manager");
+isUserHaveAccessToSeoTool("sm-checker");
 
 include_once(SP_CTRLPATH."/social_media.ctrl.php");
 $controller = New SocialMediaController();
 $controller->view->menu = 'seotools';
 $controller->layout = 'ajax';
 $controller->set('spTextTools', $controller->getLanguageTexts('seotools', $_SESSION['lang_code']));
-$controller->spTextSMM = $controller->getLanguageTexts('socialmedia', $_SESSION['lang_code']);
-$controller->set('spTextSMM', $controller->spTextSMM);
+$controller->spTextSMC = $controller->getLanguageTexts('socialmedia', $_SESSION['lang_code']);
+$controller->set('spTextSMC', $controller->spTextSMC);
 
-if($_SERVER['REQUEST_METHOD'] == 'POST'){
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 	
-	switch($_POST['sec']){
+    switch($_POST['sec']){
+        
+        case "createSocialMediaLink":
+            $controller->createSocialMediaLink($_POST);
+            break;
 			
-		default:
-			if (isQuickCheckerEnabled()) {
-				$controller->findBacklink($_POST);
-			} else {
-				showErrorMsg($_SESSION['text']['label']["Access denied"]);
-			}
+	    default:
+	        $controller->showSocialMediaLinks($_POST);
 			break;
 	}
 	
-}else{
+} else {
 	
-	switch($_GET['sec']){		
+	switch($_GET['sec']) {
+	    
+	    case "newSocialMediaLink":
+	        $controller->newSocialMediaLink($_GET);
+	        break;
 		
 		default:
 			$controller->showSocialMediaLinks($_GET);
 			break;
 	}
+	
 }
-
 ?>

@@ -1,23 +1,59 @@
-<?php echo showSectionHead("Projects Manager"); ?>
-<?php if(!empty($isAdmin)){ ?>
-	<table width="50%" class="search">
-		<tr>
-			<th><?php echo $spText['common']['Website']?>: </th>
-			<td>
-				<select name="website_id" id="website_id" onchange="doLoad('user_id', '<?php echo PLUGIN_SCRIPT_URL?>', 'content')">
-					<option value="">-- <?php echo $spText['common']['Select']?> --</option>
-					<?php foreach($userList as $userInfo){?>
-						<?php if($userInfo['id'] == $userId){?>
-							<option value="<?php echo $userInfo['id']?>" selected><?php echo $userInfo['username']?></option>
-						<?php }else{?>
-							<option value="<?php echo $userInfo['id']?>"><?php echo $userInfo['username']?></option>
-						<?php }?>
+<?php
+echo showSectionHead($spTextTools['Social Media Links']);
+$searchFun = "scriptDoLoadPost('$pageScriptPath', 'searchForm', 'content')";
+?>
+<form name="searchForm" id="searchForm">
+<table width="100%" class="search">
+	<tr>
+		<th><?php echo $spText['common']['Name']?>: </th>
+		<td><input type="text" name="name" value="<?php echo htmlentities($searchInfo['name'], ENT_QUOTES)?>" onblur="<?php echo $searchFun?>"></td>
+		<th><?php echo $spText['common']['Website']?>: </th>
+		<td>
+			<select name="website_id" id="website_id" onchange="<?php echo $searchFun?>">
+				<option value="">-- <?php echo $spText['common']['Select']?> --</option>
+				<?php foreach($websiteList as $websiteInfo){?>
+					<?php if($websiteInfo['id'] == $searchInfo['website_id']){?>
+						<option value="<?php echo $websiteInfo['id']?>" selected><?php echo $websiteInfo['name']?></option>
+					<?php }else{?>
+						<option value="<?php echo $websiteInfo['id']?>"><?php echo $websiteInfo['name']?></option>
 					<?php }?>
-				</select>
-			</td>
-		</tr>
-	</table>
-<?php } ?>
+				<?php }?>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<th><?php echo $spText['label']['Type']?>: </th>
+		<td>
+			<select name="service_name" id="service_name" onchange="<?php echo $searchFun?>">
+				<option value="">-- <?php echo $spText['common']['Select']?> --</option>
+				<?php foreach($serviceList as $serviceName => $serviceInfo){?>
+					<?php if($serviceName == $searchInfo['service_name']){?>
+						<option value="<?php echo $serviceName?>" selected><?php echo $serviceInfo['label']?></option>
+					<?php }else{?>
+						<option value="<?php echo $serviceName?>"><?php echo $serviceInfo['label']?></option>
+					<?php }?>
+				<?php }?>
+			</select>
+		</td>
+		<th><?php echo $spText['common']['Status']?>: </th>
+		<td colspan="2">
+			<select name="status" onchange="<?php echo $searchFun?>">
+				<option value="">-- <?php echo $spText['common']['Select']?> --</option>
+				<?php
+				$statusList = ['active' => $spText['common']["Active"], 'inactive' => $spText['common']["Inactive"]];
+				foreach ($statusList as $statusVal => $statuslabel) {
+				    $selectedVal = ($statusVal == $searchInfo['status']) ? "selected" : "";
+				    ?>
+				    <option value="<?php echo $statusVal?>" <?php echo $selectedVal?> ><?php echo $statuslabel?></option>
+				    <?php				    
+				}
+				?>
+			</select>
+			<a href="javascript:void(0);" onclick="<?php echo $searchFun?>" class="actionbut"><?php echo $spText['button']['Show Records']?></a>
+		</td>
+	</tr>
+</table>
+</form>
 
 <?php echo $pagingDiv?>
 
@@ -25,6 +61,7 @@
 	<tr>
 		<th><?php echo $spText['common']['Id']?></th>
 		<th><?php echo $spText['common']['Name']?></th>
+    	<th><?php echo $spText['common']['Link']?></th>
     	<th><?php echo $spText['common']['Website']?></th>
 		<th><?php echo $spText['common']['Status']?></th>
 		<th><?php echo $spText['common']['Action']?></th>
@@ -32,28 +69,30 @@
 	<?php
 	if(count($list) > 0) {
 		foreach($list as $i => $listInfo){
-			$projectLink = scriptAJAXLinkHref(PLUGIN_SCRIPT_URL, 'content', "action=editProject&project_id={$listInfo['id']}", "{$listInfo['name']}");
+		    $projectLink = scriptAJAXLinkHref($pageScriptPath, 'content', "sec=editSocialMediaLink&id={$listInfo['id']}", "{$listInfo['name']}");
 			?>
 			<tr>
 				<td width="40px"><?php echo $listInfo['id']?></td>
 				<td><?php echo $projectLink?></td>				
+				<td><?php echo $listInfo['url']?></td>				
 				<td><?php echo $listInfo['website_name']?></td>
-				<td><?php echo $listInfo['status'] ? $spText['common']["Active"] : $spText['common']["Inactive"];	?></td>
+				<td><?php echo $listInfo['status'] ? $spText['common']["Active"] : $spText['common']["Inactive"];?></td>
 				<td width="100px">
 					<?php
-						if($listInfo['status']){
-							$statAction = "Inactivate";
-							$statLabel = $spText['common']["Inactivate"];
-						}else{
-							$statAction = "Activate";
-							$statLabel = $spText['common']["Activate"];
-						} 
+					if ($listInfo['status']) {
+						$statAction = "Inactivate";
+						$statLabel = $spText['common']["Inactivate"];
+					} else {
+						$statAction = "Activate";
+						$statLabel = $spText['common']["Activate"];
+					} 
 					?>
-					<select name="action" id="action<?php echo $listInfo['id']?>" onchange="doPluginAction('<?php echo PLUGIN_SCRIPT_URL?>', 'content', 'project_id=<?php echo $listInfo['id']?>&pageno=<?php echo $pageNo?>', 'action<?php echo $listInfo['id']?>')">
+					<select name="action" id="action<?php echo $listInfo['id']?>" 
+						onchange="doAction('<?php echo $pageScriptPath?>', 'content', 'id=<?php echo $listInfo['id']?>&pageno=<?php echo $pageNo?>', 'action<?php echo $listInfo['id']?>')">
 						<option value="select">-- <?php echo $spText['common']['Select']?> --</option>
 						<option value="<?php echo $statAction?>"><?php echo $statLabel?></option>
-                        <option value="editProject"><?php echo $spText['common']['Edit']?></option>
-					    <option value="deleteProject"><?php echo $spText['common']['Delete']?></option>
+                        <option value="editSocialMediaLink"><?php echo $spText['common']['Edit']?></option>
+					    <option value="deleteSocialMediaLink"><?php echo $spText['common']['Delete']?></option>
 					</select>
 				</td>
 			</tr>
@@ -61,7 +100,7 @@
 		}
 	}else{
 		?>
-		<tr><td colspan="5"><b><?php echo $_SESSION['text']['common']['No Records Found']?></b></tr>
+		<tr><td colspan="6"><b><?php echo $_SESSION['text']['common']['No Records Found']?></b></tr>
 		<?php
 	} 
 	?>
@@ -70,8 +109,8 @@
 <table width="100%" class="actionSec">
 	<tr>
     	<td>
-         	<a onclick="<?php echo pluginGETMethod('action=newProject&user_id='.$userId, 'content')?>" href="javascript:void(0);" class="actionbut">
-         		<?php echo 'New Project'?>
+         	<a onclick="scriptDoLoad('<?php echo $pageScriptPath?>', 'content', 'sec=newSocialMediaLink')" href="javascript:void(0);" class="actionbut">
+         		<?php echo $spTextSMC['New Social Media Link']?>
          	</a>
     	</td>
 	</tr>

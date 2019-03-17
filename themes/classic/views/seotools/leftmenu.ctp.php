@@ -234,7 +234,7 @@ foreach($menuList as $i => $menuInfo){
 			<?php
 			break;
 
-		case "sm-manager":
+		case "sm-checker":
 			?>
 			<ul id='subui'>
 				<script type="text/javascript">scriptList[<?php echo $i?>] = 'social_media.php';</script>	
