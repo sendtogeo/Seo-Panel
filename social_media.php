@@ -37,6 +37,10 @@ $controller->set('spTextSMC', $controller->spTextSMC);
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 	
     switch($_POST['sec']){
+			
+		case "doQuickChecker":
+			$controller->doQuickChecker($_POST);
+			break;
         
         case "updateSocialMediaLink":
             $controller->verifyActionAllowed($_POST['id']);
@@ -55,6 +59,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 } else {
 	
     switch($_GET['sec']) {
+			
+		case "quickChecker":
+			$controller->viewQuickChecker($_GET);
+			break;
         
         case "Activate":
             $controller->verifyActionAllowed($_GET['id']);

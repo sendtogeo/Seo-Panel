@@ -295,6 +295,53 @@ class SocialMediaController extends Controller{
         }
                 
     }
+
+	function viewQuickChecker($info='') {	
+		$userId = isLoggedIn();
+		$this->render('socialmedia/quick_checker');
+	}
+
+	function doQuickChecker($listInfo = '') {
+		
+		$errorMsg = formatErrorMsg($this->validate->checkBlank($listInfo['url']));
+		if(!$this->validate->flagErr){
+			if (!stristr($listInfo['url'], $listInfo['type'])) {
+				$errorMsg = formatErrorMsg($_SESSION['text']['common']["Invalid value"]);
+				$this->validate->flagErr = true;
+			}
+		}
+		
+		// if no error occured find social media details
+		if (!$this->validate->flagErr) {
+			$result = $this->getSocialMediaDetails($listInfo['type'], $listInfo['url']);
+			
+			// if call is success
+			if ($result['status']) {
+				
+			} else {
+				$errorMsg = $result['msg'];
+			}
+			
+		}
+		
+		$errorMsg = !empty($errorMsg) ? $errorMsg : $_SESSION['text']['common']['Internal error occured'];
+		showErrorMsg($errorMsg);
+		
+	}	
+	
+	function getSocialMediaDetails($smType, $smLink) {
+		$result = ['status' => 0];
+		$smInfo = $this->serviceList[$smType];
+		
+		if (!empty($smInfo)) {
+			
+			
+			
+		}
+		
+		return $result;
+		
+	}
 	
 }
 ?>

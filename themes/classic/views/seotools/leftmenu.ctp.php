@@ -239,6 +239,15 @@ foreach($menuList as $i => $menuInfo){
 			<ul id='subui'>
 				<script type="text/javascript">scriptList[<?php echo $i?>] = 'social_media.php';</script>	
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('social_media.php', 'content')"><?php echo $spTextTools['Social Media Links']?></a></li>
+				
+				<?php if (isQuickCheckerEnabled()) {?>
+					<li>
+						<a href="javascript:void(0);" onclick="scriptDoLoad('social_media.php?sec=quickChecker', 'content')">
+							<?php echo $spTextTools['Quick Checker']?>
+						</a>
+					</li>
+				<?php }?>
+				
 			</ul>
 			<?php
 			break;
