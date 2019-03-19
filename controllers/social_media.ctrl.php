@@ -144,7 +144,51 @@ class SocialMediaController extends Controller{
             }
         }
         
+        // Validate link count
+        if(!$this->validate->flagErr){
+            $websiteCtrl = new WebsiteController();
+            $websiteInfo = $websiteCtrl->__getWebsiteInfo($listInfo['website_id']);
+            $newCount = !empty($listInfo['id']) ? 0 : 1;
+            if (! $this->validateSocialMediaLinkCount($websiteInfo['user_id'], $newCount)) {
+                $this->set('validationMsg', $this->spTextSMC['Your social media link count already reached the limit']);
+                $this->validate->flagErr = true;
+            }
+        }
+        
         return $errMsg;        
+    }
+    
+    // Function to check / validate the user type social media count
+    function validateSocialMediaLinkCount($userId, $newCount = 1) {
+        $userCtrler = new UserController();
+        
+        // if admin user id return true
+        if ($userCtrler->isAdminUserId($userId)) {
+            return true;
+        }
+        
+        $userTypeCtrlr = new UserTypeController();
+        $userTypeDetails = $userTypeCtrlr->getUserTypeSpecByUser($userId);
+        
+        $whereCond = "l.website_id=w.id and w.user_id=".intval($userId);
+        $existingInfo = $this->dbHelper->getRow("$this->linkTable l, websites w", $whereCond, "count(*) count");
+        $userSMLinkCount = $existingInfo['count'];
+        $userSMLinkCount += $newCount;
+        
+        // if limit is set and not -1
+        if (isset($userTypeDetails['social_media_link_count']) && $userTypeDetails['social_media_link_count'] >= 0) {
+            
+            // check whether count greater than limit
+            if ($userSMLinkCount <= $userTypeDetails['social_media_link_count']) {
+                return true;
+            } else {
+                return false;
+            }
+            
+        } else {
+            return true;
+        }
+        
     }
     
     function newSocialMediaLink($info = '') {
@@ -191,10 +235,7 @@ class SocialMediaController extends Controller{
                 $listInfo = $this->__getSocialMediaLinkInfo($linkId);
             }
             
-            $this->set('post', $listInfo);
-            
-            echo "Innnnn";
-            
+            $this->set('post', $listInfo);           
             $this->set('editAction', 'updateSocialMediaLink');
             $this->render( 'socialmedia/edit_social_media_link');
         }

@@ -1,6 +1,15 @@
 <?php
 $headText = ($editAction == 'updateSocialMediaLink') ? $spTextSMC['Edit Social Media Link'] : $spTextSMC['New Social Media Link'];
 echo showSectionHead($headText);
+
+// if error occured
+if(!empty($validationMsg)){
+	?>
+	<p class="dirmsg">
+		<font class="error"><?php echo $validationMsg?></font>
+	</p>
+	<?php 
+}
 ?>
 <form id="edit_form" onsubmit="return false;">
 <input type="hidden" name="sec" value="<?php echo $editAction?>"/>
