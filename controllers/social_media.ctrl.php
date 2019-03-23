@@ -34,15 +34,23 @@ class SocialMediaController extends Controller{
     	$this->serviceList = [
     		"facebook" => [
     			"label" => "Facebook",
-    			"regex" => "",
+    			"regex" => [
+    				"like" => '/id="PagesLikesCountDOMID.*?<span.*?>(.*?)<span/is',
+    				"follower" => '/people like this.*?<div>(\d.*?)people follow this/is',
+    			],
+    			"url_part" => '?locale=en_US'
     		],
     		"twitter" => [
     			"label" => "Twitter",
-    			"regex" => "",
+    			"regex" => [
+    				"follower" => '/\/followers".*?<div.*?>(.*?)<\/div>/is'
+    			],
     		],
     		"instagram" => [
     			"label" => "Instagram",
-    			"regex" => "",
+    			"regex" => [
+    				"follower" => '/edge_followed_by.*?"count":(.*?)\}/is'
+    			],
     		],
     		"linkedin" => [
     			"label" => "LinkedIn",
@@ -50,11 +58,15 @@ class SocialMediaController extends Controller{
     		],
     		"pinterest" => [
     			"label" => "Pinterest",
-    			"regex" => "",
+    			"regex" => [
+    				"follower" => '/pinterestapp:followers.*?content="(.*?)"/is'
+    			],
     		],
     		"youtube" => [
     			"label" => "Youtube",
-    			"regex" => "",
+    			"regex" => [
+    				"follower" => '/aria-label=.*?subscribers.*?>(.*?)</is'
+    			],
     		],
     	];
     
@@ -330,12 +342,61 @@ class SocialMediaController extends Controller{
 	}	
 	
 	function getSocialMediaDetails($smType, $smLink) {
-		$result = ['status' => 0];
+		$result = ['status' => 0, 'likes' => 0, 'followers' => 0, 'msg' => $_SESSION['text']['common']['Internal error occured']];
 		$smInfo = $this->serviceList[$smType];
 		
-		if (!empty($smInfo)) {
+		if (!empty($smInfo) && !empty($smLink)) {
+			$smLink = addHttpToUrl($smLink);
 			
+			// if params needs to be added with url
+			if (!empty($smInfo['url_part'])) {
+				$smLink .= stristr($smLink, '?') ? str_replace("?", "&", $smInfo['url_part']) : $smInfo['url_part'];
+			}
 			
+			$this->spider->_CURLOPT_REFERER = "https://www.google.com/search?q=linked+page+google";
+			$smContentInfo = $this->spider->getContent($smLink);
+
+			$filename = SP_TMPPATH . "/$smType.html";
+			
+// 			$file = fopen($filename, "r");
+// 			$smContentInfo['page'] = fread($file, filesize($filename));
+// 			fclose($file);
+			
+// 			debugvar($smContentInfo);
+			
+			if (!empty($smContentInfo['page'])) {
+				$file = fopen($filename, "w");
+				fwrite($file, $smContentInfo['page']);
+				fclose($file);
+				exit;
+
+				// find likes
+				if (!empty($smInfo['regex']['like'])) {
+					preg_match($smInfo['regex']['like'], $smContentInfo['page'], $matches);
+					
+					if (!empty($matches[1])) {
+						$result['status'] = 1;
+						$result['likes'] = formatNumber($matches[1]);
+					}
+					
+				}
+				
+				// find followers
+				if (!empty($smInfo['regex']['follower'])) {
+					preg_match($smInfo['regex']['follower'], $smContentInfo['page'], $matches);
+						
+					if (!empty($matches[1])) {
+						$result['status'] = 1;
+						$result['followers'] = formatNumber($matches[1]);
+					}
+						
+				}
+				
+				debugVar($result);
+				
+			} else {
+				$result['msg'] = $smContentInfo['errmsg'];
+			}
 			
 		}
 		
