@@ -8,6 +8,6 @@ echo '@CHARSET "UTF-8";';
 
 $custComp = $controller->createComponent("Customizer_Helper");
 $themeInfo = $controller->__getActiveTheme();
-$style = $custComp->getThemeCustomStyles($themeInfo['id']);
+$style = $custComp->getThemeCustomStyles($themeInfo['id'], 'css');
 echo $style;
 ?>

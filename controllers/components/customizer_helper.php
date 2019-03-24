@@ -73,12 +73,14 @@ class Customizer_Helper extends Controller{
 	}
 	
 	// function to get custom theme styles
-	function getThemeCustomStyles($themeId) {
+	function getThemeCustomStyles($themeId, $type='css') {
 		$style = "";
+		$type = addslashes($type);
 	
 		// check whether plugin installed or not
 		if (isPluginActivated("customizer")) {
-			$whereCond = "theme_id=". intval($themeId) . " and status=1 order by priority desc";
+		    $desc = ($type == 'css') ? "desc" : "asc"; 
+			$whereCond = "theme_id=". intval($themeId) . " and status=1 and type='$type' order by priority $desc";
 			$styleList = $this->dbHelper->getAllRows("cust_styles", $whereCond);
 			
 			foreach ($styleList as $styleInfo) {
