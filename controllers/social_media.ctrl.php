@@ -315,21 +315,23 @@ class SocialMediaController extends Controller{
 
 	function doQuickChecker($listInfo = '') {
 		
-		$errorMsg = formatErrorMsg($this->validate->checkBlank($listInfo['url']));
-		if(!$this->validate->flagErr){
-			if (!stristr($listInfo['url'], $listInfo['type'])) {
-				$errorMsg = formatErrorMsg($_SESSION['text']['common']["Invalid value"]);
-				$this->validate->flagErr = true;
-			}
+		if (!stristr($listInfo['url'], $listInfo['type'])) {
+			$errorMsg = formatErrorMsg($_SESSION['text']['common']["Invalid value"]);
+			$this->validate->flagErr = true;
 		}
 		
 		// if no error occured find social media details
 		if (!$this->validate->flagErr) {
-			$result = $this->getSocialMediaDetails($listInfo['type'], $listInfo['url']);
+			$smLink = addHttpToUrl($listInfo['url']);
+			$result = $this->getSocialMediaDetails($listInfo['type'], $smLink);
 			
 			// if call is success
 			if ($result['status']) {
-				
+				$this->set('smType', $listInfo['type']);
+				$this->set('smLink', $smLink);
+				$this->set('statInfo', $result);
+				$this->render('socialmedia/quick_checker_results');
+				exit;
 			} else {
 				$errorMsg = $result['msg'];
 			}
@@ -346,29 +348,15 @@ class SocialMediaController extends Controller{
 		$smInfo = $this->serviceList[$smType];
 		
 		if (!empty($smInfo) && !empty($smLink)) {
-			$smLink = addHttpToUrl($smLink);
 			
 			// if params needs to be added with url
 			if (!empty($smInfo['url_part'])) {
 				$smLink .= stristr($smLink, '?') ? str_replace("?", "&", $smInfo['url_part']) : $smInfo['url_part'];
 			}
 			
-			$this->spider->_CURLOPT_REFERER = "https://www.google.com/search?q=linked+page+google";
 			$smContentInfo = $this->spider->getContent($smLink);
-
-			$filename = SP_TMPPATH . "/$smType.html";
-			
-// 			$file = fopen($filename, "r");
-// 			$smContentInfo['page'] = fread($file, filesize($filename));
-// 			fclose($file);
-			
-// 			debugvar($smContentInfo);
 			
 			if (!empty($smContentInfo['page'])) {
-				$file = fopen($filename, "w");
-				fwrite($file, $smContentInfo['page']);
-				fclose($file);
-				exit;
 
 				// find likes
 				if (!empty($smInfo['regex']['like'])) {
@@ -392,8 +380,6 @@ class SocialMediaController extends Controller{
 						
 				}
 				
-				debugVar($result);
-				
 			} else {
 				$result['msg'] = $smContentInfo['errmsg'];
 			}
@@ -402,6 +388,14 @@ class SocialMediaController extends Controller{
 		
 		return $result;
 		
+	}
+	
+	# function check whether reports already saved
+	function isReportsExists($websiteId, $time) {
+		$resultDate = date('Y-m-d', $time);
+		$sql = "select website_id from pagespeedresults where website_id=$websiteId and result_date='$resultDate'";
+		$info = $this->db->select($sql, true);
+		return empty($info['website_id']) ? false : true;
 	}
 	
 }

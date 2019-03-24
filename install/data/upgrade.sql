@@ -42,6 +42,8 @@ VALUES (NULL, 'Social Media Checker', 'sm-checker', '1', '1', '1', '100', '1');
 
 
 INSERT INTO `texts` (`category`, `label`, `content`) VALUES
+('label', 'Likes', 'Likes'),
+('label', 'Followers', 'Followers'),
 ('common', 'Internal error occured', 'Internal error occured'),
 ('socialmedia', 'Your social media link count already reached the limit', 'Your social media link count already reached the limit'),
 ('subscription', 'Social Media Link Count', 'Social Media Link Count'),

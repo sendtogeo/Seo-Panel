@@ -264,6 +264,10 @@ class CronController extends Controller {
 				case "pagespeed":
 					$this->pageSpeedCheckerCron($websiteId);
 					break;
+					
+				case "sm-checker":
+					$this->socialMediaCheckerCron($websiteId);
+					break;
 			}
 		}
 		
@@ -313,6 +317,32 @@ class CronController extends Controller {
 		
 		$pageSpeedCtrler->savePageSpeedResults($websiteInfo, true);
 		echo "Saved page speed results of <b>$websiteUrl</b>.....</br>\n";
+	
+	}
+	
+	# func to generate social media checker reports from cron
+	function socialMediaCheckerCron($websiteId){
+	
+		include_once(SP_CTRLPATH."/social_media.ctrl.php");
+		$this->debugMsg("Starting social media Checker cron for website: {$this->websiteInfo['name']}....<br>\n");
+	
+		$socialMediaCtrler = New SocialMediaController();
+		$websiteInfo = $this->websiteInfo;
+	
+		if (SP_MULTIPLE_CRON_EXEC && $socialMediaCtrler->isReportsExists($websiteInfo['id'], $this->timeStamp)) return;
+		
+		$userCtrler = new UserController();
+		$userInfo = $userCtrler->__getUserInfo($websiteInfo['user_id']);
+		$langCode = $userInfo['lang_code'];
+		
+		$websiteUrl = addHttpToUrl($websiteInfo['url']);
+		$params = array('screenshot' => false, 'strategy' => 'desktop', 'locale' => $langCode);
+		$websiteInfo['desktop'] = $socialMediaCtrler->__getPageSpeedInfo($websiteUrl, $params);
+		$params = array('screenshot' => false, 'strategy' => 'mobile', 'locale' => $langCode);
+		$websiteInfo['mobile'] = $socialMediaCtrler->__getPageSpeedInfo($websiteUrl, $params);
+		
+		$socialMediaCtrler->savePageSpeedResults($websiteInfo, true);
+		echo "Saved social media results of <b>$websiteUrl</b>.....</br>\n";
 	
 	}	
 	
