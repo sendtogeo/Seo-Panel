@@ -52,10 +52,10 @@ class SocialMediaController extends Controller{
     				"follower" => '/edge_followed_by.*?"count":(.*?)\}/is'
     			],
     		],
-    		"linkedin" => [
+    		/*"linkedin" => [
     			"label" => "LinkedIn",
     			"regex" => "",
-    		],
+    		],*/
     		"pinterest" => [
     			"label" => "Pinterest",
     			"regex" => [
@@ -390,12 +390,30 @@ class SocialMediaController extends Controller{
 		
 	}
 	
-	# function check whether reports already saved
-	function isReportsExists($websiteId, $time) {
-		$resultDate = date('Y-m-d', $time);
-		$sql = "select website_id from pagespeedresults where website_id=$websiteId and result_date='$resultDate'";
-		$info = $this->db->select($sql, true);
-		return empty($info['website_id']) ? false : true;
+	/*
+	 * function to get all links with out reports for a day
+	 */
+	function getAllLinksWithOutReports($websiteId, $date) {
+		$websiteId = intval($websiteId);
+		$date = addslashes($date);
+		$sql = "select link.*, lr.id result_id from social_media_links link left join 
+			social_media_link_results lr on (link.id=lr.sm_link_id and lr.report_date='$date') 
+			where link.status=1 and link.website_id=$websiteId and lr.id is NULL";
+		
+		$linkList = $this->db->select($sql);
+		return $linkList;
+		
+	}
+	
+	function saveSocialMediaLinkResults($linkId, $linkInfo) {		
+		$dataList = [
+			'sm_link_id|int' => $linkId,
+			'likes|int' => $linkInfo['likes'],
+			'followers|int' => $linkInfo['followers'],
+			'report_date' => date('Y-m-d'),
+		];
+		
+		$this->dbHelper->insertRow($this->linkReportTable, $dataList);		
 	}
 	
 }

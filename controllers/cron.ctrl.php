@@ -328,21 +328,27 @@ class CronController extends Controller {
 	
 		$socialMediaCtrler = New SocialMediaController();
 		$websiteInfo = $this->websiteInfo;
-	
-		if (SP_MULTIPLE_CRON_EXEC && $socialMediaCtrler->isReportsExists($websiteInfo['id'], $this->timeStamp)) return;
 		
-		$userCtrler = new UserController();
-		$userInfo = $userCtrler->__getUserInfo($websiteInfo['user_id']);
-		$langCode = $userInfo['lang_code'];
+		$linkList = $socialMediaCtrler->getAllLinksWithOutReports($websiteInfo['id'], date('Y-m-d', $this->timeStamp));
+		if (SP_MULTIPLE_CRON_EXEC && empty($linkList)) return true;
 		
-		$websiteUrl = addHttpToUrl($websiteInfo['url']);
-		$params = array('screenshot' => false, 'strategy' => 'desktop', 'locale' => $langCode);
-		$websiteInfo['desktop'] = $socialMediaCtrler->__getPageSpeedInfo($websiteUrl, $params);
-		$params = array('screenshot' => false, 'strategy' => 'mobile', 'locale' => $langCode);
-		$websiteInfo['mobile'] = $socialMediaCtrler->__getPageSpeedInfo($websiteUrl, $params);
+		// loop through link list and save the data
+		foreach ($linkList as $linkInfo) {
+			$result = $socialMediaCtrler->getSocialMediaDetails($linkInfo['type'], $linkInfo['url']);
+			
+			if ($result['status']) {
+				echo "Crawled social media results of <b>{$linkInfo['name']}</b>.....</br>\n";
+			} else {
+				echo "Failed Crawling of social media results of <b>{$linkInfo['name']}</b>.....</br>\n";
+				echo $result['msg'];
+			}
+			
+			// save the social media data
+			$socialMediaCtrler->saveSocialMediaLinkResults($linkInfo['id'], $result);
+			
+		}
 		
-		$socialMediaCtrler->savePageSpeedResults($websiteInfo, true);
-		echo "Saved social media results of <b>$websiteUrl</b>.....</br>\n";
+		echo "Saved social media results of website id: <b>$websiteId</b>.....</br>\n";
 	
 	}	
 	
