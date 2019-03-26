@@ -416,5 +416,187 @@ class SocialMediaController extends Controller{
 		$this->dbHelper->insertRow($this->linkReportTable, $dataList);		
 	}
 	
+	/*
+	 * func to show report summary
+	 */ 
+	function viewReportSummary($searchInfo = '', $summaryPage = false, $cronUserId=false) {
+	
+		$userId = !empty($cronUserId) ? $cronUserId : isLoggedIn();
+		$source = $this->sourceList[0];
+		$this->set('summaryPage', $summaryPage);
+		$this->set('searchInfo', $searchInfo);
+		$this->set('cronUserId', $cronUserId);
+	
+		$exportVersion = false;
+		switch($searchInfo['doc_type']){
+	
+			case "export":
+				$exportVersion = true;
+				$exportContent = "";
+				break;
+					
+			case "pdf":
+				$this->set('pdfVersion', true);
+				break;
+					
+			case "print":
+				$this->set('printVersion', true);
+				break;
+		}
+	
+		$fromTime = !empty($searchInfo['from_time']) ? addslashes($searchInfo['from_time']) : date('Y-m-d', strtotime('-4 days'));
+		$toTime = !empty($searchInfo['to_time']) ? addslashes($searchInfo['to_time']) : date('Y-m-d', strtotime('-3 days'));
+		$this->set('fromTime', $fromTime);
+		$this->set('toTime', $toTime);
+	
+		$websiteController = New WebsiteController();
+		$wList = $websiteController->__getAllWebsites($userId, true);
+		$websiteList = array(0);
+		foreach ($wList as $wInfo) $websiteList[$wInfo['id']] = $wInfo;
+		$this->set('websiteList', $websiteList);
+		$websiteId = intval($searchInfo['website_id']);
+		$this->set('websiteId', $websiteId);
+	
+		// to find order col
+		if (!empty($searchInfo['order_col'])) {
+			$orderCol = $searchInfo['order_col'];
+			$orderVal = getOrderByVal($searchInfo['order_val']);
+		} else {
+			$orderCol = "clicks";
+			$orderVal = 'DESC';
+		}
+	
+		$this->set('orderCol', $orderCol);
+		$this->set('orderVal', $orderVal);
+		$scriptName = $summaryPage ? "archive.php" : "webmaster-tools.php";
+		$scriptPath = SP_WEBPATH . "/$scriptName?sec=viewKeywordReports&website_id=$websiteId";
+		$scriptPath .= "&from_time=$fromTime&to_time=$toTime&search_name=" . $searchInfo['search_name'];
+		$scriptPath .= "&order_col=$orderCol&order_val=$orderVal&report_type=keyword-search-reports";
+	
+		// set website id to get exact keywords of a user
+		if (!empty($websiteId)) {
+			$conditions = " and k.website_id=$websiteId";
+		} else {
+			$conditions = " and k.website_id in (".implode(',', array_keys($websiteList)).")";
+		}
+	
+		$conditions .= !empty($searchInfo['search_name']) ? " and k.name like '%".addslashes($searchInfo['search_name'])."%'" : "";
+	
+		$subSql = "select [cols] from webmaster_keywords k, keyword_analytics r where k.id=r.keyword_id
+		and k.status=1 $conditions and r.source='$source' and r.report_date='$toTime'";
+	
+		$sql = "
+		(" . str_replace("[cols]", "k.id,k.name,k.website_id,r.clicks,r.impressions,r.ctr,r.average_position", $subSql) . ")
+			UNION
+			(select k.id,k.name,k.website_id,0,0,0,0 from webmaster_keywords k where k.status=1 $conditions
+			and k.id not in (". str_replace("[cols]", "distinct(k.id)", $subSql) ."))
+		order by " . addslashes($orderCol) . " " . addslashes($orderVal);
+	
+		if ($orderCol != 'name') $sql .= ", name";
+	
+		// pagination setup, if not from cron job email send function, pdf and export action
+		if (!in_array($searchInfo['doc_type'], array("pdf", "export"))) {
+			$this->db->query($sql, true);
+			$this->paging->setDivClass('pagingdiv');
+			$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
+			$pagingDiv = $this->paging->printPages($scriptPath, '', 'scriptDoLoad', 'content', "");
+			$this->set('pagingDiv', $pagingDiv);
+			$this->set('pageNo', $searchInfo['pageno']);
+			$sql .= " limit ".$this->paging->start .",". $this->paging->per_page;
+		}
+	
+		# set report list
+		$baseReportList = $this->db->select($sql);
+		$this->set('baseReportList', $baseReportList);
+		$this->set('colList', $this->colList);
+	
+		// if keywords existing
+		if (!empty($baseReportList)) {
+				
+			$keywordIdList = array();
+			foreach ($baseReportList as $info) {
+				$keywordIdList[] = $info['id'];
+			}
+	
+			$sql = "select k.id,k.name,k.website_id,r.clicks,r.impressions,r.ctr,r.average_position
+			from webmaster_keywords k, keyword_analytics r where k.id=r.keyword_id
+			and k.status=1 $conditions and r.source='$source' and r.report_date='$fromTime'";
+			$sql .= " and k.id in(" . implode(",", $keywordIdList) . ")";
+			$reportList = $this->db->select($sql);
+			$compareReportList = array();
+				
+			foreach ($reportList as $info) {
+				$compareReportList[$info['id']] = $info;
+			}
+				
+			$this->set('compareReportList', $compareReportList);
+				
+		}
+	
+		if ($exportVersion) {
+			$spText = $_SESSION['text'];
+			$reportHeading =  $this->spTextTools['Keyword Search Summary']."($fromTime - $toTime)";
+			$exportContent .= createExportContent( array('', $reportHeading, ''));
+			$exportContent .= createExportContent( array());
+			$headList = array($spText['common']['Website'], $spText['common']['Keyword']);
+	
+			$pTxt = str_replace("-", "/", substr($fromTime, -5));
+			$cTxt = str_replace("-", "/", substr($toTime, -5));
+			foreach ($this->colList as $colKey => $colLabel) {
+				if ($colKey == 'name') continue;
+				$headList[] = $colLabel . "($pTxt)";
+				$headList[] = $colLabel . "($cTxt)";
+				$headList[] = $colLabel . "(+/-)";
+			}
+	
+			$exportContent .= createExportContent($headList);
+			foreach($baseReportList as $listInfo){
+	
+				$valueList = array($websiteList[$listInfo['website_id']]['url'], $listInfo['name']);
+				foreach ($this->colList as $colName => $colVal) {
+					if ($colName == 'name') continue;
+						
+					$currRank = isset($listInfo[$colName]) ? $listInfo[$colName] : 0;
+					$prevRank = isset($compareReportList[$listInfo['id']][$colName]) ? $compareReportList[$listInfo['id']][$colName] : 0;
+					$rankDiff = "";
+	
+					// if both ranks are existing
+					if ($prevRank != '' && $currRank != '') {
+						$rankDiff = $currRank - $prevRank;
+						if ($colName == 'average_position') $rankDiff = $rankDiff * -1;
+					}
+	
+					$valueList[] = $prevRank;
+					$valueList[] = $currRank;
+					$valueList[] = $rankDiff;
+				}
+	
+				$exportContent .= createExportContent( $valueList);
+			}
+				
+			if ($summaryPage) {
+				return $exportContent;
+			} else {
+				exportToCsv('keyword_search_summary', $exportContent);
+			}
+				
+		} else {
+				
+			// if pdf export
+			if ($summaryPage) {
+				return $this->getViewContent('webmaster/keyword_search_analytics_summary');
+			} else {
+				// if pdf export
+				if ($searchInfo['doc_type'] == "pdf") {
+					exportToPdf($this->getViewContent('webmaster/keyword_search_analytics_summary'), "keyword_search_summary_$fromTime-$toTime.pdf");
+				} else {
+					$this->set('searchInfo', $searchInfo);
+					$this->render('webmaster/keyword_search_analytics_summary');
+				}
+			}
+				
+		}
+	}
+	
 }
 ?>

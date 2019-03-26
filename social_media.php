@@ -88,6 +88,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 	    case "newSocialMediaLink":
 	        $controller->newSocialMediaLink($_GET);
 	        break;
+	    
+	    case "reportSummary":
+	        $controller->viewReportSummary($_GET);
+	        break;
 		
 		default:
 			$controller->showSocialMediaLinks($_GET);

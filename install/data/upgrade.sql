@@ -42,6 +42,7 @@ VALUES (NULL, 'Social Media Checker', 'sm-checker', '1', '1', '1', '100', '1');
 
 
 INSERT INTO `texts` (`category`, `label`, `content`) VALUES
+('seotools', 'Detailed Reports', 'Detailed Reports'),
 ('label', 'Likes', 'Likes'),
 ('label', 'Followers', 'Followers'),
 ('common', 'Internal error occured', 'Internal error occured'),
