@@ -36,7 +36,6 @@ $controller->set('spKeywords', "$siteName tools,Automatic Directory Submission,K
 $controller->set('spTextTools', $controller->getLanguageTexts('seotools', $_SESSION['lang_code']));
 $controller->set('spTextKeyword', $controller->getLanguageTexts('keyword', $_SESSION['lang_code']));
 $controller->set('spTextPanel', $controller->getLanguageTexts('panel', $_SESSION['lang_code']));
-$controller->set('spTextSA', $controller->getLanguageTexts('siteauditor', $_SESSION['lang_code']));
 
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	

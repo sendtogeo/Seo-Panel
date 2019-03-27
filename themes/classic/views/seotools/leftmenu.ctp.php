@@ -247,7 +247,7 @@ foreach($menuList as $i => $menuInfo){
 						</a>
 					</li>
 				<?php }?>
-				<li><a href="javascript:void(0);" onclick="scriptDoLoad('social_media.php?sec=reportSummary', 'content')"><?php echo $spTextSA['Report Summary']?></a></li>
+				<li><a href="javascript:void(0);" onclick="scriptDoLoad('social_media.php?sec=reportSummary', 'content')"><?php echo $spTextTools['Social Media Report Summary']?></a></li>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('social_media.php?sec=reportSummary', 'content')"><?php echo $spTextTools['Detailed Reports']?></a></li>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('social_media.php?sec=graphical-reports', 'content')"><?php echo $spTextTools['Graphical Reports']?></a></li>
 				<?php if(SP_USER_GEN_REPORT || isAdmin()){ ?>				

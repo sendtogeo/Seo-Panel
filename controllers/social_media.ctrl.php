@@ -28,6 +28,7 @@ class SocialMediaController extends Controller{
     var $layout = "ajax";
     var $pageScriptPath = 'social_media.php';
     var $serviceList;
+    var $colList;
     
     function __construct() {
     	 
@@ -73,6 +74,12 @@ class SocialMediaController extends Controller{
     	$this->set('pageScriptPath', $this->pageScriptPath);
     	$this->set( 'serviceList', $this->serviceList );
     	$this->set( 'pageNo', $_REQUEST['pageno']);
+		
+		$this->colList = array(
+			'url' => $_SESSION['text']['common']['Url'],
+			'followers' => $_SESSION['text']['label']['Followers'],
+			'likes' => $_SESSION['text']['label']['Likes'],
+		);
     	
     	parent::__construct();
     }
@@ -422,7 +429,6 @@ class SocialMediaController extends Controller{
 	function viewReportSummary($searchInfo = '', $summaryPage = false, $cronUserId=false) {
 	
 		$userId = !empty($cronUserId) ? $cronUserId : isLoggedIn();
-		$source = $this->sourceList[0];
 		$this->set('summaryPage', $summaryPage);
 		$this->set('searchInfo', $searchInfo);
 		$this->set('cronUserId', $cronUserId);
@@ -444,8 +450,8 @@ class SocialMediaController extends Controller{
 				break;
 		}
 	
-		$fromTime = !empty($searchInfo['from_time']) ? addslashes($searchInfo['from_time']) : date('Y-m-d', strtotime('-4 days'));
-		$toTime = !empty($searchInfo['to_time']) ? addslashes($searchInfo['to_time']) : date('Y-m-d', strtotime('-3 days'));
+		$fromTime = !empty($searchInfo['from_time']) ? addslashes($searchInfo['from_time']) : date('Y-m-d', strtotime('-1 days'));
+		$toTime = !empty($searchInfo['to_time']) ? addslashes($searchInfo['to_time']) : date('Y-m-d');
 		$this->set('fromTime', $fromTime);
 		$this->set('toTime', $toTime);
 	
@@ -462,37 +468,38 @@ class SocialMediaController extends Controller{
 			$orderCol = $searchInfo['order_col'];
 			$orderVal = getOrderByVal($searchInfo['order_val']);
 		} else {
-			$orderCol = "clicks";
+			$orderCol = "followers";
 			$orderVal = 'DESC';
 		}
 	
 		$this->set('orderCol', $orderCol);
 		$this->set('orderVal', $orderVal);
-		$scriptName = $summaryPage ? "archive.php" : "webmaster-tools.php";
-		$scriptPath = SP_WEBPATH . "/$scriptName?sec=viewKeywordReports&website_id=$websiteId";
-		$scriptPath .= "&from_time=$fromTime&to_time=$toTime&search_name=" . $searchInfo['search_name'];
-		$scriptPath .= "&order_col=$orderCol&order_val=$orderVal&report_type=keyword-search-reports";
+		$scriptName = $summaryPage ? "archive.php" : $this->pageScriptPath;
+		$scriptPath = SP_WEBPATH . "/$scriptName?sec=reportSummary&website_id=$websiteId";
+		$scriptPath .= "&from_time=$fromTime&to_time=$toTime&search_name=" . $searchInfo['search_name'] . "&type=" . $searchInfo['type'];
+		$scriptPath .= "&order_col=$orderCol&order_val=$orderVal&report_type=social-media-reports";
 	
 		// set website id to get exact keywords of a user
 		if (!empty($websiteId)) {
-			$conditions = " and k.website_id=$websiteId";
+			$conditions = " and sml.website_id=$websiteId";
 		} else {
-			$conditions = " and k.website_id in (".implode(',', array_keys($websiteList)).")";
+			$conditions = " and sml.website_id in (".implode(',', array_keys($websiteList)).")";
 		}
 	
-		$conditions .= !empty($searchInfo['search_name']) ? " and k.name like '%".addslashes($searchInfo['search_name'])."%'" : "";
+		$conditions .= !empty($searchInfo['search_name']) ? " and sml.url like '%".addslashes($searchInfo['search_name'])."%'" : "";
+		$conditions .= !empty($searchInfo['type']) ? " and sml.type='".addslashes($searchInfo['type'])."'" : "";
 	
-		$subSql = "select [cols] from webmaster_keywords k, keyword_analytics r where k.id=r.keyword_id
-		and k.status=1 $conditions and r.source='$source' and r.report_date='$toTime'";
+		$subSql = "select [cols] from $this->linkTable sml, $this->linkReportTable r where sml.id=r.sm_link_id
+		and sml.status=1 $conditions and r.report_date='$toTime'";
 	
 		$sql = "
-		(" . str_replace("[cols]", "k.id,k.name,k.website_id,r.clicks,r.impressions,r.ctr,r.average_position", $subSql) . ")
+		(" . str_replace("[cols]", "sml.id,sml.url,sml.website_id,sml.type,r.likes,r.followers", $subSql) . ")
 			UNION
-			(select k.id,k.name,k.website_id,0,0,0,0 from webmaster_keywords k where k.status=1 $conditions
-			and k.id not in (". str_replace("[cols]", "distinct(k.id)", $subSql) ."))
+			(select sml.id,sml.url,sml.website_id,sml.type,0,0 from $this->linkTable sml where sml.status=1 $conditions
+			and sml.id not in (". str_replace("[cols]", "distinct(sml.id)", $subSql) ."))
 		order by " . addslashes($orderCol) . " " . addslashes($orderVal);
 	
-		if ($orderCol != 'name') $sql .= ", name";
+		if ($orderCol != 'url') $sql .= ", url";
 	
 		// pagination setup, if not from cron job email send function, pdf and export action
 		if (!in_array($searchInfo['doc_type'], array("pdf", "export"))) {
@@ -518,10 +525,10 @@ class SocialMediaController extends Controller{
 				$keywordIdList[] = $info['id'];
 			}
 	
-			$sql = "select k.id,k.name,k.website_id,r.clicks,r.impressions,r.ctr,r.average_position
-			from webmaster_keywords k, keyword_analytics r where k.id=r.keyword_id
-			and k.status=1 $conditions and r.source='$source' and r.report_date='$fromTime'";
-			$sql .= " and k.id in(" . implode(",", $keywordIdList) . ")";
+			$sql = "select sml.id,sml.url,sml.website_id,sml.type,r.followers,r.likes
+			from $this->linkTable sml, $this->linkReportTable r where sml.id=r.sm_link_id
+			and sml.status=1 $conditions and r.report_date='$fromTime'";
+			$sql .= " and sml.id in(" . implode(",", $keywordIdList) . ")";
 			$reportList = $this->db->select($sql);
 			$compareReportList = array();
 				
@@ -535,15 +542,15 @@ class SocialMediaController extends Controller{
 	
 		if ($exportVersion) {
 			$spText = $_SESSION['text'];
-			$reportHeading =  $this->spTextTools['Keyword Search Summary']."($fromTime - $toTime)";
+			$reportHeading =  $this->spTextTools['Social Media Report Summary']."($fromTime - $toTime)";
 			$exportContent .= createExportContent( array('', $reportHeading, ''));
 			$exportContent .= createExportContent( array());
-			$headList = array($spText['common']['Website'], $spText['common']['Keyword']);
+			$headList = array($spText['common']['Website'], $spText['common']['Url']);
 	
 			$pTxt = str_replace("-", "/", substr($fromTime, -5));
 			$cTxt = str_replace("-", "/", substr($toTime, -5));
 			foreach ($this->colList as $colKey => $colLabel) {
-				if ($colKey == 'name') continue;
+				if ($colKey == 'url') continue;
 				$headList[] = $colLabel . "($pTxt)";
 				$headList[] = $colLabel . "($cTxt)";
 				$headList[] = $colLabel . "(+/-)";
@@ -552,9 +559,9 @@ class SocialMediaController extends Controller{
 			$exportContent .= createExportContent($headList);
 			foreach($baseReportList as $listInfo){
 	
-				$valueList = array($websiteList[$listInfo['website_id']]['url'], $listInfo['name']);
+				$valueList = array($websiteList[$listInfo['website_id']]['url'], $listInfo['url']);
 				foreach ($this->colList as $colName => $colVal) {
-					if ($colName == 'name') continue;
+					if ($colName == 'url') continue;
 						
 					$currRank = isset($listInfo[$colName]) ? $listInfo[$colName] : 0;
 					$prevRank = isset($compareReportList[$listInfo['id']][$colName]) ? $compareReportList[$listInfo['id']][$colName] : 0;
@@ -563,7 +570,6 @@ class SocialMediaController extends Controller{
 					// if both ranks are existing
 					if ($prevRank != '' && $currRank != '') {
 						$rankDiff = $currRank - $prevRank;
-						if ($colName == 'average_position') $rankDiff = $rankDiff * -1;
 					}
 	
 					$valueList[] = $prevRank;
@@ -577,21 +583,21 @@ class SocialMediaController extends Controller{
 			if ($summaryPage) {
 				return $exportContent;
 			} else {
-				exportToCsv('keyword_search_summary', $exportContent);
+				exportToCsv('social_media_report_summary', $exportContent);
 			}
 				
 		} else {
 				
 			// if pdf export
 			if ($summaryPage) {
-				return $this->getViewContent('webmaster/keyword_search_analytics_summary');
+				return $this->getViewContent('socialmedia/social_media_report_summary');
 			} else {
 				// if pdf export
 				if ($searchInfo['doc_type'] == "pdf") {
-					exportToPdf($this->getViewContent('webmaster/keyword_search_analytics_summary'), "keyword_search_summary_$fromTime-$toTime.pdf");
+					exportToPdf($this->getViewContent('socialmedia/social_media_report_summary'), "social_media_report_summary_$fromTime-$toTime.pdf");
 				} else {
 					$this->set('searchInfo', $searchInfo);
-					$this->render('webmaster/keyword_search_analytics_summary');
+					$this->render('socialmedia/social_media_report_summary');
 				}
 			}
 				

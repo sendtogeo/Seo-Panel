@@ -50,6 +50,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         case "createSocialMediaLink":
             $controller->createSocialMediaLink($_POST);
             break;
+	    
+	    case "reportSummary":
+	        $controller->viewReportSummary($_POST);
+	        break;
 			
 	    default:
 	        $controller->showSocialMediaLinks($_POST);
