@@ -330,7 +330,10 @@ class CronController extends Controller {
 		$websiteInfo = $this->websiteInfo;
 		
 		$linkList = $socialMediaCtrler->getAllLinksWithOutReports($websiteInfo['id'], date('Y-m-d', $this->timeStamp));
-		if (SP_MULTIPLE_CRON_EXEC && empty($linkList)) return true;
+		if (SP_MULTIPLE_CRON_EXEC && empty($linkList)) {
+			$this->debugMsg("No social media links left to generate report for website: {$this->websiteInfo['name']}....<br>\n");
+			return true;
+		}
 		
 		// loop through link list and save the data
 		foreach ($linkList as $linkInfo) {
