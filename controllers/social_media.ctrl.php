@@ -604,5 +604,169 @@ class SocialMediaController extends Controller{
 		}
 	}
 	
+	// func to show detailed reports
+	function viewDetailedReports($searchInfo = '') {
+	
+		$userId = isLoggedIn();
+
+		if (!empty ($searchInfo['from_time'])) {
+			$fromTimeDate = addslashes($searchInfo['from_time']);
+		} else {
+			$fromTimeDate = date('Y-m-d', strtotime('-17 days'));
+		}
+		
+		if (!empty ($searchInfo['to_time'])) {
+			$toTimeDate = addslashes($searchInfo['to_time']);
+		} else {
+			$toTimeDate = date('Y-m-d', strtotime('-3 days'));
+		}
+		
+		$this->set('fromTime', $fromTimeDate);
+		$this->set('toTime', $toTimeDate);
+	
+		if(!empty($searchInfo['link_id']) && !empty($searchInfo['rep'])){				
+			$searchInfo['link_id'] = intval($searchInfo['link_id']);
+			$keywordInfo = $this->__getWebmasterKeywordInfo($searchInfo['link_id']);
+			$searchInfo['website_id'] = $keywordInfo['website_id'];
+		}
+	
+		$websiteController = New WebsiteController();
+		$websiteList = $websiteController->__getAllWebsites($userId, true);
+		$this->set('websiteList', $websiteList);
+		$websiteId = empty ($searchInfo['website_id']) ? $websiteList[0]['id'] : intval($searchInfo['website_id']);
+		$this->set('websiteId', $websiteId);
+	
+		$keywordList = $this->__getWebmasterKeywords("website_id=$websiteId  and status=1 order by name");
+		$this->set('keywordList', $keywordList);
+		$keywordId = empty ($searchInfo['keyword_id']) ? $keywordList[0]['id'] : $searchInfo['keyword_id'];
+		$this->set('keywordId', $keywordId);
+	
+		$conditions = empty ($keywordId) ? "" : " and s.keyword_id=$keywordId";
+		$sql = "select s.* from keyword_analytics s
+		where report_date>='$fromTimeDate' and report_date<='$toTimeDate' $conditions
+		order by s.report_date";
+		$reportList = $this->db->select($sql);
+		
+		$colList = array_keys($this->colList);
+		array_shift($colList);
+		foreach ($colList as $col) $prevRank[$col] = 0;
+		
+		# loop through rank
+		foreach ($reportList as $key => $repInfo) {
+			
+			// if not the first row, find differences in rank
+			if ($key)  {
+				
+				foreach ($colList as $col) $rankDiff[$col] = '';
+					
+				foreach ($colList as $col) {
+					$rankDiff[$col] = round($repInfo[$col] - $prevRank[$col], 2);
+					if (empty($rankDiff[$col])) continue;
+					
+					if ($col == "average_position" ) $rankDiff[$col] = $rankDiff[$col] * -1;
+					$rankClass = ($rankDiff[$col] > 0) ? 'green' : 'red';
+					
+					$rankDiff[$col] = "<font class='$rankClass'>($rankDiff[$col])</font>";
+					$reportList[$key]['rank_diff_'.$col] = empty($rankDiff[$col]) ? '' : $rankDiff[$col];			
+				}
+				
+			}
+				
+			foreach ($colList as $col) $prevRank[$col] = $repInfo[$col];
+		
+		}
+		
+		$this->set('list', array_reverse($reportList, true));				
+		$this->render('socialmedia/social_media_reports');
+		
+	}
+	
+	//func to show keyword search reports in graph
+	function viewKeywordSearchGraphReports($searchInfo = '') {
+	
+		$userId = isLoggedIn();
+
+		if (!empty ($searchInfo['from_time'])) {
+			$fromTimeDate = addslashes($searchInfo['from_time']);
+		} else {
+			$fromTimeDate = date('Y-m-d', strtotime('-17 days'));
+		}
+		
+		if (!empty ($searchInfo['to_time'])) {
+			$toTimeDate = addslashes($searchInfo['to_time']);
+		} else {
+			$toTimeDate = date('Y-m-d', strtotime('-3 days'));
+		}
+		
+		$this->set('fromTime', $fromTimeDate);
+		$this->set('toTime', $toTimeDate);
+	
+		if(!empty($searchInfo['keyword_id']) && !empty($searchInfo['rep'])){				
+			$searchInfo['keyword_id'] = intval($searchInfo['keyword_id']);
+			$keywordInfo = $this->__getWebmasterKeywordInfo($searchInfo['keyword_id']);
+			$searchInfo['website_id'] = $keywordInfo['website_id'];
+		}
+	
+		$websiteController = New WebsiteController();
+		$websiteList = $websiteController->__getAllWebsites($userId, true);
+		$this->set('websiteList', $websiteList);
+		$websiteId = empty ($searchInfo['website_id']) ? $websiteList[0]['id'] : intval($searchInfo['website_id']);
+		$this->set('websiteId', $websiteId);
+	
+		$keywordList = $this->__getWebmasterKeywords("website_id=$websiteId  and status=1 order by name");
+		$this->set('keywordList', $keywordList);
+		$keywordId = empty ($searchInfo['keyword_id']) ? $keywordList[0]['id'] : $searchInfo['keyword_id'];
+		$this->set('keywordId', $keywordId);
+	
+		$conditions = empty ($keywordId) ? "" : " and s.keyword_id=$keywordId";
+		$sql = "select s.* from keyword_analytics s
+		where report_date>='$fromTimeDate' and report_date<='$toTimeDate' $conditions
+		order by s.report_date";
+		$reportList = $this->db->select($sql);
+
+		// if reports not empty
+		$colList = $this->colList;
+		array_shift($colList);
+		$this->set('colList', $colList);
+		$this->set('searchInfo', $searchInfo);
+		
+		$graphColList = array();
+		if (!empty($searchInfo['attr_type'])) {
+			$graphColList[$searchInfo['attr_type']] = $colList[$searchInfo['attr_type']];
+			if ($searchInfo['attr_type'] == 'average_position') { $this->set('reverseDir', true);}
+		} else {
+			array_pop($colList);
+			$graphColList = $colList;
+		}
+		
+		if (!empty($reportList)) {
+				
+			$dataArr = "['Date', '" . implode("', '", array_values($graphColList)) . "']";
+			 
+			// loop through data list
+			foreach ($reportList as $dataInfo) {
+	
+				$valStr = "";
+				foreach ($graphColList as $seId => $seVal) {
+					$valStr .= ", ";
+					$valStr .= !empty($dataInfo[$seId]) ? $dataInfo[$seId] : 0;
+				}
+	
+				$dataArr .= ", ['{$dataInfo['report_date']}' $valStr]";
+			}
+			 
+			$this->set('dataArr', $dataArr);
+			$this->set('graphTitle', $this->spTextTools['Keyword Search Reports']);
+			$graphContent = $this->getViewContent('report/graph');
+		} else {
+			$graphContent = showErrorMsg($_SESSION['text']['common']['No Records Found'], false, true);
+		}
+		
+		// get graph content
+		$this->set('graphContent', $graphContent);
+		$this->render('socialmedia/graphicalreport');
+		
+	}
+	
 }
 ?>

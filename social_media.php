@@ -96,6 +96,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 	    case "reportSummary":
 	        $controller->viewReportSummary($_GET);
 	        break;
+			
+		case "viewDetailedReports":
+			$controller->viewDetailedReports($_GET);
+			break;
+			
+		case "viewGraphReports":
+			$controller->viewGraphReports($_GET);
+			break;
 		
 		default:
 			$controller->showSocialMediaLinks($_GET);

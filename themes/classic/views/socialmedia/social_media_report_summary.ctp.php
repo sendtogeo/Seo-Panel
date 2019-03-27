@@ -81,7 +81,7 @@ if(!$summaryPage && (!empty($printVersion) || !empty($pdfVersion))) {
     }
 
 	// url parameters
-	$mainLink = SP_WEBPATH."/$scriptName?sec=reportSummary&website_id=$websiteId&from_time=$fromTime&to_time=$toTime&type={searchInfo['type']}";
+	$mainLink = SP_WEBPATH."/$scriptName?sec=reportSummary&website_id=$websiteId&from_time=$fromTime&to_time=$toTime&type={$searchInfo['type']}";
 	$mainLink .= "&search_name={$searchInfo['search_name']}&report_type=social-media-reports";
 	
 	// if not summary page show the filters
@@ -144,62 +144,68 @@ $colCount = ($baseColCount * 3) + 2;
 		?>
 	</tr>
 	<?php
-		foreach($baseReportList as $listInfo){
-			$keywordId = $listInfo['id'];
-			$rangeFromTime = date('Y-m-d', strtotime('-14 days', strtotime($fromTime)));
-			$scriptLink = "website_id=$websiteId&id={$listInfo['id']}&rep=1&from_time=$rangeFromTime&to_time=$toTime";          
-			?>
-			<tr>
-				<td>
-					<a href="javascript:void(0)"><?php echo $websiteList[$listInfo['website_id']]['url']; ?></a>
-				</td>
-				<td colspan="3"><?php echo $listInfo['url']; ?></td>
-				<?php
-				foreach ($colList as $colName => $colVal){
-					if ($colName == 'url') continue;
-					
-					// if not facebook likes value will be null
-					if ($colName == 'likes' && $listInfo['type'] != 'facebook') {
-						$prevRankLink = $currRankLink = $graphLink = $rankDiffTxt = "";
-					} else {
-					
-						$currRank = isset($listInfo[$colName]) ? $listInfo[$colName] : 0;
-						$prevRank = isset($compareReportList[$keywordId][$colName]) ? $compareReportList[$keywordId][$colName] : 0;
-						$rankDiffTxt = "";
+		if (!empty($baseReportList)) {
+			foreach($baseReportList as $listInfo){
+				$keywordId = $listInfo['id'];
+				$rangeFromTime = date('Y-m-d', strtotime('-14 days', strtotime($fromTime)));
+				$scriptLink = "website_id=$websiteId&id={$listInfo['id']}&rep=1&from_time=$rangeFromTime&to_time=$toTime";          
+				?>
+				<tr>
+					<td>
+						<a href="javascript:void(0)"><?php echo $websiteList[$listInfo['website_id']]['url']; ?></a>
+					</td>
+					<td colspan="3"><?php echo $listInfo['url']; ?></td>
+					<?php
+					foreach ($colList as $colName => $colVal){
+						if ($colName == 'url') continue;
 						
-						// find rank difefrence
-						$rankDiff = $currRank - $prevRank;
-						$rankDiff = round($rankDiff, 2);
-						if ($colName == 'average_position') $rankDiff = $rankDiff * -1;
-						
-						if ($rankDiff > 0) {
-							$rankDiffTxt = "<font class='green'>($rankDiff)</font>";
-						} else if ($rankDiff < 0) {
-							$rankDiffTxt = "<font class='red'>($rankDiff)</font>";
+						// if not facebook likes value will be null
+						if ($colName == 'likes' && $listInfo['type'] != 'facebook') {
+							$prevRankLink = $currRankLink = $graphLink = $rankDiffTxt = "";
 						} else {
-							$rankDiffTxt = "";
-						}
-	
-						$prevRankLink = scriptAJAXLinkHrefDialog($pageScriptPath, 'content', $scriptLink . "&sec=viewSocialMediaReports", $prevRank);
-						$currRankLink = scriptAJAXLinkHrefDialog($pageScriptPath, 'content', $scriptLink . "&sec=viewSocialMediaReports", $currRank);
-						$graphLink = scriptAJAXLinkHrefDialog($pageScriptPath, 'content', $scriptLink . "&sec=viewSocialMediaGraphReports&attr_type=$colName", '&nbsp;', 'graphicon');
 						
-						// if pdf report remove links
-						if ($pdfVersion) {
-							$prevRankLink = str_replace("href='javascript:void(0);'", "", $prevRankLink);
-							$currRankLink = str_replace("href='javascript:void(0);'", "", $currRankLink);
-							$graphLink = str_replace("href='javascript:void(0);'", "", $graphLink);
+							$currRank = isset($listInfo[$colName]) ? $listInfo[$colName] : 0;
+							$prevRank = isset($compareReportList[$keywordId][$colName]) ? $compareReportList[$keywordId][$colName] : 0;
+							$rankDiffTxt = "";
+							
+							// find rank difefrence
+							$rankDiff = $currRank - $prevRank;
+							$rankDiff = round($rankDiff, 2);
+							if ($colName == 'average_position') $rankDiff = $rankDiff * -1;
+							
+							if ($rankDiff > 0) {
+								$rankDiffTxt = "<font class='green'>($rankDiff)</font>";
+							} else if ($rankDiff < 0) {
+								$rankDiffTxt = "<font class='red'>($rankDiff)</font>";
+							} else {
+								$rankDiffTxt = "";
+							}
+		
+							$prevRankLink = scriptAJAXLinkHrefDialog($pageScriptPath, 'content', $scriptLink . "&sec=viewSocialMediaReports", $prevRank);
+							$currRankLink = scriptAJAXLinkHrefDialog($pageScriptPath, 'content', $scriptLink . "&sec=viewSocialMediaReports", $currRank);
+							$graphLink = scriptAJAXLinkHrefDialog($pageScriptPath, 'content', $scriptLink . "&sec=viewSocialMediaGraphReports&attr_type=$colName", '&nbsp;', 'graphicon');
+							
+							// if pdf report remove links
+							if ($pdfVersion) {
+								$prevRankLink = str_replace("href='javascript:void(0);'", "", $prevRankLink);
+								$currRankLink = str_replace("href='javascript:void(0);'", "", $currRankLink);
+								$graphLink = str_replace("href='javascript:void(0);'", "", $graphLink);
+							}
 						}
+					    ?>
+						<td><?php echo $prevRankLink; ?></td>
+						<td><?php echo $currRankLink; ?></td>
+						<td><?php echo $graphLink . " " . $rankDiffTxt; ?></td>
+						<?php					
 					}
-				    ?>
-					<td><?php echo $prevRankLink; ?></td>
-					<td><?php echo $currRankLink; ?></td>
-					<td><?php echo $graphLink . " " . $rankDiffTxt; ?></td>
-					<?php					
-				}
-				?>				
-			</tr>
-		<?php
+					?>				
+				</tr>
+			<?php
+			}
+		} else {
+			?>
+			<tr><td colspan="<?php echo $colCount?>"><b><?php echo $_SESSION['text']['common']['No Records Found']?></b></tr>
+			<?php
 		}
 	?>
 </table>

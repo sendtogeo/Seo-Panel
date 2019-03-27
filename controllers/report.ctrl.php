@@ -1280,7 +1280,9 @@ class ReportController extends Controller {
 			if (empty($searchInfo['report_type']) || ($searchInfo['report_type'] == 'social-media-reports')) {
 				$filterList['from_time'] = $fromTimeShort;
 				$filterList['to_time'] = $toTimeShort;
+				$socialMediaCtrler->set('spTextTools', $this->spTextTools);
 				$socialMediaCtrler->set('spTextPanel', $this->spTextPanel);
+				$socialMediaCtrler->spTextTools = $this->spTextTools;
 				$socialMediaReport = $socialMediaCtrler->viewReportSummary($filterList, true, $cronUserId);
 			}
 			

@@ -248,15 +248,15 @@ foreach($menuList as $i => $menuInfo){
 					</li>
 				<?php }?>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('social_media.php?sec=reportSummary', 'content')"><?php echo $spTextTools['Social Media Report Summary']?></a></li>
-				<li><a href="javascript:void(0);" onclick="scriptDoLoad('social_media.php?sec=reportSummary', 'content')"><?php echo $spTextTools['Detailed Reports']?></a></li>
-				<li><a href="javascript:void(0);" onclick="scriptDoLoad('social_media.php?sec=graphical-reports', 'content')"><?php echo $spTextTools['Graphical Reports']?></a></li>
-				<?php if(SP_USER_GEN_REPORT || isAdmin()){ ?>				
+				<li><a href="javascript:void(0);" onclick="scriptDoLoad('social_media.php?sec=viewDetailedReports', 'content')"><?php echo $spTextTools['Detailed Reports']?></a></li>
+				<li><a href="javascript:void(0);" onclick="scriptDoLoad('social_media.php?sec=viewGraphReports', 'content')"><?php echo $spTextTools['Graphical Reports']?></a></li>
+				<?php /*if(SP_USER_GEN_REPORT || isAdmin()){ ?>				
 					<?php if(SP_DEMO){?>
 		         		<li><a href="javascript:void(0);" onclick="alertDemoMsg();"><?php echo $spTextTools['Generate Reports']?></a></li>
 		         	<?php }else{?>
 		         		<li><a href="javascript:void(0);" onclick="scriptDoLoad('social_media.php?sec=generate', 'content')"><?php echo $spTextTools['Generate Reports']?></a></li>
 		         	<?php }?>
-		      	<?php }?>				
+		      	<?php }*/?>				
 			</ul>
 			<?php
 			break;
