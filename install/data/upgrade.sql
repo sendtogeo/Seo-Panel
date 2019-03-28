@@ -40,21 +40,3 @@ INSERT INTO `seotools` (`id`, `name`, `url_section`, `user_access`, `reportgen`,
 VALUES (NULL, 'Social Media Checker', 'sm-checker', '1', '1', '1', '100', '1');
 
 
-
-INSERT INTO `texts` (`category`, `label`, `content`) VALUES
-('seotools', 'Social Media Report Summary', 'Social Media Report Summary'),
-('seotools', 'Detailed Reports', 'Detailed Reports'),
-('label', 'Likes', 'Likes'),
-('label', 'Followers', 'Followers'),
-('common', 'Internal error occured', 'Internal error occured'),
-('socialmedia', 'Your social media link count already reached the limit', 'Your social media link count already reached the limit'),
-('subscription', 'Social Media Link Count', 'Social Media Link Count'),
-('socialmedia', 'New Social Media Link', 'New Social Media Link'),
-('socialmedia', 'Edit Social Media Link', 'Edit Social Media Link'),
-('common', 'Link', 'Link'),
-('seotools', 'Social Media Links', 'Social Media Links'),
-('seotools', 'sm-checker', 'Social Media Checker'),
-('settings', 'Send Email', 'Send Email'),
-('panel', 'Test Email Settings', 'Test Email Settings');
-
-
