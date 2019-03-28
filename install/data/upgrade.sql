@@ -38,5 +38,3 @@ ALTER TABLE `social_media_link_results` ADD CONSTRAINT `social_media_link_rel` F
 
 INSERT INTO `seotools` (`id`, `name`, `url_section`, `user_access`, `reportgen`, `cron`, `priority`, `status`) 
 VALUES (NULL, 'Social Media Checker', 'sm-checker', '1', '1', '1', '100', '1');
-
-
