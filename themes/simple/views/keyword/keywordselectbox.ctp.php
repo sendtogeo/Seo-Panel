@@ -1,6 +1,6 @@
 <select name="keyword_id" id="keyword_id" style="width:150px;" onchange="<?php echo $onChange?>">
 	<?php if($keyNull){ ?>
-		<option value="">-- Select --</option>
+		<option value="">-- <?php echo $spText['common']['Select']?> --</option>
 	<?php } ?>
 	<?php foreach($keywordList as $keywordInfo){?>
 		<?php if($keywordInfo['id'] == $keywordId){?>

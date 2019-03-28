@@ -2,7 +2,7 @@
 $borderCollapseVal = $pdfVersion ? "border-collapse: collapse;" : "";
 
 if(!$summaryPage && (!empty($printVersion) || !empty($pdfVersion))) {
-    $pdfVersion ? showPdfHeader($spTextTools['Keyword Search Summary']) : showPrintHeader($spTextTools['Keyword Search Summary']);
+    $pdfVersion ? showPdfHeader($spTextTools['Social Media Report Summary']) : showPrintHeader($spTextTools['Social Media Report Summary']);
     ?>
     <table width="80%" class="search">
     	<?php if (!empty($websiteId)) {?>
@@ -22,18 +22,18 @@ if(!$summaryPage && (!empty($printVersion) || !empty($pdfVersion))) {
 	</table>
     <?php
 } else {
-	if ($summaryPage && ($searchInfo['report_type'] != 'keyword-search-reports')) echo "<br><br><br>";
-    echo showSectionHead($spTextTools['Keyword Search Summary']);
+	if ($summaryPage && ($searchInfo['report_type'] != 'social-media-reports')) echo "<br><br><br>";
+    echo showSectionHead($spTextTools['Social Media Report Summary']);
     
     // if not summary page show the filters
     if(!$summaryPage) {
-    	$scriptName = "webmaster-tools.php";
+    	$scriptName = $pageScriptPath;
 	    ?>
 		<form id='search_form'>
-		<?php $submitLink = "scriptDoLoadPost('webmaster-tools.php', 'search_form', 'content', '&sec=viewKeywordSearchSummary')";?>
+		<?php $submitLink = "scriptDoLoadPost('$scriptName', 'search_form', 'content', '&sec=reportSummary')";?>
 		<table width="100%" class="search">
 			<tr>
-				<th><?php echo $spText['common']['Name']?>: </th>
+				<th><?php echo $spText['common']['Url']?>: </th>
 				<td>
 					<input type="text" name="search_name" value="<?php echo htmlentities($searchInfo['search_name'], ENT_QUOTES)?>" onblur="<?php echo $submitLink?>">
 				</td>
@@ -49,6 +49,20 @@ if(!$summaryPage && (!empty($printVersion) || !empty($pdfVersion))) {
 							<?php }?>
 						<?php }?>
 					</select>
+				</td>
+				<th><?php echo $spText['label']['Type']?>:</th>
+				<td>
+					<select name="type" onchange="<?php echo $submitLink?>">
+						<option value="">-- <?php echo $spText['common']['Select']?> --</option>
+						<?php foreach($serviceList as $serviceName => $serviceInfo){?>
+							<?php if($serviceName == $searchInfo['type']){?>
+								<option value="<?php echo $serviceName?>" selected><?php echo $serviceInfo['label']?></option>
+							<?php }else{?>
+								<option value="<?php echo $serviceName?>"><?php echo $serviceInfo['label']?></option>
+							<?php }?>
+						<?php }?>
+					</select>
+					<?php echo $errMsg['service_name']?>
 				</td>
 				<th width="100px;"><?php echo $spText['common']['Period']?>:</th>
 	    		<td width="236px">
@@ -67,8 +81,8 @@ if(!$summaryPage && (!empty($printVersion) || !empty($pdfVersion))) {
     }
 
 	// url parameters
-	$mainLink = SP_WEBPATH."/$scriptName?sec=viewKeywordSearchSummary&website_id=$websiteId&from_time=$fromTime&to_time=$toTime";
-	$mainLink .= "&search_name=" . $searchInfo['search_name'] . "&report_type=keyword-search-reports";
+	$mainLink = SP_WEBPATH."/$scriptName?sec=reportSummary&website_id=$websiteId&from_time=$fromTime&to_time=$toTime&type={$searchInfo['type']}";
+	$mainLink .= "&search_name={$searchInfo['search_name']}&report_type=social-media-reports";
 	
 	// if not summary page show the filters
 	if(!$summaryPage) {
@@ -107,7 +121,7 @@ $colCount = ($baseColCount * 3) + 2;
             }
             
             $linkName = "<a id='sortLink' class='$linkClass' $hrefAttr onclick=\"scriptDoLoad('$mainLink&order_col=$colName&order_val=$oVal', 'content')\">$colList[$colName]</a>";
-		    $rowSpan = ($colName == "name") ? 2 : 1;
+		    $rowSpan = ($colName == "url") ? 2 : 1;
 			?>
 			<th rowspan="<?php echo $rowSpan?>" colspan="3" id="head"><?php echo $linkName; ?></th>
 			<?php
@@ -120,7 +134,7 @@ $colCount = ($baseColCount * 3) + 2;
 		$pTxt = str_replace("-", "/", substr($fromTime, -5));
 		$cTxt = str_replace("-", "/", substr($toTime, -5));
 		foreach ($colList as $colName => $colVal) {
-			if ($colName == 'name') continue;
+			if ($colName == 'url') continue;
 			?>
 			<th><?php echo $pTxt; ?></th>
 			<th><?php echo $cTxt; ?></th>
@@ -130,63 +144,69 @@ $colCount = ($baseColCount * 3) + 2;
 		?>
 	</tr>
 	<?php
-	if (count($baseReportList) > 0) {
-		foreach($baseReportList as $listInfo){
-			$keywordId = $listInfo['id'];
-			$rangeFromTime = date('Y-m-d', strtotime('-14 days', strtotime($fromTime)));
-			$scriptLink = "website_id=$websiteId&keyword_id={$listInfo['id']}&rep=1&from_time=$rangeFromTime&to_time=$toTime";          
+		if (!empty($baseReportList)) {
+			foreach($baseReportList as $listInfo){
+				$keywordId = $listInfo['id'];
+				$rangeFromTime = date('Y-m-d', strtotime('-14 days', strtotime($fromTime)));
+				$scriptLink = "website_id=$websiteId&link_id={$listInfo['id']}&rep=1&from_time=$rangeFromTime&to_time=$toTime";          
+				?>
+				<tr>
+					<td>
+						<a href="javascript:void(0)"><?php echo $websiteList[$listInfo['website_id']]['url']; ?></a>
+					</td>
+					<td colspan="3"><?php echo $listInfo['url']; ?></td>
+					<?php
+					foreach ($colList as $colName => $colVal){
+						if ($colName == 'url') continue;
+						
+						// if not facebook likes value will be null
+						if ($colName == 'likes' && $listInfo['type'] != 'facebook') {
+							$prevRankLink = $currRankLink = $graphLink = $rankDiffTxt = "";
+						} else {
+						
+							$currRank = isset($listInfo[$colName]) ? $listInfo[$colName] : 0;
+							$prevRank = isset($compareReportList[$keywordId][$colName]) ? $compareReportList[$keywordId][$colName] : 0;
+							$rankDiffTxt = "";
+							
+							// find rank difefrence
+							$rankDiff = $currRank - $prevRank;
+							$rankDiff = round($rankDiff, 2);
+							if ($colName == 'average_position') $rankDiff = $rankDiff * -1;
+							
+							if ($rankDiff > 0) {
+								$rankDiffTxt = "<font class='green'>($rankDiff)</font>";
+							} else if ($rankDiff < 0) {
+								$rankDiffTxt = "<font class='red'>($rankDiff)</font>";
+							} else {
+								$rankDiffTxt = "";
+							}
+		
+							$prevRankLink = scriptAJAXLinkHrefDialog($pageScriptPath, 'content', $scriptLink . "&sec=viewDetailedReports", $prevRank);
+							$currRankLink = scriptAJAXLinkHrefDialog($pageScriptPath, 'content', $scriptLink . "&sec=viewDetailedReports", $currRank);
+							$graphLink = scriptAJAXLinkHrefDialog($pageScriptPath, 'content', $scriptLink . "&sec=viewGraphReports&attr_type=$colName", '&nbsp;', 'graphicon');
+							
+							// if pdf report remove links
+							if ($pdfVersion) {
+								$prevRankLink = str_replace("href='javascript:void(0);'", "", $prevRankLink);
+								$currRankLink = str_replace("href='javascript:void(0);'", "", $currRankLink);
+								$graphLink = str_replace("href='javascript:void(0);'", "", $graphLink);
+							}
+						}
+					    ?>
+						<td><?php echo $prevRankLink; ?></td>
+						<td><?php echo $currRankLink; ?></td>
+						<td><?php echo $graphLink . " " . $rankDiffTxt; ?></td>
+						<?php					
+					}
+					?>				
+				</tr>
+			<?php
+			}
+		} else {
 			?>
-			<tr>
-				<td>
-					<a href="javascript:void(0)"><?php echo $websiteList[$listInfo['website_id']]['url']; ?></a>
-				</td>
-				<td colspan="3"><?php echo $listInfo['name']; ?></td>
-				<?php
-				foreach ($colList as $colName => $colVal){
-					if ($colName == 'name') continue;
-					
-					$currRank = isset($listInfo[$colName]) ? $listInfo[$colName] : 0;
-					$prevRank = isset($compareReportList[$keywordId][$colName]) ? $compareReportList[$keywordId][$colName] : 0;
-					$rankDiffTxt = "";
-					
-					// find rank difefrence
-					$rankDiff = $currRank - $prevRank;
-					$rankDiff = round($rankDiff, 2);
-					if ($colName == 'average_position') $rankDiff = $rankDiff * -1;
-					
-					if ($rankDiff > 0) {
-						$rankDiffTxt = "<font class='green'>($rankDiff)</font>";
-					} else if ($rankDiff < 0) {
-						$rankDiffTxt = "<font class='red'>($rankDiff)</font>";
-					} else {
-						$rankDiffTxt = "";
-					}
-
-					$prevRankLink = scriptAJAXLinkHrefDialog('webmaster-tools.php', 'content', $scriptLink . "&sec=viewKeywordSearchReports", $prevRank);
-					$currRankLink = scriptAJAXLinkHrefDialog('webmaster-tools.php', 'content', $scriptLink . "&sec=viewKeywordSearchReports", $currRank);
-					$graphLink = scriptAJAXLinkHrefDialog('webmaster-tools.php', 'content', $scriptLink . "&sec=viewKeywordSearchGraphReports&attr_type=$colName", '&nbsp;', 'graphicon');
-					
-					// if pdf report remove links
-					if ($pdfVersion) {
-						$prevRankLink = str_replace("href='javascript:void(0);'", "", $prevRankLink);
-						$currRankLink = str_replace("href='javascript:void(0);'", "", $currRankLink);
-						$graphLink = str_replace("href='javascript:void(0);'", "", $graphLink);
-					}
-				    ?>
-					<td><?php echo $prevRankLink; ?></td>
-					<td><?php echo $currRankLink; ?></td>
-					<td><?php echo $graphLink . " " . $rankDiffTxt; ?></td>
-					<?php					
-				}
-				?>				
-			</tr>
-		<?php
+			<tr><td colspan="<?php echo $colCount?>"><b><?php echo $_SESSION['text']['common']['No Records Found']?></b></tr>
+			<?php
 		}
-	} else {
-	    ?>
-	    <tr><td colspan="<?php echo $colCount?>"><b><?php echo $_SESSION['text']['common']['No Records Found']?></b></tr>
-	    <?php
-	}
 	?>
 </table>
 </div>
