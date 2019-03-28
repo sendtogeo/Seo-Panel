@@ -4,7 +4,7 @@
 	<tr>
 		<th><?php echo $spText['common']['Website']?>: </th>
 		<td>
-			<select name="website_id" id="website_id" onchange="doLoad('website_id', 'webmaster-tools.php', 'keyword_area', 'sec=keywordbox')">
+			<select name="website_id" id="website_id" onchange="doLoad('website_id', '<?php echo $pageScriptPath ?>', 'link_area', 'sec=linkSelectBox')">
 				<?php foreach($websiteList as $websiteInfo){?>
 					<?php if($websiteInfo['id'] == $websiteId){?>
 						<option value="<?php echo $websiteInfo['id']?>" selected><?php echo $websiteInfo['name']?></option>
@@ -23,47 +23,41 @@
 		</td>
 	</tr>
 	<tr>
-		<th><?php echo $spText['common']['Keyword']?>: </th>
-		<td id="keyword_area">
-			<?php echo $this->render('keyword/keywordselectbox', 'ajax'); ?>
+		<th><?php echo $spText['common']['Url']?>: </th>
+		<td id="link_area">
+			<?php echo $this->render('socialmedia/social_media_link_select_box', 'ajax'); ?>
 		</td>
 		<td colspan="2">
-			<a href="javascript:void(0);" onclick="scriptDoLoadPost('webmaster-tools.php', 'search_form', 'content', '&sec=viewKeywordSearchReports')" class="actionbut"><?php echo $spText['button']['Show Records']?></a>
+			<a href="javascript:void(0);" onclick="scriptDoLoadPost('<?php echo $pageScriptPath ?>', 'search_form', 'content', '&sec=viewDetailedReports')" class="actionbut"><?php echo $spText['button']['Show Records']?></a>
 		</td>
 	</tr>
 </table>
 </form>
 
-<?php
-if(empty($keywordId)){
-	?>
-	<p class='note error'><?php echo $spText['common']['No Keywords Found']?>!</p>
-	<?php
-	exit;
-}
-?>
 <br><br>
 <div id='subcontent'>
 <table id="cust_tab">	
 	<tr>
 		<th><?php echo $spText['common']['Date']?></th>
-		<th><?php echo $spText['label']['Clicks']?></th>
-		<th><?php echo $spText['label']['Impressions']?></th>
-		<th><?php echo "CTR"?></th>
-		<th><?php echo $spTextWB['Average Position']?></th>
+		<th><?php echo $spText['label']['Followers']?></th>
+		<th><?php echo $spText['label']['Likes']?></th>
 	</tr>
 	<?php
-	foreach($list as $listInfo){            
-		?>
-		<tr>
-			<td><?php echo $listInfo['report_date']; ?></td>
-			<td><b><?php echo $listInfo['clicks'].'</b> '. $listInfo['rank_diff_clicks']?></td>
-			<td><b><?php echo $listInfo['impressions'].'</b> '. $listInfo['rank_diff_impressions']?></td>
-			<td><b><?php echo $listInfo['ctr'].'</b> '. $listInfo['rank_diff_ctr']?></td>
-			<td><b><?php echo $listInfo['average_position'].'</b> '. $listInfo['rank_diff_average_position']?></td>
-		</tr>
-		<?php	
-	} 
+	if (count($list) > 0) {
+    	foreach($list as $listInfo){            
+    		?>
+    		<tr>
+    			<td><?php echo $listInfo['report_date']; ?></td>
+    			<td><b><?php echo $listInfo['followers'].'</b> '. $listInfo['rank_diff_followers']?></td>
+    			<td><b><?php echo $listInfo['likes'].'</b> '. $listInfo['rank_diff_likes']?></td>
+    		</tr>
+    		<?php	
+    	}
+	} else {
+	    ?>
+	    <tr><td colspan="3"><b><?php echo $_SESSION['text']['common']['No Records Found']?></b></tr>
+	    <?php
+	}
 	?>
 </table>
 </div>

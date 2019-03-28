@@ -148,7 +148,7 @@ $colCount = ($baseColCount * 3) + 2;
 			foreach($baseReportList as $listInfo){
 				$keywordId = $listInfo['id'];
 				$rangeFromTime = date('Y-m-d', strtotime('-14 days', strtotime($fromTime)));
-				$scriptLink = "website_id=$websiteId&id={$listInfo['id']}&rep=1&from_time=$rangeFromTime&to_time=$toTime";          
+				$scriptLink = "website_id=$websiteId&link_id={$listInfo['id']}&rep=1&from_time=$rangeFromTime&to_time=$toTime";          
 				?>
 				<tr>
 					<td>
@@ -181,9 +181,9 @@ $colCount = ($baseColCount * 3) + 2;
 								$rankDiffTxt = "";
 							}
 		
-							$prevRankLink = scriptAJAXLinkHrefDialog($pageScriptPath, 'content', $scriptLink . "&sec=viewSocialMediaReports", $prevRank);
-							$currRankLink = scriptAJAXLinkHrefDialog($pageScriptPath, 'content', $scriptLink . "&sec=viewSocialMediaReports", $currRank);
-							$graphLink = scriptAJAXLinkHrefDialog($pageScriptPath, 'content', $scriptLink . "&sec=viewSocialMediaGraphReports&attr_type=$colName", '&nbsp;', 'graphicon');
+							$prevRankLink = scriptAJAXLinkHrefDialog($pageScriptPath, 'content', $scriptLink . "&sec=viewDetailedReports", $prevRank);
+							$currRankLink = scriptAJAXLinkHrefDialog($pageScriptPath, 'content', $scriptLink . "&sec=viewDetailedReports", $currRank);
+							$graphLink = scriptAJAXLinkHrefDialog($pageScriptPath, 'content', $scriptLink . "&sec=viewGraphReports&attr_type=$colName", '&nbsp;', 'graphicon');
 							
 							// if pdf report remove links
 							if ($pdfVersion) {

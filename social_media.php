@@ -54,6 +54,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 	    case "reportSummary":
 	        $controller->viewReportSummary($_POST);
 	        break;
+	        
+	    case "viewDetailedReports":
+	        $controller->viewDetailedReports($_POST);
+	        break;
+	        
+	    case "viewGraphReports":
+	        $controller->viewGraphReports($_POST);
+	        break;
 			
 	    default:
 	        $controller->showSocialMediaLinks($_POST);
@@ -104,6 +112,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		case "viewGraphReports":
 			$controller->viewGraphReports($_GET);
 			break;
+			
+		case "linkSelectBox":
+		    $controller->showSocialMediaLinkSelectBox($_GET['website_id']);
+		    break;
 		
 		default:
 			$controller->showSocialMediaLinks($_GET);

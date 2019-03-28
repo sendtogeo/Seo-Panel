@@ -451,8 +451,9 @@ class WebMasterController extends GoogleAPIController {
 	
 		$websiteController = New WebsiteController();
 		$wList = $websiteController->__getAllWebsites($userId, true);
-		$websiteList = array(0);
+		$websiteList = [];
 		foreach ($wList as $wInfo) $websiteList[$wInfo['id']] = $wInfo;
+		$websiteList = count($websiteList) ? $websiteList : array(0);
 		$this->set('websiteList', $websiteList);
 		$websiteId = intval($searchInfo['website_id']);
 		$this->set('websiteId', $websiteId);
@@ -761,7 +762,7 @@ class WebMasterController extends GoogleAPIController {
 				return $this->getViewContent('webmaster/website_search_analytics_summary');
 			} else {
 				
-				$websiteList = $websiteController->__getAllWebsitesWithActiveKeywords($userId, true);
+			    $websiteList = $websiteController->__getAllWebsites($userId, true);
 				$this->set('websiteList', $websiteList);
 				
 				if ($searchInfo['doc_type'] == "pdf") {
