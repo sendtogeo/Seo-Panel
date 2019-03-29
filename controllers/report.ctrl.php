@@ -947,6 +947,7 @@ class ReportController extends Controller {
 			'website-search-reports' => $this->spTextTools['Website Search Summary'],
 			'sitemap-reports' => $this->spTextTools['Sitemap Reports Summary'],
 			'keyword-search-reports' => $this->spTextTools['Keyword Search Summary'],
+			'social-media-reports' => $this->spTextTools['Social Media Report Summary'],
 		);
 		$this->set('reportTypes', $reportTypes);
 		$urlarg .= "&report_type=".$searchInfo['report_type'];		
@@ -1245,8 +1246,9 @@ class ReportController extends Controller {
 		}
 		
 		# website search report section
-		if (empty($searchInfo['report_type']) || in_array($searchInfo['report_type'], array('website-search-reports', 'keyword-search-reports', 'sitemap-reports')) ) {
+		if (empty($searchInfo['report_type']) || in_array($searchInfo['report_type'], array('social-media-reports', 'website-search-reports', 'keyword-search-reports', 'sitemap-reports')) ) {
 			$webMasterCtrler = new WebMasterController();
+			$socialMediaCtrler = New SocialMediaController();
 			$webMasterCtrler->set('spTextTools', $this->spTextTools);
 			$webMasterCtrler->spTextTools = $this->spTextTools;
 			$filterList = $searchInfo;
@@ -1274,13 +1276,25 @@ class ReportController extends Controller {
 				$sitemapReport = $websiteCtrler->listSitemap($filterList, true, $cronUserId);
 			}
 			
+			// if social media reports
+			if (empty($searchInfo['report_type']) || ($searchInfo['report_type'] == 'social-media-reports')) {
+				$filterList['from_time'] = $fromTimeShort;
+				$filterList['to_time'] = $toTimeShort;
+				$socialMediaCtrler->set('spTextTools', $this->spTextTools);
+				$socialMediaCtrler->set('spTextPanel', $this->spTextPanel);
+				$socialMediaCtrler->spTextTools = $this->spTextTools;
+				$socialMediaReport = $socialMediaCtrler->viewReportSummary($filterList, true, $cronUserId);
+			}
+			
 			if ($exportVersion) {
 				$exportContent .= $websiteSearchReport;
 				$exportContent .= $keywordSearchReport;
+				$exportContent .= $socialMediaReport;
 			} else {
 				$this->set('websiteSearchReport', $websiteSearchReport);
 				$this->set('keywordSearchReport', $keywordSearchReport);
 				$this->set('sitemapReport', $sitemapReport);
+				$this->set('socialMediaReport', $socialMediaReport);
 			}
 			
 		}

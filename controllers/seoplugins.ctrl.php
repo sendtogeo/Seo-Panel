@@ -37,10 +37,10 @@ class SeoPluginsController extends Controller{
 	var $pluginScriptUrl;
 	
 	# function to manage seo plugins
-	function manageSeoPlugins($info, $method='get') {
+	function manageSeoPlugins($info, $method='get', $cronJob = false) {
 		
 		// check for plugin access level for user, if not admin
-		if (!isAdmin()) {
+		if (!isAdmin() && !$cronJob) {
 			$userTypeCtrler = new UserTypeController();
 			$userSessInfo = Session::readSession('userInfo');
 			$pluginAccessList = $userTypeCtrler->getPluginAccessSettings($userSessInfo['userTypeId']);

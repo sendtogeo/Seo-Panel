@@ -93,6 +93,11 @@ foreach($menuList as $i => $menuInfo){
 						<?php echo $spTextTools['Graphical Reports']?>(<?php echo $spText['common']['Website']?>)
 					</a>
 				</li>
+				<li>
+					<a href="javascript:void(0);" onclick="scriptDoLoad('websites.php', 'content', 'sec=listSitemap')">
+						<?php echo $spTextPanel['Sitemaps']?>(<?php echo $spTextTools['webmaster-tools']?>)
+					</a>
+				</li>
 			</ul>
 			<?php
 			break;
@@ -225,6 +230,33 @@ foreach($menuList as $i => $menuInfo){
 		         		<li><a href="javascript:void(0);" onclick="scriptDoLoad('pagespeed.php?sec=generate', 'content')"><?php echo $spTextTools['Generate Reports']?></a></li>
 		         	<?php }?>
 		      	<?php }?>
+			</ul>
+			<?php
+			break;
+
+		case "sm-checker":
+			?>
+			<ul id='subui'>
+				<script type="text/javascript">scriptList[<?php echo $i?>] = 'social_media.php';</script>	
+				<li><a href="javascript:void(0);" onclick="scriptDoLoad('social_media.php', 'content')"><?php echo $spTextTools['Social Media Links']?></a></li>
+				
+				<?php if (isQuickCheckerEnabled()) {?>
+					<li>
+						<a href="javascript:void(0);" onclick="scriptDoLoad('social_media.php?sec=quickChecker', 'content')">
+							<?php echo $spTextTools['Quick Checker']?>
+						</a>
+					</li>
+				<?php }?>
+				<li><a href="javascript:void(0);" onclick="scriptDoLoad('social_media.php?sec=reportSummary', 'content')"><?php echo $spTextSA['Report Summary']?></a></li>
+				<li><a href="javascript:void(0);" onclick="scriptDoLoad('social_media.php?sec=viewDetailedReports', 'content')"><?php echo $spTextTools['Detailed Reports']?></a></li>
+				<li><a href="javascript:void(0);" onclick="scriptDoLoad('social_media.php?sec=viewGraphReports', 'content')"><?php echo $spTextTools['Graphical Reports']?></a></li>
+				<?php /*if(SP_USER_GEN_REPORT || isAdmin()){ ?>				
+					<?php if(SP_DEMO){?>
+		         		<li><a href="javascript:void(0);" onclick="alertDemoMsg();"><?php echo $spTextTools['Generate Reports']?></a></li>
+		         	<?php }else{?>
+		         		<li><a href="javascript:void(0);" onclick="scriptDoLoad('social_media.php?sec=generate', 'content')"><?php echo $spTextTools['Generate Reports']?></a></li>
+		         	<?php }?>
+		      	<?php }*/?>				
 			</ul>
 			<?php
 			break;

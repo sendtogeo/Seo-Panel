@@ -264,6 +264,10 @@ class CronController extends Controller {
 				case "pagespeed":
 					$this->pageSpeedCheckerCron($websiteId);
 					break;
+					
+				case "sm-checker":
+					$this->socialMediaCheckerCron($websiteId);
+					break;
 			}
 		}
 		
@@ -313,6 +317,41 @@ class CronController extends Controller {
 		
 		$pageSpeedCtrler->savePageSpeedResults($websiteInfo, true);
 		echo "Saved page speed results of <b>$websiteUrl</b>.....</br>\n";
+	
+	}
+	
+	# func to generate social media checker reports from cron
+	function socialMediaCheckerCron($websiteId){
+	
+		include_once(SP_CTRLPATH."/social_media.ctrl.php");
+		$this->debugMsg("Starting social media Checker cron for website: {$this->websiteInfo['name']}....<br>\n");
+	
+		$socialMediaCtrler = New SocialMediaController();
+		$websiteInfo = $this->websiteInfo;
+		
+		$linkList = $socialMediaCtrler->getAllLinksWithOutReports($websiteInfo['id'], date('Y-m-d', $this->timeStamp));
+		if (SP_MULTIPLE_CRON_EXEC && empty($linkList)) {
+			$this->debugMsg("No social media links left to generate report for website: {$this->websiteInfo['name']}....<br>\n");
+			return true;
+		}
+		
+		// loop through link list and save the data
+		foreach ($linkList as $linkInfo) {
+			$result = $socialMediaCtrler->getSocialMediaDetails($linkInfo['type'], $linkInfo['url']);
+			
+			if ($result['status']) {
+				echo "Crawled social media results of <b>{$linkInfo['name']}</b>.....</br>\n";
+			} else {
+				echo "Failed Crawling of social media results of <b>{$linkInfo['name']}</b>.....</br>\n";
+				echo $result['msg'];
+			}
+			
+			// save the social media data
+			$socialMediaCtrler->saveSocialMediaLinkResults($linkInfo['id'], $result);
+			
+		}
+		
+		echo "Saved social media results of website id: <b>$websiteId</b>.....</br>\n";
 	
 	}	
 	

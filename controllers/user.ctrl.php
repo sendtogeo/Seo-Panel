@@ -237,13 +237,16 @@ class UserController extends Controller{
 						$utypeSpecList[$specName] = $spTextSubscription['Directory Submit Limit'];
 						break;
 					case "directory_submit_daily_limit":
-						$utypeSpecList[$specName] = $spTextSubscription['Directory Submit Daily Limit'];
+					    $utypeSpecList[$specName] = $spTextSubscription['Directory Submit Daily Limit'];
+					    break;
+					case "social_media_link_count":
+						$utypeSpecList[$specName] = $spTextSubscription['Social Media Link Count'];
 						break;
 					default:
 						$utypeSpecList[$specName] = $spTextSubscription[$specName];
 						
 				}
-			}			
+			}
 
 			$this->set('utypeSpecList', $utypeSpecList);						
 			$currencyCtrler = new CurrencyController();

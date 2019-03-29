@@ -691,6 +691,13 @@ function getCustomizerPage($pageName='home') {
     
 }
 
+// function to get customizer pages[guest,user,admin,top]
+function getCustomizerMenu($menuName) {
+	$controller = new Controller();		
+	$custComp = $controller->createComponent("Customizer_Helper");
+	return $custComp->getCustomizerMenu($menuName, $_SESSION['lang_code']);
+}
+
 function convertMarkdownToHtml($pageCont) {
     include_once(SP_LIBPATH."/Parsedown.php");
     $Parsedown = new Parsedown();
@@ -701,5 +708,26 @@ function convertMarkdownToHtml($pageCont) {
 function isPluginActivated($pluginName) {
 	$seopluginCtrler = new SeoPluginsController();
 	return $seopluginCtrler->isPluginActive($pluginName);
+}
+
+function formatNumber($number) {
+	$number = str_replace([",", " "], "", trim($number));
+	
+	if (stristr($number, 'K')) {
+		$number = str_replace("K", "", trim($number));
+		$number = $number * 1000;
+	}
+	
+	if (stristr($number, 'M')) {
+		$number = str_replace("M", "", trim($number));
+		$number = $number * 1000000;
+	}
+	
+	if (stristr($number, 'B')) {
+		$number = str_replace("B", "", trim($number));
+		$number = $number * 1000000000;
+	}
+	
+	return $number;
 }
 ?>

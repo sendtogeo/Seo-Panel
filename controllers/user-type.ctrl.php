@@ -27,8 +27,8 @@ include_once(SP_CTRLPATH . "/seotools.ctrl.php");
 class UserTypeController extends Controller {
 	
 	public $userSpecFields = array(
-		'price', 'free_trial_period', 'keywordcount','websitecount', 'searchengine_count', 'directory_submit_limit',
-		'directory_submit_daily_limit', 'site_auditor_max_page_limit', 'enable_email_activation',
+	    'price', 'free_trial_period', 'keywordcount','websitecount', 'social_media_link_count', 'searchengine_count', 
+	    'directory_submit_limit', 'directory_submit_daily_limit', 'site_auditor_max_page_limit', 'enable_email_activation',
 	);
 	
 	/**
@@ -174,6 +174,7 @@ class UserTypeController extends Controller {
 		$errMsg['user_type'] = formatErrorMsg($this->validate->checkBlank(trim($listInfo['user_type'])));
 		$errMsg['websitecount'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['websitecount'])));
 		$errMsg['keywordcount'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['keywordcount'])));
+		$errMsg['social_media_link_count'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['social_media_link_count'])));
 		$errMsg['searchengine_count'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['searchengine_count'])));
 		$errMsg['directory_submit_limit'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['directory_submit_limit'])));
 		$errMsg['directory_submit_daily_limit'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['directory_submit_daily_limit'])));
@@ -253,6 +254,7 @@ class UserTypeController extends Controller {
 		$errMsg['user_type'] = formatErrorMsg($this->validate->checkBlank(trim($listInfo['user_type'])));
 		$errMsg['websitecount'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['websitecount'])));
 		$errMsg['keywordcount'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['keywordcount'])));
+		$errMsg['social_media_link_count'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['social_media_link_count'])));
 		$errMsg['searchengine_count'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['searchengine_count'])));
 		$errMsg['directory_submit_limit'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['directory_submit_limit'])));
 		$errMsg['directory_submit_daily_limit'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['directory_submit_daily_limit'])));

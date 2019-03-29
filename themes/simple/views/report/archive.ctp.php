@@ -344,6 +344,14 @@ if (!empty($keywordPos) && !empty($seCount)) {
 	?>
 </div>
 
+<br>
+<div>
+	<?php
+	if (!empty($socialMediaReport)) {
+		echo $socialMediaReport;
+	}
+	?>
+</div>
 
 </div>
 <?php

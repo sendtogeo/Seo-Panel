@@ -130,6 +130,7 @@ $colCount = ($baseColCount * 3) + 2;
 		?>
 	</tr>
 	<?php
+	if (count($baseReportList) > 0) {
 		foreach($baseReportList as $listInfo){
 			$keywordId = $listInfo['id'];
 			$rangeFromTime = date('Y-m-d', strtotime('-14 days', strtotime($fromTime)));
@@ -181,6 +182,11 @@ $colCount = ($baseColCount * 3) + 2;
 			</tr>
 		<?php
 		}
+	} else {
+	    ?>
+	    <tr><td colspan="<?php echo $colCount?>"><b><?php echo $_SESSION['text']['common']['No Records Found']?></b></tr>
+	    <?php
+	}
 	?>
 </table>
 </div>

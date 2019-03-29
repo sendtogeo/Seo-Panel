@@ -38,7 +38,7 @@
 		<td class="td_left_col"><?php echo $spText['common']['Page Authority']?>:</td>
 		<td class="td_right_col"><?php echo $dirInfo['page_authority']?></td>
 	</tr>		
-	<tr class="white_row">
+	<tr class="white_row" id="category_col">
 		<td class="td_left_col"><?php echo $spText['common']['Category']?>:</td>
 		<td class="td_right_col"><?php echo $categorySel?></td>
 	</tr>
@@ -57,8 +57,16 @@
 				<?php if(!empty($imageHash)){?>
 					<input type="hidden" name="<?php echo $dirInfo['imagehash_col']?>" value="<?php echo $imageHash?>">
 				<?php }?>
-				<input type="text" name="<?php echo $dirInfo['cptcha_col']?>" value="" id='captcha'>
+				<?php
+				$captchaCodeError = "";
+				if ( stristr($captchaCode, 'Error:')) {
+				    $captchaCodeError = formatErrorMsg($captchaCode);
+				    $captchaCode = "";
+				}
+				?>
+				<input type="text" name="<?php echo $dirInfo['cptcha_col']?>" value="<?php echo $captchaCode;?>" id='captcha'>
 				<p><img src='<?php echo $captchaUrl?>'></p>
+				<?php echo $captchaCodeError?>
 			</td>
 		</tr>
 	<?php } ?>		
@@ -83,10 +91,39 @@
          	<a onclick="scriptDoLoad('directories.php?sec=reload&website_id=<?php echo $websiteId?>&dir_id=<?php echo $dirInfo['id']?>', 'subcontent')" href="javascript:void(0);" class="actionbut">
          		<?php echo $spText['button']['Reload']?>
          	</a>&nbsp;
-         	<a onclick="checkSubmitInfo('directories.php', 'submissionForm', 'subcontent', '<?php echo $dirInfo['category_col']?>')" href="javascript:void(0);" class="actionbut">
+         	<a onclick="checkSubmitInfo('directories.php', 'submissionForm', 'subcontent', '<?php echo $dirInfo['category_col']?>')" href="javascript:void(0);" class="actionbut" id="dir_submit_but">
          		<?php echo $spText['button']['Submit']?>
          	</a>
     	</td>
 	</tr>
 </table>
 </form>
+
+<script>
+jQuery.expr[':'].icontains = function(a, i, m) {
+  return jQuery(a).text().toUpperCase()
+      .indexOf(m[3].toUpperCase()) >= 0;
+};
+
+var catSelectStr = "<?php echo $catSelectStr?>";
+var catList = catSelectStr.split(",");
+var found = 0;
+for (var i = 0; i < catList.length; i++) {
+	$('#category_col option:icontains(' + catList[i].trim() + ')').each(function() {
+		$(this).attr('selected', 'selected');
+		found = 1;
+		return true;
+	});
+
+	if (found) {
+		break;
+	}
+	
+}
+
+<?php if (defined("CB_ENABLE_DIR_AUTO_SUBMISSION") && CB_ENABLE_DIR_AUTO_SUBMISSION) {?>
+    setTimeout(function() {
+        $('#dir_submit_but').trigger('click');
+    }, <?php echo CB_DIR_AUTO_SUBMISSION_INTERVAL * 1000?>);
+<?php }?>
+</script>

@@ -105,6 +105,10 @@ class SeoToolsController extends Controller{
 			case "webmaster-tools":
 				$defaultScript = "webmaster-tools.php";
 				break;
+				
+			case "sm-checker":
+				$defaultScript = "social_media.php";
+				break;
 
 			default:
 				$seoToolInfo = $this->__getSeoToolInfo('keyword-position-checker', 'url_section');

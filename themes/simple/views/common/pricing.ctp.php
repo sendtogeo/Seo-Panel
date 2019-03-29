@@ -5,20 +5,20 @@
     		<div class="Block">
     			<?php echo showSectionHead($spTextSubscription['Plans and Pricing']); ?>
     			
-    			<table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
+    			<table id="cust_tab">
     				
-					<tr class="plainHead">
+					<tr style="font-size: 18px;">
 						<?php $width = 100 / (count($list) + 1); ?>
-						<td class="left" style="width: <?php echo $width?>%"><?php echo $spText['label']["Feature"];?></td>
+						<th style="width: <?php echo $width?>%"><?php echo $spText['label']["Feature"];?></th>
 						<?php foreach ($list as $listInfo) {?>
-							<td style="width: <?php echo $width?>%"><?php echo ucwords($listInfo['user_type'])?></td>
+							<th style="text-align: center; width: <?php echo $width?>%"><?php echo ucwords($listInfo['user_type'])?></th>
 						<?php }?>
 					</tr>
 					
-					<tr class="white_row">
-						<td class="left td_left_border td_br_right bold"><?php echo $spText['common']["Details"];?></td>
+					<tr>
+						<th style="font-weight: normal;"><?php echo $spText['common']["Details"];?></th>
 						<?php foreach ($list as $listInfo) {?>
-							<td class="td_br_right"><p><?php echo $listInfo['description']?></p></td>
+							<td align="center"><p><?php echo $listInfo['description']?></p></td>
 						<?php }?>
 					</tr>
 					
@@ -26,10 +26,10 @@
 					foreach ($utypeSpecList as $specName => $specLabel) {
 						$boolVal = (stristr($specName, 'plugin_') || stristr($specName, 'seotool_')) ? true : false;
 						?>
-						<tr class="white_row">
-							<td class="left td_left_border td_br_right bold"><?php echo $specLabel?></td>
+						<tr>
+							<th style="font-weight: normal;"><?php echo $specLabel?></th>
 							<?php foreach ($list as $listInfo) {?>
-								<td class="td_br_right">
+								<td align="center">
 									<?php
 									if ($specName == 'free_trial_period') {
 										$days = intval($listInfo[$specName]);
@@ -66,14 +66,15 @@
 					}
 					?>
 					
-					<tr class="white_row">
-						<td class="left">&nbsp;</td>
+					<tr>
+						<th>&nbsp;</th>
 						<?php foreach ($list as $listInfo) {
 							$orderLink = SP_WEBPATH . '/register.php?utype_id=' . $listInfo['id'];
 							?>
-							<td>
+							<td align="center">
 								<br>
 								<a class="actionbut" href="<?php echo $orderLink; ?>" style="font-size: 16px;"><?php echo $spText['common']['Sign Up']; ?> &gt;&gt;</a>
+								<br><br>
 							</td>
 						<?php }?>
 					</tr>					
