@@ -1,7 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<!doctype html>
+<html lang="en">
 <head>
-    <meta content="text/html; charset=UTF-8" http-equiv="content-type" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <?php
     $custSiteInfo = getCustomizerDetails();
     $spTitle = empty($spTitle) ? SP_TITLE : $spTitle;
@@ -12,18 +13,23 @@
     <title><?php echo stripslashes($spTitle)?></title>
     <meta name="description" content="<?php echo $spDescription?>" />
     <meta name="keywords" content="<?php echo $spKeywords?>" />
-    <link type="text/css" href="<?php echo SP_WEBPATH?>/jquery-ui-custom/css/jquery-ui-1.10.3.custom.min.css" rel="stylesheet" />
+    <link rel="shortcut icon" href="<?php echo !empty($custSiteInfo['site_favicon']) ? $custSiteInfo['site_favicon'] : SP_IMGPATH . "/favicon.ico"?>" />
+    
+    <!-- Css files -->
+    <link rel="stylesheet" type="text/css" href="<?php echo SP_CSSPATH?>/bootstrap.min.css?<?php echo $spKey?>" media="all" />
+    <link rel="stylesheet" type="text/css" href="<?php echo SP_WEBPATH?>/jquery-ui-custom/css/jquery-ui-1.10.3.custom.min.css" />
     <link rel="stylesheet" type="text/css" href="<?php echo SP_CSSPATH?>/screen.css?<?php echo $spKey?>" media="all" />
     <link rel="stylesheet" type="text/css" href="<?php echo SP_CSSPATH?>/datepicker.css?<?php echo $spKey?>" media="all" />
-    <link rel="stylesheet" type="text/css" href="<?php echo SP_CSSPATH?>/bootstrap.min.css?<?php echo $spKey?>" media="all" />
+    
     <?php if (in_array($_SESSION['lang_code'], array('ar', 'he', 'fa'))) {?>
     	<link rel="stylesheet" type="text/css" href="<?php echo SP_CSSPATH?>/screen_rtl.css?<?php echo $spKey?>" media="all" />
-    <?php }?>
+    <?php }?>    
     
-    <link rel="shortcut icon" href="<?php echo !empty($custSiteInfo['site_favicon']) ? $custSiteInfo['site_favicon'] : SP_IMGPATH . "/favicon.ico"?>" />
+    <!-- JS Files -->
     <script type="text/javascript" src="<?php echo SP_JSPATH?>/jquery-3.3.1.min.js?<?php echo $spKey?>"></script>
-    <script type="text/javascript" src="<?php echo SP_JSPATH?>/bootstrap.bundle.min.js?<?php echo $spKey?>"></script>
-    <script type="text/javascript" src="<?php echo SP_JSPATH?>/common.js?<?php echo $spKey?>"></script>
+    <script type="text/javascript" src="<?php echo SP_JSPATH?>/popper.min.js?<?php echo $spKey?>"></script>
+    <script type="text/javascript" src="<?php echo SP_JSPATH?>/bootstrap.min.js?<?php echo $spKey?>"></script>
+    <!-- <script type="text/javascript" src="<?php echo SP_JSPATH?>/common.js?<?php echo $spKey?>"></script>
     <script type="text/javascript" src="<?php echo SP_JSPATH?>/popup.js?<?php echo $spKey?>"></script>
     <script type="text/javascript" src="<?php echo SP_JSPATH?>/datepicker.js?<?php echo $spKey?>"></script>
     <script type="text/javascript" src="<?php echo SP_WEBPATH?>/jquery-ui-custom/js/jquery-ui-1.10.3.custom.min.js?<?php echo $spKey?>"></script>
@@ -34,6 +40,7 @@
     	<link rel="stylesheet" type="text/css" href="<?php echo SP_WEBPATH?>/custom_style.php?<?php echo $spKey?>" media="all" />
     	<script type="text/javascript" src="<?php echo SP_WEBPATH?>/custom_js.php?<?php echo $spKey?>"></script>
     <?php }?>
+     -->
     
 </head>
 <body>
@@ -45,6 +52,8 @@ var wantproceed = '<?php  echo $spText['label']['wantproceed']; ?>';
 <div class="main_container">
 
     <div id="Header">
+    
+    	<?php /*?>
     
     	<div id="round_content_header">
             <?php include_once(SP_VIEWPATH."/menu/topmenu.ctp.php");?>
@@ -61,11 +70,45 @@ var wantproceed = '<?php  echo $spText['label']['wantproceed']; ?>';
             </div>
         </div>
         
+        <?php */ ?>
+        
+        
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        	<div class="navbar-brand">
+				<?php include_once(SP_VIEWPATH."/menu/topmenu.ctp.php");?>
+			</div>
+			<br>
+			<a class="navbar-brand" href="#">
+	    		<img src="<?php echo !empty($custSiteInfo['site_logo']) ? $custSiteInfo['site_logo'] : SP_IMGPATH . "/logo.jpg";?>" width="30" height="30" class="d-inline-block align-top" alt="">
+	    		<?php echo !empty($custSiteInfo['site_name']) ? $custSiteInfo['site_name'] : "Seo Panel"?>
+	  		</a>			
+		  	<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+		    	<span class="navbar-toggler-icon"></span>
+		  	</button>
+		  	
+  			<div class="collapse navbar-collapse" id="navbarSupportedContent">
+    			<ul class="navbar-nav">
+      				<li class="nav-item active">
+        				<a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+      				</li>
+      				<li class="nav-item">
+        				<a class="nav-link" href="#">Features</a>
+      				</li>
+      				<li class="nav-item">
+        				<a class="nav-link" href="#">Pricing</a>
+      				</li>
+      				<li class="nav-item">
+        				<a class="nav-link disabled" href="#">Disabled</a>
+      				</li>
+    			</ul>
+  			</div>
+        </nav>
+        
         <?php echo getRoundTabBot(); ?>
     </div>
     
     <div id="Wrapper">
-        <table width="100%" cellspacing="0px" cellpadding="0px">
+        <table width="100%">
         	<tr><td id="newsalert"></td></tr>
         	<tr>
         		<td class="Container">
