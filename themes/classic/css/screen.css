@@ -1129,3 +1129,8 @@ div.tab button.active {	background-color: #ccc;}
 .blog_tags A {text-decoration: none;}
 .blog_paginate_div{margin: 10px 20px;}
 .blog_paginate_div A{text-decoration: none; color: #666666}
+
+
+#navbarSupportedContent{text-align: left;}
+#navbarSupportedContent A {text-decoration: none; font-size: 16px;}
+#navbarSupportedContent li {line-height: 6px; margin: 1px;}

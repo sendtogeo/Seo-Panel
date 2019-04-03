@@ -23,13 +23,13 @@
     
     <?php if (in_array($_SESSION['lang_code'], array('ar', 'he', 'fa'))) {?>
     	<link rel="stylesheet" type="text/css" href="<?php echo SP_CSSPATH?>/screen_rtl.css?<?php echo $spKey?>" media="all" />
-    <?php }?>    
+    <?php }?>
     
     <!-- JS Files -->
     <script type="text/javascript" src="<?php echo SP_JSPATH?>/jquery-3.3.1.min.js?<?php echo $spKey?>"></script>
     <script type="text/javascript" src="<?php echo SP_JSPATH?>/popper.min.js?<?php echo $spKey?>"></script>
     <script type="text/javascript" src="<?php echo SP_JSPATH?>/bootstrap.min.js?<?php echo $spKey?>"></script>
-    <!-- <script type="text/javascript" src="<?php echo SP_JSPATH?>/common.js?<?php echo $spKey?>"></script>
+    <script type="text/javascript" src="<?php echo SP_JSPATH?>/common.js?<?php echo $spKey?>"></script>
     <script type="text/javascript" src="<?php echo SP_JSPATH?>/popup.js?<?php echo $spKey?>"></script>
     <script type="text/javascript" src="<?php echo SP_JSPATH?>/datepicker.js?<?php echo $spKey?>"></script>
     <script type="text/javascript" src="<?php echo SP_WEBPATH?>/jquery-ui-custom/js/jquery-ui-1.10.3.custom.min.js?<?php echo $spKey?>"></script>
@@ -40,73 +40,32 @@
     	<link rel="stylesheet" type="text/css" href="<?php echo SP_WEBPATH?>/custom_style.php?<?php echo $spKey?>" media="all" />
     	<script type="text/javascript" src="<?php echo SP_WEBPATH?>/custom_js.php?<?php echo $spKey?>"></script>
     <?php }?>
-     -->
     
 </head>
-<body>
+<body class="bg-light">
 <script type="text/javascript">
 var spdemo = <?php echo SP_DEMO; ?>;
 var wantproceed = '<?php  echo $spText['label']['wantproceed']; ?>';
 </script>
 
-<div class="main_container">
+<?php //include_once(SP_VIEWPATH."/menu/topmenu.ctp.php");?>
+<nav class="navbar navbar-expand-md navbar-dark bg-dark">
+	<a class="navbar-brand" href="<?php echo SP_WEBPATH?>">
+		<img src="<?php echo !empty($custSiteInfo['site_logo']) ? $custSiteInfo['site_logo'] : SP_IMGPATH . "/logo_red_sm.png";?>">
+	</a>
+  	<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+  		aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    	<span class="navbar-toggler-icon"></span>
+  	</button>
+  	
+	<div class="collapse navbar-collapse" id="navbarSupportedContent">
+		<ul class="navbar-nav">
+			<?php include(SP_VIEWPATH.'/menu/main_menu.ctp.php');?>
+		</ul>
+	</div>
+</nav>
 
-    <div id="Header">
-    
-    	<?php /*?>
-    
-    	<div id="round_content_header">
-            <?php include_once(SP_VIEWPATH."/menu/topmenu.ctp.php");?>
-            <div>
-            	<div id="logo_div"><img src="<?php echo !empty($custSiteInfo['site_logo']) ? $custSiteInfo['site_logo'] : SP_IMGPATH . "/logo.jpg";?>"></img></div>
-            	<div id="logo_text"><?php echo !empty($custSiteInfo['site_name']) ? $custSiteInfo['site_name'] : "Seo Panel"?></div>
-            </div>
-        
-            <!-- TABS -->
-            <div id="Tabs" style="clear: both;">
-                <ul id="MainTabs">
-                    <?php include(SP_VIEWPATH.'/menu/main_menu.ctp.php');?>
-                </ul>
-            </div>
-        </div>
-        
-        <?php */ ?>
-        
-        
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        	<div class="navbar-brand">
-				<?php include_once(SP_VIEWPATH."/menu/topmenu.ctp.php");?>
-			</div>
-			<br>
-			<a class="navbar-brand" href="#">
-	    		<img src="<?php echo !empty($custSiteInfo['site_logo']) ? $custSiteInfo['site_logo'] : SP_IMGPATH . "/logo.jpg";?>" width="30" height="30" class="d-inline-block align-top" alt="">
-	    		<?php echo !empty($custSiteInfo['site_name']) ? $custSiteInfo['site_name'] : "Seo Panel"?>
-	  		</a>			
-		  	<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-		    	<span class="navbar-toggler-icon"></span>
-		  	</button>
-		  	
-  			<div class="collapse navbar-collapse" id="navbarSupportedContent">
-    			<ul class="navbar-nav">
-      				<li class="nav-item active">
-        				<a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-      				</li>
-      				<li class="nav-item">
-        				<a class="nav-link" href="#">Features</a>
-      				</li>
-      				<li class="nav-item">
-        				<a class="nav-link" href="#">Pricing</a>
-      				</li>
-      				<li class="nav-item">
-        				<a class="nav-link disabled" href="#">Disabled</a>
-      				</li>
-    			</ul>
-  			</div>
-        </nav>
-        
-        <?php echo getRoundTabBot(); ?>
-    </div>
-    
+<div>    
     <div id="Wrapper">
         <table width="100%">
         	<tr><td id="newsalert"></td></tr>

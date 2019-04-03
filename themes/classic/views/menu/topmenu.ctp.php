@@ -34,15 +34,7 @@
 			<a href="<?php echo !empty($custSiteInfo['help_url']) ? $custSiteInfo['help_url'] : SP_HELP_LINK?>" target="_blank" title="Seo Panel Help Guide"><?php echo $spText['common']['help']?></a> <span class="pipe">|</span>
 			<a href="<?php echo !empty($custSiteInfo['forum_url']) ? $custSiteInfo['forum_url'] : SP_FORUM_LINK?>" target="_blank" title="Seo Panel Forum"><?php echo $spText['common']['forum']?></a> <span class="pipe">|</span>
 			<?php
-		}
-		
-		$userInfo = @Session::readSession('userInfo');
-		if(empty($userInfo['userId'])){	
-		?> 			
-			<a href="<?php echo SP_WEBPATH?>/login.php"><?php echo $spText['common']['signin']?></a>
-		<?php }else{ ?>
-			<a href="admin-panel.php?sec=myprofile"><?php echo $spText['common']['Profile']?></a> <span class="pipe">|</span>
-			<a href="<?php echo SP_WEBPATH?>/login.php?sec=logout"><?php echo $spText['common']['Sign out']?></a>
-		<?php }?>
+		}	
+		?>
 	</span>
 </h3>
