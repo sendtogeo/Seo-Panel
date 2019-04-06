@@ -89,10 +89,10 @@ if (!empty($menuInfo['item_list'])) {
 	</li>
 	
 	<li class="nav-item <?php echo $seoToolsClass?>">
-		<a class="nav-link" href="<?php echo SP_WEBPATH?>/seo-tools.php"><?php echo $spText['common']['Seo Tools']?></a>
+		<a class="nav-link" href="<?php echo SP_WEBPATH?>/seo-tools.php"><?php echo $spText['common']['Tools']?></a>
 	</li>
 	<li class="nav-item <?php echo $seoPluginsClass?>">
-		<a class="nav-link" href="<?php echo SP_WEBPATH?>/seo-plugins.php?sec=show"><?php echo $spText['common']['Seo Plugins']?></a>
+		<a class="nav-link" href="<?php echo SP_WEBPATH?>/seo-plugins.php?sec=show"><?php echo $spText['common']['Plugins']?></a>
 	</li>
 	<li class="nav-item <?php echo $supportClass?>">
 		<a class="nav-link" href="<?php echo SP_WEBPATH?>/support.php"><?php echo $spText['common']['Support']?></a>
@@ -122,16 +122,16 @@ if (!empty($menuInfo['item_list'])) {
 	
 	<?php if ($userType == "guest") {?>
 		<li class="nav-item <?php echo $loginClass?>">
-			<a class="nav-link" href="<?php echo SP_WEBPATH?>/login.php"><?php echo $spText['common']['signin']?></a>
+			<a class="nav-link" href="<?php echo SP_WEBPATH?>/login.php"><?php echo $spTextLogin['Login']?></a>
 		</li>				
 	<?php } else {?>
 		<li class="nav-item <?php echo $adminClass?>">
 			<a class="nav-link" href="<?php echo SP_WEBPATH?>/admin-panel.php">
-				<?php echo ($userType == "admin") ? $spText['common']['Admin Panel'] : $spText['common']['User Panel']?>
+				<?php echo $spTextPanel['Settings']?>
 			</a>
 		</li>		
 		<li class="nav-item <?php echo $loginClass?>">
-			<a class="nav-link" href="<?php echo SP_WEBPATH?>/login.php?sec=logout"><?php echo $spText['common']['Sign out']?></a>
+			<a class="nav-link" href="<?php echo SP_WEBPATH?>/login.php?sec=logout"><?php echo $spText['common']['Logout']?></a>
 		</li>
 	<?php }?>
 	

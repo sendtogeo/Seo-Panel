@@ -1,4 +1,4 @@
-<div id="footer">
+
     <?php echo getRoundTabTop(); ?>
     <div id="round_content_footer">
     	<?php if (!empty($custSiteInfo['footer_copyright'])) {?>
@@ -11,4 +11,4 @@
             <?php echo $translatorInfo?>
 		<?php }?>
     </div>
-</div>
+

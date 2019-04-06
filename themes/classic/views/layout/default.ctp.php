@@ -68,29 +68,40 @@ var wantproceed = '<?php  echo $spText['label']['wantproceed']; ?>';
 	</div>
 </nav>
 
-<div>    
-    <div id="Wrapper">
-        <table width="100%">
-        	<tr><td id="newsalert"></td></tr>
-        	<tr>
-        		<td class="Container">
-            		<div id="ContentFrame">
-            			<noscript>
-            				<p class="note error">JavaScript is turned off in your web browser. Turn it on to take full advantage of this site, then refresh the page.</p>
-            			</noscript>
-            			<?php echo $viewContent?>
-            		</div>
-        		</td>
-        	</tr>
-        </table>
-    </div>
-    <?php include_once(SP_VIEWPATH."/common/footer.ctp.php"); ?>
+<div class="container-fluid" style="padding: 10px;">
+
+	<?php if(empty($_COOKIE['hidenews']) && !SP_HOSTED_VERSION && empty($custSiteInfo['disable_news'])){ ?>		
+		<div class="row-fluid">
+			<div class="alert alert-warning alert-dismissible fade show" role="alert" id="myAlert">
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+		    		<span aria-hidden="true">&times;</span>
+		  		</button>
+		  		<span id="newsalert"></span>
+			</div>
+		</div>
+		<script>
+			scriptDoLoad('<?php echo SP_WEBPATH?>/index.php?sec=news', 'newsalert');
+			
+			$('#myAlert').on('closed.bs.alert', function () {
+				hideNewsBox('newsalert', 'hidenews', '1')
+			});
+		</script>
+	<?php }?>
+	
+	<div class="row">
+		<?php echo $viewContent?>
+	</div>
+	<footer class="pt-4">
+        <div class="row">
+          <div class="col-12 col-md">
+          	<?php include_once(SP_VIEWPATH."/common/footer.ctp.php"); ?>
+          </div>
+		</div>
+	</footer>
 </div>
+
 <div id="tmp"><form name="tmp" id="tmp"></form></div>
 <div id="dialogContent" style="display:none;"></div>
-<?php if(empty($_COOKIE['hidenews']) && !SP_HOSTED_VERSION && empty($custSiteInfo['disable_news'])){ ?>
-	<script>scriptDoLoad('<?php echo SP_WEBPATH?>/index.php?sec=news', 'newsalert');</script>
-<?php }?>
 <?php
 // add google analytics code to verify the site hits 
 if ( defined('SP_GOOGLE_ANALYTICS_TRACK_CODE')) { 
