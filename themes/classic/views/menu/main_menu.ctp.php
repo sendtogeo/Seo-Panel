@@ -120,17 +120,10 @@ if (!empty($menuInfo['item_list'])) {
 		</li>
 	<?php }?>
 	
-	<?php if ($userType == "guest") {?>	
-		<?php if(!isLoggedIn() && SP_USER_REGISTRATION){?>
-			<li class="nav-item <?php echo $registerClass?>">
-				<a class="nav-link" title="register seo panel" href="<?php echo SP_WEBPATH?>/register.php"><?php echo $spText['common']['Sign Up']?></a>
-			</li>
-		<?php } ?>
-		
+	<?php if ($userType == "guest") {?>
 		<li class="nav-item <?php echo $loginClass?>">
 			<a class="nav-link" href="<?php echo SP_WEBPATH?>/login.php"><?php echo $spText['common']['signin']?></a>
-		</li>
-				
+		</li>				
 	<?php } else {?>
 		<li class="nav-item <?php echo $adminClass?>">
 			<a class="nav-link" href="<?php echo SP_WEBPATH?>/admin-panel.php">

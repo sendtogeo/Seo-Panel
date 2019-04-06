@@ -59,9 +59,12 @@ var wantproceed = '<?php  echo $spText['label']['wantproceed']; ?>';
   	</button>
   	
 	<div class="collapse navbar-collapse" id="navbarSupportedContent">
-		<ul class="navbar-nav">
+		<ul class="navbar-nav mr-auto">
 			<?php include(SP_VIEWPATH.'/menu/main_menu.ctp.php');?>
-		</ul>
+		</ul>		
+		<form class="form-inline mt-2 mt-md-0">
+			<?php include_once(SP_VIEWPATH."/menu/topmenu.ctp.php");?>
+		</form>
 	</div>
 </nav>
 

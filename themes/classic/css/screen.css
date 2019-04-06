@@ -228,109 +228,6 @@ div#Wrapper {
 	float: left;
 }
 
-#Header {
-	background: #036;
-	padding: 1px 0 0 0;
-	margin: 0;
-	text-align: left;
-	position: relative;
-	background-color: white;
-}
-
-#Header #logo_div {
-	padding: 10px 0 10px 0px;
-	margin: 7px 4px 0 0px;
-	width: 60px;
-	float: left;
-	text-align: right;
-	overflow: hidden;	
-}
-
-#Header #logo_text {
-	padding: 13px 0 10px 0px;
-	margin: 7px 0 0 0px;
-	font-size: 36px;
-	font-weight: bold;
-	color: #ABABAB;
-	text-align: left;
-	height:35px;
-	float: left;
-}
-
-#Header h1 span {
-	font-size: 16px;
-	font-weight: normal;
-	color: #fff;
-	border: none;
-	font-family: Arial;
-}
-
-#Header h3 {
-	padding: 0 30px 0 32px;
-	margin: 0px;
-	font-size: 12px;
-	font-weight: normal;
-	font-family: Arial;
-	text-align: left;
-}
-
-#Header h3.global {
-	position: relative;
-	float: right;
-	text-align: right;
-	width: 300px;
-}
-
-#Header h3 span#floatright {
-	text-align: right;
-	width: 480px;
-	position: relative;
-	float: right;
-}
-
-#Header h3 span#floatright A {
-	font-size: 12px;
-	background: white;
-	color: black;
-}
-
-#Header h3 span.pipe {
-	opacity: 0.6;
-	filter: alpha(opacity = 60);
-}
-
-#Header h3 a.current {
-	font-weight: bold;
-	text-decoration: none;
-}
-
-#Tabs {	margin: 14px 0 0 10px;	height: 25px; padding: 0;}
-#Tabs ul {	margin: 0;	padding: 0;}
-#Tabs li {
-	margin: 0;
-	padding: 0;
-	display: inline;
-	list-style: none;
-	border: none;
-}
-div#Tabs a:link, div#Tabs a:visited {text-decoration: none;}
-#Tabs a:hover {	color: #fff; background: #333;}
-#Tabs ul#MainTabs a:link,#Tabs ul#MainTabs a:visited {
-	float: left;
-	font-size: 14px;
-	font-weight: normal;
-	padding: 6px 16px;
-	margin: 0;
-}
-#Tabs ul#MainTabs a:link.current,#Tabs ul#MainTabs a:visited.current {
-	background: #e5e5e5;
-	border-bottom: 1px solid #e5e5e5;
-	color: #222;
-	font-weight: bold;
-	text-decoration: none;
-	margin: 0;
-}
-
 #footer { background-color: #ffffff; min-height: auto; height: auto; }
 #footer a {
 	color: #666;
@@ -1134,3 +1031,8 @@ div.tab button.active {	background-color: #ccc;}
 #navbarSupportedContent{text-align: left;}
 #navbarSupportedContent A {text-decoration: none; font-size: 16px;}
 #navbarSupportedContent li {line-height: 6px; margin: 1px;}
+
+#navbarSupportedContent .form-inline A {color: white; margin: 4px; font-size: 12px;}
+#navbarSupportedContent .form-inline select {width: 100px; height: 28px;}
+#navbarSupportedContent .form-inline span {color: white;}
+
