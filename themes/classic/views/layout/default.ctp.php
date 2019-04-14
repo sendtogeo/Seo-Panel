@@ -68,7 +68,7 @@ var wantproceed = '<?php  echo $spText['label']['wantproceed']; ?>';
 	</div>
 </nav>
 
-<div class="container-fluid" style="padding: 10px;">
+<div class="container-fluid" style="margin-bottom: 50px;">
 
 	<?php if(empty($_COOKIE['hidenews']) && !SP_HOSTED_VERSION && empty($custSiteInfo['disable_news'])){ ?>		
 		<div class="row-fluid">
@@ -91,13 +91,10 @@ var wantproceed = '<?php  echo $spText['label']['wantproceed']; ?>';
 	<div class="row">
 		<?php echo $viewContent?>
 	</div>
-	<footer class="pt-4">
-        <div class="row">
-          <div class="col-12 col-md">
-          	<?php include_once(SP_VIEWPATH."/common/footer.ctp.php"); ?>
-          </div>
-		</div>
-	</footer>
+	
+</div>
+<div class="container-fluid fixed-bottom bg-dark text-muted center footer-sp">
+	<?php include_once(SP_VIEWPATH."/common/footer.ctp.php"); ?>
 </div>
 
 <div id="tmp"><form name="tmp" id="tmp"></form></div>

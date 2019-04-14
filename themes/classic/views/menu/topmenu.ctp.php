@@ -10,7 +10,7 @@ if (!empty($menuInfo['item_list'])) {
 		?>
 		<a href="<?php echo $menuItem['url']?>" target="<?php echo $linkTarget?>" style="<?php echo $linkStyle?>">
 			<?php echo $menuItem['label']?>
-		</a>
+		</a><span class="pipe"> | </span>
 		<?php
 	}
 	
@@ -18,13 +18,13 @@ if (!empty($menuInfo['item_list'])) {
 	?> 
 	<a href="<?php echo !empty($custSiteInfo['contact_url']) ? $custSiteInfo['contact_url'] : SP_CONTACT_LINK?>" target="_blank">
 		<?php echo $spText['common']['contact']?>
-	</a><span class="pipe">|</span>
+	</a><span class="pipe"> | </span>
 	<a href="<?php echo !empty($custSiteInfo['help_url']) ? $custSiteInfo['help_url'] : SP_HELP_LINK?>" target="_blank">
 		<?php echo $spText['common']['help']?>
-	</a><span class="pipe">|</span>
+	</a><span class="pipe">  |</span>
 	<a href="<?php echo !empty($custSiteInfo['forum_url']) ? $custSiteInfo['forum_url'] : SP_FORUM_LINK?>" target="_blank">
 		<?php echo $spText['common']['forum']?>
-	</a><span class="pipe">|</span>
+	</a><span class="pipe"> | </span> 
 	<?php
 }
 ?>

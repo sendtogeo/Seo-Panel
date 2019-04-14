@@ -1,17 +1,17 @@
 @CHARSET "UTF-8";
 
 body {
-	margin: 0 auto;
-	padding: 0;
-	font-family: Arial;
-	font-size: 12px;
-	color: #333;
-	background-color: #e5e5e5;
-	text-align: center;
+	/*margin: 0 auto;
+	padding: 0;*/
+	/*font-family: Arial;*/
+	/*font-size: 12px;*/
+	/*color: #333;*/
+	/*background-color: #e5e5e5;*/
+	/*text-align: center;*/
 	/*background: url("../../../images/background.png") repeat-x scroll 0 0 #EDF0F4;*/
 }
 
-td { font-family: Arial; }
+/*td { font-family: Arial; }
 
 select,input {
 	border: 1px solid #A4A4A4;
@@ -49,11 +49,11 @@ form { margin: 0; padding: 0; }
 p {	font-size: 12px; line-height: 16px; }
 small {	font-size: 10px; line-height: 13px; }
 x-small { font-size: 9px; line-height: 11px; }
-blockquote { font-size: 11px; color: #666; margin: 20px; }
+blockquote { font-size: 11px; color: #666; margin: 20px; }*/
 
 ol, ul, li { margin: 0; padding: 0; }
 ul li {	list-style-type: none; }
-li { font-size: 11px; line-height: 13px; padding: 3px 0; }
+/*li { font-size: 11px; line-height: 13px; padding: 3px 0; }
 
 h1 {
 	font-family: Arial;
@@ -156,7 +156,7 @@ a.black:link,a.black:visited {
 a.black:hover {
 	color: #fff;
 	background: #000;
-}
+}*/
 
 a.anchor:link,a.anchor:visited,a.anchor:hover {
 	color: #fff;
@@ -197,7 +197,7 @@ h2.subheader {
 	color: #000;
 }
 
-* html code {
+/** html code {
 	font-size: 105%;
 }
 
@@ -226,7 +226,7 @@ div#Wrapper {
 	width: 100%;
 	text-align: left;
 	float: left;
-}
+}*/
 
 /*#footer { background-color: #ffffff; min-height: auto; height: auto; }
 #footer a {
@@ -594,7 +594,7 @@ div.Left .SectionHeader,div.Full .SectionHeader { text-align: center;}
 	color: green;
 }
 
-#Tabs a:link,#Tabs a:visited {
+/*#Tabs a:link,#Tabs a:visited {
 	background-color: #900;
 	color: #fff;
 	border: 1px solid #ffffff;
@@ -665,7 +665,7 @@ div.Left .SectionHeader,div.Full .SectionHeader { text-align: center;}
 #readme p.info{
 	font-size: 13px;
 	padding: 5px;
-}
+}*/
 
 /*#newsalert{
 	margin:12px auto 0;
@@ -778,7 +778,7 @@ legend {
 }
 
 .actionbut, .actionForm input.button {
-	background:url("../../../images/bg_button.gif") repeat-x scroll center top #EFEFEF;
+	/*background:url("../../../images/bg_button.gif") repeat-x scroll center top #EFEFEF;
 	border:1px solid #666666;
 	color:#000000;
 	cursor:pointer;
@@ -788,7 +788,7 @@ legend {
 	margin:0px;
 	padding:0px 5px 3px 5px;
 	text-align:center;
-	width:auto !important;
+	width:auto !important;*/
 }
 
 A.actionbut{
@@ -807,8 +807,9 @@ A.actionbut{
 }
 
 .infobox p{
-	color:#444444;
-	font:1.2em Arial;
+	/*color:#444444;
+	font:1.2em Arial;*/
+	padding: 0px 10px;
 }
 
 .infobox h1{
@@ -818,19 +819,21 @@ A.actionbut{
 	font-family: Arial;
 	font-weight: normal;
 	font-weight: bold;
+	padding: 0px 10px;
 }
 
 .infobox b{
-	color: #0044AA;
+	/*color: #0044AA;*/
 	text-decoration: none;
 	font-weight: normal;	
 }
 
 .infobox A{
 	text-decoration: none;
-	background: url(../../../images/urlicon.gif) 2px 5px no-repeat;
+	font-size: 14px;
+	/*background: url(../../../images/urlicon.gif) 2px 5px no-repeat;
 	padding-left: 17px;
-	padding-bottom: 2px;
+	padding-bottom: 2px;*/
 }
 
 .selectmenu { width: 234px;}
@@ -927,8 +930,8 @@ A.graphicon{
 .center {text-align: center;}
 .back {text-decoration: none;font-size: 15px;}
 
-#powered {margin-top: 6px;}
-#powered A {color: #0033CC; font-size: 12px; text-decoration: underline;}
+/*#powered {margin-top: 6px;}
+#powered A {color: #0033CC; font-size: 12px; text-decoration: underline;}*/
 
 input.long{width: 280px;}
 input.date_fld{width: 80px}
@@ -1033,6 +1036,61 @@ div.tab button.active {	background-color: #ccc;}
 #navbarSupportedContent li {line-height: 6px; margin: 1px;}
 
 #navbarSupportedContent .form-inline A {color: white; margin: 4px; font-size: 12px;}
-#navbarSupportedContent .form-inline select {width: 100px; height: 28px;}
+#navbarSupportedContent .form-inline select {width: 100px; height: 28px; margin-left: 5px;}
 #navbarSupportedContent .form-inline span {color: white;}
+#newsalert{font-size: 15px;}
 
+.footer-sp {padding: 6px 0px 4px; margin-top:20px; font-size: 12px;}
+.footer-sp A {color: white;}
+
+/* Shrinking the sidebar from 250px to 80px and center aligining its content*/
+#sidebar.active {
+    min-width: 80px;
+    max-width: 80px;
+    text-align: center;
+}
+
+/* Toggling the sidebar header content, hide the big heading [h3] and showing the small heading [strong] and vice versa*/
+#sidebar .sidebar-header strong {
+    display: none;
+}
+#sidebar.active .sidebar-header h3 {
+    display: none;
+}
+#sidebar.active .sidebar-header strong {
+    display: block;
+}
+
+#sidebar ul li a {
+    text-align: left;
+}
+
+#sidebar.active ul li a {
+    padding: 20px 10px;
+    text-align: center;
+    font-size: 0.85em;
+}
+
+#sidebar.active ul li a i {
+    margin-right:  0;
+    display: block;
+    font-size: 1.8em;
+    margin-bottom: 5px;
+}
+
+/* Same dropdown links padding*/
+#sidebar.active ul ul a {
+    padding: 10px !important;
+}
+
+/* Changing the arrow position to bottom center position, 
+   translateX(50%) works with right: 50% 
+   to accurately  center the arrow */
+#sidebar.active .dropdown-toggle::after {
+    top: auto;
+    bottom: 10px;
+    right: 50%;
+    -webkit-transform: translateX(50%);
+    -ms-transform: translateX(50%);
+    transform: translateX(50%);
+}
