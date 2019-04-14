@@ -43,67 +43,67 @@
     
 </head>
 <body class="bg-light">
-<script type="text/javascript">
-var spdemo = <?php echo SP_DEMO; ?>;
-var wantproceed = '<?php  echo $spText['label']['wantproceed']; ?>';
-</script>
-
-<?php //include_once(SP_VIEWPATH."/menu/topmenu.ctp.php");?>
-<nav class="navbar navbar-expand-md navbar-dark bg-dark">
-	<a class="navbar-brand" href="<?php echo SP_WEBPATH?>">
-		<img src="<?php echo !empty($custSiteInfo['site_logo']) ? $custSiteInfo['site_logo'] : SP_IMGPATH . "/logo_red_sm.png";?>">
-	</a>
-  	<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-  		aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-    	<span class="navbar-toggler-icon"></span>
-  	</button>
-  	
-	<div class="collapse navbar-collapse" id="navbarSupportedContent">
-		<ul class="navbar-nav mr-auto">
-			<?php include(SP_VIEWPATH.'/menu/main_menu.ctp.php');?>
-		</ul>		
-		<form class="form-inline mt-2 mt-md-0">
-			<?php include_once(SP_VIEWPATH."/menu/topmenu.ctp.php");?>
-		</form>
-	</div>
-</nav>
-
-<div class="container-fluid" style="margin-bottom: 50px;">
-
-	<?php if(empty($_COOKIE['hidenews']) && !SP_HOSTED_VERSION && empty($custSiteInfo['disable_news'])){ ?>		
-		<div class="row-fluid">
-			<div class="alert alert-warning alert-dismissible fade show" role="alert" id="myAlert">
-				<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-		    		<span aria-hidden="true">&times;</span>
-		  		</button>
-		  		<span id="newsalert"></span>
-			</div>
-		</div>
-		<script>
-			scriptDoLoad('<?php echo SP_WEBPATH?>/index.php?sec=news', 'newsalert');
-			
-			$('#myAlert').on('closed.bs.alert', function () {
-				hideNewsBox('newsalert', 'hidenews', '1')
-			});
-		</script>
-	<?php }?>
-	
-	<div class="row">
-		<?php echo $viewContent?>
-	</div>
-	
-</div>
-<div class="container-fluid fixed-bottom bg-dark text-muted center footer-sp">
-	<?php include_once(SP_VIEWPATH."/common/footer.ctp.php"); ?>
-</div>
-
-<div id="tmp"><form name="tmp" id="tmp"></form></div>
-<div id="dialogContent" style="display:none;"></div>
-<?php
-// add google analytics code to verify the site hits 
-if ( defined('SP_GOOGLE_ANALYTICS_TRACK_CODE')) { 
-	echo SP_GOOGLE_ANALYTICS_TRACK_CODE;
-}
-?>
+    <script type="text/javascript">
+    var spdemo = <?php echo SP_DEMO; ?>;
+    var wantproceed = '<?php  echo $spText['label']['wantproceed']; ?>';
+    </script>
+    
+    <?php //include_once(SP_VIEWPATH."/menu/topmenu.ctp.php");?>
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+    	<a class="navbar-brand" href="<?php echo SP_WEBPATH?>">
+    		<img src="<?php echo !empty($custSiteInfo['site_logo']) ? $custSiteInfo['site_logo'] : SP_IMGPATH . "/logo_red_sm.png";?>">
+    	</a>
+      	<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+      		aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        	<span class="navbar-toggler-icon"></span>
+      	</button>
+      	
+    	<div class="collapse navbar-collapse" id="navbarSupportedContent">
+    		<ul class="navbar-nav mr-auto">
+    			<?php include(SP_VIEWPATH.'/menu/main_menu.ctp.php');?>
+    		</ul>		
+    		<form class="form-inline mt-2 mt-md-0">
+    			<?php include_once(SP_VIEWPATH."/menu/topmenu.ctp.php");?>
+    		</form>
+    	</div>
+    </nav>
+    
+    <div class="container-fluid" style="margin-bottom: 50px;">
+    
+    	<?php if(empty($_COOKIE['hidenews']) && !SP_HOSTED_VERSION && empty($custSiteInfo['disable_news'])){ ?>		
+    		<div class="row-fluid">
+    			<div class="alert alert-warning alert-dismissible fade show" role="alert" id="myAlert">
+    				<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    		    		<span aria-hidden="true">&times;</span>
+    		  		</button>
+    		  		<span id="newsalert"></span>
+    			</div>
+    		</div>
+    		<script>
+    			scriptDoLoad('<?php echo SP_WEBPATH?>/index.php?sec=news', 'newsalert');
+    			
+    			$('#myAlert').on('closed.bs.alert', function () {
+    				hideNewsBox('newsalert', 'hidenews', '1')
+    			});
+    		</script>
+    	<?php }?>
+    	
+    	<div class="row">
+    		<?php echo $viewContent?>
+    	</div>
+    	
+    </div>
+    <div class="container-fluid fixed-bottom bg-dark text-muted center footer-sp">
+    	<?php include_once(SP_VIEWPATH."/common/footer.ctp.php"); ?>
+    </div>
+    
+    <div id="tmp"><form name="tmp" id="tmp"></form></div>
+    <div id="dialogContent" style="display:none;"></div>
+    <?php
+    // add google analytics code to verify the site hits 
+    if ( defined('SP_GOOGLE_ANALYTICS_TRACK_CODE')) { 
+    	echo SP_GOOGLE_ANALYTICS_TRACK_CODE;
+    }
+    ?>
 </body>
 </html>
