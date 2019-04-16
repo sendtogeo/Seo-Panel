@@ -164,7 +164,7 @@ class SettingsController extends Controller{
 	}	
 	
 	# func to show version of seo panel
-	function showVersion() {		
+	function showVersion() {
 		$this->render('settings/version');
 	}
 	
@@ -173,7 +173,7 @@ class SettingsController extends Controller{
 	    $content = $this->spider->getContent(SP_VERSION_PAGE);
 	    $content['page'] = str_replace('Version:', '', $content['page']);
 	    $latestVersion = str_replace('.', '', $content['page']);
-	    $installVersion = str_replace('.', '', SP_INSTALLED);
+	    $installVersion = str_replace('.', '', SP_VERSION_NUMBER);
 	    if ($latestVersion > $installVersion) {
 	        echo showErrorMsg($this->spTextSettings['versionnotuptodatemsg']."({$content['page']}) from <a href='".SP_DOWNLOAD_LINK."' target='_blank'>".SP_DOWNLOAD_LINK."</a>", false);
 	    } else {
