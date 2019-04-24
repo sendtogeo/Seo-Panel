@@ -598,14 +598,15 @@ class UserController extends Controller{
 		// if expiry date is not empty
 		if (!empty($userInfo['expiry_date'])) {
 			$errMsg['expiry_date'] = formatErrorMsg($this->validate->checkDate($userInfo['expiry_date']));
-		}
-		
-		// if expiry date is not empty
-		if (!empty($userInfo['expiry_date'])) {
-			$errMsg['expiry_date'] = formatErrorMsg($this->validate->checkDate($userInfo['expiry_date']));
 			$expiryStr = "expiry_date='".addslashes($userInfo['expiry_date'])."',";
 		} else {
 			$expiryStr = "expiry_date=NULL,";
+		}
+
+		// if password needs to be reset
+		if(!empty($userInfo['password'])){
+			$errMsg['password'] = formatErrorMsg($this->validate->checkPasswords($userInfo['password'], $userInfo['confirmPassword']));
+			$passStr = "password = '".md5($userInfo['password'])."',";
 		}
 		
 		// if change status of user
