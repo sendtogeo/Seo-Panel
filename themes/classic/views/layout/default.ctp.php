@@ -16,10 +16,12 @@
     <link rel="shortcut icon" href="<?php echo !empty($custSiteInfo['site_favicon']) ? $custSiteInfo['site_favicon'] : SP_IMGPATH . "/favicon.ico"?>" />
     
     <!-- Css files -->
-    <link rel="stylesheet" type="text/css" href="<?php echo SP_CSSPATH?>/bootstrap.min.css?<?php echo $spKey?>" media="all" />
+    <link rel="stylesheet" type="text/css" href="<?php echo SP_WEBPATH?>/css/bootstrap.min.css?<?php echo $spKey?>" media="all" />
     <link rel="stylesheet" type="text/css" href="<?php echo SP_WEBPATH?>/jquery-ui-custom/css/jquery-ui-1.10.3.custom.min.css" />
     <link rel="stylesheet" type="text/css" href="<?php echo SP_CSSPATH?>/screen.css?<?php echo $spKey?>" media="all" />
     <link rel="stylesheet" type="text/css" href="<?php echo SP_CSSPATH?>/datepicker.css?<?php echo $spKey?>" media="all" />
+    <link rel="stylesheet" type="text/css" href="<?php echo SP_WEBPATH?>/css/fontawesome/css/all.min.css?<?php echo $spKey?>" media="all" />
+    <link rel="stylesheet" type="text/css" href="<?php echo SP_WEBPATH?>/css/simplemde.min.css?<?php echo $spKey?>" media="all" />
     
     <?php if (in_array($_SESSION['lang_code'], array('ar', 'he', 'fa'))) {?>
     	<link rel="stylesheet" type="text/css" href="<?php echo SP_CSSPATH?>/screen_rtl.css?<?php echo $spKey?>" media="all" />
