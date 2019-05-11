@@ -5,7 +5,7 @@
 //	http://www.godisaduck.com/svg2pdf_with_fpdf
 //	http://rhodopsin.blogspot.com
 //	
-//	cette class etendue est open source, toute modification devra cependant etre repertoriée~
+//	cette class etendue est open source, toute modification devra cependant etre repertoriÃ©e~
 
 
 // NB UNITS - Works in pixels as main units - converting to PDF units when outputing to PDF string
@@ -13,12 +13,12 @@
 
 class SVG {
 
-	var $svg_gradient;	//	array - contient les infos sur les gradient fill du svg classé par id du svg
+	var $svg_gradient;	//	array - contient les infos sur les gradient fill du svg classÃ© par id du svg
 	var $svg_shadinglist;	//	array - contient les ids des objet shading
 	var $svg_info;		//	array contenant les infos du svg voulue par l'utilisateur
 	var $svg_attribs;		//	array - holds all attributes of root <svg> tag
 	var $svg_style;		//	array contenant les style de groupes du svg
-	var $svg_string;		//	String contenant le tracage du svg en lui même.
+	var $svg_string;		//	String contenant le tracage du svg en lui mÃªme.
 	var $txt_data;		//    array - holds string info to write txt to image
 	var $txt_style;		// 	array - current text style
 	var $mpdf_ref;
@@ -924,7 +924,7 @@ $md = $sy * cos($t);
 		$path_style = '';
 		if (substr_count($critere_style['fill'],'url')>0 && $element != 'line'){
 			//
-			// couleur degradé
+			// couleur degradÃ©
 			$id_gradient = preg_replace("/url\(#([\w_]*)\)/i","$1",$critere_style['fill']);
 			if ($id_gradient != $critere_style['fill']) {
 			   if (isset($this->svg_gradient[$id_gradient])) {
@@ -1727,7 +1727,7 @@ function Arcto($x1, $y1, $x2, $y2, $rx, $ry, $angle, $largeArcFlag, $sweepFlag) 
 
 	//
 	//	fonction retracant les <ellipse /> et <circle />
-	//	 le cercle est tracé grave a 4 bezier cubic, les poitn de controles
+	//	 le cercle est tracÃ© grave a 4 bezier cubic, les poitn de controles
 	//	sont deduis grace a la constante kappa * rayon
 	function svgEllipse($arguments){
 		if ($arguments['rx']==0 || $arguments['ry']==0) { return ''; }	// mPDF 4.4.003
@@ -2309,7 +2309,7 @@ function svgDefineTxtStyle($critere_style)
 					return;
 				}
 				else if (strtolower($name) == 'stop'){
-						if (!$last_gradid) break;
+						if (!$last_gradid) return;
 						if (isset($attribs['style']) AND preg_match('/stop-color:\s*([^;]*)/i',$attribs['style'],$m)) {
 							$color = trim($m[1]);
 						} else if (isset($attribs['stop-color'])) {
@@ -2516,7 +2516,7 @@ function svgDefineTxtStyle($critere_style)
 				}
 
 				//
-				//insertion des path et du style dans le flux de donné general.
+				//insertion des path et du style dans le flux de donnÃ© general.
 				if (isset($path_cmd) && $path_cmd) {	// mPDF 4.4.003
 					// mPDF 5.0
 					list($prestyle,$poststyle) = $svg_class->svgStyle($path_style, $attribs, strtolower($name));
