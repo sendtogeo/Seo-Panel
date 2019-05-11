@@ -212,29 +212,24 @@ function showMenu(button, scriptPos){
 	
 	for (var i=0; i<menuList.length; i++) {
 		if(menuList[i] == scriptPos){
-			var but = document.getElementById(button).src;
-		    if(but.match("more") == "more"){
-		        but = but.replace(/more/,"hide");
-		        document.getElementById(scriptPos).style.display = '';
-		        document.getElementById(button).src = but;
-		        
-		        if(typeof(scriptList[i]) != "undefined") {
+			if ($('#' + button).hasClass("fa-plus-square" ) ) {
+				$('#' + button).addClass('fa-minus-square').removeClass('fa-plus-square');
+				$('#' + scriptPos).show();
+				
+				if(typeof(scriptList[i]) != "undefined") {
 		        	scriptDoLoad(scriptList[i], 'content')
 		        }
-		    }else{
-		        but = but.replace(/hide/,"more");
-		        document.getElementById(scriptPos).style.display = 'none';
-		        document.getElementById(button).src = but;		        	
-		    }			
+				
+			} else {
+				$('#' + button).addClass('fa-plus-square').removeClass('fa-minus-square');
+				$('#' + scriptPos).hide();
+			}		
 		}else{
-			var butClose = document.getElementById(buttonList[i]).src;
-			if(butClose.match("hide") == "hide"){
-				butClose = butClose.replace(/hide/,"more");
-				document.getElementById(menuList[i]).style.display = 'none';
-				document.getElementById(buttonList[i]).src = butClose;
-			}
+			$('#' + buttonList[i]).addClass('fa-plus-square').removeClass('fa-minus-square');
+			$('#' + menuList[i]).hide();
 		}	
-	}    
+	}
+	
 }
 
 function updateArea(scriptPos, content) {

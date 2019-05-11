@@ -404,6 +404,11 @@ div.Left .SectionHeader,div.Full .SectionHeader { text-align: center;}
 .error {font-size: 12px;color: #da3838;}
 .success{font-size: 12px;color: green;}
 
+#left_menu_sec{padding: 0px 2px 0px 0px;}
+#left_menu_sec .navbar{padding: 0px;}
+#left_menu_sec .navbar-toggler{margin: 4px;}
+#left_menu_sec .navbar-nav{width: 100%;}
+#menu {width: 100%; margin-left: 1px;}
 #menu li {
 	padding-left: 2px;
 	background-color:#DAE5EE;
@@ -417,47 +422,29 @@ div.Left .SectionHeader,div.Full .SectionHeader { text-align: center;}
 	background-color:#DAE5EE;
 }
 #menu a:focus {	outline: none;}
-
 .tab {
 	border: 1px solid #CFCFCF;
 	color: #808080;
-	font-weight: bold;
-	min-height: 15px;
-	height: auto;
-	padding-left: 0px;
-	margin: 1px;
+	padding: 2px 4px;
 }
 .tab a {
-	font-size: 14px;
-	font-weight: normal;
 	color: black;
-	line-height: 20px;
-}
-
-.subtab {
-	margin-left: 4px;
+	font-size: 14px;
 }
 #menu li.subtab {
 	background-color:#F4F7FA;
 }
-.subtab li {
-	background: url(../../../images/arrow.gif) 2px 9px no-repeat;
-	min-height: 16px;
-	height: auto;
-	vertical-align: middle;
-}
 #subui li {
-	padding-left: 11px;
-	margin: 1px 0px 2px 0px;	
+	margin: 1px 0px;	
 	background-color:#F4F7FA;	
 	border: 1px solid #B0C2CC;
+	padding: 2px 4px;
 }
 #subui a {
-	font-size: 12px;
+	font-size: 13px;
 	font-weight: normal;
 	color: #3B3B3B;
 	background-color:#F4F7FA;
-	line-height: 18px;
 }
 #subui a:hover { color: #000000;}
 

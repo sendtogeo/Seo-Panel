@@ -5,12 +5,12 @@
 <ul id="menu">
 <?php 
 foreach($menuList as $i => $menuInfo){
-	if($menuSelected == $menuInfo['id']){
-			$imgSrc = "hide";
-			$style = "";
-	}else{
-		$imgSrc = "more";
-		$style = 'none';
+    if($menuSelected == $menuInfo['id']){
+        $menuClass = "fa-minus-square";
+        $style = "";
+    }else{
+        $menuClass = "fa-plus-square";
+        $style = "none";
 	}
 	$button = "img".$menuInfo['id'];
 	$subMenuId = "sub".$menuInfo['id'];
@@ -20,7 +20,10 @@ foreach($menuList as $i => $menuInfo){
 		buttonList[<?php echo $i?>] = '<?php echo $button?>';
 	</script>
 	<li class="tab">
-		<a href='javascript:void(0);' onclick="showMenu('<?php echo $button?>','<?php echo $subMenuId?>')"><img id="<?php echo $button?>" src="<?php echo SP_IMGPATH."/".$imgSrc?>.gif"><?php echo $menuInfo['label']?></a>
+		<a href='javascript:void(0);' onclick="showMenu('<?php echo $button?>','<?php echo $subMenuId?>')">
+			<i id="<?php echo $button?>" class="far <?php echo $menuClass?>"></i>
+			<?php echo $menuInfo['label']?>
+		</a>
 	</li>
 	<li id="<?php echo $subMenuId?>" class="subtab" style="display:<?php echo $style?>;padding-left:0px;"><?php echo $menuInfo['menu']?></li>
 	<?php
