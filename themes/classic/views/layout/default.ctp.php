@@ -50,7 +50,6 @@
     var wantproceed = '<?php  echo $spText['label']['wantproceed']; ?>';
     </script>
     
-    <?php //include_once(SP_VIEWPATH."/menu/topmenu.ctp.php");?>
     <nav class="navbar navbar-expand-md navbar-dark bg-dark">
     	<a class="navbar-brand" href="<?php echo SP_WEBPATH?>">
     		<img src="<?php echo !empty($custSiteInfo['site_logo']) ? $custSiteInfo['site_logo'] : SP_IMGPATH . "/logo_red_sm.png";?>">
@@ -69,32 +68,15 @@
     		</form>
     	</div>
     </nav>
-    
-    <div class="container-fluid" style="margin-bottom: 50px;">
-    
-    	<?php if(empty($_COOKIE['hidenews']) && !SP_HOSTED_VERSION && empty($custSiteInfo['disable_news'])){ ?>		
-    		<div class="row-fluid">
-    			<div class="alert alert-warning alert-dismissible fade show" role="alert" id="myAlert">
-    				<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-    		    		<span aria-hidden="true">&times;</span>
-    		  		</button>
-    		  		<span id="newsalert"></span>
-    			</div>
-    		</div>
-    		<script>
-    			scriptDoLoad('<?php echo SP_WEBPATH?>/index.php?sec=news', 'newsalert');
-    			
-    			$('#myAlert').on('closed.bs.alert', function () {
-    				hideNewsBox('newsalert', 'hidenews', '1')
-    			});
-    		</script>
-    	<?php }?>
     	
+    <?php include_once(SP_VIEWPATH."/common/top_notification.ctp.php");?>  
+    
+    <div class="container-fluid" style="margin-bottom: 50px;">  	
     	<div class="row">
     		<?php echo $viewContent?>
     	</div>
-    	
     </div>
+    
     <div class="container-fluid fixed-bottom bg-dark text-muted center footer-sp">
     	<?php include_once(SP_VIEWPATH."/common/footer.ctp.php"); ?>
     </div>
