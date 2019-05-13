@@ -331,10 +331,9 @@ div.Left .SectionHeader,div.Full .SectionHeader { text-align: center;}
 .squareSubHead td.left {border-left:1px solid #B0C2CC;}
 .squareSubHead td.right {border-right:1px solid #B0C2CC;}
 
+.list {	margin-top: 6px;border-collapse: collapse;}
+.list, .list th, .list td {border: 1px solid #B0C2CC;}
 
-
-.list {	margin-top: 6px;}
-.list th, .list td {border: 1px solid #B0C2CC;}
 .list A:hover {	color: black; background-color: white; }
 .list select.multi { height: 100px; }
 
@@ -443,23 +442,21 @@ div.Left .SectionHeader,div.Full .SectionHeader { text-align: center;}
 .tab {
 	border: 1px solid #CFCFCF;
 	color: #808080;
-	padding: 2px 4px;
+	padding: 4px;
 }
 .tab a {
 	color: black;
-	font-size: 14px;
 }
 #menu li.subtab {
 	background-color:#F4F7FA;
 }
 #subui li {
-	margin: 1px 0px;	
 	background-color:#F4F7FA;	
 	border: 1px solid #B0C2CC;
-	padding: 2px 4px;
+	padding: 4px;
 }
 #subui a {
-	font-size: 13px;
+	font-size: 14px;
 	font-weight: normal;
 	color: #3B3B3B;
 	background-color:#F4F7FA;
