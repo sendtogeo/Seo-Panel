@@ -84,54 +84,66 @@ if (!empty($menuInfo['item_list'])) {
 	?>
 	<li class="nav-item <?php echo $homeClass?>">
 		<a class="nav-link" href="<?php echo SP_WEBPATH?>/">
-			<?php echo ($userType == "guest") ? $spText['common']['Home'] : $spText['common']['Dashboard']?>
+			<i class="fas fa-home"></i> <?php echo ($userType == "guest") ? $spText['common']['Home'] : $spText['common']['Dashboard']?>
 		</a>
 	</li>
 	
 	<li class="nav-item <?php echo $seoToolsClass?>">
-		<a class="nav-link" href="<?php echo SP_WEBPATH?>/seo-tools.php"><?php echo $spText['common']['Tools']?></a>
+		<a class="nav-link" href="<?php echo SP_WEBPATH?>/seo-tools.php">
+			<i class="fas fa-tools"></i> <?php echo $spText['common']['Tools']?>
+		</a>
 	</li>
 	<li class="nav-item <?php echo $seoPluginsClass?>">
-		<a class="nav-link" href="<?php echo SP_WEBPATH?>/seo-plugins.php?sec=show"><?php echo $spText['common']['Plugins']?></a>
+		<a class="nav-link" href="<?php echo SP_WEBPATH?>/seo-plugins.php?sec=show">
+			<i class="fas fa-wrench"></i> <?php echo $spText['common']['Plugins']?>
+		</a>
 	</li>
 	<li class="nav-item <?php echo $supportClass?>">
-		<a class="nav-link" href="<?php echo SP_WEBPATH?>/support.php"><?php echo $spText['common']['Support']?></a>
+		<a class="nav-link" href="<?php echo SP_WEBPATH?>/support.php">
+			<i class="fas fa-question"></i> <?php echo $spText['common']['Support']?>
+		</a>
 	</li>
 	
 	<?php if (SP_DEMO) {?>
 		<li class="nav-item">
-			<a class="nav-link" href="<?php echo SP_DOWNLOAD_LINK?>" target="_blank"><?php echo $spText['label']['Download']?></a>
+			<a class="nav-link" href="<?php echo SP_DOWNLOAD_LINK?>" target="_blank"><i class="fas fa-download"></i> <?php echo $spText['label']['Download']?></a>
 		</li>
 	<?php }?>
 	
 	<?php if (!empty($custSiteInfo['plugin_active'])) {?>
 		<li class="nav-item <?php echo $blogClass?>">
-			<a class="nav-link" href="<?php echo SP_WEBPATH?>/blog.php" ><?php echo $spText['common']['Blog']?></a>
+			<a class="nav-link" href="<?php echo SP_WEBPATH?>/blog.php" >
+			<i class="fas fa-blog"></i> <?php echo $spText['common']['Blog']?></a>
 		</li>
 	<?php } else { ?>
 		<li class="nav-item">
-			<a class="nav-link" href="<?php echo SP_DONATE_LINK?>" target="_blank"><?php echo $spText['common']['Donate']?></a>
+			<a class="nav-link" href="<?php echo SP_DONATE_LINK?>" target="_blank">
+			<i class="fas fa-donate"></i> <?php echo $spText['common']['Donate']?></a>
 		</li>
 	<?php }?>	
 	
 	<?php if (SP_HOSTED_VERSION) {?>
 		<li class="nav-item <?php echo $pricingClass?>">
-			<a class="nav-link" href="<?php echo SP_WEBPATH?>/register.php?sec=pricing"><?php echo $spText['common']['Pricing']?></a>
+			<a class="nav-link" href="<?php echo SP_WEBPATH?>/register.php?sec=pricing">
+			<i class="fas fa-dollar-sign"></i> <?php echo $spText['common']['Pricing']?></a>
 		</li>
 	<?php }?>
 	
 	<?php if ($userType == "guest") {?>
 		<li class="nav-item <?php echo $loginClass?>">
-			<a class="nav-link" href="<?php echo SP_WEBPATH?>/login.php"><?php echo $spTextLogin['Login']?></a>
+			<a class="nav-link" href="<?php echo SP_WEBPATH?>/login.php">
+			<i class="fas fa-sign-in-alt"></i> <?php echo $spTextLogin['Login']?></a>
 		</li>				
 	<?php } else {?>
 		<li class="nav-item <?php echo $adminClass?>">
 			<a class="nav-link" href="<?php echo SP_WEBPATH?>/admin-panel.php">
+				<i class="fas fa-cogs"></i>
 				<?php echo $spTextPanel['Settings']?>
 			</a>
 		</li>		
 		<li class="nav-item <?php echo $loginClass?>">
-			<a class="nav-link" href="<?php echo SP_WEBPATH?>/login.php?sec=logout"><?php echo $spText['common']['Logout']?></a>
+			<a class="nav-link" href="<?php echo SP_WEBPATH?>/login.php?sec=logout">
+			<i class="fas fa-sign-out-alt"></i> <?php echo $spText['common']['Logout']?></a>
 		</li>
 	<?php }?>
 	

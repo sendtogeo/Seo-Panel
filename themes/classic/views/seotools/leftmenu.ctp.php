@@ -7,10 +7,10 @@
 <?php 
 foreach($menuList as $i => $menuInfo){
 	if($menuSelected == $menuInfo['url_section']){
-		$menuClass = "fa-minus-square";
+		$menuClass = "fa-caret-up";
 		$style = "";
 	}else{
-	    $menuClass = "fa-plus-square";
+	    $menuClass = "fa-caret-down";
 		$style = 'none';
 	}
 	$button = "img".$menuInfo['id'];
@@ -20,9 +20,9 @@ foreach($menuList as $i => $menuInfo){
 		menuList[<?php echo $i?>] = '<?php echo $subMenuId?>';
 		buttonList[<?php echo $i?>] = '<?php echo $button?>';
 	</script>
-	<li class="tab">
-		<a href='javascript:void(0);' onclick="showMenu('<?php echo $button?>','<?php echo $subMenuId?>')">
-			<i id="<?php echo $button?>" class="far <?php echo $menuClass?>"></i>
+	<li class="tab" onclick="showMenu('<?php echo $button?>','<?php echo $subMenuId?>')">
+		<i id="<?php echo $button?>" class="fas <?php echo $menuClass?>"></i>
+		<a href='javascript:void(0);'>
 			<?php echo $spTextTools[$menuInfo['url_section']]?>
 		</a>
 	</li>

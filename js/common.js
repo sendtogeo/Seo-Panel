@@ -209,11 +209,12 @@ function doLoadUrl(argVal, scriptUrl) {
 }
 
 function showMenu(button, scriptPos){
-	
+	var downClass = 'fa-caret-down';
+	var upClass = 'fa-caret-up';
 	for (var i=0; i<menuList.length; i++) {
 		if(menuList[i] == scriptPos){
-			if ($('#' + button).hasClass("fa-plus-square" ) ) {
-				$('#' + button).addClass('fa-minus-square').removeClass('fa-plus-square');
+			if ($('#' + button).hasClass(downClass ) ) {
+				$('#' + button).addClass(upClass).removeClass(downClass);
 				$('#' + scriptPos).show();
 				
 				if(typeof(scriptList[i]) != "undefined") {
@@ -221,11 +222,11 @@ function showMenu(button, scriptPos){
 		        }
 				
 			} else {
-				$('#' + button).addClass('fa-plus-square').removeClass('fa-minus-square');
+				$('#' + button).addClass(downClass).removeClass(upClass);
 				$('#' + scriptPos).hide();
 			}		
 		}else{
-			$('#' + buttonList[i]).addClass('fa-plus-square').removeClass('fa-minus-square');
+			$('#' + buttonList[i]).addClass(downClass).removeClass(upClass);
 			$('#' + menuList[i]).hide();
 		}	
 	}

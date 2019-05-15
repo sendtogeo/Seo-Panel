@@ -431,26 +431,21 @@ div.Left .SectionHeader,div.Full .SectionHeader { text-align: center;}
 #menu li {
 	padding-left: 2px;
 	background-color:#DAE5EE;
-}
-#menu li img {
-	padding: 0 0 0 0px;
+	cursor: pointer;
 }
 #menu a {
-	font-family: Arial;
-	text-decoration: none;	
-	background-color:#DAE5EE;
+	text-decoration: none;
 }
 #menu a:focus {	outline: none;}
 .tab {
-	border: 1px solid #CFCFCF;
+	border-left: 1px solid #CFCFCF;
+	border-right: 1px solid #CFCFCF;
+	border-bottom: 1px solid #CFCFCF;
 	color: #808080;
 	padding: 4px;
 }
 .tab a {
-	color: black;
-}
-#menu li.subtab {
-	background-color:#F4F7FA;
+	color: #555753;
 }
 #subui li {
 	background-color:#F4F7FA;	
@@ -462,8 +457,7 @@ div.Left .SectionHeader,div.Full .SectionHeader { text-align: center;}
 #subui a {
 	font-size: 14px;
 	font-weight: normal;
-	color: #3B3B3B;
-	background-color:#F4F7FA;
+	color: #2e3436;
 }
 #subui a:hover { color: #000000;}
 
@@ -1049,8 +1043,7 @@ div.tab button.active {	background-color: #ccc;}
 
 #navbarSupportedContent{text-align: left;}
 #navbarSupportedContent A {text-decoration: none; font-size: 16px;}
-#navbarSupportedContent li {line-height: 6px; margin: 1px;}
-
+#navbarSupportedContent li {line-height: 6px; margin: 1px 4px;}
 #navbarSupportedContent .form-inline A {color: white; margin: 4px; font-size: 12px;}
 #navbarSupportedContent .form-inline select {width: 100px; height: 28px; margin-left: 5px;}
 #navbarSupportedContent .form-inline span {color: white;}
