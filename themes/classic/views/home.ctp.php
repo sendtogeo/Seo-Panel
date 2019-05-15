@@ -1,16 +1,16 @@
-<div class="col"> 
+<div class="col" id="home_screen">
 	<?php
 	$blogContent = getCustomizerPage('home');
 	if (!empty($blogContent['blog_content'])) {
 	    echo $blogContent['blog_content'];
 	} else {
     	?>
-        <fieldset>
-        <ul class="infobox">
-        	<li>
-        		<?php echo str_replace('<?'.'=SP_PLUGINSITE?>', SP_PLUGINSITE, $spTextHome['home_cont1'])?>
-        	</li>
-        </ul>
+        <fieldset id="welcome_msg">
+	        <ul class="infobox">
+	        	<li>
+	        		<?php echo str_replace('<?'.'=SP_PLUGINSITE?>', SP_PLUGINSITE, $spTextHome['home_cont1'])?>
+	        	</li>
+	        </ul>
         </fieldset>
         
         <?php 

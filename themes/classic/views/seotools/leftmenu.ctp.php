@@ -33,7 +33,7 @@ foreach($menuList as $i => $menuInfo){
 			?>
 			<script type="text/javascript">scriptList[<?php echo $i?>] = 'reports.php?sec=reportsum';</script>
 			<ul id='subui'>
-				<li><a href="javascript:void(0);" onclick="scriptDoLoad('reports.php?sec=reportsum', 'content')"><?php echo $spTextTools['Keyword Position Summary']?></a></li>
+				<li><a href="javascript:void(0);" onclick="scriptDoLoad('reports.php?sec=reportsum', 'content')" class="menu_active"><?php echo $spTextTools['Keyword Position Summary']?></a></li>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('reports.php', 'content')"><?php echo $spTextTools['Detailed Position Reports']?></a></li>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('graphical-reports.php', 'content')"><?php echo $spTextTools['Graphical Position Reports']?></a></li>
 				<?php if (isQuickCheckerEnabled()) {?>

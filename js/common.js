@@ -218,7 +218,8 @@ function showMenu(button, scriptPos){
 				$('#' + scriptPos).show();
 				
 				if(typeof(scriptList[i]) != "undefined") {
-		        	scriptDoLoad(scriptList[i], 'content')
+		        	scriptDoLoad(scriptList[i], 'content');
+		        	$('#' + scriptPos + " a:first").addClass("menu_active");
 		        }
 				
 			} else {
@@ -370,3 +371,14 @@ function openTab(tabName, dialog = false) {
 	$(dialogId + '#' + tabName).show();
 	$(dialogId + '#' + tabName + "Link").addClass('active');
 }
+
+$(function() {
+	
+	// submenu click function
+	$("#subui a").click(function() {
+		$("#subui a").removeClass("menu_active");
+		$(this).addClass("menu_active");
+	});
+	
+});
+

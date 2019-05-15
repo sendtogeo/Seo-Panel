@@ -34,7 +34,7 @@ foreach($menuList as $i => $menuInfo){
 			?>
 			<script type="text/javascript">scriptList[<?php echo $i?>] = 'websites.php';</script>			
 			<ul id='subui'>
-				<li><a href="javascript:void(0);" onclick="scriptDoLoad('websites.php', 'content')"><?php echo $spTextPanel['Website Manager']?></a></li>
+				<li><a href="javascript:void(0);" onclick="scriptDoLoad('websites.php', 'content')" class="menu_active"><?php echo $spTextPanel['Website Manager']?></a></li>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('websites.php', 'content', 'sec=new')"><?php echo $spTextPanel['New Website']?></a></li>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('websites.php', 'content', 'sec=import')"><?php echo $spTextPanel['Import Websites']?></a></li>
 				<li>
