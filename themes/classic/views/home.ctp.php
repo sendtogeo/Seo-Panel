@@ -14,7 +14,7 @@
         </fieldset>
         
         <?php 
-        /*echo str_replace( array('<?'.'=SP_PLUGINSITE?>', '<?'.'=SP_INSTALLED?>'), array(SP_PLUGINSITE, ""), $spTextHome['home_cont2']);*/
+        echo str_replace( array('<?'.'=SP_PLUGINSITE?>', '<?'.'=SP_INSTALLED?>'), array(SP_PLUGINSITE, ""), $spTextHome['home_cont2']);
         ?>
         
         <?php 

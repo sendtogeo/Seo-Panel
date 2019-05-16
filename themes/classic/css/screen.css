@@ -421,8 +421,8 @@ div.Left .SectionHeader,div.Full .SectionHeader { text-align: center;}
 #seresult P{	margin:4px 0px 4px 0px;	}
 #seresult label{	color: #239123;	margin:0px;	}
 
-.error {font-size: 12px;color: #da3838;}
-.success{font-size: 12px;color: green;}
+.error {color: #da3838;}
+.success{color: green;}
 
 #left_menu_sec{padding: 0px 2px 0px 0px;}
 #left_menu_sec .navbar{padding: 0px;}
@@ -1071,7 +1071,6 @@ div.tab button.active {	background-color: #ccc;}
 .blog_paginate_div{margin: 10px 20px;}
 .blog_paginate_div A{text-decoration: none; color: #666666}
 
-
 #navbarSupportedContent{text-align: left;}
 #navbarSupportedContent A {text-decoration: none; font-size: 16px;}
 #navbarSupportedContent li {line-height: 6px; margin: 1px 4px;}
@@ -1086,3 +1085,12 @@ div.tab button.active {	background-color: #ccc;}
 @media screen and ( max-width: 769px ) {
 	#navbarSupportedContent li {line-height: 15px;}
 }
+
+form.public_form {
+	border: 3px solid #f1f1f1;
+	padding: 24px;
+	margin: 16px 0px;
+	background: #f0efef;
+}
+.public_head {margin: 16px 0px;}
+

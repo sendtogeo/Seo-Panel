@@ -4,7 +4,7 @@
 	<div><?php echo str_replace('[year]', date('Y'), $spText['common']['copyright'])?></div>
     <div id="powered">
     	<?php echo $spText['common']['Powered by']; ?> <a href="<?php echo SP_MAIN_SITE?>" target="_blank" title="Seo Control Panel">Seo Panel</a>
-    </div>
-    <?php echo $translatorInfo?>
+    	<?php echo $translatorInfo?>
+    </div>    
 <?php }?>
 
