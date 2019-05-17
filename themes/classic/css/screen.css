@@ -797,7 +797,7 @@ legend:before{
 }
 
 #home_screen legend {display: none;}
-#home_screen, #support_screen {margin: 10px 0px;}
+#home_screen, #support_screen {margin: 10px 10px;}
 #support_screen fieldset{border-bottom: 1px gray dotted;}
 #home_screen fieldset:last-child, #support_screen fieldset:last-child {border-bottom: none;}
 .infobox br{display: none;}
@@ -1091,4 +1091,3 @@ div.tab button.active {	background-color: #ccc;}
 	background: #f0efef;
 }
 .public_head {margin: 16px 0px;}
-
