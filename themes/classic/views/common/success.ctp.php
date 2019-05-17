@@ -1,3 +1,3 @@
-<div id='subcontent'>
-	<p class='note notesuccess'><?php echo $successMsg;?></p>
+<div class="alert alert-success">
+  <?php echo $successMsg;?>
 </div>

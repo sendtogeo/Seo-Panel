@@ -116,6 +116,7 @@ class UserController extends Controller{
 		$confirmCode = addslashes($confirmCode);
 		$sql = "select id from users where confirm_code='$confirmCode'";
 		$userInfo = $this->db->select($sql, true);
+		$error = "";
 		
 		if(!empty($userInfo['id'])){
 			
@@ -123,16 +124,15 @@ class UserController extends Controller{
 			if($this->db->query($sql)){
 				$this->set('confirm', true);
 			}else{
-				$error = showErrorMsg($this->spTextRegister['user_confirm_content_1'], false);
+				$error = showErrorMsg($this->spTextRegister['user_confirm_content_1'], false, true);
 			}
 			
 		} else {
-			$error = showErrorMsg($this->spTextRegister['user_confirm_content_1'], false);
+			$error = showErrorMsg($this->spTextRegister['user_confirm_content_1'], false, true);
 		}
 		
 		$this->set('error', $error);
 		$this->render('common/registerconfirm');
-		
 	}
 	
 	# register function
@@ -366,8 +366,9 @@ class UserController extends Controller{
 				$errMsg['userName'] = formatErrorMsg($_SESSION['text']['login']['usernameexist']);
 			}
 		}
+		
 		$this->set('errMsg', $errMsg);
-		$this->register();
+		$this->register($userInfo);
 	}
 	
 	# function for logout
@@ -864,7 +865,7 @@ class UserController extends Controller{
 	        	$rand = str_shuffle(rand().$userInfo['username']);
 
 	            // get admin details
-	            $adminInfo = $this->__getUserInfo(1);
+	            $adminInfo = $this->__getAdminInfo();
 	            
 	            # send password to user
 	            $error = 0;

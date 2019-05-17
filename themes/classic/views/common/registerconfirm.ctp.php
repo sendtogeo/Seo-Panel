@@ -1,38 +1,29 @@
-<div class="Left">
-    <div class="col">
-        <?php echo getRoundTabTop(); ?>
-        <div id="round_content">
-            <div class="Block">
-            	<table width="100%" cellpadding="0" cellspacing="0" class="actionForm">
-	            	<?php if (!empty($paymentForm)) {?>
-	                	<tr>
-	                		<td colspan="2"><?php echo $paymentForm;?></td>
-	                	</tr>
-	            	<?php } else { ?>
-	                	<tr>
-	                		<td colspan="2">
-	                			<?php
-	                			if ($error) {
-	                				echo $error;
-	                			} else {
-	                				
-		                			if($confirm){
-		                				showSuccessMsg($spText['login']['Your account activated successfully'], false);
-		                			} else {
-		                				showSuccessMsg($spText['login']['newaccountsuccess'], false);
-		                			}
-		                			
-	                			}
-	                			?>
-	                		</td>
-	                	</tr>
-	                	<tr>
-	                		<td colspan="2"><a class="actionbut" href="<?php echo SP_WEBPATH?>/login.php"><?php echo $spText['login']['Sign in to your account']?> >></a></td>
-		                	</tr>
-            			<?php }?>
-            	</table>
-            </div>
-		</div>
-		<?php echo getRoundTabBot(); ?>
-    </div>
+<div class="container col-md-6">
+	<h2 class="public_head">
+		<i class="fas fa-user-tie"></i>
+		<?php echo $spText['login']['Create New Account']?>
+	</h2>
+	<div class="public_form">	
+		<?php if (!empty($paymentForm)) {?>
+			<div class="form-group"><?php echo $paymentForm;?></div>
+		<?php } else { ?>
+			<div class="form-group">
+				<?php
+				if (!empty($error)) {
+	            	echo $error;
+	            } else {			
+					if($confirm){
+						showSuccessMsg($spText['login']['Your account activated successfully'], false);
+					} else {
+						showSuccessMsg($spText['login']['newaccountsuccess'], false);
+					}
+
+					?>
+					<a class="btn btn-success" href="<?php echo SP_WEBPATH?>/login.php"><?php echo $spText['login']['Sign in to your account']?> >></a>
+					<?php
+	            }
+	            ?>
+			</div>
+		<?php }?>
+	</div>
 </div>

@@ -3,7 +3,8 @@
 		<i class="fas fa-user-tie"></i>
 		<?php echo $spText['login']['Forgot password?']?>
 	</h2>
-	<form name="loginForm" method="post" action="<?php echo SP_WEBPATH?>/login.php?sec=forgot" class="public_form">
+	<div class="public_form">
+	<form name="loginForm" method="post" action="<?php echo SP_WEBPATH?>/login.php?sec=forgot">
 	    <input type="hidden" name="sec" value="requestpass">
 		<div class="form-group">
 			<label for="email"><?php echo $spText['login']['Email']?>:</label> 
@@ -19,7 +20,9 @@
 			<?php echo $errMsg['code']?>
 		</div>
 		<?php if (!isLoggedIn()) { ?>
+			<a href="<?php echo SP_WEBPATH?>/login.php" class="btn btn-secondary" role="button"><?php echo $spText['button']['Cancel']?></a>
 			<button name="login" type="submit" class="btn btn-primary"><?php echo $spText['login']['Request Password']?></button>
 		<?php }?>
 	</form>
+	</div>
 </div>

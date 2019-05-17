@@ -1,11 +1,12 @@
 --
--- Seo Panel 3.19.0 changes
+-- Seo Panel 4.0.0 changes
 --
 
-update `settings` set set_val='3.19.0' WHERE `set_name` LIKE 'SP_VERSION_NUMBER';
+update `settings` set set_val='4.0.0' WHERE `set_name` LIKE 'SP_VERSION_NUMBER';
 
 
 INSERT INTO `texts` (`category`, `label`, `content`) VALUES 
-('common', 'Plugins', 'Plugins'),                                                                                                                                                                    
-('common', 'Logout', 'Logout'),                                                                                                                                                                      
+('label', 'Month', 'Month'), 
+('common', 'Plugins', 'Plugins'),
+('common', 'Logout', 'Logout'),
 ('common', 'Tools', 'Tools');

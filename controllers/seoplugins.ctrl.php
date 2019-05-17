@@ -521,7 +521,7 @@ class SeoPluginsController extends Controller{
 		$pluginInfo = $this->__getSeoPluginInfo($pluginName, 'name');
 		$info['pid'] = $pluginInfo['id'];
 		$info['action'] = "get_plugin_object";
-		$pluginCtrler = $this->manageSeoPlugins($info);
+		$pluginCtrler = $this->manageSeoPlugins($info, 'get', true);
 		return $pluginCtrler;
 	}
 	
