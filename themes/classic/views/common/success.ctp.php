@@ -1,3 +1,4 @@
 <div class="alert alert-success">
-  <?php echo $successMsg;?>
+	<button type="button" class="close" data-dismiss="alert">&times;</button>
+	<?php echo $successMsg;?>
 </div>

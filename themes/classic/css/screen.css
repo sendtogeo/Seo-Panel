@@ -332,7 +332,7 @@ div.Left .SectionHeader,div.Full .SectionHeader { text-align: center;}
 .squareSubHead td.left {border-left:1px solid #B0C2CC;}
 .squareSubHead td.right {border-right:1px solid #B0C2CC;}
 
-.SectionHeader {margin: 20px 0px 40px; text-align: left;}
+.SectionHeader {margin: 20px 0px 32px; text-align: left;}
 
 /*.list {	margin-top: 6px;border-collapse: collapse;}
 .list, .list th, .list td {border: 1px solid #B0C2CC;}
@@ -797,7 +797,12 @@ legend:before{
 }
 
 #home_screen legend {display: none;}
-#home_screen, #support_screen {margin: 10px 10px;}
+#home_screen, #support_screen {
+	margin: 30px;
+	border: 3px solid #f1f1f1;
+	padding: 0px 26px;
+	background: #f0efef;
+}
 #support_screen fieldset{border-bottom: 1px gray dotted;}
 #home_screen fieldset:last-child, #support_screen fieldset:last-child {border-bottom: none;}
 .infobox br{display: none;}
