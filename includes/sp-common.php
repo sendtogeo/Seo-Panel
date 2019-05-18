@@ -432,6 +432,11 @@ function sendMail($from, $fromName, $to ,$subject,$content, $attachment = ''){
 		$mail->Username = SP_SMTP_USERNAME;
 		$mail->Password = SP_SMTP_PASSWORD;
 		$mail->Port = SP_SMTP_PORT;
+		
+		// if mail encryption enabled
+		if (defined('SP_MAIL_ENCRYPTION') && !empty(SP_MAIL_ENCRYPTION)) {
+            $mail->SMTPSecure = SP_MAIL_ENCRYPTION;
+		}		
 	}
 
 	$mail->From = $from;
