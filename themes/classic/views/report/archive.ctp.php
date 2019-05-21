@@ -33,9 +33,9 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 			</td>			
 			<th><?php echo $spText['common']['Period']?>:</th>
     		<td colspan="2">
-    			<input type="text" style="width: 80px;margin-right:0px;" value="<?php echo $fromTime?>" name="from_time"/> 
+    			<input type="text" value="<?php echo $fromTime?>" name="from_time"/> 
     			<img align="bottom" onclick="displayDatePicker('from_time', false, 'ymd', '-');" src="<?php echo SP_IMGPATH?>/cal.gif"/> 
-    			<input type="text" style="width: 80px;margin-right:0px;" value="<?php echo $toTime?>" name="to_time"/> 
+    			<input type="text" value="<?php echo $toTime?>" name="to_time"/> 
     			<img align="bottom" onclick="displayDatePicker('to_time', false, 'ymd', '-');" src="<?php echo SP_IMGPATH?>/cal.gif"/>
     		</td>
     	<tr>

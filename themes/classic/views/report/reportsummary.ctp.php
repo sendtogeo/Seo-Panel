@@ -5,7 +5,7 @@ $borderCollapseVal = $pdfVersion ? "border-collapse: collapse;" : "";
 if(!empty($printVersion) || !empty($pdfVersion)) {
     $pdfVersion ? showPdfHeader($spTextTools['Keyword Position Summary']) : showPrintHeader($spTextTools['Keyword Position Summary']);
     ?>
-    <table width="80%" border="0" cellspacing="0" cellpadding="0" class="search">
+    <table width="100%" class="search">
     	<?php if (!empty($websiteUrl)) {?>
     		<tr>
     			<th><?php echo $spText['common']['Website']?>:</th>
@@ -27,15 +27,15 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
     ?>
 	<form id='search_form'>
 	<?php $submitLink = "scriptDoLoadPost('reports.php', 'search_form', 'content', '&sec=reportsum')";?>
-	<table width="100%" border="0" cellspacing="0" cellpadding="0" class="search">
+	<table width="100%" class="search">
 		<tr>
 			<th><?php echo $spText['common']['Name']?>: </th>
 			<td>
 				<input type="text" name="search_name" value="<?php echo htmlentities($searchInfo['search_name'], ENT_QUOTES)?>" onblur="<?php echo $submitLink?>">
 			</td>
-			<th width="100px"><?php echo $spText['common']['Website']?>: </th>
-			<td width="160px">
-				<select name="website_id" id="website_id" style='width:100px;' onchange="<?php echo $submitLink?>">
+			<th><?php echo $spText['common']['Website']?>: </th>
+			<td>
+				<select name="website_id" id="website_id" onchange="<?php echo $submitLink?>">
 					<option value="">-- <?php echo $spText['common']['All']?> --</option>
 					<?php foreach($websiteList as $websiteInfo){?>
 						<?php if($websiteInfo['id'] == $websiteId){?>
@@ -46,11 +46,11 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 					<?php }?>
 				</select>
 			</td>
-			<th width="100px;"><?php echo $spText['common']['Period']?>:</th>
-    		<td width="236px">
-    			<input type="text" style="width: 80px;margin-right:0px;" value="<?php echo $fromTime?>" name="from_time"/> 
+			<th><?php echo $spText['common']['Period']?>:</th>
+    		<td>
+    			<input type="text" value="<?php echo $fromTime?>" name="from_time"/> 
     			<img align="bottom" onclick="displayDatePicker('from_time', false, 'ymd', '-');" src="<?php echo SP_IMGPATH?>/cal.gif"/> 
-    			<input type="text" style="width: 80px;margin-right:0px;" value="<?php echo $toTime?>" name="to_time"/> 
+    			<input type="text" value="<?php echo $toTime?>" name="to_time"/> 
     			<img align="bottom" onclick="displayDatePicker('to_time', false, 'ymd', '-');" src="<?php echo SP_IMGPATH?>/cal.gif"/>
     		</td>
 			<td><a href="javascript:void(0);" onclick="<?php echo $submitLink?>" class="actionbut"><?php echo $spText['button']['Search']?></a></td>
@@ -83,7 +83,7 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 
 <div id='subcontent' style="margin-top: 0px;">
 
-<table width="100%" border="0" cellspacing="0" cellpadding="0" class="list" style="<?php echo $borderCollapseVal; ?>">
+<table width="100%" class="list" style="<?php echo $borderCollapseVal; ?>">
 	<tr class="squareHead">
 		<?php
 		$linkClass = "";
