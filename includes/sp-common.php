@@ -434,7 +434,7 @@ function sendMail($from, $fromName, $to ,$subject,$content, $attachment = ''){
 		$mail->Port = SP_SMTP_PORT;
 		
 		// if mail encryption enabled
-		if (defined('SP_MAIL_ENCRYPTION') && !empty(SP_MAIL_ENCRYPTION)) {
+		if (defined('SP_MAIL_ENCRYPTION') && (SP_MAIL_ENCRYPTION != '')) {
             $mail->SMTPSecure = SP_MAIL_ENCRYPTION;
 		}		
 	}

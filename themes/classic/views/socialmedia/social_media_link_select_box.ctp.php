@@ -1,4 +1,4 @@
-<select name="link_id" id="link_id" style="width:150px;" onchange="<?php echo $onChange?>">
+<select name="link_id" id="link_id" onchange="<?php echo $onChange?>">
 	<?php if($linkNull){ ?>
 		<option value="">-- <?php echo $spText['common']['Select']?> --</option>
 	<?php } ?>
