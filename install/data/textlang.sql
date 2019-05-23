@@ -14180,6 +14180,13 @@ ALTER TABLE `texts`
 
 ALTER TABLE `translators`
   MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
+  
+INSERT INTO `texts` (`category`, `label`, `content`) VALUES 
+('settings', 'SP_MAIL_ENCRYPTION', 'Mail Encryption'), 
+('label', 'Month', 'Month'), 
+('common', 'Plugins', 'Plugins'),
+('common', 'Logout', 'Logout'),
+('common', 'Tools', 'Tools');
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
