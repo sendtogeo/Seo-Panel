@@ -35,6 +35,7 @@
     <script type="text/javascript" src="<?php echo SP_WEBPATH?>/jquery-ui/jquery-ui.min.js?<?php echo $spKey?>"></script>
     <script type="text/javascript" src="<?php echo SP_JSPATH; ?>/loader.js?<?php echo $spKey?>"></script>
     <script type="text/javascript" src="<?php echo SP_JSPATH; ?>/jquery.tablesorter.min.js?<?php echo $spKey?>"></script>
+    <script type="text/javascript" src="<?php echo SP_JSPATH?>/simplemde.min.js?<?php echo $spKey?>"></script>
     <script type="text/javascript" src="<?php echo SP_JSPATH?>/common.js?<?php echo $spKey?>"></script>
     <script type="text/javascript" src="<?php echo SP_JSPATH?>/popup.js?<?php echo $spKey?>"></script>
     
