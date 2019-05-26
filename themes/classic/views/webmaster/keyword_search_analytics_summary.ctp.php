@@ -22,7 +22,6 @@ if(!$summaryPage && (!empty($printVersion) || !empty($pdfVersion))) {
 	</table>
     <?php
 } else {
-	if ($summaryPage && ($searchInfo['report_type'] != 'keyword-search-reports')) echo "<br><br><br>";
     echo showSectionHead($spTextTools['Keyword Search Summary']);
     
     // if not summary page show the filters

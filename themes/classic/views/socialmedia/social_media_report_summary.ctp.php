@@ -22,7 +22,6 @@ if(!$summaryPage && (!empty($printVersion) || !empty($pdfVersion))) {
 	</table>
     <?php
 } else {
-	if ($summaryPage && ($searchInfo['report_type'] != 'social-media-reports')) echo "<br><br><br>";
     echo showSectionHead($spTextTools['Social Media Report Summary']);
     
     // if not summary page show the filters

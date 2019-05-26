@@ -1,26 +1,15 @@
 @CHARSET "UTF-8";
 
-body {
-	/*margin: 0 auto;
-	padding: 0;*/
-	/*font-family: Arial;*/
-	/*font-size: 12px;*/
-	/*color: #333;*/
-	/*background-color: #e5e5e5;*/
-	/*text-align: center;*/
-	/*background: url("../../../images/background.png") repeat-x scroll 0 0 #EDF0F4;*/
-}
-
 ol, ul, li { margin: 0; padding: 0; }
 ul li {	list-style-type: none; }
+
+input, select{margin: 1px;}
 
 .plainHead td, .squareHead td, .squareSubHead td {
 	text-align: center;
 	height: 25px;
 	font-weight: bold;
 	color: #343333;
-	font-family: Arial;
-	font-size: 11px;
 	margin: 0;
 	padding: 0 3px 0 4px;
 	vertical-align: middle;
@@ -40,11 +29,7 @@ ul li {	list-style-type: none; }
 
 .SectionHeader {margin: 20px 0px 32px; text-align: left;}
 
-.actionSec a {
-	font-family: Arial;
-	text-decoration: none;
-	background-color: white;
-}
+.actionSec {margin: 10px 0px;}
 
 #seresult{	text-align: left;}
 #seresult A{	font-size: 12px;	margin:0px;	}
@@ -99,20 +84,11 @@ ul li {	list-style-type: none; }
 
 #subui a.menu_active{font-weight: bold;color: black;}
 
-.search {	margin-top: 5px;}
+.search {margin: 20px 0px;}
+.search th{text-align: right;}
+.search td{text-align: left; padding: 2px 6px;}
 .search A {	text-decoration: none;	background-color: white;}
 .search a:focus {	outline: none;}
-.search th {
-	text-align: right;
-	padding-right: 5px;
-	padding-bottom: 5px;
-	font-size: 11px;
-}
-.search td {
-	text-align: left;
-	padding-left: 5px;
-	padding-bottom: 5px;
-}
 
 #loading_rankarea {
 	width: 100px;
@@ -226,11 +202,10 @@ ul li {	list-style-type: none; }
 }
 
 .summary{	border: 1px solid #B0C2CC;}
-.summary td{	height: 30px;}
+.summary td, .summary th{padding: 2px 5px; height: 30px;}
 .summary .topheader {
 	background-color: #dae5ee;
 	color: #000000;
-	font-size: 13px;
 	margin: 0;
 	padding: 1px 1px 1px 1px;
 	font-weight: bold;
@@ -240,7 +215,6 @@ ul li {	list-style-type: none; }
 .summary .subheader {
 	background-color: #ECF3FA;
 	color: #000000;
-	font-size: 11px;
 	margin: 0;
 	padding: 1px 1px 1px 5px;
 	font-weight: bold;
@@ -250,7 +224,6 @@ ul li {	list-style-type: none; }
 .summary .subheaderdark {
 	background-color: #BFD5E7;
 	color: #000000;
-	font-size: 11px;
 	margin: 0;
 	padding: 1px 1px 1px 5px;
 	font-weight: bold;
@@ -259,7 +232,6 @@ ul li {	list-style-type: none; }
 }
 .summary .content {
 	color: #000000;
-	font-size: 11px;
 	margin: 0;
 	padding: 1px 1px 1px 5px;
 	text-align: left;
@@ -268,19 +240,10 @@ ul li {	list-style-type: none; }
 }
 .summary .contentmid {
 	color: #000000;
-	font-size: 11px;
 	margin: 0;
 	padding: 1px 1px 1px 5px;
 	text-align: center;
 	border-left: 1px solid #B0C2CC;
-	border-top: 1px solid #B0C2CC;
-}
-.summary .norecord{
-	color: #000000;
-	font-size: 11px;
-	margin: 0;
-	padding: 1px 1px 1px 1px;
-	text-align: center;
 	border-top: 1px solid #B0C2CC;
 }
 
@@ -312,7 +275,7 @@ legend:before{
 
 #home_screen legend {display: none;}
 #home_screen, #support_screen {
-	margin: 18px;
+	margin: 14px;
 	border: 3px solid #f1f1f1;
 	padding: 0px 26px;
 	background: #f0efef;
@@ -326,14 +289,14 @@ A.actionbut{
 	border:1px solid #666666;
 	color:#000000;
 	cursor:pointer;
-	font-size:13px;
+	font-size:16px;
 	font-weight:bold;
-	height:30px;
 	margin:0px;
 	padding:5px 12px;
 	text-align:center;
 	width:auto !important;
 	text-decoration: none;
+	white-space: nowrap;
 }
 
 .infobox h1{
@@ -507,6 +470,7 @@ div.tab button.active {	background-color: #ccc;}
 #cust_tab th, .list .listHead td, .list .listHead th {
     text-align: left;
     background-color: #DAE5EE;
+    font-weight: normal;
 }
 
 .list .listHead td {
@@ -523,9 +487,10 @@ div.tab button.active {	background-color: #ccc;}
 #cust_tab th#head, .list th#head {
     text-align: left;
     background-color: #bfd5e7;
+    font-weight: bold;
 }
 
-#cust_tab tr.form_head th:nth-child(1), .list tr.listHead td:nth-child(1) { border-right: 0px }
+#cust_tab tr.form_head th:nth-child(1) { border-right: 0px }
 #cust_tab tr.form_head th:nth-child(2), .list tr.listHead td:nth-child(2) { border-left: 0px }
 #cust_tab tr.form_data td:nth-child(1) { text-align: right; }
 
@@ -568,12 +533,32 @@ div.tab button.active {	background-color: #ccc;}
 
 @media screen and ( max-width: 769px ) {
 	#navbarSupportedContent li {line-height: 15px;}
+	
+	.search {
+    width: 100%;
+    margin-bottom: 15px;
+    overflow-y: hidden;
+  }
+}
+
+@media screen and ( max-width: 1127px ) and (min-width: 770px) {
+	.nav-link i{margin-bottom: 8px;}
 }
 
 .public_form {
-	border: 3px solid #f1f1f1;
+	border: 3px solid #ece9e9;
 	padding: 24px;
 	margin: 16px 0px;
 	background: #f0efef;
 }
 .public_head {margin: 16px 0px;}
+
+.export_div{float:left;margin: 0px;padding-left: 1px;}
+.export_div a{font-size: 18px;margin-right: 8px;}
+
+.dashboard {margin-top: 20px;}
+.dashboard .SectionHeader{margin: 20px 0px 0px;}
+
+.ui-dialog .ui-button{outline: none;}
+.ui-dialog-titlebar{background-color: #343a40 !important;}
+.ui-dialog-title{color: white;}

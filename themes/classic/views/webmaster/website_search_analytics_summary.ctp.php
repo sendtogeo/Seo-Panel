@@ -23,7 +23,6 @@ if(!$summaryPage && (!empty($printVersion) || !empty($pdfVersion))) {
     <?php
 } else {
 	
-	if ($summaryPage && ($searchInfo['report_type'] != 'website-search-reports')) echo "<br><br><br>";
 	echo showSectionHead($spTextTools['Website Search Summary']);
     
     // if not summary page show the filters
