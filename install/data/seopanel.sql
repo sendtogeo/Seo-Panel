@@ -1433,6 +1433,13 @@ ALTER TABLE `social_media_link_results` ADD CONSTRAINT `social_media_link_rel` F
 INSERT INTO `seotools` (`id`, `name`, `url_section`, `user_access`, `reportgen`, `cron`, `priority`, `status`) 
 VALUES (NULL, 'Social Media Checker', 'sm-checker', '1', '1', '1', '100', '1');
 
+--
+-- Seo Panel 4.0.0 changes
+--
+
+INSERT INTO `settings` (`set_label`, `set_name`, `set_val`, `set_category`, `set_type`, `display`) VALUES
+('Mail Encryption', 'SP_MAIL_ENCRYPTION', '', 'system', 'medium', 1);
+
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
