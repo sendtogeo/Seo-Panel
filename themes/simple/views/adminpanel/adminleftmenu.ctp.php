@@ -7,10 +7,10 @@
 <?php 
 foreach($menuList as $i => $menuInfo){
 	if($menuSelected == $menuInfo['url_section']){
-			$imgSrc = "hide";
-			$style = "";
+		$menuClass = "fa-caret-up";
+		$style = "";
 	}else{
-		$imgSrc = "more";
+		$menuClass = "fa-caret-down";
 		$style = 'none';
 	}
 	$button = "img".$menuInfo['id'];
@@ -20,8 +20,11 @@ foreach($menuList as $i => $menuInfo){
 		menuList[<?php echo $i?>] = '<?php echo $subMenuId?>';
 		buttonList[<?php echo $i?>] = '<?php echo $button?>';
 	</script>
-	<li class="tab">
-		<a href='javascript:void(0);' onclick="showMenu('<?php echo $button?>','<?php echo $subMenuId?>')"><img id="<?php echo $button?>" src="<?php echo SP_IMGPATH."/".$imgSrc?>.gif"> <?php echo $menuInfo['name']?></a>
+	<li class="tab" onclick="showMenu('<?php echo $button?>','<?php echo $subMenuId?>')">
+		<i id="<?php echo $button?>" class="fas <?php echo $menuClass?>"></i>
+		<a href='javascript:void(0);'>
+			<?php echo $menuInfo['name']?>
+		</a>
 	</li>
 	<li id="<?php echo $subMenuId?>" class="subtab" style="display:<?php echo $style?>;padding-left:0px;">
 	<?php
@@ -31,7 +34,7 @@ foreach($menuList as $i => $menuInfo){
 			?>
 			<script type="text/javascript">scriptList[<?php echo $i?>] = 'websites.php';</script>			
 			<ul id='subui'>
-				<li><a href="javascript:void(0);" onclick="scriptDoLoad('websites.php', 'content')"><?php echo $spTextPanel['Website Manager']?></a></li>
+				<li><a href="javascript:void(0);" onclick="scriptDoLoad('websites.php', 'content')" class="menu_active"><?php echo $spTextPanel['Website Manager']?></a></li>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('websites.php', 'content', 'sec=new')"><?php echo $spTextPanel['New Website']?></a></li>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('websites.php', 'content', 'sec=import')"><?php echo $spTextPanel['Import Websites']?></a></li>
 				<li>

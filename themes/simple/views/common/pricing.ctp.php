@@ -1,9 +1,9 @@
-<div>
-	<div class="col">
-        <?php echo getRoundTabTop(); ?>
-        <div id="round_content">
-    		<div class="Block">
-    			<?php echo showSectionHead($spTextSubscription['Plans and Pricing']); ?>
+<div class="container col-md-10">
+	<h2 class="public_head">
+		<i class="fas fa-money-check-alt"></i>
+		<?php echo $spTextSubscription['Plans and Pricing']?>
+	</h2>
+	<div class="public_form">
     			
     			<table id="cust_tab">
     				
@@ -47,7 +47,7 @@
 											?>
 										</b>
 										<br><br>
-										<a class="actionbut" href="<?php echo $orderLink; ?>" style="font-size: 16px;"><?php echo $spText['common']['Sign Up']; ?> &gt;&gt;</a>
+										<a class="btn btn-success" href="<?php echo $orderLink; ?>" style="font-size: 16px;"><?php echo $spText['common']['Sign Up']; ?> &gt;&gt;</a>
 										<br><br>
 										<?php
 									} else {																		
@@ -73,7 +73,7 @@
 							?>
 							<td align="center">
 								<br>
-								<a class="actionbut" href="<?php echo $orderLink; ?>" style="font-size: 16px;"><?php echo $spText['common']['Sign Up']; ?> &gt;&gt;</a>
+								<a class="btn btn-success" href="<?php echo $orderLink; ?>"><?php echo $spText['common']['Sign Up']; ?> &gt;&gt;</a>
 								<br><br>
 							</td>
 						<?php }?>
@@ -82,7 +82,4 @@
     			</table>
 				
     		</div>
-		</div>
-		<?php echo getRoundTabBot(); ?>
-	</div>
 </div>
