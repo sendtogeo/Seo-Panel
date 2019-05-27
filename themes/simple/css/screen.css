@@ -535,12 +535,6 @@ div.tab button.active {	background-color: #ccc;}
 
 @media screen and ( max-width: 769px ) {
 	#navbarSupportedContent li {line-height: 15px;}
-	
-	.search {
-    width: 100%;
-    margin-bottom: 15px;
-    overflow-y: hidden;
-  }
 }
 
 @media screen and ( max-width: 1127px ) and (min-width: 770px) {
