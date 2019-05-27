@@ -378,6 +378,7 @@ $(function() {
 	$("#subui a").click(function() {
 		$("#subui a").removeClass("menu_active");
 		$(this).addClass("menu_active");
+		$('.navbar-collapse').collapse('hide');	
 	});
 	
 });

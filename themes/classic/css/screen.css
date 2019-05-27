@@ -4,6 +4,7 @@ ol, ul, li { margin: 0; padding: 0; }
 ul li {	list-style-type: none; }
 
 input, select{margin: 1px;}
+select{padding: 4px 4px 5px;}
 
 .plainHead td, .squareHead td, .squareSubHead td {
 	text-align: center;
@@ -43,7 +44,7 @@ input, select{margin: 1px;}
 #left_menu_sec .navbar{padding: 0px;}
 #left_menu_sec .navbar-toggler{margin: 4px;}
 #left_menu_sec .navbar-nav{width: 100%;}
-#menu {width: 100%; margin-left: 1px;}
+#menu {width: 100%; margin-left: 1px;border-top: 1px solid #CFCFCF;}
 #menu li {
 	padding-left: 2px;
 	background-color:#DAE5EE;
@@ -60,6 +61,7 @@ input, select{margin: 1px;}
 	color: #808080;
 	padding: 8px 4px;
 }
+
 .tab a {
 	color: #555753;
 }

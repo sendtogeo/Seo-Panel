@@ -8,7 +8,16 @@
     $spTitle = empty($spTitle) ? SP_TITLE : $spTitle;
     $spDescription = empty($spDescription) ? SP_DESCRIPTION : $spDescription;
     $spKeywords = empty($spKeywords) ? SP_KEYWORDS : $spKeywords;
-    $spKey = "v" . substr(SP_INSTALLED, 2);    
+    $spKey = "v" . substr(SP_INSTALLED, 2);
+    
+    // theme wise changes
+    if (stristr(SP_VIEWPATH, '/simple/')) {
+    	$siteBgClass = "bg-primary";
+    	$siteFooterBgClass = "bg-primary";
+    } else {
+    	$siteBgClass = "bg-dark";
+    	$siteFooterBgClass = "bg-dark text-muted";
+    }
     ?>
     <title><?php echo stripslashes($spTitle)?></title>
     <meta name="description" content="<?php echo $spDescription?>" />
@@ -51,7 +60,7 @@
     var wantproceed = '<?php  echo $spText['label']['wantproceed']; ?>';
     </script>
     
-    <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-md navbar-dark <?php echo $siteBgClass;?>">
     	<a class="navbar-brand" href="<?php echo SP_WEBPATH?>">
     		<img src="<?php echo !empty($custSiteInfo['site_logo']) ? $custSiteInfo['site_logo'] : SP_IMGPATH . "/logo_red_sm.png";?>">
     	</a>
@@ -78,7 +87,7 @@
     	</div>
     </div>
     
-    <div class="container-fluid fixed-bottom bg-dark text-muted center footer-sp">
+    <div class="container-fluid fixed-bottom <?php echo $siteFooterBgClass;?> center footer-sp">
     	<?php include_once(SP_VIEWPATH."/common/footer.ctp.php"); ?>
     </div>
     
