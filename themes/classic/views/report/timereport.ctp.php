@@ -1,7 +1,4 @@
-<table width="100%" border="0" cellspacing="0" cellpadding="2px;" class="list">
-	<tr>
-	<td width='33%'>
-	<table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
+<table width="100%" class="list">
 	<tr class="listHead">
 		<td class="left" colspan='2'><?php echo $seInfo['domain']?></td>
 		<td class="right">&nbsp;</td>
@@ -35,21 +32,11 @@
 			$i++;
 		}
 	}else{
-		?>
-		<tr class="blue_row">
-		    <td class="tab_left_bot_noborder">&nbsp;</td>
-		    <td class="td_bottom_border" colspan="1">No Records Found!</td>
-		    <td class="tab_right_bot">&nbsp;</td>
-		</tr>
-		<?php		
+		echo showNoRecordsList($colCount-2);
 	} 
 	?>
 	<tr class="listBot">
 		<td class="left" colspan="<?php echo ($colCount-1)?>"></td>
 		<td class="right"></td>
 	</tr>
-	</table>
-	</td>
-	</tr>
 </table>
-</div>

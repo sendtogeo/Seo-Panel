@@ -7,10 +7,10 @@
 <?php 
 foreach($menuList as $i => $menuInfo){
 	if($menuSelected == $menuInfo['url_section']){
-			$imgSrc = "hide";
-			$style = "";
+		$menuClass = "fa-caret-up";
+		$style = "";
 	}else{
-		$imgSrc = "more";
+	    $menuClass = "fa-caret-down";
 		$style = 'none';
 	}
 	$button = "img".$menuInfo['id'];
@@ -20,8 +20,11 @@ foreach($menuList as $i => $menuInfo){
 		menuList[<?php echo $i?>] = '<?php echo $subMenuId?>';
 		buttonList[<?php echo $i?>] = '<?php echo $button?>';
 	</script>
-	<li class="tab">
-		<a href='javascript:void(0);' onclick="showMenu('<?php echo $button?>','<?php echo $subMenuId?>')"><img id="<?php echo $button?>" src="<?php echo SP_IMGPATH."/".$imgSrc?>.gif"> <?php echo $spTextTools[$menuInfo['url_section']]?></a>
+	<li class="tab" onclick="showMenu('<?php echo $button?>','<?php echo $subMenuId?>')">
+		<i id="<?php echo $button?>" class="fas <?php echo $menuClass?>"></i>
+		<a href='javascript:void(0);'>
+			<?php echo $spTextTools[$menuInfo['url_section']]?>
+		</a>
 	</li>
 	<li id="<?php echo $subMenuId?>" class="subtab" style="display:<?php echo $style?>;padding-left:0px;">
 	<?php
@@ -30,7 +33,7 @@ foreach($menuList as $i => $menuInfo){
 			?>
 			<script type="text/javascript">scriptList[<?php echo $i?>] = 'reports.php?sec=reportsum';</script>
 			<ul id='subui'>
-				<li><a href="javascript:void(0);" onclick="scriptDoLoad('reports.php?sec=reportsum', 'content')"><?php echo $spTextTools['Keyword Position Summary']?></a></li>
+				<li><a href="javascript:void(0);" onclick="scriptDoLoad('reports.php?sec=reportsum', 'content')" class="menu_active"><?php echo $spTextTools['Keyword Position Summary']?></a></li>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('reports.php', 'content')"><?php echo $spTextTools['Detailed Position Reports']?></a></li>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('graphical-reports.php', 'content')"><?php echo $spTextTools['Graphical Position Reports']?></a></li>
 				<?php if (isQuickCheckerEnabled()) {?>

@@ -1,5 +1,4 @@
 <?php 
-if ($summaryPage && ($searchInfo['report_type'] != 'sitemap-reports')) echo "<br><br><br>";
 echo showSectionHead($spTextPanel['Sitemaps'] . "(" . $spTextTools['webmaster-tools'] . ")" );
 ?>
 
@@ -41,7 +40,7 @@ $(document).ready(function() {
 <table id="cust_tab" class="tablesorter">
 	<thead>
 		<tr class="listHead">
-			<th style="width: 30px;"><?php echo $spText['common']['Id']?></th>
+			<th><?php echo $spText['common']['Id']?></th>
 			<th><?php echo $spText['common']['Url']?></th>
 			<th><?php echo $spText['common']['Total']?></th>
 			<th><?php echo $spTextHome['Indexed']?></th>

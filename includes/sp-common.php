@@ -62,7 +62,7 @@ function showDiv($divId) {
 
 # func to show no results
 function showNoRecordsList($colspan, $msg='', $plain=false) {
-	$msg = empty($msg) ? $_SESSION['text']['common']['No Records Found']."!" : $msg;
+	$msg = empty($msg) ? $_SESSION['text']['common']['No Records Found'] : $msg;
 	$data['colspan'] = $colspan;
 	$data['msg'] = $msg;
 	$data['plain'] = $plain;
@@ -365,18 +365,17 @@ function exportToCsv($fileName, $content) {
 # func to show printer hearder
 function showPrintHeader($headMsg='', $doPrint=true) {
     ?>
-    <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-	<html xmlns="http://www.w3.org/1999/xhtml">
-    <head>
-    	<title></title>
-    	<meta content="text/html; charset=UTF-8" http-equiv="content-type" />
-		<script type="text/javascript">
+    <!doctype html>
+	<html lang="en">
+	<head>
+    	<meta charset="utf-8">
+    	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    	<script type="text/javascript">
 			<?php if ($doPrint) { ?>
 				window.print();
 			<?php }?>
 		</script>		
 	    <style type="text/css">
-		    BODY{background-color:white;padding:50px 10px;}
 		    <?php echo readFileContent(SP_THEME_ABSPATH . "/css/screen.css"); ?>
 	    </style>    
     </head>
@@ -402,7 +401,7 @@ function showPrintFooter($spText) {
 		$copyrightTxt = str_replace('[year]', date('Y'), $spText['common']['copyright']);
 	}
     ?>
-    <div style="clear: both; margin-top: 10px;"><?php echo $copyrightTxt;?></div>
+    <div class="center footer-sp"><?php echo $copyrightTxt;?></div>
     </body>
     </html>
 	<?php
@@ -432,6 +431,11 @@ function sendMail($from, $fromName, $to ,$subject,$content, $attachment = ''){
 		$mail->Username = SP_SMTP_USERNAME;
 		$mail->Password = SP_SMTP_PASSWORD;
 		$mail->Port = SP_SMTP_PORT;
+		
+		// if mail encryption enabled
+		if (defined('SP_MAIL_ENCRYPTION') && (SP_MAIL_ENCRYPTION != '')) {
+            $mail->SMTPSecure = SP_MAIL_ENCRYPTION;
+		}		
 	}
 
 	$mail->From = $from;
@@ -729,5 +733,15 @@ function formatNumber($number) {
 	}
 	
 	return $number;
+}
+
+function showExportDiv($pdfLink, $csvLink, $printLink) {
+    ?>
+	<div class="export_div">
+		<a href="<?php echo $pdfLink?>"><i class="fas fa-file-pdf"></i></a>
+		<a href="<?php echo $csvLink?>"><i class="fas fa-file-csv"></i></a>
+		<a target="_blank" href="<?php echo $printLink?>"><i class="fas fa-print"></i></a>
+	</div>
+    <?php
 }
 ?>

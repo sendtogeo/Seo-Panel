@@ -1,3 +1,4 @@
-<div id='subcontent'>
-	<p class='note notesuccess'><?php echo $successMsg;?></p>
+<div class="alert alert-success">
+	<button type="button" class="close" data-dismiss="alert">&times;</button>
+	<?php echo $successMsg;?>
 </div>

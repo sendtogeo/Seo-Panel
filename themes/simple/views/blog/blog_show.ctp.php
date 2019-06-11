@@ -1,8 +1,5 @@
 <?php $publishedTime = strtotime($blogInfo['updated_time'])?>
-<div class="Center" style='width:100%;'>
-    <div class="col" style="">
-        <?php echo getRoundTabTop(); ?>
-        <div id="round_content">
+<div class="col" id="home_screen">
             <div class="blog_search">
             	<form action="<?php echo SP_WEBPATH . "/blog.php"?>" method="post">
             		<input type="text" name="search" value="<?php echo $post['search']?>" placeholder="Search..">
@@ -32,7 +29,4 @@
             		?>
             	</div>
             </div>
-		</div>
-		<?php echo getRoundTabBot(); ?>
-    </div>
 </div>

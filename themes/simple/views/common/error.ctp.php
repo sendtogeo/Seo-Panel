@@ -1,3 +1,4 @@
-<div id='subcontent'>
-	<p class='note error'><?php echo $errorMsg;?></p>
+<div class="alert alert-danger">
+	<button type="button" class="close" data-dismiss="alert">&times;</button>
+	<?php echo $errorMsg;?>
 </div>

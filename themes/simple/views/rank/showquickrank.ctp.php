@@ -4,7 +4,7 @@
 	<tr>				
 		<th><?php echo $spText['common']['Website']?>: </th>
 		<td>
-			<textarea name="website_urls" cols="150" rows="8"></textarea>
+			<textarea name="website_urls" cols="50" rows="8"></textarea>
 		</td>
 	</tr>
 	<tr>
