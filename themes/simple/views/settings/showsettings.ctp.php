@@ -23,9 +23,14 @@ if ($category == "moz") {
 	<?php
 } else if ($category == "google") {
 	?>
-	<div id="topnewsbox" style="margin-bottom: 20px;">
+	<div id="topnewsbox">
 		<a class="bold_link" href="https://support.google.com/googleapi/answer/6158862?hl=en" target="_blank">
 			<?php echo $spTextSettings['click-to-get-google-api-key']; ?> &gt;&gt;
+		</a>
+	</div>
+	<div id="topnewsbox" style="margin-bottom: 20px;">
+		<a class="bold_link" href="http://docs.seopanel.in/user_guide/settings.html#google-oauth2-credentials" target="_blank">
+			<?php echo $spTextSettings['click-to-get-google-api-client-id']; ?> &gt;&gt;
 		</a>
 	</div>
 	<?php
@@ -69,7 +74,10 @@ if ($category == "moz") {
 		}
 		
 		// sp demo settings
-		$demoCheckArr = array('SP_API_KEY', 'API_SECRET', 'SP_SMTP_PASSWORD', 'SP_MOZ_API_ACCESS_ID', 'SP_MOZ_API_SECRET', 'SP_GOOGLE_API_KEY');
+		$demoCheckArr = array(
+			'SP_API_KEY', 'API_SECRET', 'SP_SMTP_PASSWORD', 'SP_MOZ_API_ACCESS_ID', 'SP_MOZ_API_SECRET', 'SP_GOOGLE_API_KEY',
+			'SP_GOOGLE_API_CLIENT_ID', 'SP_GOOGLE_API_CLIENT_SECRET', 'SP_GOOGLE_ANALYTICS_TRACK_CODE'
+		);
 		if (SP_DEMO && in_array($listInfo['set_name'], $demoCheckArr)) {
 			$listInfo['set_val'] = "********";
 		}
@@ -153,7 +161,16 @@ if ($category == "moz") {
 		</tr>
 		<?php 
 	}
-	?>		
+	
+	if ($category == "google") {
+		?>
+		<tr class="white_row">
+			<td class="td_left_col"><?php echo $spTextSettings["Authorised redirect URI"]?></td>
+			<td class="td_right_col"><?php echo SP_WEBPATH . "/admin-panel.php?sec=connections&action=connect_return&category=google"?></td>
+		</tr>
+		<?php
+	}
+	?>
 	<tr class="blue_row">
 		<td class="tab_left_bot_noborder"></td>
 		<td class="tab_right_bot"></td>

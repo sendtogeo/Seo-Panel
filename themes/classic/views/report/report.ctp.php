@@ -1,10 +1,10 @@
 <?php echo showSectionHead($spTextKeyword['Detailed Keyword Position Reports']); ?>
 <form id='search_form'>
-<table width="100%" border="0" cellspacing="0" cellpadding="0" class="search">
+<table width="100%" class="search">
 	<tr>
 		<th><?php echo $spText['common']['Website']?>: </th>
 		<td>
-			<select name="website_id" id="website_id" style='width:190px;' onchange="doLoad('website_id', 'keywords.php', 'keyword_area', 'sec=keywordbox')">
+			<select name="website_id" id="website_id"  onchange="doLoad('website_id', 'keywords.php', 'keyword_area', 'sec=keywordbox')">
 				<?php foreach($websiteList as $websiteInfo){?>
 					<?php if($websiteInfo['id'] == $websiteId){?>
 						<option value="<?php echo $websiteInfo['id']?>" selected><?php echo $websiteInfo['name']?></option>
@@ -22,10 +22,13 @@
 	<tr>
 		<th><?php echo $spText['common']['Period']?>:</th>
 		<td>
-			<input type="text" style="width: 80px;margin-right:0px;" value="<?php echo $fromTime?>" name="from_time"/> 
-			<img align="bottom" onclick="displayDatePicker('from_time', false, 'ymd', '-');" src="<?php echo SP_IMGPATH?>/cal.gif"/> 
-			<input type="text" style="width: 80px;margin-right:0px;" value="<?php echo $toTime?>" name="to_time"/> 
-			<img align="bottom" onclick="displayDatePicker('to_time', false, 'ymd', '-');" src="<?php echo SP_IMGPATH?>/cal.gif"/>
+			<input type="text" value="<?php echo $fromTime?>" name="from_time" id="from_time"/>
+			<input type="text" value="<?php echo $toTime?>" name="to_time" id="to_time"/>
+			<script>
+			  $( function() {
+			    $( "#from_time, #to_time").datepicker({dateFormat: "yy-mm-dd"});
+			  } );
+		  	</script>
 		</td>		
 		<th><?php echo $spText['common']['Search Engine']?>: </th>
 		<td>
@@ -46,10 +49,7 @@
 ?>
 
 <div id='subcontent'>
-<table width="100%" border="0" cellspacing="0" cellpadding="2px;" class="list">
-	<tr>
-	<td width='33%'>
-	<table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
+<table width="100%" class="list">
 	<tr class="listHead">
 		<td class="left"><?php echo $spText['common']['Date']?></td>
 		<td><?php echo $seInfo['domain']?> <?php echo $spText['common']['Results']?></td>
@@ -86,21 +86,12 @@
 			$i++;
 		}
 	}else{
-		?>
-		<tr class="blue_row">
-		    <td class="tab_left_bot_noborder">&nbsp;</td>
-		    <td class="td_bottom_border" colspan="1"><?php echo $spText['common']['No Records Found']?>!</td>
-		    <td class="tab_right_bot">&nbsp;</td>
-		</tr>
-		<?php		
+		echo showNoRecordsList($colCount-2);
 	} 
 	?>
 	<tr class="listBot">
 		<td class="left" colspan="<?php echo ($colCount-1)?>"></td>
 		<td class="right"></td>
-	</tr>
-	</table>
-	</td>
 	</tr>
 </table>
 </div>

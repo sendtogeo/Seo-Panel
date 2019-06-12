@@ -1,6 +1,6 @@
 <?php echo showSectionHead($spTextTools['Rank Reports']); ?>
 <form id='search_form'>
-<table width="100%" border="0" cellspacing="0" cellpadding="0" class="search">
+<table width="100%" class="search">
 	<tr>
 		<th><?php echo $spText['common']['Website']?>: </th>
 		<td>
@@ -16,9 +16,9 @@
 		</td>
 		<th><?php echo $spText['common']['Period']?>:</th>
 		<td>
-			<input type="text" style="width: 80px;margin-right:0px;" value="<?php echo $fromTime?>" name="from_time"/> 
+			<input type="text" value="<?php echo $fromTime?>" name="from_time"/> 
 			<img align="bottom" onclick="displayDatePicker('from_time', false, 'ymd', '-');" src="<?php echo SP_IMGPATH?>/cal.gif"/> 
-			<input type="text" style="width: 80px;margin-right:0px;" value="<?php echo $toTime?>" name="to_time"/> 
+			<input type="text" value="<?php echo $toTime?>" name="to_time"/> 
 			<img align="bottom" onclick="displayDatePicker('to_time', false, 'ymd', '-');" src="<?php echo SP_IMGPATH?>/cal.gif"/>
 		</td>
 		<td colspan="2"><a href="javascript:void(0);" onclick="scriptDoLoadPost('rank.php', 'search_form', 'content', '&sec=reports')" class="actionbut"><?php echo $spText['button']['Show Records']?></a></td>
@@ -36,10 +36,7 @@
 ?>
 
 <div id='subcontent'>
-<table width="100%" border="0" cellspacing="0" cellpadding="2px;" class="list" align='center'>
-	<tr>
-	<td width='33%'>
-	<table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
+<table width="100%" class="list">
 	<tr class="listHead">
 		<td class="left"><?php echo $spText['common']['Date']?></td>
 		<td><?php echo $spText['common']['MOZ Rank']?></td>
@@ -48,7 +45,7 @@
 		<td class="right"><?php echo $spText['common']['Alexa Rank']?></td>
 	</tr>
 	<?php
-	$colCount = 4; 
+	$colCount = 5; 
 	if(count($list) > 0){
 		$catCount = count($list);
 		$i = 0;
@@ -74,21 +71,12 @@
 			$i++;
 		}
 	}else{
-		?>
-		<tr class="blue_row">
-		    <td class="tab_left_bot_noborder">&nbsp;</td>
-		    <td class="td_bottom_border" colspan="<?php echo ($colCount-1)?>"><?php echo $spText['common']['No Records Found']?>!</td>
-		    <td class="tab_right_bot">&nbsp;</td>
-		</tr>
-		<?php		
+		echo showNoRecordsList($colCount-2);
 	} 
 	?>
 	<tr class="listBot">
 		<td class="left" colspan="<?php echo ($colCount-1)?>"></td>
 		<td class="right"></td>
-	</tr>
-	</table>
-	</td>
 	</tr>
 </table>
 </div>

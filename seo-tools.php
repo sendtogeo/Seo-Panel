@@ -27,12 +27,16 @@ include_once(SP_CTRLPATH."/seotools.ctrl.php");
 $controller = New SeoToolsController();
 $controller->view->menu = 'seotools';
 
-$controller->set('spTitle', 'Seo Panel: Provides lots of hot seo tools to increase and track the performace your websites');
-$controller->set('spDescription', 'The major features of Seo Panel are Automatic Directory Submission,Keyword position checker,Sitemap Generator,Rank Checker,Backlinks Checker,Meta Tag Generator.');
-$controller->set('spKeywords', 'seo panel tools,Automatic Directory Submission,Keyword position checker,Sitemap Generator,Rank Checker,Backlinks Checker,Meta Tag Generator');
+// set site details according to customizer plugin
+$custSiteInfo = getCustomizerDetails();
+$siteName = !empty($custSiteInfo['site_name']) ? $custSiteInfo['site_name'] : "Seo Panel";
+$controller->set('spTitle', "$siteName: Provides lots of hot seo tools to increase and track the performace your websites");
+$controller->set('spDescription', "The major features of $siteName are Automatic Directory Submission,Keyword position checker,Sitemap Generator,Rank Checker,Backlinks Checker,Meta Tag Generator.");
+$controller->set('spKeywords', "$siteName tools,Automatic Directory Submission,Keyword position checker,Sitemap Generator,Rank Checker,Backlinks Checker,Meta Tag Generator");
 $controller->set('spTextTools', $controller->getLanguageTexts('seotools', $_SESSION['lang_code']));
 $controller->set('spTextKeyword', $controller->getLanguageTexts('keyword', $_SESSION['lang_code']));
 $controller->set('spTextPanel', $controller->getLanguageTexts('panel', $_SESSION['lang_code']));
+$controller->set('spTextSA', $controller->getLanguageTexts('siteauditor', $_SESSION['lang_code']));
 
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	

@@ -1,6 +1,6 @@
 <?php echo showSectionHead($spTextDir['Directory Submission Reports']); ?>
 <form id='search_form'>
-<table width="100%" border="0" cellspacing="0" cellpadding="0" class="search">
+<table width="100%" class="search">
 	<tr>
 		<th><?php echo $spText['common']['Name']?>: </th>
 		<td width="100px">
@@ -48,10 +48,7 @@
 
 <div id='subcontent'>
 <?php echo $pagingDiv?>
-<table width="100%" border="0" cellspacing="0" cellpadding="2px;" class="list" align='center'>
-	<tr>
-	<td width='33%'>
-	<table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
+<table width="100%" class="list">
 	<tr class="listHead">
 		<td class="left"><?php echo $spText['common']['Directory']?></td>
 		<td><?php echo $spText['common']['Date']?></td>
@@ -108,9 +105,6 @@
 	<tr class="listBot">
 		<td class="left" colspan="<?php echo ($colCount-1)?>"></td>
 		<td class="right"></td>
-	</tr>
-	</table>
-	</td>
 	</tr>
 </table>
 </div>

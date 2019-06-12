@@ -32,7 +32,7 @@ class SeoToolsController extends Controller{
 		}else{
 			$sql = "select * from seotools where status=1 and user_access=1";			
 		}
-		$sql .= " order by id";
+		$sql .= " order by priority, id";
 		
 		$menuList = array();
 		$toolList = $this->db->select($sql);
@@ -101,6 +101,14 @@ class SeoToolsController extends Controller{
 			case "pagespeed":
 				$defaultScript = "pagespeed.php";
 				break;
+				
+			case "webmaster-tools":
+				$defaultScript = "webmaster-tools.php";
+				break;
+				
+			case "sm-checker":
+				$defaultScript = "social_media.php";
+				break;
 
 			default:
 				$seoToolInfo = $this->__getSeoToolInfo('keyword-position-checker', 'url_section');
@@ -147,5 +155,34 @@ class SeoToolsController extends Controller{
 		$sql = "update seotools set $col=$status where id=$seoToolId";
 		$this->db->query($sql);
 	}
+
+	# func to edit seo tool
+	function editSeoTool($info, $error=false){
+	
+		if($error){
+			$this->set('post', $info);
+		}else{
+			$info['pid'] = intval($info['pid']);
+			$this->set('post', $this->__getSeoToolInfo($info['pid']));
+		}
+	
+		$this->render('seotools/editseotool');
+	}
+
+	function updateSeoTool($listInfo){
+	
+		$listInfo['id'] = intval($listInfo['id']);
+		$this->set('post', $listInfo);
+		$errMsg['priority'] = formatErrorMsg($this->validate->checkNumber($listInfo['priority']));
+		if(!$this->validate->flagErr){
+			$sql = "update seotools set	priority='".intval($listInfo['priority'])."' where id={$listInfo['id']}";
+			$this->db->query($sql);
+			$this->listSeoTools();
+		}else{
+			$this->set('errMsg', $errMsg);
+			$this->editSeoTool($listInfo, true);
+		}
+	}
+	
 }
 ?>

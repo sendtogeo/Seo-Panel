@@ -1,31 +1,22 @@
-<div class="Center" style='width:100%;'>
-    <div class="col" style="">
-        <div class="Block">
-            <table width="100%" border="0" cellspacing="0px" cellpadding="0">
-            	<tr>
-            		<td class="leftmenu" valign="top">
-            			<div class="selectmenu">
-                            <?php echo getRoundTabTop(); ?>
-                            <div id="round_content">            				
-            				    <?php include_once(SP_VIEWPATH."/seotools/leftmenu.ctp.php");?>
-            				</div>
-            				<?php echo getRoundTabBot(); ?>	
-            			</div>
-            		</td>
-            		<td width="10px">&nbsp;</td>
-            		<td valign="top">
-                        <?php echo getRoundTabTop(); ?>
-                        <div id="content">
-                			<?php if(!empty($defaultScript)) {?>
-                				<script type="text/javascript">
-                					scriptDoLoad('<?php echo $defaultScript?>', 'content', '<?php echo $defaultArgs?>');
-                				</script>
-                			<?php }?>
-        				</div>
-        				<?php echo getRoundTabBot(); ?>	
-            		</td>
-            	</tr>
-            </table>            
-        </div>
-    </div>
+<div class="col-md-2" id="left_menu_sec">
+	<nav class="navbar navbar-expand-md navbar-light bg-light">
+      	<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarLeftMenu"
+      		aria-controls="navbarLeftMenu" aria-expanded="false" aria-label="Toggle navigation">
+        	<span class="navbar-toggler-icon"></span>
+      	</button>      	
+    	<div class="collapse navbar-collapse" id="navbarLeftMenu">
+    		<ul class="navbar-nav mr-auto">
+    			<?php include_once(SP_VIEWPATH."/seotools/leftmenu.ctp.php");?>
+    		</ul>
+    	</div>
+    </nav>
+</div>
+<div class="col-md-10">
+    <div id="content">
+		<?php if(!empty($defaultScript)) {?>
+			<script type="text/javascript">
+				scriptDoLoad('<?php echo $defaultScript?>', 'content', '<?php echo $defaultArgs?>');
+			</script>
+		<?php }?>
+	</div>
 </div>

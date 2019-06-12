@@ -48,8 +48,10 @@ class View extends Seopanel{
 			$langCtrler = New LanguageController();
 			$langList = $langCtrler->__getAllLanguages(" where translated=1");
 			$userLang = empty($_SESSION['lang_code']) ? SP_DEFAULTLANG : $_SESSION['lang_code'];
-			$redirectUrl = $langCtrler->getRedirectUrl();			
+			$redirectUrl = $langCtrler->getRedirectUrl();
 			
+			$spTextPanel = $langCtrler->getLanguageTexts('panel', $_SESSION['lang_code']);
+			$spTextLogin = $langCtrler->getLanguageTexts('login', $_SESSION['lang_code']);
 			include_once(SP_VIEWPATH."/layout/".$layout.".ctp.php");
 		}
 	}
@@ -100,6 +102,9 @@ class View extends Seopanel{
 				return $viewContent;
 			}
 		}else{
+			$langCtrler = New LanguageController();
+			$spTextPanel = $langCtrler->getLanguageTexts('panel', $_SESSION['lang_code']);
+			$spTextLogin = $langCtrler->getLanguageTexts('login', $_SESSION['lang_code']);
 			include(SP_VIEWPATH."/layout/".$layout.".ctp.php");
 		}
 	}

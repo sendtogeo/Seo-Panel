@@ -10,9 +10,9 @@ $searchFun = "scriptDoLoadPost('proxy.php', 'listform', 'content')";
 		<td><input type="text" name="keyword" value="<?php echo htmlentities($keyword, ENT_QUOTES)?>" onblur="<?php echo $searchFun?>"></td>
 		<th><?php echo $spText['common']['Period']?>:</th>
     	<td width="236px">
-    		<input type="text" style="width: 80px;margin-right:0px;" value="<?php echo $fromTime?>" name="from_time"/> 
+    		<input type="text" value="<?php echo $fromTime?>" name="from_time"/> 
     		<img align="bottom" onclick="displayDatePicker('from_time', false, 'ymd', '-');" src="<?php echo SP_IMGPATH?>/cal.gif"/> 
-    		<input type="text" style="width: 80px;margin-right:0px;" value="<?php echo $toTime?>" name="to_time"/> 
+    		<input type="text" value="<?php echo $toTime?>" name="to_time"/> 
     		<img align="bottom" onclick="displayDatePicker('to_time', false, 'ymd', '-');" src="<?php echo SP_IMGPATH?>/cal.gif"/>
     	</td>
 		<th><?php echo $spText['label']['Order By']?>: </th>

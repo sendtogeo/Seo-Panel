@@ -642,7 +642,7 @@ CREATE TABLE IF NOT EXISTS `information_list` (
 ) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 INSERT INTO `information_list` (`id`, `info_type`, `content`, `update_date`) VALUES
-(1, 'news', '	<a style="text-decoration: none" href="http://www.seopanel.in/aboutus/sponsors/" target="_blank" id=''news_info''>\n		<b style="color:red;">New*</b> <b>Donate</b> <b style="color: green">$250</b> \n		and become a <b>premium sponsor of Seo Panel</b>. Also get <b>all plugins</b> we develop for Free!\n	</a>\n	', '2016-12-16');
+(1, 'news', '	<a style="text-decoration: none" href="http://www.seopanel.in/aboutus/sponsors/" target="_blank" id=''news_info''>\n		<b style="color:red;">New*</b> <b>Donate</b> <b style="color: green">$500</b> \n		and become a <b>premium sponsor of Seo Panel</b>. Also get <b>all plugins</b> we develop for Free!\n	</a>\n	', '2016-12-16');
 
 CREATE TABLE IF NOT EXISTS `keywordcrontracker` (
 `id` bigint(20) unsigned NOT NULL,
@@ -851,7 +851,7 @@ INSERT INTO `settings` (`id`, `set_label`, `set_name`, `set_val`, `set_category`
 (40, 'API Secret', 'API_SECRET', '', 'api', 'medium', 1),
 (41, 'Company Name', 'SP_COMPANY_NAME', 'Seo Panel', 'system', 'medium', 1),
 (42, 'Currency', 'SP_PAYMENT_CURRENCY', 'USD', 'system', 'medium', 1),
-(43, 'Seo Panel version', 'SP_VERSION_NUMBER', '3.13.0', 'system', 'medium', 0),
+(43, 'Seo Panel version', 'SP_VERSION_NUMBER', '4.0.0', 'system', 'medium', 0),
 (44, 'Moz API Link', 'SP_MOZ_API_LINK', 'http://lsapi.seomoz.com/linkscape', 'moz', 'medium', 0),
 (45, 'Moz API Link', 'SP_MOZ_API_ACCESS_ID', '', 'moz', 'large', 1),
 (46, 'Moz API Link', 'SP_MOZ_API_SECRET', '', 'moz', 'large', 1),
@@ -1000,7 +1000,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `created` int(11) NOT NULL,
   `status` tinyint(4) DEFAULT '1',
   `expiry_date` date DEFAULT NULL
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 INSERT INTO `users` (`id`, `utype_id`, `username`, `password`, `first_name`, `last_name`, `email`, `lang_code`, `created`, `status`, `expiry_date`) VALUES
 (1, 1, 'spadmin', 'a4d312c461703c46a56b1bdcda9b5cdc', 'Seo Panel', 'Admin', '', 'en', 0, 1, NULL);
@@ -1051,7 +1051,7 @@ CREATE TABLE IF NOT EXISTS `websites` (
   `user_id` int(11) DEFAULT NULL,
   `status` tinyint(1) NOT NULL,
   `crawled` tinyint(1) NOT NULL DEFAULT '0'
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
 ALTER TABLE `auditorpagelinks`
@@ -1260,6 +1260,185 @@ INSERT INTO `qwp_settings` (`set_label`, `set_name`, `set_val`, `set_type`) VALU
 ('Allow user to access the web proxy', 'QWP_ALLOW_USER_WEB_PROXY', '0', 'bool'),
 ('Allow web server to act as a proxy', 'QWP_ALLOW_WEB_SERVER_ACT_AS_PROXY', '1', 'bool')
 ON DUPLICATE KEY UPDATE `set_type`=`set_type`;
+
+--
+-- Seo Panel 3.14.0 changes
+--
+
+CREATE TABLE IF NOT EXISTS `user_tokens` (
+`id` bigint(20) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `access_token` text COLLATE utf8_unicode_ci NOT NULL,
+  `refresh_token` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `token_type` varchar(120) COLLATE utf8_unicode_ci NOT NULL,
+  `expires_in` int(11) NOT NULL DEFAULT '3600' COMMENT 'seconds',
+  `created` datetime NOT NULL,
+  `token_category` enum('google','twitter','facebook','linkedin') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'google'
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+ALTER TABLE `user_tokens` ADD PRIMARY KEY (`id`);
+ALTER TABLE `user_tokens` MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+
+INSERT INTO `settings` (`set_label`, `set_name`, `set_val`, `set_category`, `set_type`, `display`) VALUES 
+('Google API Client Id', 'SP_GOOGLE_API_CLIENT_ID', '', 'google', 'large', '1'),
+('Google API Client Secret', 'SP_GOOGLE_API_CLIENT_SECRET', '', 'google', 'large', '1'),
+('Google Analytics Tracking Code', 'SP_GOOGLE_ANALYTICS_TRACK_CODE', '', 'google', 'text', '1');
+
+ALTER TABLE `users` ADD column `confirm_code` varchar(120) NOT NULL DEFAULT '';
+ALTER TABLE `users` ADD column `confirm` tinyint(1) NOT NULL DEFAULT '0';
+
+CREATE TABLE IF NOT EXISTS `website_search_analytics` (
+`id` bigint(20) NOT NULL,
+  `website_id` int(11) NOT NULL,
+  `clicks` int(11) NOT NULL,
+  `impressions` int(11) NOT NULL,
+  `ctr` float NOT NULL,
+  `average_position` float NOT NULL,
+  `report_date` date NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+ALTER TABLE `website_search_analytics` ADD `source` ENUM( 'google', 'yahoo', 'bing', 'baidu', 'yandex' ) NOT NULL DEFAULT 'google';
+ALTER TABLE `website_search_analytics` ADD PRIMARY KEY (`id`), ADD KEY `website_id` (`website_id`);
+ALTER TABLE `website_search_analytics` MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+
+CREATE TABLE IF NOT EXISTS `keyword_analytics` (
+`id` bigint(20) NOT NULL,
+  `keyword_id` int(11) NOT NULL,
+  `clicks` int(11) NOT NULL,
+  `impressions` int(11) NOT NULL,
+  `ctr` float NOT NULL,
+  `average_position` float NOT NULL,
+  `report_date` date NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+ALTER TABLE `keyword_analytics` ADD `source` ENUM( 'google', 'yahoo', 'bing', 'baidu', 'yandex' ) NOT NULL DEFAULT 'google';
+ALTER TABLE `keyword_analytics` ADD PRIMARY KEY (`id`), ADD KEY `keyword_id` (`keyword_id`);
+ALTER TABLE `keyword_analytics` MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE `usertypes` CHANGE `description` `description` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;
+
+ALTER TABLE `seotools` ADD `priority` INT NOT NULL DEFAULT '100' AFTER `cron` ;
+
+UPDATE `seotools` SET `priority` = '10' WHERE url_section='keyword-position-checker';
+
+INSERT `seotools` (`name`, `url_section` ,`user_access` ,`reportgen` ,`cron` ,`status`, `priority`)
+VALUES ('Webmaster Tools', 'webmaster-tools', '1', '1', '1', '1', '20');
+
+ALTER TABLE `seoplugins` ADD `priority` INT NOT NULL DEFAULT '100';
+
+CREATE TABLE IF NOT EXISTS `user_report_logs` (
+`id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `report_date` datetime NOT NULL
+) ENGINE=MyISAM;
+ALTER TABLE `user_report_logs` ADD PRIMARY KEY (`id`), ADD KEY `user_id` (`user_id`);
+ALTER TABLE `user_report_logs` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+
+CREATE TABLE IF NOT EXISTS `webmaster_keywords` (
+`id` bigint(24) unsigned NOT NULL,
+  `name` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `website_id` int(11) DEFAULT NULL,
+  `status` tinyint(1) DEFAULT '1'
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+ALTER TABLE `webmaster_keywords` ADD PRIMARY KEY (`id`), ADD KEY `website_id` (`website_id`);
+ALTER TABLE `webmaster_keywords` MODIFY `id` bigint(24) unsigned NOT NULL AUTO_INCREMENT;
+
+INSERT INTO `settings` (`set_label`, `set_name`, `set_val`, `set_category`, `set_type`, `display`) VALUES
+('Enable Proxy for Google API', 'SP_ENABLE_PROXY_GOOGLE_API', '1', 'proxy', 'bool', 1);
+
+ALTER TABLE `crawl_log` CHANGE `crawl_link` `crawl_link` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL;
+
+ALTER TABLE `crawl_log` CHANGE `crawl_referer` `crawl_referer` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;
+
+ALTER TABLE crawl_log DROP INDEX ref_id;
+
+ALTER TABLE `crawl_log` CHANGE `ref_id` `ref_id` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;
+
+--
+-- Seo Panel 3.17.0 changes
+--
+
+CREATE TABLE IF NOT EXISTS `webmaster_sitemaps` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `website_id` int(11) NOT NULL,
+  `path` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `last_submitted` datetime NOT NULL,
+  `last_downloaded` datetime NOT NULL,
+  `is_pending` tinyint(4) NOT NULL DEFAULT '0',
+  `warnings` int(11) NOT NULL DEFAULT '0',
+  `errors` int(11) NOT NULL DEFAULT '0',
+  `submitted` int(11) NOT NULL DEFAULT '0',
+  `indexed` int(11) NOT NULL DEFAULT '0',
+  `status` tinyint(4) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id`),
+  KEY `website_id` (`website_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+
+
+update  `featured_directories` set status=0 WHERE `directory_name` LIKE 'beta-i.org';
+INSERT INTO `featured_directories` (`directory_name`, `directory_link`, `google_pagerank`, `coupon_code`, `coupon_offer`, `status`)
+VALUES ('directorymaximizer.com', 'http://www.directorymaximizer.com/af.php?af=207564&ad=5&p=1', '6', '', 0, '1');
+
+INSERT INTO `user_specs` (`user_type_id`, `spec_column`, `spec_value`, `spec_category`) VALUES
+(2, 'searchengine_count', '3', 'system'),
+(2, 'directory_submit_limit', '150', 'system'),
+(2, 'directory_submit_daily_limit', '100', 'system'),
+(2, 'site_auditor_max_page_limit', '500', 'system'),
+(2, 'plugin_1', '1', 'system'),
+(2, 'plugin_2', '1', 'system'),
+(2, 'plugin_3', '1', 'system'),
+(2, 'seotool_1', '1', 'system'),
+(2, 'seotool_2', '1', 'system'),
+(2, 'seotool_3', '1', 'system'),
+(2, 'seotool_4', '1', 'system'),
+(2, 'seotool_5', '1', 'system'),
+(2, 'seotool_6', '1', 'system'),
+(2, 'seotool_7', '1', 'system'),
+(2, 'seotool_8', '1', 'system');
+
+--
+-- Seo Panel 3.18.0 changes
+--
+
+ALTER TABLE websites ENGINE = InnoDB;
+ALTER TABLE users ENGINE = InnoDB;
+
+CREATE TABLE `social_media_links` (
+  `id` int(11) NOT NULL,
+  `website_id` int(11) NOT NULL,
+  `name` varchar(120) COLLATE utf8_unicode_ci NOT NULL,
+  `url` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `type` varchar(60) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'facebook',
+  `status` tinyint(1) NOT NULL DEFAULT '1'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+ALTER TABLE `social_media_links` ADD PRIMARY KEY (`id`), ADD KEY `social_media_links_web_rel` (`website_id`);
+ALTER TABLE `social_media_links` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `social_media_links` ADD CONSTRAINT `social_media_links_web_rel` FOREIGN KEY (`website_id`) REFERENCES `websites` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
+ALTER TABLE `social_media_links` ADD UNIQUE( `website_id`, `url`);
+
+CREATE TABLE `social_media_link_results` (
+  `id` bigint(20) NOT NULL,
+  `sm_link_id` int(11) NOT NULL,
+  `likes` int(11) NOT NULL DEFAULT '0',
+  `followers` int(11) NOT NULL DEFAULT '0',
+  `report_date` date NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+ALTER TABLE `social_media_link_results` ADD PRIMARY KEY (`id`), ADD KEY `social_media_link_rel` (`sm_link_id`);
+ALTER TABLE `social_media_link_results` MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `social_media_link_results` ADD CONSTRAINT `social_media_link_rel` FOREIGN KEY (`sm_link_id`) REFERENCES `social_media_links` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
+
+INSERT INTO `seotools` (`id`, `name`, `url_section`, `user_access`, `reportgen`, `cron`, `priority`, `status`) 
+VALUES (NULL, 'Social Media Checker', 'sm-checker', '1', '1', '1', '100', '1');
+
+--
+-- Seo Panel 4.0.0 changes
+--
+
+INSERT INTO `settings` (`set_label`, `set_name`, `set_val`, `set_category`, `set_type`, `display`) VALUES
+('Mail Encryption', 'SP_MAIL_ENCRYPTION', '', 'system', 'medium', 1);
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

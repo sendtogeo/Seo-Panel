@@ -27,8 +27,8 @@ include_once(SP_CTRLPATH . "/seotools.ctrl.php");
 class UserTypeController extends Controller {
 	
 	public $userSpecFields = array(
-		'keywordcount','websitecount', 'searchengine_count', 'directory_submit_limit',
-		'directory_submit_daily_limit', 'site_auditor_max_page_limit', 'price',
+	    'price', 'free_trial_period', 'keywordcount','websitecount', 'social_media_link_count', 'searchengine_count', 
+	    'directory_submit_limit', 'directory_submit_daily_limit', 'site_auditor_max_page_limit', 'enable_email_activation',
 	);
 	
 	/**
@@ -48,7 +48,7 @@ class UserTypeController extends Controller {
     	}
     	
     	// get seo tool access list
-    	$toolAccessList = $this->getSeoToolAccessSettings($userTypeId);
+    	$toolAccessList = $this->getSeoToolAccessSettings();
 
     	// assign new fields to user spec for seo tool access
     	foreach ($toolAccessList as $toolInfo) {
@@ -174,6 +174,7 @@ class UserTypeController extends Controller {
 		$errMsg['user_type'] = formatErrorMsg($this->validate->checkBlank(trim($listInfo['user_type'])));
 		$errMsg['websitecount'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['websitecount'])));
 		$errMsg['keywordcount'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['keywordcount'])));
+		$errMsg['social_media_link_count'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['social_media_link_count'])));
 		$errMsg['searchengine_count'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['searchengine_count'])));
 		$errMsg['directory_submit_limit'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['directory_submit_limit'])));
 		$errMsg['directory_submit_daily_limit'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['directory_submit_daily_limit'])));
@@ -253,6 +254,7 @@ class UserTypeController extends Controller {
 		$errMsg['user_type'] = formatErrorMsg($this->validate->checkBlank(trim($listInfo['user_type'])));
 		$errMsg['websitecount'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['websitecount'])));
 		$errMsg['keywordcount'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['keywordcount'])));
+		$errMsg['social_media_link_count'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['social_media_link_count'])));
 		$errMsg['searchengine_count'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['searchengine_count'])));
 		$errMsg['directory_submit_limit'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['directory_submit_limit'])));
 		$errMsg['directory_submit_daily_limit'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['directory_submit_daily_limit'])));
@@ -342,7 +344,8 @@ class UserTypeController extends Controller {
 			$pluginAccessList[$pluginInfo['id']] = array(
 				'name' => $pluginCol,
 				'label' => $pluginInfo['label'],
-				'value' => isset($userTypeSettingList[$pluginCol]) ? $userTypeSettingList[$pluginCol] : 1,
+				'status' => $pluginInfo['status'],
+				'value' => isset($userTypeSettingList[$pluginCol]) ? $userTypeSettingList[$pluginCol] : 0,
 			);
 			
 		}
@@ -366,13 +369,15 @@ class UserTypeController extends Controller {
 			$userTypeSettingList = $this->getUserTypeSpec($userTypeId, "system");
 		}
 		
-		// loop through plugin list
+		// loop through tools list
 		foreach ($toolList as $i => $toolInfo) {
 			$toolCol = 'seotool_' . $toolInfo['id'];
 			$toolAccessList[$toolInfo['id']] = array(
 				'name' => $toolCol,
 				'label' => $toolInfo['name'],
-				'value' => isset($userTypeSettingList[$toolCol]) ? $userTypeSettingList[$toolCol] : 1,
+				'status' => $toolInfo['status'],
+				'url_section' => $toolInfo['url_section'],
+				'value' => isset($userTypeSettingList[$toolCol]) ? $userTypeSettingList[$toolCol] : 0,
 			);
 			
 		}
@@ -570,16 +575,17 @@ class UserTypeController extends Controller {
 		foreach ($pluginUserTypeObj->specColList as $specCol => $specColInfo) {
 			
 			// if validation is set
-			if (!empty($specColInfo['validation'])) {
+			if (!empty($specColInfo['custom_validation'])) {
+				$errMsg[$specCol] = formatErrorMsg($specColInfo['custom_validation']->$specColInfo['validation']($settingsInfo[$specCol]));
+			} else if (!empty($specColInfo['validation'])) {
 				$errMsg[$specCol] = formatErrorMsg($this->validate->$specColInfo['validation']($settingsInfo[$specCol]));
-				
-				// if error occured
-				if ($this->validate->flagErr) {
-					$this->set('errMsg', $errMsg);
-					$this->editPluginUserTypeSettings($settingsInfo['user_type_id'], $pluginId, $settingsInfo['class_name'], $settingsInfo);
-					exit;
-				}
-				
+			}	
+			
+			// if error occured
+			if (!empty($this->validate->flagErr) || !empty($errMsg[$specCol])) {
+				$this->set('errMsg', $errMsg);
+				$this->editPluginUserTypeSettings($settingsInfo['user_type_id'], $pluginId, $settingsInfo['class_name'], $settingsInfo);
+				exit;
 			}
 			
 		}		
@@ -607,6 +613,61 @@ class UserTypeController extends Controller {
 		$sql = "Insert into user_specs(user_type_id, spec_column, spec_value, spec_category) values($userTypeId, '$specColumn', '$specValue', '$specCategory') 
 				ON DUPLICATE KEY UPDATE spec_value='$specValue'";
 		$this->db->query($sql);
+	}
+	
+	/**
+	 * function to get a particular user type spec value
+	 */
+	function __getUserTypeSpecValue($userTypeId, $specName) {
+		$userTypeSpecList = $this->__getUserTypeInfo($userTypeId);
+		return $userTypeSpecList[$specName] ? isset($userTypeSpecList[$specName]) : false;
+	}
+	
+	/*
+	 * function to check whether email activation enabled for the user
+	 */
+	function isEmailActivationEnabledForUserType($userTypeId) {
+		$specValue = $this->__getUserTypeSpecValue($userTypeId, "enable_email_activation");
+		return $specValue;
+	}
+	
+	/**
+	 * function to get renew user typelist
+	 */
+	function getRenewUserTypeList($userTypeId) {
+		
+		$userTypeCtrler = new UserTypeController();
+		$userTypeInfo = $userTypeCtrler->__getUserTypeInfo($userTypeId);
+		$typeList = $userTypeCtrler->getAllUserTypes();
+		$userTypeList = array();
+			
+		// loop through the list to find the exact user types - remove the plans below current plan, disable free trial plans
+		$startAdd = false;
+		foreach ($typeList as $typeInfo) {
+		
+			// same user type selected
+			if ($typeInfo['id'] == $userTypeId) {
+				$startAdd = true;
+				if ($userTypeInfo['free_trial_period'] > 0) continue;
+			}
+		
+			// start to add
+			if ($startAdd) {
+				$userTypeList[$typeInfo['id']] = $typeInfo;
+			}
+		
+		}
+		
+		return $userTypeList;
+		
+	}
+	
+	/*
+	 * function to get all user types
+	 */
+	function __getAllUserTypeList() {
+		$list = $this->dbHelper->getAllRows("usertypes");
+		return $list;
 	}
 	
 }

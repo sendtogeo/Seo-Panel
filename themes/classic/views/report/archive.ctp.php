@@ -6,7 +6,7 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
     $doPrint = empty($cronUserId) ? true : false;
     $pdfVersion ? showPdfHeader($sectionHead) : showPrintHeader($sectionHead, $doPrint);
     ?>
-    <table width="80%" border="0" cellspacing="0" cellpadding="0" class="search">
+    <table class="search">
     	<?php if (!empty($websiteUrl)) {?>
     		<tr>
     			<th><?php echo $spText['common']['Website']?>:</th>
@@ -25,7 +25,7 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 <?php } else {?>
 	<?php echo showSectionHead($sectionHead); ?>
 	<form id='search_form'>
-	<table width="100%" border="0" cellspacing="0" cellpadding="0" class="search">		
+	<table width="100%" class="search">		
 		<tr>
 			<th><?php echo $spText['common']['Name']?>: </th>
 			<td>
@@ -33,17 +33,20 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 			</td>			
 			<th><?php echo $spText['common']['Period']?>:</th>
     		<td colspan="2">
-    			<input type="text" style="width: 80px;margin-right:0px;" value="<?php echo $fromTime?>" name="from_time"/> 
-    			<img align="bottom" onclick="displayDatePicker('from_time', false, 'ymd', '-');" src="<?php echo SP_IMGPATH?>/cal.gif"/> 
-    			<input type="text" style="width: 80px;margin-right:0px;" value="<?php echo $toTime?>" name="to_time"/> 
-    			<img align="bottom" onclick="displayDatePicker('to_time', false, 'ymd', '-');" src="<?php echo SP_IMGPATH?>/cal.gif"/>
+    			<input type="text" value="<?php echo $fromTime?>" name="from_time" id="from_time"/>
+    			<input type="text" value="<?php echo $toTime?>" name="to_time" id="to_time"/>
+				<script>
+				  $( function() {
+				    $( "#from_time, #to_time").datepicker({dateFormat: "yy-mm-dd"});
+				  } );
+			  	</script>
     		</td>
     	<tr>
     	<tr>
 		    <th><?php echo $spText['common']['Website']?>: </th>
 			<td>
-    			<select name="website_id" id="website_id"  onchange="scriptDoLoadPost('archive.php', 'search_form', 'content')" style="width: 120px;">
-    				<option value="">-- Select --</option>
+    			<select name="website_id" id="website_id"  onchange="scriptDoLoadPost('archive.php', 'search_form', 'content')" style="width: 180px;">
+    				<option value="">-- <?php echo $spText['common']['Select']?> --</option>
     				<?php foreach($siteList as $websiteInfo){?>
     					<?php if($websiteInfo['id'] == $websiteId){?>
     						<option value="<?php echo $websiteInfo['id']?>" selected><?php echo $websiteInfo['name']?></option>
@@ -55,8 +58,8 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 			</td>
 			<th><?php echo $spText['label']['Report Type']?>: </th>
 			<td>
-				<select name="report_type" id="report_type" onchange="scriptDoLoadPost('archive.php', 'search_form', 'content')" style="width: 150px;">
-					<option value="">-- Select --</option>
+				<select name="report_type" id="report_type" onchange="scriptDoLoadPost('archive.php', 'search_form', 'content')" style="width: 210px;">
+					<option value="">-- <?php echo $spText['common']['Select']?> --</option>
     				<?php foreach($reportTypes as $type => $info){?>
 						<?php if($type == $searchInfo['report_type']){?>
 							<option value="<?php echo $type?>" selected><?php echo $info?></option>
@@ -65,8 +68,6 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 						<?php }?>
 					<?php }?>
 				</select>
-			</td>
-			<td width="120px">
 				<a href="javascript:void(0);" onclick="scriptDoLoadPost('archive.php', 'search_form', 'content')" class="actionbut"><?php echo $spText['button']['Search']?></a>
 			</td>
 		</tr>
@@ -76,28 +77,35 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 	<?php
 	// url parameters
 	$mainLink = SP_WEBPATH."/archive.php?$urlarg";
-	$directLink = $mainLink . "&order_col=$orderCol&order_val=$orderVal&pageno=$pageNo"; 
+	$directLink = $mainLink . "&order_col=$orderCol&order_val=$orderVal&pageno=$pageNo";
+	
+	// export links
+	$pdfLink = "$directLink&doc_type=pdf";
+	$csvLink = "$directLink&doc_type=export";
+	$printLink = "$directLink&doc_type=print";
+	showExportDiv($pdfLink, $csvLink, $printLink);
 	?>
-	<div style="float:left;margin-right: 10px;margin-top: 20px; clear: both;">
-		<a href="<?php echo $directLink?>&doc_type=pdf"><img src="<?php echo SP_IMGPATH?>/icon_pdf.png"></a> &nbsp;
-		<a href="<?php echo $directLink?>&doc_type=export"><img src="<?php echo SP_IMGPATH?>/icoExport.gif"></a> &nbsp;
-		<a target="_blank" href="<?php echo $directLink?>&doc_type=print"><img src="<?php echo SP_IMGPATH?>/print_button.gif"></a>
-	</div>
 <?php }?>
 
-<div id='subcontent' style="margin-top: 40px;">
-<?php 
-if (!empty($keywordPos)) {
+<div id='subcontent' class="dashboard">
+<?php
+$seCount = count($seList);
+if (!empty($keywordPos) && !empty($seCount)) {
+	$colCount = empty($websiteId) ? ($seCount * 3) + 2 : ($seCount * 3) + 1;
 	?>
-	<div>
-	<?php echo $keywordPagingDiv?>
-	<table width="100%" border="0" cellspacing="0" cellpadding="0" class="list" style="<?php echo $borderCollapseVal; ?>">
-		<tr class="squareHead">
+	<br>
+	<div class="table-responsive">
+	<?php
+	echo showSectionHead($spTextTools['Keyword Position Summary']);
+	if (empty($pdfVersion)) echo $keywordPagingDiv;
+	?>
+	<table id="cust_tab">
+		<tr>
 			<?php
 			$linkClass = "";
 	        if ($orderCol == 'keyword') {
 	            $oVal = ($orderVal == 'DESC') ? "ASC" : "DESC";
-	            $linkClass .= "sort_".strtolower($orderVal);
+	            $linkClass .= "sort_".strtolower($oVal);
 	        } else {
 	            $oVal = 'ASC';
 	        }
@@ -107,13 +115,12 @@ if (!empty($keywordPos)) {
 			$linkName = "<a id='sortLink' class='$linkClass' $hrefAttr onclick=\"scriptDoLoad('$mainLink&order_col=keyword&order_val=$oVal', 'content')\">{$spText['common']['Keyword']}</a>"; 
 			?>		
 			<?php if (empty($websiteId)) {?>
-				<td class="left" rowspan="2"><?php echo $spText['common']['Website']?></td>
-				<td rowspan="2" style="border-right:2px solid #B0C2CC;"><?php echo $linkName?></td>
+				<th id="head" rowspan="2"><?php echo $spText['common']['Website']?></th>
+				<th rowspan="2" id="head"><?php echo $linkName?></th>
 			<?php } else { ?>
-				<td class="left" rowspan="2" style="border-right:2px solid #B0C2CC;"><?php echo $linkName?></td>
+				<th id="head" rowspan="2" style="border-right:1px solid #B0C2CC;"><?php echo $linkName?></th>
 			<?php }?>
 			<?php
-			$seCount = count($seList);
 			foreach ($seList as $i => $seInfo){
 			    
 			    $linkClass = "";
@@ -124,56 +131,39 @@ if (!empty($keywordPos)) {
 	                $oVal = 'ASC';
 	            }
 	            $linkName = "<a id='sortLink' class='$linkClass' $hrefAttr onclick=\"scriptDoLoad('$mainLink&order_col={$seInfo['id']}&order_val=$oVal', 'content')\">{$seInfo['domain']}</a>";
-			    
-				if( ($i+1) == $seCount){			
-					?>
-					<td class="right" colspan="3" style="border-right:2px solid #B0C2CC;"><?php echo $linkName; ?></td>
-					<?php	
-				}else{
-					?>
-					<td colspan="3" style="border-right:2px solid #B0C2CC;"><?php echo $linkName; ?></td>
-					<?php
-				}
-				
+			    ?>
+				<th id="head" colspan="3"><?php echo $linkName; ?></th>
+				<?php
 			}
 			?>
 		</tr>	
-		<tr class="squareSubHead">
+		<tr>
 			<?php
 			$pTxt = str_replace("-", "/", substr($fromTime, -5));
 			$cTxt = str_replace("-", "/", substr($toTime, -5));
 			foreach ($seList as $i => $seInfo) {
 				?>
-				<td><?php echo $pTxt; ?></td>
-				<td><?php echo $cTxt; ?></td>
-				<td style="border-right:2px solid #B0C2CC;">+ / -</td>
+				<th><?php echo $pTxt; ?></th>
+				<th><?php echo $cTxt; ?></th>
+				<th>+ / -</th>
 				<?php
 			}
 			?>
 		</tr>
-		<?php
-		$colCount = empty($websiteId) ? ($seCount * 3) + 2 : ($seCount * 3) + 1; 
+		<?php		 
 		if (count($list) > 0) {
-			
-			$catCount = count($list);
-			$i = 0;
 			foreach($indexList as $keywordId => $rankValue){
 			    $listInfo = $list[$keywordId];
 				$positionInfo = $listInfo['position_info'];
-				$class = ($i % 2) ? "blue_row" : "white_row";
-				
-				if( !$i || ($catCount != ($i + 1)) ){
-	                $leftBotClass = "td_left_border td_br_right";
-	                $rightBotClass = "td_br_right";
-	            }
-	            $scriptLink = "website_id={$listInfo['website_id']}&keyword_id={$listInfo['id']}&rep=1&from_time=$fromTime&to_time=$toTime";          
+	            $rangeFromTime = date('Y-m-d', strtotime('-14 days', strtotime($fromTime)));
+	            $scriptLink = "website_id=$websiteId&keyword_id={$listInfo['id']}&rep=1&from_time=$rangeFromTime&to_time=$toTime";          
 				?>
-				<tr class="<?php echo $class?>">				
+				<tr>				
 					<?php if (empty($websiteId)) {?>
-						<td class="<?php echo $leftBotClass?> left" width='250px;'><?php echo $listInfo['weburl']; ?></td>
-						<td class='td_br_right left' style="border-right:2px solid #B0C2CC;"><?php echo $listInfo['name'] ?></td>
+						<td><a href="javascript:void(0)"><?php echo $listInfo['weburl']; ?></a></td>
+						<td><?php echo $listInfo['name'] ?></td>
 					<?php } else { ?>
-						<td class="<?php echo $leftBotClass?> left" width='100px;' style="border-right:2px solid #B0C2CC;"><?php echo $listInfo['name']; ?></td>
+						<td><?php echo $listInfo['name']; ?></td>
 					<?php }?>				
 					<?php
 					foreach ($seList as $index => $seInfo){
@@ -208,15 +198,14 @@ if (!empty($keywordPos)) {
 						
 						$diffOut = empty($cronUserId) ? $graphLink . " " . $rankDiffTxt : $rankDiffTxt;
 					    ?>
-						<td class="td_br_right"><?php echo $prevRankLink; ?></td>
-						<td class="td_br_right"><?php echo $currRankLink; ?></td>
-						<td class='td_br_right left' style="border-right:2px solid #B0C2CC; width: 50px;" nowrap><?php echo $diffOut; ?></td>
+						<td><?php echo $prevRankLink; ?></td>
+						<td><?php echo $currRankLink; ?></td>
+						<td><?php echo $diffOut; ?></td>
 						<?php					
 					}
 					?>				
 				</tr>
 				<?php
-				$i++;
 			}
 		} else {	 
 			echo showNoRecordsList($colCount - 2, '', true);		
@@ -229,44 +218,44 @@ if (!empty($keywordPos)) {
 ?>
 
 <br>
-<div>
+<div class="table-responsive">
 	<?php
 	if (!empty($websiteStats)) {
-    	$colSpan = 16; 
+    	echo showSectionHead($spTextHome['Website Statistics']);
+    	$colSpan = 15; 
+    	if (empty($pdfVersion)) echo $websitePagingDiv;
     	?>
-    	<?php echo $websitePagingDiv?>
-    	<table width="100%" cellspacing="0" cellpadding="0" class="summary" style="<?php echo $borderCollapseVal; ?>">
-    		<tr><td class="topheader" colspan="<?php echo $colSpan?>"><?php echo $spTextHome['Website Statistics']?></td></tr>
+    	<table id="cust_tab">
     		<tr>
-    			<td class="subheader" style="border: none;" width="5%" rowspan="2"><?php echo $spText['common']['Id']?></td>
-    			<td class="subheader" rowspan="2"><?php echo $spTextHome['SiteNameUrl']?></td>
-    			<td class="subheaderdark" colspan="4"><?php echo $spTextHome['Ranks']?></td>
-    			<td class="subheaderdark" colspan="3"><?php echo $spTextHome['Backlinks']?></td>
-    			<td class="subheaderdark" colspan="2"><?php echo $spTextHome['Pages Indexed']?></td>
-    			<td class="subheaderdark" colspan="3"><?php echo $spTextPS['Page Speed']?></td>
-    			<td class="subheaderdark" colspan="2"><?php echo $spTextHome['Directory Submission']?></td>
+    			<th id="head" rowspan="2"><?php echo $spText['common']['Website']?></th>
+    			<th id="head" colspan="4"><?php echo $spTextHome['Ranks']?></th>
+    			<th id="head" colspan="3"><?php echo $spTextHome['Backlinks']?></th>
+    			<th id="head" colspan="2"><?php echo $spTextHome['Pages Indexed']?></th>
+    			<th id="head" colspan="3"><?php echo $spTextPS['Page Speed']?></th>
+    			<th id="head" colspan="2"><?php echo $spTextHome['Directory Submission']?></th>
     		</tr>		
     		<tr>
-    			<td class="subheader">Moz</td>
-    			<td class="subheader"><?php echo $spText['common']['Domain Authority']?></td>
-    			<td class="subheader"><?php echo $spText['common']['Page Authority']?></td>
-    			<td class="subheader">Alexa</td>
-    			<td class="subheader">Google</td>
-    			<td class="subheader">Alexa</td>
-    			<td class="subheader">Bing</td>			
-    			<td class="subheader">Google</td>
-    			<td class="subheader">Bing</td>
-    			<td class="subheader"><?php echo $spTextPS['Desktop Speed']?></td>
-    			<td class="subheader"><?php echo $spTextPS['Mobile Speed']?></td>
-    			<td class="subheader"><?php echo $spTextPS['Mobile Usability']?></td>
-    			<td class="subheader"><?php echo $spText['common']['Total']?></td>
-    			<td class="subheader"><?php echo $spText['common']['Active']?></td>
+    			<th>Moz</th>
+    			<th><?php echo $spText['common']['Domain Authority']?></th>
+    			<th><?php echo $spText['common']['Page Authority']?></th>
+    			<th>Alexa</th>
+    			<th>Google</th>
+    			<th>Alexa</th>
+    			<th>Bing</th>			
+    			<th>Google</th>
+    			<th>Bing</th>
+    			<th><?php echo $spTextPS['Desktop Speed']?></th>
+    			<th><?php echo $spTextPS['Mobile Speed']?></th>
+    			<th><?php echo $spTextPS['Mobile Usability']?></th>
+    			<th><?php echo $spText['common']['Total']?></th>
+    			<th><?php echo $spText['common']['Active']?></th>
     		</tr>
     		<?php 
     		if(count($websiteRankList) > 0){
 
 				foreach($websiteRankList as $websiteInfo){
-    				$timeArg = "&from_time=$fromTime&to_time=$toTime";
+					$rangeFromTime = date('Y-m-d', strtotime('-14 days', strtotime($fromTime)));
+    				$timeArg = "&from_time=$rangeFromTime&to_time=$toTime";
     				$googleRankLink = scriptAJAXLinkHrefDialog('rank.php', 'content', "sec=reports&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['mozrank']);
     				$alexaRankLink = scriptAJAXLinkHrefDialog('rank.php', 'content', "sec=reports&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['alexarank']);
     				$daLink = scriptAJAXLinkHrefDialog('rank.php', 'content', "sec=reports&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['domain_authority']);
@@ -283,38 +272,75 @@ if (!empty($keywordPos)) {
     				$mobileUsabilityLink = scriptAJAXLinkHrefDialog('pagespeed.php', 'content', "sec=reports&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['mobile_usability_score']);
     				?>
     				<tr>
-    					<td class="content" style="border-left: none;"><?php echo $websiteInfo['id']?></td>
-    					<td class="content">
-    						<?php echo $websiteInfo['name'];?><br>
-    						<a href="<?php echo $websiteInfo['url'];?>" target="_blank"><?php echo $websiteInfo['url'];?></a>
+    					<td>
+    						<a href="javascript:void(0)"><?php echo $websiteInfo['url'];?></a>
     					</td>
-    					<td class="content"><?php echo $googleRankLink;?></td>
-						<td class="contentmid"><?php echo $daLink; ?></td>
-						<td class="contentmid"><?php echo $paLink; ?></td>
-						<td class="content"><?php echo $alexaRankLink; ?></td>
-						<td class="content"><?php echo $googleBackLInk; ?></td>
-						<td class="content"><?php echo $alexaBackLInk; ?></td>
-						<td class="content"><?php echo $bingBackLInk; ?></td>
-						<td class="content"><?php echo $googleIndexLInk; ?></td>
-						<td class="content"><?php echo $bingIndexLInk; ?></td>
-						<td class="content"><?php echo $desktopPageSpeedLink; ?></td>
-						<td class="content"><?php echo $mobilePageSpeedLink; ?></td>
-						<td class="content"><?php echo $mobileUsabilityLink; ?></td>
-						<td class="contentmid"><?php echo $totaldirLink?></td>					
-						<td class="contentmid"><?php echo $activeDirLink?></td>
+    					<td><?php echo $googleRankLink;?></td>
+						<td><?php echo $daLink; ?></td>
+						<td><?php echo $paLink; ?></td>
+						<td><?php echo $alexaRankLink; ?></td>
+						<td><?php echo $googleBackLInk; ?></td>
+						<td><?php echo $alexaBackLInk; ?></td>
+						<td><?php echo $bingBackLInk; ?></td>
+						<td><?php echo $googleIndexLInk; ?></td>
+						<td><?php echo $bingIndexLInk; ?></td>
+						<td><?php echo $desktopPageSpeedLink; ?></td>
+						<td><?php echo $mobilePageSpeedLink; ?></td>
+						<td><?php echo $mobileUsabilityLink; ?></td>
+						<td><?php echo $totaldirLink?></td>					
+						<td><?php echo $activeDirLink?></td>
     				</tr> 
-    			<?php } ?>
-    		<?php }else{ ?>
-    			<tr><td colspan="<?php echo $colSpan?>" class="norecord"><?php echo $spText['common']['nowebsites']?></td></tr>
-    		<?php } ?>		
+    			<?php
+				}
+    		} else { 
+    		    echo showNoRecordsList($colSpan - 2, '', true); 
+    		}?>		
     	</table>
 		<?php
 	}
 	?>
 </div>
-</div>
+
 <?php
-if(!empty($printVersion) || !empty($pdfVersion)) {
+if (!empty($websiteSearchReport)) {
+    ?>
+    <br>
+	<div class="table-responsive"><?php echo $websiteSearchReport;?></div>
+	<?php
+}
+?>
+
+<?php
+if (!empty($sitemapReport)) {
+    ?>
+    <br>
+	<div class="table-responsive"><?php echo $sitemapReport;?></div>
+	<?php
+}
+?>
+
+<?php
+if (!empty($keywordSearchReport)) {
+    ?>
+    <br>
+	<div class="table-responsive"><?php echo $keywordSearchReport;?></div>
+	<?php
+}
+?>
+
+<?php
+if (!empty($socialMediaReport)) {
+    ?>
+    <br>
+	<div class="table-responsive"><?php echo $socialMediaReport;?></div>
+	<?php
+}
+?>
+
+</div>
+<br>
+<?php
+if(empty($cronUserId) && (!empty($printVersion) || !empty($pdfVersion))) {
 	echo $pdfVersion ? showPdfFooter($spText) : showPrintFooter($spText);
 }
 ?>

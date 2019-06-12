@@ -62,7 +62,7 @@ function showDiv($divId) {
 
 # func to show no results
 function showNoRecordsList($colspan, $msg='', $plain=false) {
-	$msg = empty($msg) ? $_SESSION['text']['common']['No Records Found']."!" : $msg;
+	$msg = empty($msg) ? $_SESSION['text']['common']['No Records Found'] : $msg;
 	$data['colspan'] = $colspan;
 	$data['msg'] = $msg;
 	$data['plain'] = $plain;
@@ -129,6 +129,12 @@ function isAdmin() {
 function isLoggedIn() {
 	$userInfo = @Session::readSession('userInfo');
 	return empty($userInfo['userId']) ? false : $userInfo['userId'];
+}
+
+# function to chekc quick checker enabled for user
+function isQuickCheckerEnabled() {
+	$enabled = (isAdmin() || !SP_HOSTED_VERSION) ? true : false;
+	return $enabled;
 }
 
 # get functions
@@ -201,7 +207,7 @@ function formatDate($date) {
 
 function addHttpToUrl($url){
 	if(!stristr($url, 'http://') && !stristr($url, 'https://')){
-		$url = 'http://'.$url;
+		$url = 'http://'.trim($url);
 	}
 	return $url;
 }
@@ -359,18 +365,17 @@ function exportToCsv($fileName, $content) {
 # func to show printer hearder
 function showPrintHeader($headMsg='', $doPrint=true) {
     ?>
-    <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-	<html xmlns="http://www.w3.org/1999/xhtml">
-    <head>
-    	<title></title>
-    	<meta content="text/html; charset=UTF-8" http-equiv="content-type" />
-		<script type="text/javascript">
+    <!doctype html>
+	<html lang="en">
+	<head>
+    	<meta charset="utf-8">
+    	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    	<script type="text/javascript">
 			<?php if ($doPrint) { ?>
 				window.print();
 			<?php }?>
 		</script>		
 	    <style type="text/css">
-		    BODY{background-color:white;padding:50px 10px;}
 		    <?php echo readFileContent(SP_THEME_ABSPATH . "/css/screen.css"); ?>
 	    </style>    
     </head>
@@ -389,8 +394,14 @@ function readFileContent($fileName) {
 
 # func to show printer footer
 function showPrintFooter($spText) {
+	$custSiteInfo = getCustomizerDetails();
+	if (!empty($custSiteInfo['footer_copyright'])) {
+		$copyrightTxt = str_replace('[year]', date('Y'), $custSiteInfo['footer_copyright']);
+	} else {
+		$copyrightTxt = str_replace('[year]', date('Y'), $spText['common']['copyright']);
+	}
     ?>
-    <div style="clear: both; margin-top: 10px;"><?php echo str_replace('[year]', date('Y'), $spText['common']['copyright'])?></div>
+    <div class="center footer-sp"><?php echo $copyrightTxt;?></div>
     </body>
     </html>
 	<?php
@@ -420,6 +431,11 @@ function sendMail($from, $fromName, $to ,$subject,$content, $attachment = ''){
 		$mail->Username = SP_SMTP_USERNAME;
 		$mail->Password = SP_SMTP_PASSWORD;
 		$mail->Port = SP_SMTP_PORT;
+		
+		// if mail encryption enabled
+		if (defined('SP_MAIL_ENCRYPTION') && (SP_MAIL_ENCRYPTION != '')) {
+            $mail->SMTPSecure = SP_MAIL_ENCRYPTION;
+		}		
 	}
 
 	$mail->From = $from;
@@ -438,12 +454,52 @@ function sendMail($from, $fromName, $to ,$subject,$content, $attachment = ''){
 		$mail->AddAttachment($attachment);
 	}
 	
-	if(!$mail->Send()){
-		return 0;
-	}else{
-		return 1;
+	// if sendgrid api should be used, if enabled it
+	if ($mail->Host == 'smtp.sendgrid.net' && SP_SENDGRID_API) {
+		$sendLog = sendMailBySendgridAPI($mail, $to);		
+	} else {
+	
+		// normal mail send fails or not
+		if($mail->Send()){
+			$sendLog['status'] = 1;
+			$sendLog['log_message'] = "Success";
+			return true;
+		} else {
+			$sendLog['status'] = 0;
+			$sendLog['log_message'] = $mail->ErrorInfo;
+		}
+		
 	}
+	
+	return $sendLog['status'];
+	
 }
+
+function sendMailBySendgridAPI($mail, $subscriberEmail, $subscriberName = '') {
+	
+	include_once(SP_LIBPATH . "/sendgrid-php/sendgrid-php.php");
+	$from = new SendGrid\Email($mail->FromName, $mail->From);
+	$subject = $mail->Subject;
+	$to = new SendGrid\Email($subscriberName, $subscriberEmail);
+	$content = new SendGrid\Content($mail->ContentType, $mail->Body);
+	$apiKey = $mail->Password;
+	$mail = new SendGrid\Mail($from, $subject, $to, $content);
+	$sg = new \SendGrid($apiKey);
+	$response = $sg->client->mail()->send()->post($mail);
+	 
+	$statusCode = $response->statusCode();
+	if (in_array($statusCode, array("202", "200"))) {
+		$sendLog['status'] = 1;
+		$sendLog['log_message'] = "Success";
+	} else {
+		$sendLog['status'] = 0;
+		$sendLog['log_message'] = $response->body();
+	}
+	 
+	return $sendLog;
+	 
+}
+
 
 # func to sanitize data to prevent attacks
 function sanitizeData($data, $stripTags=true, $addSlashes=false) {
@@ -532,7 +588,12 @@ function showPdfHeader($headMsg = '') {
 
 # func to show pdf footer
 function showPdfFooter($spText) {
-	$copyrightTxt = str_replace("www.seopanel.in", "<a href='http://www.seopanel.in'>www.seopanel.in</a>", $spText['common']['copyright']);
+	$custSiteInfo = getCustomizerDetails();
+	if (!empty($custSiteInfo['footer_copyright'])) {
+		$copyrightTxt = str_replace('[year]', date('Y'), $custSiteInfo['footer_copyright']);
+	} else {
+		$copyrightTxt = str_replace("www.seopanel.in", "<a href='http://www.seopanel.in'>www.seopanel.in</a>", $spText['common']['copyright']);
+	}
     ?>
     <div style="clear: both; margin-top: 30px;font-size: 12px; text-align: center;"><?php echo str_replace('[year]', date('Y'), $copyrightTxt)?></div>
 	<?php
@@ -555,12 +616,132 @@ function getOrderByVal($orderByVal) {
 	return $orderByVal;
 }
 
-if (!function_exists('curl_reset'))
-{
-	function curl_reset(&$ch)
-	{
+if (!function_exists('curl_reset')) {
+	
+	function curl_reset(&$ch) {
 		$ch = curl_init();
 	}
+	
 }
 
+function getRequestParamStr() {
+	$paramStr = "";
+	
+	foreach ($_REQUEST as $item => $value) {
+		$item = htmlentities($item, ENT_QUOTES);
+		$value = htmlentities($value, ENT_QUOTES);
+		$paramStr .= "&$item=" . urlencode($value);
+	}
+	
+	return $paramStr;
+	
+}
+
+// get dates in between a date range
+function getDateRange($first, $last, $step = '+1 day', $outputFormat = 'Y-m-d' ) {
+
+	$dates = array();
+	$current = strtotime($first);
+	$last = strtotime($last);
+
+	while( $current <= $last ) {
+		$dates[] = date($outputFormat, $current);
+		$current = strtotime($step, $current);
+	}
+
+	return $dates;
+}
+
+function getCustomizerDetails() {
+    $custSiteInfo = array();
+    
+    // check whetehr plugin installed or not
+    $seopluginCtrler = new SeoPluginsController();
+    if ($seopluginCtrler->isPluginActive("customizer")) {
+        $infoList = $seopluginCtrler->dbHelper->getAllRows("cust_site_details", "status=1");
+        foreach ($infoList as $info) $custSiteInfo[$info['col_name']] = $info['col_value'];
+        $custSiteInfo['plugin_active'] = 1;
+    }
+    
+    return $custSiteInfo;
+    
+}
+
+// function to get customizer pages[home,support,aboutus]
+function getCustomizerPage($pageName='home') {
+    $blogInfo = array();
+    $pageName = addslashes($pageName);
+    
+    // check whetehr plugin installed or not
+    $seopluginCtrler = new SeoPluginsController();
+    if ($seopluginCtrler->isPluginActive("customizer")) {
+        $langCode = !empty($_SESSION['lang_code']) ? $_SESSION['lang_code'] : "en";
+        $whereCond = "status=1 and link_page='$pageName'";
+        $blogInfo = $seopluginCtrler->dbHelper->getRow("cust_blogs", $whereCond . " and lang_code='$langCode'");
+        
+        // empty blog and language is not en, check en content
+        if (empty($blogInfo['id']) && ($langCode != 'en')) {
+            $blogInfo = $seopluginCtrler->dbHelper->getRow("cust_blogs", $whereCond . " and lang_code='en'");
+        }
+        
+        // if blog is not empty
+        if (!empty($blogInfo['blog_content'])) {
+            $blogInfo['blog_content'] = convertMarkdownToHtml($blogInfo['blog_content']);
+        }
+        
+    }
+    
+    return $blogInfo;
+    
+}
+
+// function to get customizer pages[guest,user,admin,top]
+function getCustomizerMenu($menuName) {
+	$controller = new Controller();		
+	$custComp = $controller->createComponent("Customizer_Helper");
+	return $custComp->getCustomizerMenu($menuName, $_SESSION['lang_code']);
+}
+
+function convertMarkdownToHtml($pageCont) {
+    include_once(SP_LIBPATH."/Parsedown.php");
+    $Parsedown = new Parsedown();
+    $pageCont = $Parsedown->text($pageCont);
+    return $pageCont;
+}
+
+function isPluginActivated($pluginName) {
+	$seopluginCtrler = new SeoPluginsController();
+	return $seopluginCtrler->isPluginActive($pluginName);
+}
+
+function formatNumber($number) {
+	$number = str_replace([",", " "], "", trim($number));
+	
+	if (stristr($number, 'K')) {
+		$number = str_replace("K", "", trim($number));
+		$number = $number * 1000;
+	}
+	
+	if (stristr($number, 'M')) {
+		$number = str_replace("M", "", trim($number));
+		$number = $number * 1000000;
+	}
+	
+	if (stristr($number, 'B')) {
+		$number = str_replace("B", "", trim($number));
+		$number = $number * 1000000000;
+	}
+	
+	return $number;
+}
+
+function showExportDiv($pdfLink, $csvLink, $printLink) {
+    ?>
+	<div class="export_div">
+		<a href="<?php echo $pdfLink?>"><i class="fas fa-file-pdf"></i></a>
+		<a href="<?php echo $csvLink?>"><i class="fas fa-file-csv"></i></a>
+		<a target="_blank" href="<?php echo $printLink?>"><i class="fas fa-print"></i></a>
+	</div>
+    <?php
+}
 ?>

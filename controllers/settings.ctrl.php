@@ -141,20 +141,30 @@ class SettingsController extends Controller{
 	}
 	
 	# func to show about us of seo panel
-	function showAboutUs() {
-		
-		$sql = "select t.*,l.lang_name from translators t,languages l where t.lang_code=l.lang_code";
-		$transList = $this->db->select($sql); 
-		$this->set('transList', $transList);
-		
-		include_once(SP_CTRLPATH."/information.ctrl.php");
-		$infoCtrler = new InformationController();
-		$this->set('sponsors', $infoCtrler->getSponsors());		
+	function showAboutUs($info) {
+	    
+	    $blogContent = getCustomizerPage('aboutus');
+	    if (!empty($blogContent['blog_content'])) {
+	        $this->set('blogContent', $blogContent);
+	    } else {
+	    	
+	    	if ($info['subsec'] != "sponsors") {
+	    		$sql = "select t.*,l.lang_name from translators t,languages l where t.lang_code=l.lang_code";
+	    		$transList = $this->db->select($sql); 
+	    		$this->set('transList', $transList);
+	    	}
+    		
+    		include_once(SP_CTRLPATH."/information.ctrl.php");
+    		$infoCtrler = new InformationController();
+    		$this->set('sponsors', $infoCtrler->getSponsors());
+    		$this->set('subSec', $info['subsec']);
+	    }
+	    
 		$this->render('settings/aboutus');
 	}	
 	
 	# func to show version of seo panel
-	function showVersion() {		
+	function showVersion() {
 		$this->render('settings/version');
 	}
 	
@@ -163,17 +173,15 @@ class SettingsController extends Controller{
 	    $content = $this->spider->getContent(SP_VERSION_PAGE);
 	    $content['page'] = str_replace('Version:', '', $content['page']);
 	    $latestVersion = str_replace('.', '', $content['page']);
-	    $installVersion = str_replace('.', '', SP_INSTALLED);
+	    $installVersion = str_replace('.', '', SP_VERSION_NUMBER);
 	    if ($latestVersion > $installVersion) {
 	        echo showErrorMsg($this->spTextSettings['versionnotuptodatemsg']."({$content['page']}) from <a href='".SP_DOWNLOAD_LINK."' target='_blank'>".SP_DOWNLOAD_LINK."</a>", false);
 	    } else {
 	        echo showSuccessMsg($this->spTextSettings["Your Seo Panel installation is up to date"], false);
 	    }
 	}
-	
 
-
-	# show google api settings notification
+	// show google api settings notification
 	public static function showCheckCategorySettings($category, $printMsg = false) {
 		$ctrler = new SettingsController();
 		$spTextSettings = $ctrler->getLanguageTexts('settings', $_SESSION['lang_code']);
@@ -226,6 +234,35 @@ class SettingsController extends Controller{
 	function __getSettingInfo($setName) {
 		$setInfo = $this->dbHelper->getRow('settings', "set_name='".addslashes($setName)."'");
 		return $setInfo;
+	}
+	
+	// function to show test email
+	function showTestEmailSettings() {
+		$this->render('settings/show_test_email');
+	}
+	
+	// fucntion to send test email
+	function sendTestEmail($info) {
+		$errMsg = formatErrorMsg($this->validate->checkEmail($info['test_email']));
+		
+		if(!$this->validate->flagErr){
+			
+			$userController =  New UserController();
+			$adminInfo = $userController->__getAdminInfo();
+			$adminName = $adminInfo['first_name']."-".$adminInfo['last_name'];
+			$this->set('adminName', $adminName);
+			$content = $this->getViewContent('email/test_email');
+			
+			if (!sendMail($adminInfo['email'], $adminName, $info['test_email'], "Test email from " . SP_COMPANY_NAME, $content)) {
+				showErrorMsg('An internal error occured while sending mail!');
+			} else {
+				showSuccessMsg("Email send successfully to " . $info['test_email']);
+			}			
+			
+		} else {
+			showErrorMsg($errMsg);
+		}
+		
 	}
 	
 }

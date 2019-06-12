@@ -107,7 +107,7 @@ class Install {
 			<tr><th colspan="2" class="header">Installation compatibility</th></tr>
 			<tr><td colspan="2" class="error"><?php echo $errMsg;?></td></tr>
 			<tr>
-				<th>PHP version >= 5.0.0</th>
+				<th>PHP version >= 5.4.0</th>
 				<td class="<?php echo $phpClass;?>"><?php echo $phpSupport;?></td>
 			</tr>
 			<tr>
@@ -273,7 +273,7 @@ class Install {
 		# checking seo panel web path
 		$info['web_path'] = $this->getWebPath();
 		if(empty($info['web_path'])){
-			$errMsg = "Error occured while parsing installation url. Please <a href='http://www.seopanel.in/contact/' target='_blank'>contact</a> Seo Panel team.<br> or <br> Try manual installation by steps specified in <a href='http://www.seopanel.in/install/manual/' target='_blank'>http://www.seopanel.in/install/manual/</a>";
+			$errMsg = "Error occured while parsing installation url. Please <a href='https://www.seopanel.in/contact/' target='_blank'>contact</a> Seo Panel team.<br> or <br> Try manual installation by steps specified in <a href='http://www.seopanel.in/install/manual/' target='_blank'>http://www.seopanel.in/install/manual/</a>";
 			$this->startInstallation($info, $errMsg);
 			return;
 		}
@@ -303,7 +303,7 @@ class Install {
 		if(gethostbynamel('seopanel.in')){
 			include_once SP_INSTALL_DIR.'/../libs/spider.class.php';
 			include_once(SP_INSTALL_CONFIG_FILE);
-			$installUpdateUrl = "http://www.seopanel.in/installupdate.php?url=".urlencode($info['web_path'])."&ip=".$_SERVER['SERVER_ADDR']."&email=".urlencode($info['email']);
+			$installUpdateUrl = "https://www.seopanel.in/installupdate.php?url=".urlencode($info['web_path'])."&ip=".$_SERVER['SERVER_ADDR']."&email=".urlencode($info['email']);
 			$installUpdateUrl .= "&version=".SP_INSTALLED;
 			$spider = New Spider();
 			$spider->getContent($installUpdateUrl, false, false);
@@ -486,7 +486,7 @@ class Install {
 			<tr><th colspan="2" class="header">Upgrade compatibility</th></tr>
 			<tr><td colspan="2" class="error"><?php echo $errMsg;?></td></tr>
 			<tr>
-				<th>PHP version >= 5.0.0</th>
+				<th>PHP version >= 5.4.0</th>
 				<td class="<?php echo $phpClass;?>"><?php echo $phpSupport;?></td>
 			</tr>
 			<tr>
@@ -542,6 +542,12 @@ class Install {
 			'3.10.0',
 			'3.11.0',
 			'3.12.0',
+			'3.13.0',
+			'3.14.0',
+			'3.15.0',
+			'3.16.0',
+			'3.17.0',
+			'3.18.0',
 		);
 		
 		// get current version number

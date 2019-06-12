@@ -6,7 +6,7 @@ if ($isPluginSubsActive) {
 } else {
 	?>
 	<div id="topnewsbox">
-		<a class="bold_link" href="http://www.seopanel.in/plugin/l/65/membership-subscription/" target="_blank">
+		<a class="bold_link" href="<?php echo SP_MAIN_SITE?>/plugin/l/65/membership-subscription/" target="_blank">
 			<?php echo $spTextSubscription['click-activate-pay-plugin']; ?> &gt;&gt;
 		</a>
 	</div>
@@ -14,48 +14,43 @@ if ($isPluginSubsActive) {
 }
 ?>
 <?php echo $pagingDiv?>
-<table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
-	<tr class="listHead">
-		<td class="leftid"><input type="checkbox" id="checkall" onclick="checkList('checkall')"></td>
-		<td><?php echo $spText['common']['Id']?></td>			
-		<td><?php echo $spText['common']['User Type']?></td>
-		<td><?php echo $spText['label']['Description']?></td>
-		<td><?php echo $spText['common']['Keywords Count']?></td>
-		<td><?php echo $spText['common']['Websites Count']?></td>
+
+<table id="cust_tab">
+	<tr>
+		<th><input type="checkbox" id="checkall" onclick="checkList('checkall')"></th>
+		<th><?php echo $spText['common']['Id']?></th>			
+		<th><?php echo $spText['common']['User Type']?></th>
+		<th><?php echo $spText['label']['Description']?></th>
+		<th><?php echo $spText['common']['Keywords Count']?></th>
+		<th><?php echo $spText['common']['Websites Count']?></th>
+		<th><?php echo $spTextSubscription['Social Media Link Count']?></th>
+		<th><?php echo $spTextSubscription['Directory Submit Limit']?></th>
 		<?php if ($isPluginSubsActive) {?>
-			<td><?php echo $spText['common']['Price']?></td>
+			<th><?php echo $spText['common']['Price']?></th>
 		<?php }?>
-		<td><?php echo $spText['common']['Status']?></td>
-		<td class="right"><?php echo $spText['common']['Action']?></td>
+		<th><?php echo $spText['common']['Status']?></th>
+		<th><?php echo $spText['common']['Action']?></th>
 	</tr>
 	<?php
-	$colCount = $isPluginSubsActive ? 9 : 8; 
+	$colCount = $isPluginSubsActive ? 11 : 10; 
 	if(count($list) > 0){
-		$catCount = count($list);
-		foreach($list as $i => $listInfo){
-			$class = ($i % 2) ? "blue_row" : "white_row";
-            if($catCount == ($i + 1)){
-                $leftBotClass = "tab_left_bot";
-                $rightBotClass = "tab_right_bot";
-            }else{
-                $leftBotClass = "td_left_border td_br_right";
-                $rightBotClass = "td_br_right";
-            }
-            
+		foreach($list as $i => $listInfo){            
             $userTypeLink = scriptAJAXLinkHref('user-types-manager.php', 'content', "sec=edit&userTypeId={$listInfo['id']}", "{$listInfo['user_type']}")
 			?>
-			<tr class="<?php echo $class?>">
-				<td class="<?php echo $leftBotClass?>"><input type="checkbox" name="ids[]" value="<?php echo $listInfo['id']?>"></td>
-				<td class="td_br_right"><?php echo $listInfo['id']?></td>								
-				<td class="td_br_right left"><?php echo $userTypeLink?></td>		
-				<td class="td_br_right left"><?php echo $listInfo['description']?></td>		
-				<td class="td_br_right left"><?php echo $listInfo['keywordcount']?></td>	
-				<td class="td_br_right left"><?php echo $listInfo['websitecount']?></td>
+			<tr>
+				<td><input type="checkbox" name="ids[]" value="<?php echo $listInfo['id']?>"></td>
+				<td><?php echo $listInfo['id']?></td>								
+				<td><?php echo $userTypeLink?></td>		
+				<td><?php echo $listInfo['description']?></td>		
+				<td><?php echo $listInfo['keywordcount']?></td>	
+				<td><?php echo $listInfo['websitecount']?></td>	
+				<td><?php echo $listInfo['social_media_link_count']?></td>	
+				<td><?php echo $listInfo['directory_submit_limit']?></td>
 				<?php if ($isPluginSubsActive) {?>
-					<td class="td_br_right left"><?php echo $currencySymbol . $listInfo['price']; ?></td>
+					<td><?php echo $currencySymbol . $listInfo['price']; ?></td>
 				<?php }?>
-				<td class="td_br_right"><?php echo $listInfo['status'] ? $spText['common']["Active"] : $spText['common']["Inactive"];	?></td>
-				<td class="<?php echo $rightBotClass?>" width="100px">
+				<td><?php echo $listInfo['status'] ? $spText['common']["Active"] : $spText['common']["Inactive"];	?></td>
+				<td>
 					<?php
 						if($listInfo['status']){
 							$statVal = "Inactivate";
@@ -75,14 +70,13 @@ if ($isPluginSubsActive) {
 			</tr>
 			<?php
 		}
-	}else{	 
-		echo showNoRecordsList($colCount-2);		
+		
+	} else {
+	    ?>
+		<tr><td colspan="<?php echo $colCount?>"><b><?php echo $_SESSION['text']['common']['No Records Found']?></b></tr>
+		<?php		
 	} 
 	?>
-	<tr class="listBot">
-		<td class="left" colspan="<?php echo ($colCount-1)?>"></td>
-		<td class="right"></td>
-	</tr>
 </table>
 <?php
 if (SP_DEMO) {
@@ -93,6 +87,7 @@ if (SP_DEMO) {
 	$delFun = "confirmSubmit('user-types-manager.php', 'listform', 'content', '&sec=deleteall&pageno=$pageNo')";
 }
 ?>
+<br>
 <table width="100%" cellspacing="0" cellpadding="0" border="0" class="actionSec">
 	<tr>
     	<td style="padding-top: 6px;">

@@ -1,6 +1,6 @@
 <?php echo showSectionHead($spTextTools['Skipped Directories']); ?>
 <form id='search_form'>
-<table width="80%" border="0" cellspacing="0" cellpadding="0" class="search">
+<table width="80%" class="search">
 	<tr>
 		<th><?php echo $spText['common']['Name']?>: </th>
 		<td width="100px">
@@ -23,10 +23,7 @@
 
 <div id='subcontent'>
 <?php echo $pagingDiv?>
-<table width="100%" border="0" cellspacing="0" cellpadding="2px;" class="list" align='center'>
-	<tr>
-	<td width='33%'>
-	<table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
+<table width="100%" class="list">
 	<tr class="listHead">
 		<td class="left"><?php echo $spText['common']['Id']?></td>
 		<td><?php echo $spText['common']['Directory']?></td>
@@ -65,15 +62,12 @@
 			$i++;
 		}
 	}else{
-		echo showNoRecordsList($colCount-2);		
+		echo showNoRecordsList($colCount-2);
 	} 
 	?>
 	<tr class="listBot">
 		<td class="left" colspan="<?php echo ($colCount-1)?>"></td>
 		<td class="right"></td>
-	</tr>
-	</table>
-	</td>
 	</tr>
 </table>
 </div>

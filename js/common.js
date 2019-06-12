@@ -181,9 +181,11 @@ function doAction(scriptUrl, scriptPos, scriptArgs, actionDiv) {
 	
 		default:
 			if(spdemo){
-				if((actVal == 'delete') || (actVal == 'Activate') || (actVal == 'Inactivate') || (actVal == 'recheckreport') 
-					|| (actVal == 'showrunproject') || (actVal == 'checkscore') || (actVal == 'deletepage') || (actVal == 'upgrade') || (actVal == 'reinstall') ){
+				if((actVal == 'delete') || (actVal == 'Activate') || (actVal == 'Inactivate') || (actVal == 'recheckreport') || (actVal == 'addToWebmasterTools')
+					|| (actVal == 'showrunproject') || (actVal == 'checkscore') || (actVal == 'deletepage') || (actVal == 'upgrade') || (actVal == 'reinstall') 
+					|| (actVal == 'deleteSitemap')){
 					alertDemoMsg();
+					return false;
 				}
 			}
 			confirmLoad(scriptUrl, scriptPos, scriptArgs);
@@ -207,32 +209,29 @@ function doLoadUrl(argVal, scriptUrl) {
 }
 
 function showMenu(button, scriptPos){
-	
+	var downClass = 'fa-caret-down';
+	var upClass = 'fa-caret-up';
 	for (var i=0; i<menuList.length; i++) {
 		if(menuList[i] == scriptPos){
-			var but = document.getElementById(button).src;
-		    if(but.match("more") == "more"){
-		        but = but.replace(/more/,"hide");
-		        document.getElementById(scriptPos).style.display = '';
-		        document.getElementById(button).src = but;
-		        
-		        if(typeof(scriptList[i]) != "undefined") {
-		        	scriptDoLoad(scriptList[i], 'content')
+			if ($('#' + button).hasClass(downClass ) ) {
+				$('#' + button).addClass(upClass).removeClass(downClass);
+				$('#' + scriptPos).show();
+				
+				if(typeof(scriptList[i]) != "undefined") {
+		        	scriptDoLoad(scriptList[i], 'content');
+		        	$('#' + scriptPos + " a:first").addClass("menu_active");
 		        }
-		    }else{
-		        but = but.replace(/hide/,"more");
-		        document.getElementById(scriptPos).style.display = 'none';
-		        document.getElementById(button).src = but;		        	
-		    }			
+				
+			} else {
+				$('#' + button).addClass(downClass).removeClass(upClass);
+				$('#' + scriptPos).hide();
+			}		
 		}else{
-			var butClose = document.getElementById(buttonList[i]).src;
-			if(butClose.match("hide") == "hide"){
-				butClose = butClose.replace(/hide/,"more");
-				document.getElementById(menuList[i]).style.display = 'none';
-				document.getElementById(buttonList[i]).src = butClose;
-			}
+			$('#' + buttonList[i]).addClass(downClass).removeClass(upClass);
+			$('#' + menuList[i]).hide();
 		}	
-	}    
+	}
+	
 }
 
 function updateArea(scriptPos, content) {
@@ -306,7 +305,6 @@ function crawlMetaData(url,scriptPos) {
 }
 
 function hideNewsBox(scriptPos, cookieVar, cookieVal) {
-	hideDiv(scriptPos);
 	createCookie(cookieVar, cookieVal, 1);
 }
 
@@ -373,3 +371,15 @@ function openTab(tabName, dialog = false) {
 	$(dialogId + '#' + tabName).show();
 	$(dialogId + '#' + tabName + "Link").addClass('active');
 }
+
+$(function() {
+	
+	// submenu click function
+	$("#subui a").click(function() {
+		$("#subui a").removeClass("menu_active");
+		$(this).addClass("menu_active");
+		$('.navbar-collapse').collapse('hide');	
+	});
+	
+});
+

@@ -44,6 +44,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		case "update":
 			$controller->updateSystemSettings($_POST);
 			break;
+		
+		case "send_test_email":
+			if (!SP_DEMO) {
+				$controller->sendTestEmail($_POST);
+			}
+			break;
 	}
 	
 }else{
@@ -62,7 +68,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			break;
 		
 		case "aboutus":
-			$controller->showAboutUs();
+			$controller->showAboutUs($_GET);
 			break;
 		
 		case "version":
@@ -71,6 +77,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		
 		case "checkversion":
 			$controller->checkVersion();
+			break;
+		
+		case "test_email":
+			$controller->showTestEmailSettings();
 			break;
 		
 		case "checkMozCon":

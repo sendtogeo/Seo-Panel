@@ -37,10 +37,10 @@ class SeoPluginsController extends Controller{
 	var $pluginScriptUrl;
 	
 	# function to manage seo plugins
-	function manageSeoPlugins($info, $method='get') {
+	function manageSeoPlugins($info, $method='get', $cronJob = false) {
 		
 		// check for plugin access level for user, if not admin
-		if (!isAdmin()) {
+		if (!isAdmin() && !$cronJob) {
 			$userTypeCtrler = new UserTypeController();
 			$userSessInfo = Session::readSession('userInfo');
 			$pluginAccessList = $userTypeCtrler->getPluginAccessSettings($userSessInfo['userTypeId']);
@@ -239,7 +239,7 @@ class SeoPluginsController extends Controller{
 	# func to get all seo tools
 	function __getAllSeoPlugins($whereCond = ""){
 		$whereCond = !empty($whereCond) ? $whereCond : "1=1";
-		$sql = "select * from seoplugins where $whereCond order by id";
+		$sql = "select * from seoplugins where $whereCond order by priority,id";
 		$seoPluginList = $this->db->select($sql);
 		return $seoPluginList;
 	}
@@ -318,14 +318,17 @@ class SeoPluginsController extends Controller{
 		$listInfo['id'] = intval($listInfo['id']);
 		$this->set('post', $listInfo);
 		$errMsg['plugin_name'] = formatErrorMsg($this->validate->checkBlank($listInfo['plugin_name']));
+		$errMsg['priority'] = formatErrorMsg($this->validate->checkNumber($listInfo['priority']));
 		if(!$this->validate->flagErr){
 			$sql = "update seoplugins set
-						label='".addslashes($listInfo['plugin_name'])."'
+						label='".addslashes($listInfo['plugin_name'])."',
+						priority='".intval($listInfo['priority'])."'
 						where id={$listInfo['id']}";
 			$this->db->query($sql);
 			$this->listSeoPlugins();
 		}else{
 			$this->set('errMsg', $errMsg);
+			$listInfo['label'] = $listInfo['plugin_name'];
 			$this->editSeoPlugin($listInfo, true);
 		}
 	}
@@ -457,8 +460,9 @@ class SeoPluginsController extends Controller{
 	}
 	
 	# function to create helpers for main controlller
-	function createHelper($helperName) {		
-		include_once($this->pluginPath . "/".strtolower($helperName).".ctrl.php");
+	function createHelper($helperName) {
+		$pluginPath = !empty($this->pluginPath)	? $this->pluginPath : PLUGIN_PATH;
+		include_once($pluginPath . "/".strtolower($helperName).".ctrl.php");
 		$helperObj = New $helperName();
 		$helperObj->pluginPath = $this->pluginPath;
 		$helperObj->pluginId = $this->pluginId;
@@ -517,7 +521,7 @@ class SeoPluginsController extends Controller{
 		$pluginInfo = $this->__getSeoPluginInfo($pluginName, 'name');
 		$info['pid'] = $pluginInfo['id'];
 		$info['action'] = "get_plugin_object";
-		$pluginCtrler = $this->manageSeoPlugins($info);
+		$pluginCtrler = $this->manageSeoPlugins($info, 'get', true);
 		return $pluginCtrler;
 	}
 	

@@ -109,8 +109,12 @@ class Controller extends Seopanel{
 		if(empty($layout) || ($layout == 'default')){
 			if(!empty($this->layout)){
 				$layout = $this->layout;
-			}			
-			if ($layout == 'default') $this->set('translatorInfo', $this->getTranslatorInfo());
+			}
+			
+			if ($layout == 'default') {
+				$this->set('translatorInfo', $this->getTranslatorInfo());
+			}
+			
 		}
 		$this->view->data = $this->data;
 		$this->view->render($viewFile, $layout);
@@ -129,7 +133,7 @@ class Controller extends Seopanel{
 					$trname .=  $i ? " and ".$info['trans_name'] : $info['trans_name'];
 					$trlink .= " | <a href='{$info['trans_website']}' target='_blank' style='font-size:12px;'>{$info['trans_company']}</a>";	
 				}			
-				$translatorInfo .= "<div style='margin-top: 6px;'>$trname $trlink</div>";
+				$translatorInfo .= " | $trname $trlink";
 			}
 		}
 		return $translatorInfo;

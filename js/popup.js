@@ -1,6 +1,16 @@
 function scriptDoLoadDialog(scriptUrl, scriptPos, scriptArgs, widthVal, heightVal) {
-	widthVal = widthVal ? widthVal : 900;
-	heightVal = heightVal ? heightVal : 600;
+	var screenWidth, screenHeight;
+    screenWidth = $(window).width();
+    screenHeight = 	$(window).height();
+    
+    if ( screenWidth <= 769 ) {
+    	widthVal = screenWidth * .80;
+    	heightVal = screenHeight * .80;
+    } else {
+    	widthVal = widthVal ? widthVal : 900;
+    	heightVal = heightVal ? heightVal : 600;
+    }
+	
 	$('#dialogContent').dialog({
 	    autoOpen : false,
 	    width : widthVal,

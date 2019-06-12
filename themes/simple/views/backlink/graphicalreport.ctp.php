@@ -4,7 +4,7 @@ $submitAction = "scriptDoLoadPost('backlinks.php', 'search_form', 'content')";
 ?>
 <form id='search_form'>
 <input type="hidden" name="sec" value="graphical-reports">
-<table width="100%" border="0" cellspacing="0" cellpadding="0" class="search">
+<table class="search">
 	<tr>
 		<th><?php echo $spText['common']['Website']?>: </th>
 		<td>
@@ -20,16 +20,21 @@ $submitAction = "scriptDoLoadPost('backlinks.php', 'search_form', 'content')";
 		</td>
 		<th><?php echo $spText['common']['Period']?>:</th>
 		<td>
-			<input type="text" style="width: 80px;margin-right:0px;" value="<?php echo $fromTime?>" name="from_time"/> 
-			<img align="bottom" onclick="displayDatePicker('from_time', false, 'ymd', '-');" src="<?php echo SP_IMGPATH?>/cal.gif"/> 
-			<input type="text" style="width: 80px;margin-right:0px;" value="<?php echo $toTime?>" name="to_time"/> 
-			<img align="bottom" onclick="displayDatePicker('to_time', false, 'ymd', '-');" src="<?php echo SP_IMGPATH?>/cal.gif"/>
+			<input type="text" value="<?php echo $fromTime?>" name="from_time" id="from_time"/> 
+			<input type="text" value="<?php echo $toTime?>" name="to_time" id="to_time"/>
+			<script>
+            $( function() {
+            	$( "#from_time, #to_time").datepicker({dateFormat: "yy-mm-dd"});
+            } );
+		  	</script>
 		</td>
-		<td colspan="2"><a href="javascript:void(0);" onclick="<?php echo $submitAction;?>" class="actionbut"><?php echo $spText['button']['Show Records']?></a></td>
+		<td>
+			<a href="javascript:void(0);" onclick="<?php echo $submitAction;?>" class="actionbut"><?php echo $spText['button']['Show Records']?></a>
+		</td>
 	</tr>
 </table>
 </form>
 
-<div id='subcontent'>
+<div id='subcontent' class="col-md-12">
 	<?php echo $graphContent; ?>
 </div>

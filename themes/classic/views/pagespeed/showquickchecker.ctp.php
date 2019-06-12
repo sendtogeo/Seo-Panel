@@ -1,10 +1,10 @@
 <?php echo showSectionHead($spTextTools['Quick PageSpeed Checker']); ?>
 <form id='search_form'>
-<table width="60%" border="0" cellspacing="0" cellpadding="0" class="search">
+<table width="60%" class="search">
 	<tr>				
 		<th><?php echo $spText['common']['Website']?>: </th>
 		<td>
-			<textarea name="website_urls" cols="150" rows="8"></textarea>
+			<textarea name="website_urls" cols="50" rows="8"></textarea>
 		</td>
 	</tr>
 	<tr>

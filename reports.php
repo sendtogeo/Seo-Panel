@@ -48,7 +48,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	switch($_POST['sec']){
 		
 		case "kwchecker":
-			$controller->showQuickRankChecker($_POST);
+			if (isQuickCheckerEnabled()) {
+				$controller->showQuickRankChecker($_POST);
+			} else {
+				showErrorMsg($_SESSION['text']['label']["Access denied"]);
+			}
 			break;
 		
 		case "reportsum":
@@ -57,7 +61,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
 		case "schedule":
 			$controller->saveReportSchedule($_POST);
-			break;	
+			break;
+
+		case "report_gen_logs":
+			checkAdminLoggedIn();
+			$controller->showReportGenerationLogs($_POST);
+			break;
 			
 		default:
 			$controller->showReports($_POST);
@@ -81,6 +90,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
 		case "schedule":
 			$controller->showReportsScheduler(false, $_GET);
+			break;
+
+		case "report_gen_logs":
+			checkAdminLoggedIn();
+			$controller->showReportGenerationLogs($_GET);
 			break;
 						
 		default:

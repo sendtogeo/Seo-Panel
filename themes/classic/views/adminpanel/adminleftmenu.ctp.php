@@ -7,10 +7,10 @@
 <?php 
 foreach($menuList as $i => $menuInfo){
 	if($menuSelected == $menuInfo['url_section']){
-			$imgSrc = "hide";
-			$style = "";
+		$menuClass = "fa-caret-up";
+		$style = "";
 	}else{
-		$imgSrc = "more";
+		$menuClass = "fa-caret-down";
 		$style = 'none';
 	}
 	$button = "img".$menuInfo['id'];
@@ -20,8 +20,11 @@ foreach($menuList as $i => $menuInfo){
 		menuList[<?php echo $i?>] = '<?php echo $subMenuId?>';
 		buttonList[<?php echo $i?>] = '<?php echo $button?>';
 	</script>
-	<li class="tab">
-		<a href='javascript:void(0);' onclick="showMenu('<?php echo $button?>','<?php echo $subMenuId?>')"><img id="<?php echo $button?>" src="<?php echo SP_IMGPATH."/".$imgSrc?>.gif"> <?php echo $menuInfo['name']?></a>
+	<li class="tab" onclick="showMenu('<?php echo $button?>','<?php echo $subMenuId?>')">
+		<i id="<?php echo $button?>" class="fas <?php echo $menuClass?>"></i>
+		<a href='javascript:void(0);'>
+			<?php echo $menuInfo['name']?>
+		</a>
 	</li>
 	<li id="<?php echo $subMenuId?>" class="subtab" style="display:<?php echo $style?>;padding-left:0px;">
 	<?php
@@ -31,9 +34,19 @@ foreach($menuList as $i => $menuInfo){
 			?>
 			<script type="text/javascript">scriptList[<?php echo $i?>] = 'websites.php';</script>			
 			<ul id='subui'>
-				<li><a href="javascript:void(0);" onclick="scriptDoLoad('websites.php', 'content')"><?php echo $spTextPanel['Website Manager']?></a></li>
+				<li><a href="javascript:void(0);" onclick="scriptDoLoad('websites.php', 'content')" class="menu_active"><?php echo $spTextPanel['Website Manager']?></a></li>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('websites.php', 'content', 'sec=new')"><?php echo $spTextPanel['New Website']?></a></li>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('websites.php', 'content', 'sec=import')"><?php echo $spTextPanel['Import Websites']?></a></li>
+				<li>
+					<a href="javascript:void(0);" onclick="scriptDoLoad('websites.php', 'content', 'sec=importWebmasterTools')">
+						<?php echo $spTextPanel['Import Websites']?>(<?php echo $spTextTools['webmaster-tools']?>)
+					</a>
+				</li>
+				<li>
+					<a href="javascript:void(0);" onclick="scriptDoLoad('websites.php', 'content', 'sec=listSitemap')">
+						<?php echo $spTextPanel['Sitemaps']?>(<?php echo $spTextTools['webmaster-tools']?>)
+					</a>
+				</li>
 			</ul>
 			<?php
 			break;
@@ -67,6 +80,7 @@ foreach($menuList as $i => $menuInfo){
 				<?php }?>
 				<?php if (isAdmin()) {?>
     				<li><a href="javascript:void(0);" onclick="scriptDoLoad('cron.php', 'content')"><?php echo $spTextPanel['Report Generation Manager']?></a></li>
+    				<li><a href="javascript:void(0);" onclick="scriptDoLoad('reports.php?sec=report_gen_logs', 'content')"><?php echo $spTextPanel['Report Generation Logs']?></a></li>
     				<li><a href="javascript:void(0);" onclick="scriptDoLoad('cron.php?sec=croncommand', 'content')"><?php echo $spTextPanel['Cron Command']?></a></li>
 					<li><a href="javascript:void(0);" onclick="scriptDoLoad('settings.php?sec=reportsettings', 'content')"><?php echo $spTextPanel['Global Reports Settings']?></a></li>
 				<?php }?>
@@ -154,6 +168,7 @@ foreach($menuList as $i => $menuInfo){
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('settings.php', 'content')"><?php echo $spTextPanel['System Settings']?></a></li>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('settings.php?category=moz', 'content')"><?php echo $spTextPanel['MOZ Settings']?></a></li>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('settings.php?category=google', 'content')"><?php echo $spTextPanel['Google Settings']?></a></li>
+				<li><a href="javascript:void(0);" onclick="scriptDoLoad('settings.php?sec=test_email', 'content')"><?php echo $spTextPanel['Test Email Settings']?></a></li>
 			</ul>
 			<?php
 			break;
@@ -163,6 +178,7 @@ foreach($menuList as $i => $menuInfo){
 			<script type="text/javascript">scriptList[<?php echo $i?>] = 'users.php?sec=my-profile';</script>			
 			<ul id='subui'>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('users.php?sec=my-profile', 'content')"><?php echo $spTextPanel['My Profile']?></a></li>
+				<li><a href="javascript:void(0);" onclick="scriptDoLoad('connections.php', 'content')"><?php echo $spTextPanel['Connections']?></a></li>
 			</ul>
 			<?php
 			break;
@@ -172,6 +188,7 @@ foreach($menuList as $i => $menuInfo){
 			<script type="text/javascript">scriptList[<?php echo $i?>] = 'settings.php?sec=aboutus';</script>			
 			<ul id='subui'>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('settings.php?sec=aboutus', 'content')"><?php echo $spTextPanel['About Us']?></a></li>
+				<li><a href="javascript:void(0);" onclick="scriptDoLoad('settings.php?sec=aboutus&subsec=sponsors', 'content')"><?php echo $spText['label']['Sponsors']?></a></li>
 				<?php if (isAdmin()) {?>
 					<li><a href="javascript:void(0);" onclick="scriptDoLoad('settings.php?sec=version', 'content')"><?php echo $spText['label']['Version']?></a></li>
 				<?php }?>

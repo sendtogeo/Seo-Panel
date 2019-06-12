@@ -140,6 +140,7 @@ class DirectoryController extends Controller{
 
 	# func to create captcha image in system
 	function __getCreatedCaptchaUrl($captchaUrl, $submitUrl, $phpsessid){
+		$captchaUrlInfo = ['url' => $captchaUrl, 'code' => ''];
 		
 		$spider = new Spider();
 		$spider->_CURLOPT_REFERER = $submitUrl;
@@ -157,9 +158,18 @@ class DirectoryController extends Controller{
 			fwrite($fp, $ret['page']);
 			fclose($fp);
 			$captchaUrl = SP_WEBPATH. "/tmp/" .$captchaFile ."?rand=".mktime();	
+			$captchaUrlInfo['url'] = $captchaUrl;
+			
+			// check for captcha bypass plugin enabled or not
+			if (isPluginActivated("CaptchaBypass")) {
+				$seopluginCtrler = new SeoPluginsController();
+				$pluginCtrler = $seopluginCtrler->createPluginObject("CaptchaBypass");
+				$captchaUrlInfo['code'] = $pluginCtrler->solveCaptchaImage(['img_path' => SP_TMPPATH."/".$captchaFile]);
+			}
+			
 		}
 		
-		return $captchaUrl; 
+		return $captchaUrlInfo; 
 	}
 	
 	# func to show submission page
@@ -234,7 +244,10 @@ class DirectoryController extends Controller{
 		if(!empty($matches[0])){
 			
 			$categorysel = $matches[0];
-			$catList = explode(',', $websiteInfo['category']);
+			$this->set('catSelectStr', $websiteInfo['category']);
+			
+			// replaced with jquery script
+			/*$catList = explode(',', $websiteInfo['category']);
 			if(count($catList) > 0){
 				foreach($catList as $category){
 					$category = trim($category);
@@ -245,7 +258,7 @@ class DirectoryController extends Controller{
 				if($count <= 0){
 					$categorysel = $matches[0];
 				}
-			}
+			}*/
 
 			$categorysel = str_replace("ADD_CATEGORY_ID[]", $dirInfo['category_col'], $categorysel);
 			$this->set('categorySel', $categorysel);
@@ -283,7 +296,8 @@ class DirectoryController extends Controller{
 				}
 
 				# to get stored image path if hot linking is prevented
-				$captchaUrl = $this->__getCreatedCaptchaUrl($captchaUrl, $dirInfo['submit_url'], $phpsessid);
+				$captchaUrlInfo = $this->__getCreatedCaptchaUrl($captchaUrl, $dirInfo['submit_url'], $phpsessid);
+				$captchaUrl = $captchaUrlInfo['url'];
 				
 			} else {
 
@@ -293,8 +307,14 @@ class DirectoryController extends Controller{
 					$addParams = "&DO_MATH=$sumMath&Anti_Spam_Field=$sumMath";
 				}
 				
+				if (isPluginActivated("CaptchaBypass")) {
+					$seopluginCtrler = new SeoPluginsController();
+					$pluginCtrler = $seopluginCtrler->createPluginObject("CaptchaBypass");
+				}
+				
 			}			
 			
+			$this->set('captchaCode', !empty($captchaUrlInfo['code']) ? $captchaUrlInfo['code'] : "");
 			$this->set('captchaUrl', $captchaUrl);
 			$this->set('addParams', $addParams);
 
@@ -666,16 +686,7 @@ class DirectoryController extends Controller{
 	# function to show featured directories
 	function showFeaturedSubmission($info="") {
 	    $dirList = $this->getAllFeaturedDirectories();
-	    $this->set('list', $dirList);    
-	    /*if (empty($info['dir_id'])) {
-	        $selDirInfo = $dirList[1];
-	        $selDirId = $selDirInfo['id'];
-	    } else {
-	        $selDirId = intval($info['dir_id']); 
-	        $selDirInfo = $dirList[$selDirId];   
-	    }
-	    $this->set('selDirId', $selDirId);
-	    $this->set('selDirInfo', $selDirInfo);*/ 	    
+	    $this->set('list', $dirList);
 		$this->render('directory/featuredsubmission');
 	}	
 	

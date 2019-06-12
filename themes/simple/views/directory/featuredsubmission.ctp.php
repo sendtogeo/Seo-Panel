@@ -27,7 +27,7 @@
             ?>
 			<tr class="<?php echo $class?>">
 				<td class="<?php echo $leftBotClass?>"><?php echo $listInfo['id']?></td>    				
-				<td class="td_br_right left"><a target="_blank" href="<?php echo addHttpToUrl($listInfo['directory_name']); ?>"><?php echo $listInfo['directory_name']?></a></td>    				
+				<td class="td_br_right left"><a target="_blank" href="<?php echo addHttpToUrl($listInfo['directory_link']); ?>"><?php echo $listInfo['directory_name']?></a></td>    				
 				<td class="td_br_right"><?php echo $listInfo['google_pagerank']?></td>
 				<!--
 				<td class="td_br_right" style="color: red;"><?php echo $listInfo['coupon_code']?></td>

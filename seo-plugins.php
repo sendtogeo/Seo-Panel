@@ -29,9 +29,12 @@ $controller->view->menu = 'seoplugins';
 $controller->spTextPlugin = $controller->getLanguageTexts('plugin', $_SESSION['lang_code']);
 $controller->set('spTextPlugin', $controller->spTextPlugin);
 
-$controller->set('spTitle', 'Seo Panel: Provides latest seo plugins to increase and track the performace your websites');
-$controller->set('spDescription', 'Its an open source software and also you can develop your own seo plugins for seo panel. Download new seo plugins and install into your seo panel software and increase your site perfomance.');
-$controller->set('spKeywords', 'seo panel plugins,latest seo plugins,download seo plugins,install seo plugins,develop seo plugins');
+// set site details according to customizer plugin
+$custSiteInfo = getCustomizerDetails();
+$siteName = !empty($custSiteInfo['site_name']) ? $custSiteInfo['site_name'] : "Seo Panel";
+$controller->set('spTitle', "$siteName: Provides latest seo plugins to increase and track the performace your website");
+$controller->set('spDescription', "Its an open source software and also you can develop your own seo plugins for $siteName. Download new seo plugins and install into your $siteName software and increase your site perfomance.");
+$controller->set('spKeywords', "$siteName plugins,latest seo plugins,download seo plugins,install seo plugins,develop seo plugins");
 
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	

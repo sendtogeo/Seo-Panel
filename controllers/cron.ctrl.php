@@ -48,8 +48,7 @@ class CronController extends Controller {
 		if(count($includeList) > 0) $sql .= " and id in (".implode(',', $includeList).")";
 		$sql .= " order by id ASC";
 		$this->cronList = $this->db->select($sql);
-	}
-	
+	}	
 	
 	# function to show report generation manager
 	function showReportGenerationManager(){
@@ -105,14 +104,24 @@ class CronController extends Controller {
 	}
 	
 	# common cron execute function
-	function executeCron($includeList=array()) {
+	function executeCron($includeList=array(), $userSelectList=array()) {
 		
 		$this->loadCronJobTools($includeList);
 		$lastGenerated = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
 		
 		$userCtrler = New UserController();
-		$userList = $userCtrler->__getAllUsers();
+		
+		// if user list selected is not empty
+		if (!empty($userSelectList)) {
+			$userList = $userSelectList;
+		} else {
+			$userList = $userCtrler->__getAllUsers(true, true, "utype_id DESC");
+		}
+		
 		foreach($userList as $userInfo){
+			
+			// check whethere user id is existing
+			if (empty($userInfo['id'])) continue;
 			
 			// check whether user expired 
 			if (!$userCtrler->isUserExpired($userInfo['id'])) {
@@ -123,7 +132,8 @@ class CronController extends Controller {
 		    $reportCtrler = New ReportController();
 		    
 		    // check for user report schedule
-		    $repSetInfo = $reportCtrler->isGenerateReportsForUser($userInfo['id']); 
+		    $repSetInfo = $reportCtrler->isGenerateReportsForUser($userInfo['id']);
+		    
 			if (!empty($repSetInfo['generate_report'])) {
 			    
 			    $websiteCtrler = New WebsiteController();
@@ -161,8 +171,13 @@ class CronController extends Controller {
         			// save report generated time
     				$reportCtrler->updateUserReportSetting($userInfo['id'], 'last_generated', $lastGenerated);
     				
+    				// update report generation logs
+    				$reportCtrler->updateUserReportGenerationLogs($userInfo['id'], date('Y-m-d H:i:s'));
+    				
     				// send email notification if enabled
     				if (SP_REPORT_EMAIL_NOTIFICATION && $repSetInfo['email_notification']) {
+    					$reportCtrler->spTextTools = $this->getLanguageTexts('seotools', $_SESSION['lang_code']);
+    					$reportCtrler->set('spTextTools', $reportCtrler->spTextTools);
     				    $reportCtrler->sentEmailNotificationForReportGen($userInfo, $repSetInfo['last_generated'], $lastGenerated);
     				}
     				
@@ -171,15 +186,19 @@ class CronController extends Controller {
 			}
 		}
 		
-		// reset all keywords crawl status
-		$keywordCtrler = New KeywordController();
-		$keywordCtrler->__changeCrawledStatus(0);
-		$this->debugMsg("Reset all keywords crawl status\n");
-
-		// change all website crawl status
-		$sql = "update websites set crawled=0";
-		$keywordCtrler->db->query($sql);
-		$this->debugMsg("Change all websites crawl status\n");
+		// if user selected list empty
+		if (empty($userSelectList)) {
+			
+			// reset all keywords crawl status
+			$keywordCtrler = New KeywordController();
+			$keywordCtrler->__changeCrawledStatus(0);
+			$this->debugMsg("Reset all keywords crawl status\n");
+	
+			// change all website crawl status
+			$sql = "update websites set crawled=0";
+			$keywordCtrler->db->query($sql);
+			$this->debugMsg("Change all websites crawl status\n");
+		}
 		
 	}
 	
@@ -202,8 +221,29 @@ class CronController extends Controller {
 			$seoTools = $this->repTools;
 		}
 		
+		// check whethre user access to seo tools and plugins
+		$userCtrler = New UserController();
+		$userInfo = $userCtrler->__getUserInfo($this->websiteInfo['user_id']);
+		$userTypeCtrler = new UserTypeController();
+		
+		// check whethere user is admin
+		if ($userInfo['utype_id'] == $userTypeCtrler->getAdminUserTypeId()) {
+		    $isAdmin = true;
+		} else {
+		    $isAdmin = false;
+		    $toolAccessList = $userTypeCtrler->getSeoToolAccessSettings($userInfo['utype_id']);
+		}		
+		
 		foreach ($seoTools as $cronInfo) {
+		    
+		    // check whether user have acccess to the tool
+		    if (!$isAdmin && empty($toolAccessList[$cronInfo['id']]['value']) ) continue;
+		    
 			switch($cronInfo['url_section']){
+				
+				case "webmaster-tools":
+					$this->webmasterToolsCron($websiteId);
+					break;
 				
 				case "keyword-position-checker":
 					$this->keywordPositionCheckerCron($websiteId);
@@ -224,8 +264,13 @@ class CronController extends Controller {
 				case "pagespeed":
 					$this->pageSpeedCheckerCron($websiteId);
 					break;
+					
+				case "sm-checker":
+					$this->socialMediaCheckerCron($websiteId);
+					break;
 			}
 		}
+		
 	}
 	
 	# func to generate search engine saturation reports from cron
@@ -275,6 +320,40 @@ class CronController extends Controller {
 	
 	}
 	
+	# func to generate social media checker reports from cron
+	function socialMediaCheckerCron($websiteId){
+	
+		include_once(SP_CTRLPATH."/social_media.ctrl.php");
+		$this->debugMsg("Starting social media Checker cron for website: {$this->websiteInfo['name']}....<br>\n");
+	
+		$socialMediaCtrler = New SocialMediaController();
+		$websiteInfo = $this->websiteInfo;
+		
+		$linkList = $socialMediaCtrler->getAllLinksWithOutReports($websiteInfo['id'], date('Y-m-d', $this->timeStamp));
+		if (SP_MULTIPLE_CRON_EXEC && empty($linkList)) {
+			$this->debugMsg("No social media links left to generate report for website: {$this->websiteInfo['name']}....<br>\n");
+			return true;
+		}
+		
+		// loop through link list and save the data
+		foreach ($linkList as $linkInfo) {
+			$result = $socialMediaCtrler->getSocialMediaDetails($linkInfo['type'], $linkInfo['url']);
+			
+			if ($result['status']) {
+				echo "Crawled social media results of <b>{$linkInfo['name']}</b>.....</br>\n";
+			} else {
+				echo "Failed Crawling of social media results of <b>{$linkInfo['name']}</b>.....</br>\n";
+				echo $result['msg'];
+			}
+			
+			// save the social media data
+			$socialMediaCtrler->saveSocialMediaLinkResults($linkInfo['id'], $result);
+			
+		}
+		
+		echo "Saved social media results of website id: <b>$websiteId</b>.....</br>\n";
+	
+	}	
 	
 	# func to generate backlink reports from cron
 	function backlinkCheckerCron($websiteId){
@@ -295,8 +374,7 @@ class CronController extends Controller {
 		$backlinkCtrler->saveRankResults($websiteInfo, true);			
 		echo "Saved backlink results of <b>$websiteUrl</b>.....</br>\n";
 		
-	}
-	
+	}	
 	
 	# func to generate rank reports from cron
 	function rankCheckerCron($websiteId){
@@ -387,6 +465,37 @@ class CronController extends Controller {
 			}
 			sleep(SP_CRAWL_DELAY);
 		}
+	}	
+	
+	# func to generate webmaster tools reports from cron
+	function webmasterToolsCron($websiteId){
+		
+		include_once(SP_CTRLPATH."/webmaster.ctrl.php");
+		$this->debugMsg("Starting webmaster tools cron for website: {$this->websiteInfo['name']}....<br>\n");
+		
+		$wmCtrler = New WebMasterController();
+		$websiteInfo = $this->websiteInfo;
+		
+		// report date should be less than 2 days, then only reports will be generated
+		$reportDate = date('Y-m-d', $this->timeStamp - (3 * 60 * 60 * 24));
+		
+		// loop through source list
+		foreach ($wmCtrler->sourceList as $source) {
+			
+			// check whether reports already existing 
+			if (SP_MULTIPLE_CRON_EXEC && $wmCtrler->isReportsExists($websiteInfo['id'], $reportDate, $source)) continue;
+			
+			// store results
+			$wmCtrler->storeWebsiteAnalytics($websiteInfo['id'], $reportDate, $source);
+		}		
+
+		$this->debugMsg("Saved webmaster tools analytics results of <b>{$this->websiteInfo['name']}</b>.....<br>\n");
+		
+		// update webmaster tools sitemaps
+		$websiteController = New WebsiteController();
+		$websiteController->importWebmasterToolsSitemaps($websiteId);
+		$this->debugMsg("Saved webmaster tools sitemaps of <b>{$this->websiteInfo['name']}</b>.....<br>\n");		
+		
 	}
 	
 	# func to show debug messages
@@ -394,5 +503,6 @@ class CronController extends Controller {
 		
 		if($this->debug == true) print $msg;
 	}
+	
 }
 ?>
