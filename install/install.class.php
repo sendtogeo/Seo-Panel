@@ -548,6 +548,7 @@ class Install {
 			'3.16.0',
 			'3.17.0',
 			'3.18.0',
+			'4.0.0',
 		);
 		
 		// get current version number
