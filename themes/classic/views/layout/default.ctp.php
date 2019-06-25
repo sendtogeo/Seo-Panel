@@ -9,15 +9,28 @@
     $spDescription = empty($spDescription) ? SP_DESCRIPTION : $spDescription;
     $spKeywords = empty($spKeywords) ? SP_KEYWORDS : $spKeywords;
     $spKey = "v" . substr(SP_INSTALLED, 2);
+    $userInfo = @Session::readSession('userInfo');
+    $userType = empty($userInfo['userType']) ? "guest" : $userInfo['userType'];
     
-    // theme wise changes
-    if (stristr(SP_VIEWPATH, '/simple/')) {
-    	$siteBgClass = "bg-primary";
-    	$siteFooterBgClass = "bg-primary";
+    $menuName = ($userType != "guest" && $userType != "admin") ? "user" : $userType;
+    $menuInfo = getCustomizerMenu($menuName);
+    
+    if (!empty($menuInfo['bg_color'])) {
+    	$siteBgClass = $menuInfo['bg_color'];
+    	$siteFooterBgClass = $menuInfo['bg_color'];
     } else {
-    	$siteBgClass = "bg-dark";
-    	$siteFooterBgClass = "bg-dark text-muted";
+    
+	    // theme wise changes
+	    if (stristr(SP_VIEWPATH, '/simple/')) {
+	    	$siteBgClass = "bg-primary";
+	    	$siteFooterBgClass = "bg-primary";
+	    } else {
+	    	$siteBgClass = "bg-dark";
+	    	$siteFooterBgClass = "bg-dark text-muted";
+	    }
     }
+    
+    $siteNavFontClass = !empty($menuInfo['font_color']) ? $menuInfo['font_color'] : "navbar-dark"; 
     ?>
     <title><?php echo stripslashes($spTitle)?></title>
     <meta name="description" content="<?php echo $spDescription?>" />
@@ -60,7 +73,7 @@
     var wantproceed = '<?php  echo $spText['label']['wantproceed']; ?>';
     </script>
     
-    <nav class="navbar navbar-expand-md navbar-dark <?php echo $siteBgClass;?>">
+    <nav class="navbar navbar-expand-md <?php echo $siteNavFontClass?> <?php echo $siteBgClass;?>">
     	<a class="navbar-brand" href="<?php echo SP_WEBPATH?>">
     		<img src="<?php echo !empty($custSiteInfo['site_logo']) ? $custSiteInfo['site_logo'] : SP_IMGPATH . "/logo_red_sm.png";?>">
     	</a>
@@ -87,7 +100,7 @@
     	</div>
     </div>
     
-    <div class="container-fluid fixed-bottom <?php echo $siteFooterBgClass;?> center footer-sp">
+    <div class="container-fluid fixed-bottom <?php echo $siteNavFontClass?> <?php echo $siteFooterBgClass;?> center footer-sp">
     	<?php include_once(SP_VIEWPATH."/common/footer.ctp.php"); ?>
     </div>
     
