@@ -270,16 +270,18 @@ function isUserHaveAccessToSeoTool($urlSection, $showError = true) {
 }
 
 # function to create plugin ajax get method
-function pluginGETMethod($args='', $area='content'){
-	$script = "seo-plugins.php?pid=".PLUGIN_ID;	
-	$request = "scriptDoLoad('$script', '$area', '$args')";
+function pluginGETMethod($args='', $area='content', $dialog = false){
+	$script = "seo-plugins.php?pid=".PLUGIN_ID;
+	$scriptFunc = $dialog ? "scriptDoLoadDialog" : "scriptDoLoad";
+	$request = "$scriptFunc('$script', '$area', '$args')";
 	return $request;
 }
 
 # function to create plugin ajax post method
-function pluginPOSTMethod($formName, $area='content', $args=''){
+function pluginPOSTMethod($formName, $area='content', $args='', $dialog = false){
 	$args = "&pid=".PLUGIN_ID."&$args";
-	$request = "scriptDoLoadPost('seo-plugins.php', '$formName', '$area', '$args')";
+	$scriptFunc = $dialog ? "popupScriptDoLoadPostDialog" : "scriptDoLoadPost";
+	$request = "$scriptFunc('seo-plugins.php', '$formName', '$area', '$args')";
 	return $request;
 }
 
