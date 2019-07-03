@@ -88,17 +88,9 @@ class SeoPluginsController extends Controller{
 			$pluginControler->initPlugin($data);
 			return $pluginControler;
 		} else {
-
 			$this->pluginCtrler = $pluginControler;
 			$action = empty($info['action']) ? "index" : $info['action'];
 			$data = $_REQUEST;
-		
-			// check whethere export report type action
-			if (empty($data['doc_type']) || ($data['doc_type'] != 'export')) {
-				$this->loadAllPluginCss();
-				$this->loadAllPluginJs();
-			}
-	
 			$pluginControler->initPlugin($data);
 			$pluginControler->$action($data);
 		}
@@ -133,12 +125,14 @@ class SeoPluginsController extends Controller{
 	}
 
 	# func to load plugin css files
-	function loadAllPluginCss() {
-		if(file_exists(PLUGIN_PATH."/css")){
-			if ($handle = opendir(PLUGIN_PATH."/css")) {
+	function loadAllPluginCss($pluginPathDir = "", $pluginCssWebPath = "") {
+		$pluginPathDir = !empty($pluginPathDir) ? $pluginPathDir : PLUGIN_PATH."/css";
+		$pluginCssWebPath = !empty($pluginCssWebPath) ? $pluginCssWebPath : PLUGIN_CSSPATH;
+		if(file_exists($pluginPathDir)){
+			if ($handle = opendir($pluginPathDir)) {
 				while (false !== ($file = readdir($handle))) {
 					if ( ($file != ".") && ($file != "..") &&  preg_match('/\.css$/i', $file) ) {
-						print '<script>loadJsCssFile("'.PLUGIN_CSSPATH."/".$file.'", "css")</script>';
+						return '<script>loadJsCssFile("'.$pluginCssWebPath."/".$file.'", "css")</script>';
 					}
 				}
 			}
@@ -146,12 +140,14 @@ class SeoPluginsController extends Controller{
 	}
 	
 	# func to load plugin js files
-	function loadAllPluginJs() {
-		if(file_exists(PLUGIN_PATH."/js")){
-			if ($handle = opendir(PLUGIN_PATH."/js")) {
+	function loadAllPluginJs($pluginPathDir = "", $pluginJsWebPath = "") {
+		$pluginPathDir = !empty($pluginPathDir) ? $pluginPathDir : PLUGIN_PATH."/js";
+		$pluginJsWebPath = !empty($pluginJsWebPath) ? $pluginJsWebPath : PLUGIN_JSPATH;
+		if(file_exists($pluginPathDir)){
+			if ($handle = opendir($pluginPathDir)) {
 				while (false !== ($file = readdir($handle))) {
 					if ( ($file != ".") && ($file != "..") &&  preg_match('/\.js$/i', $file) ) {
-						print '<script>loadJsCssFile("'.PLUGIN_JSPATH."/".$file.'", "js")</script>';
+						return '<script>loadJsCssFile("'.$pluginJsWebPath."/".$file.'", "js")</script>';
 					}
 				}
 			}
@@ -227,6 +223,13 @@ class SeoPluginsController extends Controller{
 										</ul>";
 				}
 			}
+
+			// load plugin js and css files
+			$pluginPathDir = SP_PLUGINPATH."/".$pluginDirName;
+			$pluginWebPath = SP_WEBPATH . "/plugins/" . $pluginDirName;
+			$pluginCssJsCont = $this->loadAllPluginCss($pluginPathDir . "/css", $pluginWebPath . "/css");
+			$pluginCssJsCont .= $this->loadAllPluginJs($pluginPathDir . "/js", $pluginWebPath . "/js");
+			$menuList[$i]['menu'] .= $pluginCssJsCont;
 		}
 		
 		$this->set('menuList', $menuList);
