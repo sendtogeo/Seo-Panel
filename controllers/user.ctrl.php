@@ -27,7 +27,7 @@ class UserController extends Controller{
 	function index($info=''){
 		
 		if(!isset($info['referer'])) {
-			$info['referer'] = isValidReferer($_SERVER['HTTP_REFERER']);
+			$info['red_referer'] = isValidReferer($_SERVER['HTTP_REFERER']);
 			$this->set('post', $info);
 		}
 				
@@ -90,7 +90,7 @@ class UserController extends Controller{
 						$uInfo['lang_code'] = $userInfo['lang_code'];
 						$this->setLoginSession($uInfo);
 						
-						if ($referer = isValidReferer($_POST['referer'])) {
+						if ($referer = isValidReferer($_POST['red_referer'])) {
 							redirectUrl($referer);
 						} else {
 							redirectUrl(SP_WEBPATH."/");	

@@ -340,7 +340,7 @@ function getCurrentUrl() {
 function isValidReferer($referer) {
 	
 	if(stristr($referer, SP_WEBPATH)) {
-		if (!stristr($referer, 'install')) {
+		if (!stristr($referer, 'install') && !stristr($referer, 'login.php')) {
 			$referer = str_ireplace("&lang_code=", "&", $referer);
 			return $referer;
 		}		
