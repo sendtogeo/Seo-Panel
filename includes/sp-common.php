@@ -594,7 +594,7 @@ function showPdfFooter($spText) {
 	if (!empty($custSiteInfo['footer_copyright'])) {
 		$copyrightTxt = str_replace('[year]', date('Y'), $custSiteInfo['footer_copyright']);
 	} else {
-		$copyrightTxt = str_replace("www.seopanel.in", "<a href='http://www.seopanel.in'>www.seopanel.in</a>", $spText['common']['copyright']);
+		$copyrightTxt = str_replace("www.seopanel.in", "<a href='https://www.seopanel.org'>www.seopanel.org</a>", $spText['common']['copyright']);
 	}
     ?>
     <div style="clear: both; margin-top: 30px;font-size: 12px; text-align: center;"><?php echo str_replace('[year]', date('Y'), $copyrightTxt)?></div>
