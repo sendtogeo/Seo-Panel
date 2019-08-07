@@ -132,6 +132,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		case "renew-profile":
 			$controller->renewMyProfile();
 			break;
+			
+		case "website-access-manager":
+			$controller->showWebsiteAccessManager($_GET);
+			break;
 
 		default:
 			$controller->listUsers($_GET);

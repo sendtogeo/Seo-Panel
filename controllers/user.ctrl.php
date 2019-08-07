@@ -959,5 +959,9 @@ class UserController extends Controller{
 		return $expiryDate;
 	}
 	
+	function showWebsiteAccessManager($info="") {
+		$this->render('user/websiteAccessManager');
+	}
+	
 }
 ?>
