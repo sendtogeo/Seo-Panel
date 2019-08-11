@@ -47,3 +47,48 @@ if (!empty($menuInfo['item_list'])) {
 	}
 	?>
 </select>
+    
+<li class="dropdown">
+	<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+		<span class="label label-pill label-danger count" style="border-radius:10px;"></span>
+		<i class="fas fa-bell"></i>
+	</a>
+	<ul class="dropdown-menu"></ul>
+</li>
+
+<script>
+
+$(document).ready(function(){
+
+    // updating the view with notifications using ajax
+    function load_unseen_notification(view = '') {
+    	$.ajax({
+            url:"alerts.php",
+            method:"POST",
+            data:{view:view, 'sec': 'fetch_alerts'},
+            dataType:"json",
+            success:function(data) {
+    			$('.dropdown-menu').html(data.notification);
+    
+       			if(data.unseen_notification > 0) {
+    				$('.count').html(data.unseen_notification);
+       			}
+      		}
+    	});
+    }
+    
+    load_unseen_notification();
+    
+    // load new notifications
+    $(document).on('click', '.dropdown-toggle', function() {
+    	$('.count').html('');
+    	load_unseen_notification('yes');
+    });
+    
+    /*setInterval(function() {
+     load_unseen_notification();;
+    }, 5000);*/
+
+});
+
+</script>

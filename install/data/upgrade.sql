@@ -16,18 +16,33 @@ CREATE TABLE IF NOT EXISTS `user_website_access` (
 
 
 --
--- Constraints for table `as_article`
+-- Constraints for table `user_website_access`
 --
 ALTER TABLE `user_website_access`
   ADD CONSTRAINT `user_id_website_access_delete` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
 ALTER TABLE `user_website_access`
   ADD CONSTRAINT `website_id_user_access_delete` FOREIGN KEY (`website_id`) REFERENCES `websites` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
+  
+CREATE TABLE IF NOT EXISTS `alerts` (
+  `id` bigint(20) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `alert_subject` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
+  `alert_category` varchar(32) COLLATE utf8_unicode_ci NOT NULL,
+  `alert_message` text COLLATE utf8_unicode_ci NOT NULL,
+  `visited` tinyint(1) NOT NULL DEFAULT '0',
+  `alert_time` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
+ALTER TABLE `alerts` ADD PRIMARY KEY (`id`), ADD KEY `alert_user_delete` (`user_id`);
+ALTER TABLE `alerts` MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `alerts` ADD CONSTRAINT `alert_user_delete` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION; 
+  
 
 --
 -- Text changes
 -- 
 
 INSERT INTO `texts` (`category`, `label`, `content`) VALUES
+('panel', 'Alerts', 'Alerts'),
 ('panel', 'Website Access Manager', 'Website Access Manager');
