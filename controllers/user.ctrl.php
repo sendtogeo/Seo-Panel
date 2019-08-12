@@ -960,6 +960,16 @@ class UserController extends Controller{
 	}
 	
 	function showWebsiteAccessManager($info="") {
+	    $isAdmin = true;
+	    
+	    // Check whether admin user or not
+	    if (!isAdmin()) {
+	        $isAdmin = false;
+	    } else {
+	        $this->set("isAdmin", $isAdmin);
+	        $this->set("userList", $this->__getAllUsers(1, false));
+	    }
+	    
 		$this->render('user/websiteAccessManager');
 	}
 	
