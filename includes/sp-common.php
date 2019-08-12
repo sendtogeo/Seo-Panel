@@ -245,7 +245,18 @@ function isHavingWebsite() {
 	$userId = isLoggedIn();
 	$websiteCtrl = New WebsiteController();
 	$count = isAdmin() ? $websiteCtrl->__getCountAllWebsites() : $websiteCtrl->__getCountAllWebsites($userId);
-	if($count<=0){
+	
+	if($count <= 0){
+		
+		// check for user website access option
+		if (SP_CUSTOM_DEV && !isAdmin()) {
+			$userCtrl = new UserController();
+			$accessCount = $userCtrl->getUserWebsiteAccessCount($userId);
+			if ($accessCount > 0) {
+				return $accessCount;
+			}
+		}
+		
 		redirectUrl(SP_WEBPATH."/admin-panel.php?sec=newweb");
 	}
 }

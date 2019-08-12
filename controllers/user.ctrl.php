@@ -973,5 +973,22 @@ class UserController extends Controller{
 		$this->render('user/websiteAccessManager');
 	}
 	
+	function getUserWebsiteAccessList($userId) {
+		$accessList = array();
+		$cond = "user_id=".intval($userId);
+		$list = $this->dbHelper->getAllRows("user_website_access", $cond);
+		foreach ($list as $listInfo) {
+			$accessList[$listInfo['website_id']] = $listInfo;	
+		}
+		
+		return $accessList;
+	}
+	
+	function getUserWebsiteAccessCount($userId) {
+		$cond = "user_id=".intval($userId);
+		$info = $this->dbHelper->getRow("user_website_access", $cond, "count(*) count");
+		return $info['count'];
+	}
+	
 }
 ?>

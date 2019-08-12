@@ -91,8 +91,10 @@ class WebsiteController extends Controller{
 	# func to get all Websites
 	function __getAllWebsites($userId = '', $isAdminCheck = false, $searchName = '') {
 		$sql = "select * from websites where status=1";
-		if(!$isAdminCheck || !isAdmin() ){
-			if(!empty($userId)) $sql .= " and user_id=" . intval($userId);
+		if(!$isAdminCheck || !isAdmin() ) {
+			if(!empty($userId)) {
+				$sql .= $this->getWebsiteUserAccessCondition($userId, "id", "user_id");
+			}
 		} 
 		
 		// if search string is not empty
@@ -124,12 +126,28 @@ class WebsiteController extends Controller{
 	function __getAllWebsitesWithActiveKeywords($userId='', $isAdminCheck=false){
 		$sql = "select w.* from websites w,keywords k where w.id=k.website_id and w.status=1 and k.status=1";
 		if(!$isAdminCheck || !isAdmin() ){
-			if(!empty($userId)) $sql .= " and user_id=" . intval($userId);
+			if(!empty($userId)) {
+				$sql .= $this->getWebsiteUserAccessCondition($userId);
+			}
 		} 
 		
 		$sql .= " group by w.id order by w.name";
 		$websiteList = $this->db->select($sql);
 		return $websiteList;
+	}
+	
+	function getWebsiteUserAccessCondition($userId, $col="w.id", $userCol = "w.user_id") {
+		if (SP_CUSTOM_DEV) {
+			$userCtrl = new UserController();
+			$webAccessList = $userCtrl->getUserWebsiteAccessList($userId);
+			$webIdList = array_keys($webAccessList);
+			$webIdList = !empty($webIdList) ? $webIdList : array(0);
+			$cond = " and ($userCol=" . intval($userId) . " or $col in (".implode($webIdList, ',')."))";
+		} else {
+			$cond = " and $userCol=" . intval($userId);
+		}
+		
+		return $cond;
 	}
 
 	# func to change status
