@@ -959,18 +959,28 @@ class UserController extends Controller{
 		return $expiryDate;
 	}
 	
-	function showWebsiteAccessManager($info="") {
-	    $isAdmin = true;
-	    
-	    // Check whether admin user or not
-	    if (!isAdmin()) {
-	        $isAdmin = false;
-	    } else {
-	        $this->set("isAdmin", $isAdmin);
-	        $this->set("userList", $this->__getAllUsers(1, false));
-	    }
-	    
-		$this->render('user/websiteAccessManager');
+	function manageWebsiteAccessManager($info = "") {
+	    $userList = $this->__getAllUsers(1, false);
+	    $userId = isset($info['wam_user']) ? $info['wam_user'] : $userList[0]['id'];
+
+        if (isset($info['action'])) {
+            $sql = "delete from user_website_access where user_id=" . $info['wam_user'];
+            $this->db->query($sql);
+            
+            foreach($info['check_ws'] as $key => $val) {
+                $sql = "insert into user_website_access(user_id,website_id) values(". $userId . ", " . $val . ")";
+                $this->db->query($sql);
+            }
+            $this->set("msg", formatSuccessMsg("Updated user website access!"));
+        }
+
+	    $loggedinUserId = isLoggedIn();
+	    $sql = "select w.*,uwa.id  as uwa_id,uwa.access from websites w left join user_website_access uwa on w.id=uwa.website_id and uwa.user_id=$userId and w.user_id=$loggedinUserId";
+	    $userWebsiteList = $this->db->select($sql);
+	    $this->set("userWebsiteList", $userWebsiteList);
+	    $this->set("userId", $userId);
+	    $this->set("userList", $userList);
+	    $this->render('user/websiteAccessManager');
 	}
 	
 	function getUserWebsiteAccessList($userId) {

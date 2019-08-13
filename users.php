@@ -88,6 +88,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		    }
 		    $controller->listUsers($_POST);
 		    break;
+		    
+		case "dowebsiteAccessManager":
+		    $controller->manageWebsiteAccessManager($_POST);
+		    break;
 
 		default:
 			$controller->listUsers($_POST);
@@ -134,7 +138,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			break;
 			
 		case "website-access-manager":
-			$controller->showWebsiteAccessManager($_GET);
+			$controller->manageWebsiteAccessManager($_GET);
 			break;
 
 		default:
