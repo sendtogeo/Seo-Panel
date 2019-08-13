@@ -216,12 +216,8 @@ function showMenu(button, scriptPos){
 			if ($('#' + button).hasClass(downClass ) ) {
 				$('#' + button).addClass(upClass).removeClass(downClass);
 				$('#' + scriptPos).show();
-				
-				if(typeof(scriptList[i]) != "undefined") {
-		        	scriptDoLoad(scriptList[i], 'content');
-		        	$('#' + scriptPos + " a:first").addClass("menu_active");
-		        }
-				
+				$('#' + scriptPos + " a:first").trigger("click");
+	        	$('#' + scriptPos + " a:first").addClass("menu_active");				
 			} else {
 				$('#' + button).addClass(downClass).removeClass(upClass);
 				$('#' + scriptPos).hide();

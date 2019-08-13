@@ -26,11 +26,17 @@ class AdminPanelController extends Controller{
 	# index function
 	function index($info = ""){
 		
-		$menuList[] = array(
+		if (isAdmin() || !SP_CUSTOM_DEV) {
+			$menuList[] = array(
 						'id' => 1,
             			'name' => $this->spTextPanel['Website Manager'],
             			'url_section' => 'websites'						
-						);		
+						);
+		} else {
+			$info['start_script'] = !empty($info['start_script']) ? $info['start_script'] : "archive.php";
+			$info['menu_selected'] = !empty($info['menu_selected']) ? $info['menu_selected'] : "report-manager";
+		}
+		
 		if(isAdmin()){
 			$menuList[] = array(
 						'id' => 2,

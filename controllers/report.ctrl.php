@@ -144,7 +144,7 @@ class ReportController extends Controller {
 		$scriptPath .= "&order_col=$orderCol&order_val=$orderVal";
 			
 		$conditions = " and w.status=1 and k.status=1";
-		$conditions .= isAdmin() ? "" : " and w.user_id=$userId";
+		$conditions .= isAdmin() ? "" : $websiteController->getWebsiteUserAccessCondition($userId);
 		$conditions .= !empty($websiteId) ? " and w.id=$websiteId" : "";
 		$conditions .= !empty($searchInfo['search_name']) ? " and k.name like '%".addslashes($searchInfo['search_name'])."%'" : "";
 					
