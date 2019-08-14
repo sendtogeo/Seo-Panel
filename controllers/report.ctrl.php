@@ -997,7 +997,7 @@ class ReportController extends Controller {
 			$scriptPath .= "&report_type=keyword-position&order_col=$orderCol&order_val=$orderVal";
 			
     		$conditions = " and w.status=1 and k.status=1";
-    		$conditions .= isAdmin() ? "" : " and w.user_id=$userId";
+    		$conditions .= isAdmin() ? "" : $websiteCtrler->getWebsiteUserAccessCondition($userId);
     		$conditions .= !empty($websiteId) ? " and w.id=$websiteId" : "";
     		$conditions .= !empty($searchInfo['search_name']) ? " and k.name like '%".addslashes($searchInfo['search_name'])."%'" : "";
     		
@@ -1113,7 +1113,7 @@ class ReportController extends Controller {
 				$scriptPath .= "&report_type=website-stats";
 				$info['pageno'] = intval($info['pageno']);
 				$sql = "select * from websites w where w.status=1";
-				$sql .= isAdmin() ? "" : " and w.user_id=$userId";
+				$sql .= isAdmin() ? "" : $websiteCtrler->getWebsiteUserAccessCondition($userId);
     			$sql .= !empty($websiteId) ? " and w.id=$websiteId" : "";
 				
 				// search for user name

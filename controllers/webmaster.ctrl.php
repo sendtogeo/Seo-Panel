@@ -648,7 +648,7 @@ class WebMasterController extends GoogleAPIController {
 		
 		$websiteId = intval($searchInfo['website_id']);
 		$conditions = !empty($websiteId) ? " and w.id=$websiteId" : "";
-		$conditions .= isAdmin() ? "" : " and w.user_id=$userId";
+		$conditions .= isAdmin() ? "" : $websiteController->getWebsiteUserAccessCondition($userId);
 		$conditions .= !empty($searchInfo['search_name']) ? " and w.url like '%".addslashes($searchInfo['search_name'])."%'" : "";
 		$this->set('websiteId', $websiteId);
 		
