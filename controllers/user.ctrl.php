@@ -961,14 +961,14 @@ class UserController extends Controller{
 	
 	function manageWebsiteAccessManager($info = "") {
 	    $userList = $this->__getAllUsers(1, false);
-	    $userId = isset($info['wam_user']) ? $info['wam_user'] : $userList[0]['id'];
+	    $userId = isset($info['wam_user']) ? intval($info['wam_user']) : $userList[0]['id'];
 
         if (isset($info['action'])) {
             $sql = "delete from user_website_access where user_id=" . $info['wam_user'];
             $this->db->query($sql);
             
             foreach($info['check_ws'] as $key => $val) {
-                $sql = "insert into user_website_access(user_id,website_id) values(". $userId . ", " . $val . ")";
+                $sql = "insert into user_website_access(user_id,website_id) values(". $userId . ", " . intval($val) . ")";
                 $this->db->query($sql);
             }
             $this->set("msg", formatSuccessMsg("Updated user website access!"));
