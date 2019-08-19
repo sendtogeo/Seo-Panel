@@ -4,7 +4,7 @@
     		<i class="fas fa-bell" style="font-size: 16px;"></i>
     		<span class="count" style="display: none;"></span>
     	</a>
-    	<ul class="dropdown-menu dropdown-menu-right" style="margin-top: 8px;"></ul>
+    	<ul class="dropdown-menu dropdown-menu-right" style="margin-top: 8px;padding: 0px"></ul>
     </li>
 </ul>
 
@@ -52,8 +52,14 @@ $(document).ready(function(){
     content: none;
 }
 #alert_noti_sec A{color: white;}
-#alert_noti_sec .dropdown-menu-right { right: -20px;}
+#alert_noti_sec .dropdown-menu{min-width: 22rem;}
+#alert_noti_sec .dropdown-menu-right { right: -16px;}
 #alert_noti_sec .dropdown-menu A{color: black;}
+#alert_noti_sec .dropdown-menu li{
+	padding: 10px; line-height: 14px; margin: 0px; border-top: none; border-left: none; border-right: none; 
+	background-color: #edf2fa;
+}
+
 #alert_noti_sec .count {
   font-size: 10px;
   border-radius: 10px;

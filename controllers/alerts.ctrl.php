@@ -106,22 +106,9 @@ class AlertController extends Controller {
 	            $this->db->query($sql);
 	        }
 	        
-	        $output = '';
 	        $alertList = $this->__getAllAlerts("and user_id=$userId order by alert_time DESC limit " . SP_PAGINGNO);
-	        
-	        if (!empty($alertList)) {
-	            foreach ($alertList as $alertInfo) {
-	                $output .= '
-                          <li>
-                              <a href="#">
-                                  <strong>'.$alertInfo["alert_subject"].'</strong><br/>
-                                  <small><em>'.$alertInfo["alert_message"].'</em></small>
-                              </a>
-                          </li>';
-	            }
-	        } else {
-	            $output .= '<li><a href="#" class="text-bold text-italic">No Notification Found</a></li>';
-	        }
+	        $this->set('alertList', $alertList);
+	        $output = $this->getViewContent('alerts/alert_box');
 	        
 	        $sql = "SELECT count(*) count FROM $this->tableName WHERE visited=0 and user_id=$userId";
 	        $countInfo = $this->db->select($sql, true);
