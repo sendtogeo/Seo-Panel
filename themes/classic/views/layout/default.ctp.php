@@ -89,6 +89,12 @@
     		<form class="form-inline mt-2 mt-md-0">
     			<?php include_once(SP_VIEWPATH."/menu/topmenu.ctp.php");?>
     		</form>
+
+            <?php
+            if (isLoggedIn()) {
+                include_once(SP_VIEWPATH."/menu/notifications_menu.ctp.php");
+            }
+            ?>
     	</div>
     </nav>
     	
