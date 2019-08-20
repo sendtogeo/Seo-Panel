@@ -57,7 +57,7 @@ $searchFun = "scriptDoLoadPost('$pgScriptPath', 'listform', 'content')";
 		foreach ($list as $listInfo) {
 		    $alertLink = scriptAJAXLinkHrefDialog($pgScriptPath, 'content', "sec=alert_info&id=".$listInfo['id'], $listInfo['id']);            
 			?>
-			<tr class="<?php echo $class?>">
+			<tr class="table-<?php echo $listInfo['alert_type']?>">
 				<td style="width: 20px;"><input type="checkbox" name="ids[]" value="<?php echo $listInfo['id']?>"></td>
 				<td><?php echo $alertLink?></td>
 				<td><?php echo $alertCategory[$listInfo['alert_category']]?></td>

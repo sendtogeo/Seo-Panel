@@ -1,21 +1,30 @@
 <?php
 if (!empty($alertList)) { 
 	foreach ($alertList as $alertInfo) {
+	    $alertType = "light";
+	    if (empty($alertInfo['visited'])) {
+	       $alertType = !empty($alertInfo['alert_type']) ? $alertInfo['alert_type'] : "success";
+	    }
+	    
+	    $alertLink = "#";
+	    if (!empty($alertInfo['alert_url'])) {
+	        $alertLink = stristr($alertInfo['alert_url'], 'http') ? $alertInfo['alert_url'] : Spider::addTrailingSlash(SP_WEBPATH) . $alertInfo['alert_url'];
+	    }
 		?>
-		<li class="list-group-item list-group-item-light">
+		<li class="list-group-item list-group-item-<?php echo $alertType?>">
 			<div>
-				<a href="#"><?php echo$alertInfo["alert_subject"]?></a>
-			</div> <br>
-			<div style="font-size: 12px;"><?php echo $alertInfo["alert_message"]?></div>
+				<a href="<?php echo $alertLink?>"><?php echo $alertInfo["alert_subject"]?></a>
+			</div>
+			<div style="margin-top: 6px;"><?php echo $alertInfo["alert_message"]?></div>
 		</li>
 		<?php
 	}
 } else {
 	?>
-	<li><a href="#" class="text-bold text-italic">No Notification Found</a></li>
+	<li class="list-group-item list-group-item-light"><a href="#" class="text-bold text-italic">No Notification Found</a></li>
 	<?php
 }
 ?>
-<li class="list-group-item list-group-item-light" style="text-align: center;line-height: 6px; border-bottom: none;">
+<li class="list-group-item list-group-item-secondary" style="text-align: center;line-height: 6px; border-bottom: none;">
 	<a href="<?php echo SP_WEBPATH?>/admin-panel.php?sec=alerts" style="font-size: 12px; ">See All</a>
 </li>

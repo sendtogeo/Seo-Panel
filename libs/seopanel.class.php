@@ -58,6 +58,7 @@ class Seopanel{
 		include_once(SP_CTRLPATH.'/searchengine.ctrl.php');	
 		include_once(SP_CTRLPATH.'/currency.ctrl.php');	
 		include_once(SP_CTRLPATH.'/seoplugins.ctrl.php');
+		include_once(SP_CTRLPATH.'/alerts.ctrl.php');
 		
 	}	
 	

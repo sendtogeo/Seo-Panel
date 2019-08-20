@@ -24,6 +24,7 @@
 class AlertController extends Controller {
     
     var $alertCategory;
+    var $alertType;
     var $tableName = "alerts";
     var $pgScriptPath = "alerts.php";
     
@@ -32,6 +33,17 @@ class AlertController extends Controller {
         $this->alertCategory = array(
             'general' => "General",
             'webmaster' => "Webmaster Tools",
+        );
+        
+        $this->alertType = array(
+            'success',
+            'info',
+            'warning',
+            'danger',
+            'primary',
+            'secondary',
+            'light',
+            'dark',
         );
     }
 	

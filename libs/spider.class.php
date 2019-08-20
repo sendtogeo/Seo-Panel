@@ -295,10 +295,14 @@ class Spider{
 		curl_setopt($this->_CURL_RESOURCE, CURLOPT_SSL_VERIFYHOST, 0);
 		curl_setopt($this->_CURL_RESOURCE, CURLOPT_SSL_VERIFYPEER, 0);
 
-		// user agent assignment
-		$this->_CURLOPT_USERAGENT = defined('SP_USER_AGENT') ? SP_USER_AGENT : $this->_CURLOPT_USERAGENT;
-		if( strlen( $this -> _CURLOPT_USERAGENT ) > 0 ) {
-			curl_setopt( $this -> _CURL_RESOURCE , CURLOPT_USERAGENT, $this -> _CURLOPT_USERAGENT );
+		// user agent assignment, if the url is not the main website
+		if (stristr($url, SP_MAIN_SITE)) {
+		    $this -> _CURLOPT_USERAGENT = "";
+		} else {
+    		$this->_CURLOPT_USERAGENT = defined('SP_USER_AGENT') ? SP_USER_AGENT : $this->_CURLOPT_USERAGENT;
+    		if( strlen( $this -> _CURLOPT_USERAGENT ) > 0 ) {
+    			curl_setopt( $this -> _CURL_RESOURCE , CURLOPT_USERAGENT, $this -> _CURLOPT_USERAGENT );
+    		}
 		}
 		
 		// set custom headers for google domains
