@@ -539,7 +539,7 @@ div.tab button.active {	background-color: #ccc;}
     content: none;
 }
 #alert_noti_sec A{color: white;}
-#alert_noti_sec .dropdown-menu{min-width: 22rem; height: 500px; overflow: auto;margin-top: 8px;padding: 0px; font-size: 12px;}
+#alert_noti_sec .dropdown-menu{min-width: 22rem; max-height: 500px; overflow: auto;margin-top: 8px;padding: 0px; font-size: 12px;}
 #alert_noti_sec .dropdown-menu-right { right: -16px;}
 #alert_noti_sec .dropdown-menu A{color: inherit; font-weight: bolder; font-size: 12px;}
 #alert_noti_sec .dropdown-menu li{

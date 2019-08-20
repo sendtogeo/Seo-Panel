@@ -118,7 +118,7 @@ class AlertController extends Controller {
 	            $this->db->query($sql);
 	        }
 	        
-	        $alertList = $this->__getAllAlerts("and user_id=$userId order by alert_time DESC limit " . SP_PAGINGNO);
+	        $alertList = $this->__getAllAlerts("and user_id=$userId order by visited ASC, alert_time DESC limit " . SP_PAGINGNO);
 	        $this->set('alertList', $alertList);
 	        $output = $this->getViewContent('alerts/alert_box');
 	        

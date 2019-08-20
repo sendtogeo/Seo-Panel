@@ -16,10 +16,13 @@ $(document).ready(function(){
     	$.ajax({
             url:"alerts.php",
             method:"POST",
-            data:{view:view, 'sec': 'fetch_alerts'},
+            data:{view: view, 'sec': 'fetch_alerts'},
             dataType:"json",
             success:function(data) {
-    			$('.dropdown-menu').html(data.notification);
+                if (view != 'yes') {
+    				$('.dropdown-menu').html(data.notification);
+                }
+                
        			if(data.unseen_notification > 0) {
        				$('.count').show();
     				$('.count').html(data.unseen_notification);
@@ -37,7 +40,7 @@ $(document).ready(function(){
     })
     
     setInterval(function() {
-     load_unseen_notification();;
+       load_unseen_notification();;
     }, 100000);
 
 });
