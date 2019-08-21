@@ -25,6 +25,6 @@ if (!empty($alertList)) {
 	<?php
 }
 ?>
-<li class="list-group-item list-group-item-secondary" style="text-align: center;line-height: 6px; border-bottom: none;">
-	<a href="<?php echo SP_WEBPATH?>/admin-panel.php?sec=alerts" style="font-size: 12px; ">See All</a>
+<li class="list-group-item list-group-item-secondary" style="text-align: center;line-height: 0px; border-bottom: none;">
+	<a href="<?php echo SP_WEBPATH?>/admin-panel.php?sec=alerts" style="font-size: 10px; ">See All</a>
 </li>

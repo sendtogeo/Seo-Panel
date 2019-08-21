@@ -45,5 +45,7 @@ ALTER TABLE `alerts` ADD CONSTRAINT `alert_user_delete` FOREIGN KEY (`user_id`) 
 -- 
 
 INSERT INTO `texts` (`category`, `label`, `content`) VALUES
+('common', 'General', 'General'),
+('reports', 'Reports Generated Successfully', 'Reports Generated Successfully'),
 ('panel', 'Alerts', 'Alerts'),
 ('panel', 'Website Access Manager', 'Website Access Manager');

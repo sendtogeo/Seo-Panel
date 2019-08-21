@@ -174,6 +174,17 @@ class CronController extends Controller {
     				// update report generation logs
     				$reportCtrler->updateUserReportGenerationLogs($userInfo['id'], date('Y-m-d H:i:s'));
     				
+    				// update user alerts section
+    				$alertCtrl = new AlertController();
+    				$reportTxt = $this->getLanguageTexts('reports', $_SESSION['lang_code']);
+    				$alertInfo = array(
+    					'alert_subject' => $reportTxt["Reports Generated Successfully"],
+    					'alert_message' => $reportTxt['report_email_subject'],
+    					'alert_category' => "reports",
+    					'alert_url' => SP_WEBPATH,
+    				);
+    				$alertCtrl->createAlert($alertInfo, $userInfo['id']);
+    				
     				// send email notification if enabled
     				if (SP_REPORT_EMAIL_NOTIFICATION && $repSetInfo['email_notification']) {
     					$reportCtrler->spTextTools = $this->getLanguageTexts('seotools', $_SESSION['lang_code']);

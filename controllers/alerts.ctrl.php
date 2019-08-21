@@ -31,8 +31,8 @@ class AlertController extends Controller {
     function __construct() {
         parent::__construct();
         $this->alertCategory = array(
-            'general' => "General",
-            'webmaster' => "Webmaster Tools",
+            'general' => $_SESSION['text']['common']["General"],
+            'reports' => $_SESSION['text']['common']["Reports"],
         );
         
         $this->alertType = array(
@@ -133,5 +133,28 @@ class AlertController extends Controller {
 	    }
 	    
 	}
+	
+	function createAlert($alertInfo, $userId) {
+		
+		$dataList = array(
+			'user_id|int' => $userId,
+			'alert_subject' => $alertInfo['alert_subject'],
+			'alert_message' => $alertInfo['alert_message'],
+			'alert_url' => !empty($alertInfo['alert_url']) ? $alertInfo['alert_url'] : "",
+			'alert_time' => date("Y-m-d H:i:s"),
+		);
+		
+		if (!empty($alertInfo['alert_category'])) {
+			$dataList['alert_category'] = $alertInfo['alert_category'];
+		}
+		
+		if (!empty($alertInfo['alert_type'])) {
+			$dataList['alert_type'] = $alertInfo['alert_type'];
+		}
+		
+		$this->dbHelper->insertRow($this->tableName, $dataList);
+		
+	}
+	
 }
 ?>
