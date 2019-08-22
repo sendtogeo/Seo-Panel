@@ -123,7 +123,7 @@ class GoogleAPIController extends Controller{
 	 * function to setup app scopes(read write permissions)
 	 */
 	function setAppScopes($client) {
-		$client->addScope(Google_Service_Webmasters::WEBMASTERS);
+	    $client->addScope([Google_Service_Webmasters::WEBMASTERS, Google_Service_AnalyticsReporting::ANALYTICS_READONLY]);
 		return $client;
 	}
 	
