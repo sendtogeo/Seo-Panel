@@ -44,7 +44,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
 		default:
 		    $userId = isLoggedIn();
-			$controller->getAnalyticsResults($userId, "https://www.seopanel.org/");
+			$controller->getAnalyticsResults($userId, "196625427", "2019-08-22", "2019-08-22");
 			break;
 	}
 	
