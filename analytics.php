@@ -42,10 +42,23 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	
 	switch($_GET['sec']) {
 
-		default:
+	    case "report_generate":
 		    $userId = isLoggedIn();
-			$controller->getAnalyticsResults($userId, "196625427", "2019-08-22", "2019-08-22");
+			//$controller->getAnalyticsResults($userId, "", "2019-08-22", "2019-08-22");
+			
+		    //$controller->getAnalyticsResults($userId, "", "2018-05-24", "2018-05-24");
+		    
+		    //$result = $controller->storeWebsiteAnalytics(20, "2018-05-23");
+		    
+		    $result = $controller->storeWebsiteAnalytics(10, "2019-08-22");
+		    
+            debugVar($result);		   
+		    
 			break;
+			
+		default:
+		    print "Inn";
+		    
 	}
 	
 }

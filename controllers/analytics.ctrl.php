@@ -26,7 +26,8 @@ include_once(SP_CTRLPATH . "/googleapi.ctrl.php");
 // class defines all google analytics api controller functions
 class AnalyticsController extends GoogleAPIController {
 	
-	var $spTextGA;
+    var $spTextGA;
+    var $metrics;
 	var $metricList;
 	var $defaultMetricName = "users";
 	var $dimensionName = "source";
@@ -35,10 +36,15 @@ class AnalyticsController extends GoogleAPIController {
 		parent::__construct();
 		$this->spTextGA = $this->getLanguageTexts('analytics', $_SESSION['lang_code']);
 		$this->set('spTextGA', $this->spTextGA);
-		$this->metricList = array(
-			'users',
-			'sessions',
+		$this->metrics = array(
+		    'users' => $this->spTextGA['Users'],
+		    'newUsers' => $this->spTextGA['New Users'],
+		    'sessions' => $this->spTextGA['Sessions'],
+		    'bounceRate' => $this->spTextGA['Bounce Rate'],
+		    'avgSessionDuration' => $this->spTextGA['Avg. Session Duration'],
+		    'goalCompletionsAll' => $this->spTextGA['Goal Completions'],
 		);
+		$this->metricList = array_keys($this->metrics);
 	}
 	
 	/*
@@ -46,6 +52,11 @@ class AnalyticsController extends GoogleAPIController {
 	 */
 	function getAnalyticsResults($userId, $VIEW_ID, $startDate, $endDate) {
 		$result = array('status' => false);
+		
+		if (empty($VIEW_ID)) {
+		    $result['msg'] = "Error: search query analytics - Analytics view id is not set for website";
+		    return $result;
+		}
 		
 		try {
 			
@@ -63,15 +74,6 @@ class AnalyticsController extends GoogleAPIController {
     		$dateRange = new Google_Service_AnalyticsReporting_DateRange();
     		$dateRange->setStartDate($startDate);
     		$dateRange->setEndDate($endDate);
-    		
-//     		// Create the Metrics object.
-//     		$sessions = new Google_Service_AnalyticsReporting_Metric();
-//     		$sessions->setExpression("ga:$metricName");
-//     		$sessions->setAlias($metricName);
-    		
-//     		$sessions2 = new Google_Service_AnalyticsReporting_Metric();
-//     		$sessions2->setExpression("ga:sessions");
-//     		$sessions2->setAlias("sessions");
     		
     		// Create the Metrics object list
     		$metricObjList = [];
@@ -102,28 +104,21 @@ class AnalyticsController extends GoogleAPIController {
     		
     		$body = new Google_Service_AnalyticsReporting_GetReportsRequest();
     		$body->setReportRequests( array( $request) );
-    		$res = $analytics->reports->batchGet( $body );
-    		
-    		
-//     		debugVar($res);
-    		
-    		$resultList = $this->fromatResults($res);
+    		$res = $analytics->reports->batchGet( $body );    		
+    		$resultList = $this->formatResult($res);
     		
     		$result['status'] = true;
-    		$result['resultList'] = $resultList;
-    		
+    		$result['resultList'] = $resultList;    		
 		} catch (Exception $e) {
 		    $err = $e->getMessage();
 		    $result['msg'] = "Error: search query analytics - $err";
 		}
 		
-		debugVar($resultList);
-		
 		return $result;
 		
 	}	
 	
-	function fromatResults($reports) {
+	function formatResult($reports) {
 		$resultList = array();
 		
 		// loop through the reports
@@ -157,6 +152,25 @@ class AnalyticsController extends GoogleAPIController {
 		return $resultList;
 	}
 	
+	function getAnalyticsSourceList() {
+	    $sourceList = [];
+	    $list = $this->dbHelper->getAllRows("analytic_sources");
+	    foreach ($list as $listInfo) {
+	        $sourceList[$listInfo['source_name']] = $listInfo['id'];
+	    }
+	    
+	    return $sourceList;
+	}
+	
+	function generateSource($sourceName) {
+	    $sourceId = false;
+	    if ($this->dbHelper->insertRow("analytic_sources", array("source_name" => $sourceName))) {
+	        $sourceId = $this->db->getMaxId("analytic_sources");
+	    }
+	    
+	    return $sourceId;
+	}
+	
 	/*
 	 * function to store website results
 	 */
@@ -164,71 +178,28 @@ class AnalyticsController extends GoogleAPIController {
 		$websiteId = intval($websiteId);
 		$websiteCtrler = new WebsiteController();
 		$websiteInfo = $websiteCtrler->__getWebsiteInfo($websiteId);
-		$list = $this->__getWebmasterKeywords("website_id=$websiteId and status=1");
-		$keywordList = array();
-		if (!empty($list)) {foreach ($list as $info) $keywordList[$info['name']] = $info;}
-		$result['status'] = true;
-			
-		$paramList = array(
-				'startDate' => $reportDate,
-				'endDate' => $reportDate,
-				'dimensions' => ['query'],
-		);
-	
+		
 		// query results from api and verify no error occured
-		$result = $this->getQueryResults($websiteInfo['user_id'], $websiteInfo['url'], $paramList);
+		$result = $this->getAnalyticsResults($websiteInfo['user_id'], $websiteInfo['analytics_view_id'], $reportDate, $reportDate);
 		if ($result['status']) {
+		    $sourceList = $this->getAnalyticsSourceList();
 				
 			// loop through the result list
-			foreach ($result['resultList'] as $reportInfo) {
-				$keywordName = $reportInfo['keys'][0];
+			foreach ($result['resultList'] as $sourceName => $reportInfo) {
+			    
+			    // generate source list, if not set it yet
+			    if (!isset($sourceList[$sourceName])) {
+			        $sourceId = $this->generateSource($sourceName);
+			    } else {
+			        $sourceId = $sourceList[$sourceName];
+			    }
 	
-				// check if keyword is already existing in the db table, else insert it
-				$keywordId = isset($keywordList[$keywordName]) ? intval($keywordList[$keywordName]['id']) : 0;
-				if ($keywordId == 0) {$keywordId = $this->__generateKeywordId($websiteInfo['id'], $keywordName);}
-	
-				$info = array(
-						'clicks' => $reportInfo['clicks'],
-						'impressions' => $reportInfo['impressions'],
-						'ctr' => round($reportInfo['ctr'] * 100, 2),
-						'average_position' => $reportInfo['position'],
-						'report_date' => $reportDate,
-						'source' => $source,
-				);
-	
-				$this->insertKeywordAnalytics($keywordId, $info);
-	
+			    if (!empty($sourceId)) {
+			        $this->insertWebsiteAnalytics($websiteId, $sourceId, $reportInfo, $reportDate);
+			    } else {
+			        $result['msg'] .= "Error: Analytics source id not found";
+			    }
 			}
-	
-		}
-	
-		// if keyword report generated successfully
-		if ($result['status']) {
-				
-			// store website analytics
-			$paramList = array(
-					'startDate' => $reportDate,
-					'endDate' => $reportDate,
-			);
-	
-			// query results from api and verify no error occured
-			$result = $this->getQueryResults($websiteInfo['user_id'], $websiteInfo['url'], $paramList);
-				
-			// if status is success
-			if ($result['status']) {
-				$reportInfo = !empty($result['resultList'][0]) ? $result['resultList'][0] : array();
-				$info = array(
-						'clicks' => !empty($reportInfo->clicks) ? $reportInfo->clicks : 0,
-						'impressions' => !empty($reportInfo->impressions) ? $reportInfo->impressions : 0,
-						'ctr' => !empty($reportInfo->ctr) ? $reportInfo->ctr * 100 : 0,
-						'average_position' => !empty($reportInfo->position) ? $reportInfo->position : 0,
-						'report_date' => $reportDate,
-						'source' => $source,
-				);
-					
-				$this->insertWebsiteAnalytics($websiteId, $info);
-			}
-				
 		}
 	
 		return $result;
@@ -238,28 +209,22 @@ class AnalyticsController extends GoogleAPIController {
 	/*
 	 * function to insert website analytics
 	 */
-	function insertWebsiteAnalytics($websiteId, $reportInfo, $clearExisting = true) {
+	function insertWebsiteAnalytics($websiteId, $sourceId, $reportInfo, $resultDate, $clearExisting = true) {
 		$websiteId = intval($websiteId);
-		$source = addslashes($reportInfo['source']);
-		$resultDate = addslashes($reportInfo['report_date']);
+		$sourceId = intval($sourceId);
+		$resultDate = addslashes($resultDate);
 	
 		if ($clearExisting) {
-			$whereCond = "website_id=$websiteId and report_date='$resultDate' and source='$source'";
-			$this->dbHelper->deleteRows('website_search_analytics', $whereCond);
-		}
+			$whereCond = "website_id=$websiteId and report_date='$resultDate' and source_id='$sourceId'";
+			$this->dbHelper->deleteRows('website_analytics', $whereCond);
+		}	
 	
-		$dataList = array(
-				'website_id' => $websiteId,
-				'clicks|int' => $reportInfo['clicks'],
-				'impressions|int' => $reportInfo['impressions'],
-				'ctr|float' => round($reportInfo['ctr'], 2),
-				'average_position|float' => round($reportInfo['average_position'], 2),
-				'report_date' => $resultDate,
-				'source' => $source,
-		);
-	
-		$this->dbHelper->insertRow('website_search_analytics', $dataList);
-	
+		$reportInfo['bounceRate'] = round($reportInfo['bounceRate'], 2);
+		$reportInfo['avgSessionDuration'] = round(($reportInfo['avgSessionDuration']/60), 2);
+		$reportInfo['website_id'] = $websiteId;
+		$reportInfo['source_id'] = $sourceId;
+		$reportInfo['report_date'] = $resultDate;
+		$this->dbHelper->insertRow('website_analytics', $reportInfo);
 	}
 	
 }

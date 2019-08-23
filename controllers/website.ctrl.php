@@ -251,6 +251,7 @@ class WebsiteController extends Controller{
 			$userId = isLoggedIn();
 		}
 
+		$errMsg = [];
 		$listInfo['name'] = strip_tags($listInfo['name']);
 		$this->set('post', $listInfo);
 		$errMsg['name'] = formatErrorMsg($this->validate->checkBlank($listInfo['name']));
@@ -269,9 +270,9 @@ class WebsiteController extends Controller{
 		if(!$this->validate->flagErr){
 			if (!$this->__checkName($listInfo['name'], $userId)) {
 			    if (!$this->__checkWebsiteUrl($listInfo['url'])) {
-    				$sql = "insert into websites(name,url,title,description,keywords,user_id,status)
+    				$sql = "insert into websites(name,url,title,description,analytics_view_id,keywords,user_id,status)
     				values('".addslashes($listInfo['name'])."','".addslashes($listInfo['url'])."','".
-    				addslashes($listInfo['title'])."','".addslashes($listInfo['description'])."','".
+    				addslashes($listInfo['title'])."','".addslashes($listInfo['description'])."', '".addslashes($listInfo['analytics_view_id'])."', '".
     				addslashes($listInfo['keywords'])."', $userId, $statusVal)";
     				$this->db->query($sql);
     				
@@ -389,6 +390,7 @@ class WebsiteController extends Controller{
 						user_id = $userId,
 						title = '".addslashes($listInfo['title'])."',
 						description = '".addslashes($listInfo['description'])."',
+						analytics_view_id = '".addslashes($listInfo['analytics_view_id'])."',
 						$statusVal
 						keywords = '".addslashes($listInfo['keywords'])."'
 						where id={$listInfo['id']}";
@@ -608,13 +610,14 @@ class WebsiteController extends Controller{
 		$status = 'invalid';
 		
 		if (!empty($wInfo[0]) && !empty($wInfo[1])) {
-
+		    $listInfo = [];
 			$listInfo['name'] = trim($wInfo[0]);
 			$listInfo['url'] = trim($wInfo[1]);
 			$listInfo['title'] = $wInfo[2] ? trim($wInfo[2]) : "";
 			$listInfo['description'] = $wInfo[3] ? trim($wInfo[3]) : "";
 			$listInfo['keywords'] = $wInfo[4] ? trim($wInfo[4]) : "";
 			$listInfo['status'] = intval($wInfo[5]);
+			$listInfo['analytics_view_id'] = $wInfo[6] ? trim($wInfo[6]) : "";
 			$listInfo['userid'] = $userId;
 			$return = $this->createWebsite($listInfo, true);
 			

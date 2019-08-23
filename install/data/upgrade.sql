@@ -38,13 +38,61 @@ CREATE TABLE `alerts` (
 
 ALTER TABLE `alerts` ADD PRIMARY KEY (`id`), ADD KEY `alert_user_delete` (`user_id`);
 ALTER TABLE `alerts` MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
-ALTER TABLE `alerts` ADD CONSTRAINT `alert_user_delete` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION; 
+ALTER TABLE `alerts` ADD CONSTRAINT `alert_user_delete` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
+
+
+CREATE TABLE `analytic_sources` (
+  `id` bigint(20) NOT NULL,
+  `source_name` varchar(255) COLLATE utf8_unicode_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+ALTER TABLE `analytic_sources` ADD PRIMARY KEY (`id`), ADD UNIQUE KEY `source_name` (`source_name`);
+ALTER TABLE `analytic_sources` MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+
+
+CREATE TABLE `website_analytics` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `website_id` int(11) NOT NULL,
+  `source_id` bigint(20) NOT NULL,
+  `users` int(11) NOT NULL,
+  `newUsers` int(11) NOT NULL,
+  `sessions` int(11) NOT NULL,
+  `bounceRate` float NOT NULL,
+  `avgSessionDuration` float NOT NULL,
+  `goalCompletionsAll` int(11) NOT NULL,
+  `report_date` date NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- Indexes for table `website_analytics`
+--
+ALTER TABLE `website_analytics` ADD PRIMARY KEY (`id`), ADD KEY `website_analytics_delete` (`website_id`), ADD KEY `source_analytics_delete` (`source_id`);
+ALTER TABLE `website_analytics` MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+ALTER TABLE `website_analytics`
+  ADD CONSTRAINT `source_analytics_delete` FOREIGN KEY (`source_id`) REFERENCES `analytic_sources` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
+  ADD CONSTRAINT `website_analytics_delete` FOREIGN KEY (`website_id`) REFERENCES `websites` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
+
+
+ALTER TABLE `websites` ADD `analytics_view_id` VARCHAR(120) NULL AFTER `crawled`;
+
+
+INSERT INTO `seotools` (`id`, `name`, `url_section`, `user_access`, `reportgen`, `cron`, `priority`, `status`) 
+VALUES (NULL, 'Website Analytics', 'web-analytics', '1', '1', '1', '100', '1');
 
 --
 -- Text changes
 -- 
 
 INSERT INTO `texts` (`category`, `label`, `content`) VALUES
+('seotools', 'web-analytics', 'Website Analytics'),
+('website', 'Google Analytics View Id', 'Google Analytics View Id'),
+('website', 'Click here to get Google Analytics View Id', 'Click here to get Google Analytics View Id'),
+('analytics', 'Users', 'Users'),
+('analytics', 'New Users', 'New Users'),
+('analytics', 'Sessions', 'Sessions'),
+('analytics', 'Bounce Rate', 'Bounce Rate'),
+('analytics', 'Avg. Session Duration', 'Avg. Session Duration'),
+('analytics', 'Goal Completions', 'Goal Completions'),
 ('common', 'General', 'General'),
 ('reports', 'Reports Generated Successfully', 'Reports Generated Successfully'),
 ('panel', 'Alerts', 'Alerts'),
