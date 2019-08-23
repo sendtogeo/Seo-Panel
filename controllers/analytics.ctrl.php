@@ -44,6 +44,9 @@ class AnalyticsController extends GoogleAPIController {
 		    'avgSessionDuration' => $this->spTextGA['Avg. Session Duration'],
 		    'goalCompletionsAll' => $this->spTextGA['Goal Completions'],
 		);
+		
+		
+		$this->set('metricColList', $this->metrics);
 		$this->metricList = array_keys($this->metrics);
 	}
 	
@@ -54,7 +57,7 @@ class AnalyticsController extends GoogleAPIController {
 		$result = array('status' => false);
 		
 		if (empty($VIEW_ID)) {
-		    $result['msg'] = "Error: search query analytics - Analytics view id is not set for website";
+		    $result['msg'] = $this->spTextGA['view_id_not_found_error'];
 		    return $result;
 		}
 		
@@ -116,7 +119,20 @@ class AnalyticsController extends GoogleAPIController {
 		
 		return $result;
 		
-	}	
+	}
+	
+	function formatMetricValue($value, $metricName) {
+		
+		if ($metricName == "bounceRate") {
+			$value = round($value, 2);
+		}
+			
+		if ($metricName == "avgSessionDuration") {
+			$value = round(($value/60), 2);
+		}
+		
+		return $value;
+	}
 	
 	function formatResult($reports) {
 		$resultList = array();
@@ -130,7 +146,7 @@ class AnalyticsController extends GoogleAPIController {
 			$values = $totals[0]->getValues();
 			$resultList['total'] = [];
 			foreach ($this->metricList as $i => $metricName) {
-				$resultList['total'][$metricName] = $values[$i];
+				$resultList['total'][$metricName] = $this->formatMetricValue($values[$i], $metricName);
 			}
 			
 			// get dimension type value
@@ -144,7 +160,7 @@ class AnalyticsController extends GoogleAPIController {
 				// find metric values
 				$resultList[$dimensions[0]] = [];
 				foreach ($this->metricList as $i => $metricName) {
-					$resultList[$dimensions[0]][$metricName] = $values[$i];
+					$resultList[$dimensions[0]][$metricName] = $this->formatMetricValue($values[$i], $metricName);
 				}
 			}
 		}
@@ -217,14 +233,69 @@ class AnalyticsController extends GoogleAPIController {
 		if ($clearExisting) {
 			$whereCond = "website_id=$websiteId and report_date='$resultDate' and source_id='$sourceId'";
 			$this->dbHelper->deleteRows('website_analytics', $whereCond);
-		}	
-	
-		$reportInfo['bounceRate'] = round($reportInfo['bounceRate'], 2);
-		$reportInfo['avgSessionDuration'] = round(($reportInfo['avgSessionDuration']/60), 2);
+		}
+		
 		$reportInfo['website_id'] = $websiteId;
 		$reportInfo['source_id'] = $sourceId;
 		$reportInfo['report_date'] = $resultDate;
 		$this->dbHelper->insertRow('website_analytics', $reportInfo);
+	}
+
+	// func to show quick checker
+	function viewQuickChecker($keywordInfo='') {	
+		$userId = isLoggedIn();
+		$websiteController = New WebsiteController();
+		$websiteList = $websiteController->__getAllWebsites($userId, true);
+		$this->set('websiteList', $websiteList);
+		$websiteId = empty ($searchInfo['website_id']) ? $websiteList[0]['id'] : intval($searchInfo['website_id']);
+		$this->set('websiteId', $websiteId);
+		$this->set('fromTime', date('Y-m-d', strtotime('-1 days')));
+		$this->set('toTime', date('Y-m-d'));
+		$this->render('analytics/quick_checker');
+	}
+
+	// func to do quick report
+	function doQuickChecker($searchInfo = '') {
+	
+		if (!empty($searchInfo['website_id'])) {
+			$websiteId = intval($searchInfo['website_id']);
+			$websiteController = New WebsiteController();
+			$websiteInfo = $websiteController->__getWebsiteInfo($websiteId);
+			$this->set('websiteInfo', $websiteInfo);			
+			
+			if (!empty($websiteInfo['url'])) {
+				$reportStartDate = !empty($searchInfo['from_time']) ? $searchInfo['from_time'] : date('Y-m-d', strtotime('-1 days'));
+				$reportEndDate = !empty($searchInfo['to_time']) ? $searchInfo['to_time'] : date('Y-m-d');
+								
+				// query results from api and verify no error occured
+				$result = $this->getAnalyticsResults($websiteInfo['user_id'], $websiteInfo['analytics_view_id'], $reportStartDate, $reportEndDate);
+					
+				// if status is success
+				if ($result['status']) {
+					$websiteReport = array_shift($result['resultList']);
+					$sourceReport = $result['resultList'];
+					$this->set('websiteReport', $websiteReport);
+					$this->set('sourceReport', $sourceReport);
+					
+					$this->set('searchInfo', $searchInfo);
+					$this->render('analytics/quick_checker_results');
+					return true;
+					
+				}
+			}
+		} 
+		
+		$errorMsg = !empty($result['msg']) ? $result['msg'] : "Internal error occured while accessing webmaster tools."; 
+		showErrorMsg($errorMsg);		
+	}
+
+	// function check whether analytics reports already saved
+	function isReportsExists($websiteId, $resultDate) {
+		$websiteId = intval($websiteId);
+		$resultDate = addslashes($resultDate);
+		$whereCond = "website_id=$websiteId and report_date='$resultDate'";
+		$info = $this->dbHelper->getRow("website_analytics", $whereCond, "website_id");
+		return !empty($info['website_id']) ? true : false;
 	}
 	
 }

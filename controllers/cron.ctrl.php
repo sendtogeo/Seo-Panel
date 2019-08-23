@@ -279,6 +279,10 @@ class CronController extends Controller {
 				case "sm-checker":
 					$this->socialMediaCheckerCron($websiteId);
 					break;
+					
+				case "web-analytics":
+					$this->analyticsCron($websiteId);
+					break;
 			}
 		}
 		
@@ -488,7 +492,7 @@ class CronController extends Controller {
 		$websiteInfo = $this->websiteInfo;
 		
 		// report date should be less than 2 days, then only reports will be generated
-		$reportDate = date('Y-m-d', $this->timeStamp - (3 * 60 * 60 * 24));
+		$reportDate = date('Y-m-d', $this->timeStamp);
 		
 		// loop through source list
 		foreach ($wmCtrler->sourceList as $source) {
@@ -507,11 +511,30 @@ class CronController extends Controller {
 		$websiteController->importWebmasterToolsSitemaps($websiteId);
 		$this->debugMsg("Saved webmaster tools sitemaps of <b>{$this->websiteInfo['name']}</b>.....<br>\n");		
 		
+	}	
+	
+	// func to generate analytics reports from cron
+	function analyticsCron($websiteId){
+		
+		include_once(SP_CTRLPATH."/analytics.ctrl.php");
+		$this->debugMsg("Starting analytics cron for website: {$this->websiteInfo['name']}....<br>\n");
+		
+		$wmCtrler = New AnalyticsController();
+		$websiteInfo = $this->websiteInfo;
+		
+		// report date should be less than 2 days, then only reports will be generated
+		$reportDate = date('Y-m-d', $this->timeStamp - (3 * 60 * 60 * 24));
+			
+		// check whether reports already existing 
+		if (SP_MULTIPLE_CRON_EXEC && $wmCtrler->isReportsExists($websiteInfo['id'], $reportDate)) continue;
+			
+		// store results
+		$wmCtrler->storeWebsiteAnalytics($websiteInfo['id'], $reportDate);
+		$this->debugMsg("Saved analytics results of <b>{$this->websiteInfo['name']}</b>.....<br>\n");
 	}
 	
 	# func to show debug messages
-	function debugMsg($msg=''){
-		
+	function debugMsg($msg='') {
 		if($this->debug == true) print $msg;
 	}
 	

@@ -36,11 +36,19 @@ $controller->set('spTextTools', $controller->spTextTools);
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	
 	switch($_POST['sec']) {
+			
+		case "doQuickChecker":
+			$controller->doQuickChecker($_POST);
+			break;
 	}
 	
 } else {
 	
 	switch($_GET['sec']) {
+			
+		case "quickChecker":
+			$controller->viewQuickChecker($_GET);
+			break;
 
 	    case "report_generate":
 		    $userId = isLoggedIn();
