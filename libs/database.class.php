@@ -26,8 +26,8 @@ class Database{
 	var $dbEngine;
 	var $dbConObj;
 	
-    # constructor
-    function database($dbEngine='mysql'){
+    // constructor
+    function __construct($dbEngine='mysql'){
     	
     	// if db engine is mysql
     	if ($dbEngine == 'mysql') {

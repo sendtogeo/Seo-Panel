@@ -32,7 +32,7 @@ class Controller extends Seopanel{
 	var $layout = 'default';
 	var $sessionCats = array('common','login','button','label');
 
-	function Controller(){
+	function __construct(){
 		
 		# create database object
 		$dbObj = New Database(DB_ENGINE);

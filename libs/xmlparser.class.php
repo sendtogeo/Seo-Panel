@@ -53,7 +53,7 @@ class XMLParser{
     /**
      * The class constructor.
      */
-   function XMLParser(){ }
+   function __construct(){ }
   
   
     /**

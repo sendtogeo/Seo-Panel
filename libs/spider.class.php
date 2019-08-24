@@ -46,7 +46,7 @@ class Spider{
 	var $effectiveUrl = null;
 	
 	# spider constructor
-	function Spider()	{			
+	function __construct()	{			
 		$this -> _CURLOPT_COOKIEJAR = SP_TMPPATH.'/'.$this -> _CURLOPT_COOKIEJAR;
 		$this -> _CURLOPT_COOKIEFILE = SP_TMPPATH.'/'.$this -> _CURLOPT_COOKIEFILE;		
 		$this -> _CURL_RESOURCE = curl_init( );
