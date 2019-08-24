@@ -32,7 +32,7 @@ class AnalyticsController extends GoogleAPIController {
 	var $defaultMetricName = "users";
 	var $dimensionName = "source";
 	
-	function AnalyticsController() {
+	function __construct() {
 		parent::__construct();
 		$this->spTextGA = $this->getLanguageTexts('analytics', $_SESSION['lang_code']);
 		$this->set('spTextGA', $this->spTextGA);
@@ -242,7 +242,7 @@ class AnalyticsController extends GoogleAPIController {
 	}
 
 	// func to show quick checker
-	function viewQuickChecker($keywordInfo='') {	
+	function viewQuickChecker($searchInfo='') {	
 		$userId = isLoggedIn();
 		$websiteController = New WebsiteController();
 		$websiteList = $websiteController->__getAllWebsites($userId, true);
@@ -296,6 +296,362 @@ class AnalyticsController extends GoogleAPIController {
 		$whereCond = "website_id=$websiteId and report_date='$resultDate'";
 		$info = $this->dbHelper->getRow("website_analytics", $whereCond, "website_id");
 		return !empty($info['website_id']) ? true : false;
+	}
+	
+	# func to show analytics report summary
+	function viewAnalyticsSummary($searchInfo = '', $summaryPage = false, $cronUserId=false) {
+	    
+	    $userId = !empty($cronUserId) ? $cronUserId : isLoggedIn();
+	    $this->set('summaryPage', $summaryPage);
+	    $this->set('searchInfo', $searchInfo);
+	    $this->set('cronUserId', $cronUserId);
+	    
+	    $exportVersion = false;
+	    switch($searchInfo['doc_type']){
+	        
+	        case "export":
+	            $exportVersion = true;
+	            $exportContent = "";
+	            break;
+	            
+	        case "pdf":
+	            $this->set('pdfVersion', true);
+	            break;
+	            
+	        case "print":
+	            $this->set('printVersion', true);
+	            break;
+	    }
+	    
+	    $fromTime = !empty($searchInfo['from_time']) ? addslashes($searchInfo['from_time']) : date('Y-m-d', strtotime('-2 days'));
+	    $toTime = !empty($searchInfo['to_time']) ? addslashes($searchInfo['to_time']) : date('Y-m-d', strtotime('-1 days'));
+	    $this->set('fromTime', $fromTime);
+	    $this->set('toTime', $toTime);
+	    
+	    $websiteController = New WebsiteController();
+	    $wList = $websiteController->__getAllWebsites($userId, true);
+	    $websiteList = [];
+	    foreach ($wList as $wInfo) {
+	        $websiteList[$wInfo['id']] = $wInfo;
+	    }
+	    
+	    $websiteList = count($websiteList) ? $websiteList : array(0);
+	    $this->set('websiteList', $websiteList);
+	    $websiteId = intval($searchInfo['website_id']);
+	    $this->set('websiteId', $websiteId);
+	    
+	    // to find order col
+	    if (!empty($searchInfo['order_col'])) {
+	        $orderCol = $searchInfo['order_col'];
+	        $orderVal = getOrderByVal($searchInfo['order_val']);
+	    } else {
+	        $orderCol = "users";
+	        $orderVal = 'DESC';
+	    }
+	    
+	    $this->set('orderCol', $orderCol);
+	    $this->set('orderVal', $orderVal);
+	    $scriptName = $summaryPage ? "archive.php" : "analytics.php";
+	    $scriptPath = SP_WEBPATH . "/$scriptName?sec=viewAnalyticsSummary&website_id=$websiteId";
+	    $scriptPath .= "&from_time=$fromTime&to_time=$toTime&search_name=" . $searchInfo['search_name'];
+	    $scriptPath .= "&order_col=$orderCol&order_val=$orderVal&report_type=analytics-reports";
+	    
+	    $conditions = !empty($searchInfo['search_name']) ? " and k.source_name like '%".addslashes($searchInfo['search_name'])."%'" : "";
+	    
+	    // set website id to get exact keywords of a user
+	    if (!empty($websiteId)) {
+	        $conditions .= " and r.website_id=$websiteId";
+	    } else {
+	        $conditions .= " and r.website_id in (".implode(',', array_keys($websiteList)).")";
+	    }
+	    
+	    $analyticsCols = implode(",", array_keys($this->metrics));	    
+	    $sql = "select k.id,k.source_name,r.website_id,$analyticsCols 
+            from analytic_sources k, website_analytics r 
+            where k.id=r.source_id $conditions and r.report_date='$toTime'
+            order by " . addslashes($orderCol) . " " . addslashes($orderVal);
+	    
+	    if ($orderCol != 'users') $sql .= ", users";
+	    
+	    // pagination setup, if not from cron job email send function, pdf and export action
+	    if (!in_array($searchInfo['doc_type'], array("pdf", "export"))) {
+	        $this->db->query($sql, true);
+	        $this->paging->setDivClass('pagingdiv');
+	        $this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
+	        $pagingDiv = $this->paging->printPages($scriptPath, '', 'scriptDoLoad', 'content', "");
+	        $this->set('pagingDiv', $pagingDiv);
+	        $this->set('pageNo', $searchInfo['pageno']);
+	        $sql .= " limit ".$this->paging->start .",". $this->paging->per_page;
+	    }
+	    
+	    # set report list
+	    $baseReportList = $this->db->select($sql);
+	    $this->set('baseReportList', $baseReportList);
+	    $this->set('colList', $this->colList);
+	    
+	    // if keywords existing
+	    if (!empty($baseReportList)) {
+	        
+	        $sourceIdList = array();
+	        foreach ($baseReportList as $info) {
+	            $sourceIdList[] = $info['id'];
+	        }
+	        
+	        $sql = "select k.id,k.source_name,r.website_id, $analyticsCols
+			from analytic_sources k, website_analytics r where k.id=r.source_id
+			$conditions and r.report_date='$fromTime'";
+	        $sql .= " and k.id in(" . implode(",", $sourceIdList) . ")";
+	        $reportList = $this->db->select($sql);
+	        $compareReportList = array();
+	        
+	        foreach ($reportList as $info) {
+	            $compareReportList[$info['website_id']][$info['id']] = $info;
+	        }
+	        
+	        $this->set('compareReportList', $compareReportList);
+	    }
+	    
+	    if ($exportVersion) {
+	        $spText = $_SESSION['text'];
+	        $reportHeading =  $this->spTextTools['Website Analytics Summary']."($fromTime - $toTime)";
+	        $exportContent .= createExportContent( array('', $reportHeading, ''));
+	        $exportContent .= createExportContent( array());
+	        $headList = array($spText['common']['Website'], $spText['common']['Source']);
+	        
+	        $pTxt = str_replace("-", "/", substr($fromTime, -5));
+	        $cTxt = str_replace("-", "/", substr($toTime, -5));
+	        foreach ($this->metrics as $colKey => $colLabel) {
+	            if ($colKey == 'name') continue;
+	            $headList[] = $colLabel . "($pTxt)";
+	            $headList[] = $colLabel . "($cTxt)";
+	            $headList[] = $colLabel . "(+/-)";
+	        }
+	        
+	        $exportContent .= createExportContent($headList);
+	        foreach($baseReportList as $listInfo){
+	            
+	            $valueList = array($websiteList[$listInfo['website_id']]['url'], $listInfo['source_name']);
+	            foreach ($this->metrics as $colName => $colVal) {
+	                if ($colName == 'name') continue;
+	                
+	                $currRank = isset($listInfo[$colName]) ? $listInfo[$colName] : 0;
+	                $prevRank = isset($compareReportList[$listInfo['website_id']][$listInfo['id']][$colName]) ? $compareReportList[$listInfo['website_id']][$listInfo['id']][$colName] : 0;
+	                $rankDiff = "";
+	                
+	                // if both ranks are existing
+	                if ($prevRank != '' && $currRank != '') {
+	                    $rankDiff = $currRank - $prevRank;
+	                    if ($colName == 'bounceRate') $rankDiff = $rankDiff * -1;
+	                }
+	                
+	                $valueList[] = $prevRank;
+	                $valueList[] = $currRank;
+	                $valueList[] = $rankDiff;
+	            }
+	            
+	            $exportContent .= createExportContent( $valueList);
+	        }
+	        
+	        if ($summaryPage) {
+	            return $exportContent;
+	        } else {
+	            exportToCsv('analytics_summary', $exportContent);
+	        }
+	        
+	    } else {
+	        
+	        // if pdf export
+	        if ($summaryPage) {
+	            return $this->getViewContent('analytics/analytics_summary');
+	        } else {
+	            // if pdf export
+	            if ($searchInfo['doc_type'] == "pdf") {
+	                exportToPdf($this->getViewContent('analytics/analytics_summary'), "analytics_summary_$fromTime-$toTime.pdf");
+	            } else {
+	                $this->set('searchInfo', $searchInfo);
+	                $this->render('analytics/analytics_summary');
+	            }
+	        }
+	        
+	    }
+	}
+	
+	function __getWebsiteSourceList($websiteId) {
+	    $websiteId = intval($websiteId);
+	    $sql = "select * from analytic_sources where 
+            id in (select distinct source_id from website_analytics where website_id=$websiteId)
+            order by source_name";
+	    $sourceList = $this->db->select($sql);
+	    return $sourceList;
+	}
+	
+	// func to show analytics reports
+	function viewAnalyticsReports($searchInfo = '') {
+	    
+	    $userId = isLoggedIn();
+	    
+	    if (!empty ($searchInfo['from_time'])) {
+	        $fromTimeDate = addslashes($searchInfo['from_time']);
+	    } else {
+	        $fromTimeDate = date('Y-m-d', strtotime('-17 days'));
+	    }
+	    
+	    if (!empty ($searchInfo['to_time'])) {
+	        $toTimeDate = addslashes($searchInfo['to_time']);
+	    } else {
+	        $toTimeDate = date('Y-m-d', strtotime('-1 days'));
+	    }
+	    
+	    $this->set('fromTime', $fromTimeDate);
+	    $this->set('toTime', $toTimeDate);
+	    
+	    $websiteController = New WebsiteController();
+	    $websiteList = $websiteController->__getAllWebsites($userId, true);
+	    $this->set('websiteList', $websiteList);
+	    $websiteId = empty ($searchInfo['website_id']) ? $websiteList[0]['id'] : intval($searchInfo['website_id']);
+	    $this->set('websiteId', $websiteId);
+	    
+	    $sourceList = $this->__getWebsiteSourceList($websiteId);
+	    $this->set('sourceList', $sourceList);
+	    $sourceId = empty ($searchInfo['source_id']) ? $sourceList[0]['id'] : $searchInfo['source_id'];
+	    $this->set('sourceId', $sourceId);
+	    
+	    $conditions = " and s.website_id=$websiteId";
+	    $conditions .= empty ($sourceId) ? "" : " and s.source_id=$sourceId";
+	    $sql = "select s.* from website_analytics s
+		  where report_date>='$fromTimeDate' and report_date<='$toTimeDate' $conditions
+		  order by s.report_date";
+	    $reportList = $this->db->select($sql);
+	    
+	    $colList = array_keys($this->metrics);
+	    $prevRank = [];
+	    $rankDiff = [];
+	    foreach ($colList as $col) {
+	        $prevRank[$col] = 0;
+	    }
+	    
+	    // loop through rank
+	    foreach ($reportList as $key => $repInfo) {
+	        
+	        // exclude first row
+	        if ($key) {
+                foreach ($colList as $col) {
+                    $rankDiff[$col] = '';
+                }
+           
+                foreach ($colList as $col) {
+                    $rankDiff[$col] = round($repInfo[$col] - $prevRank[$col], 2);
+                    if (empty($rankDiff[$col])) {
+                        continue;
+                    }
+                    
+                    if ($col == "bounceRate" ) {
+                        $rankDiff[$col] = $rankDiff[$col] * -1;
+                    }
+                    
+                    $rankClass = ($rankDiff[$col] > 0) ? 'green' : 'red';
+                    $rankDiff[$col] = "<font class='$rankClass'>($rankDiff[$col])</font>";
+                    $reportList[$key]['rank_diff_'.$col] = empty($rankDiff[$col]) ? '' : $rankDiff[$col];
+                }
+            }
+	        
+	        foreach ($colList as $col) {
+	            $prevRank[$col] = $repInfo[$col];
+	        }	        
+	    }
+	    
+	    $this->set('list', array_reverse($reportList, true));
+	    $this->render('analytics/analytics_reports');
+	    
+	}
+	
+	// func to show analytics reports in graph
+	function viewAnalyticsGraphReports($searchInfo = '') {
+	    $userId = isLoggedIn();
+	    
+	    if (!empty ($searchInfo['from_time'])) {
+	        $fromTimeDate = addslashes($searchInfo['from_time']);
+	    } else {
+	        $fromTimeDate = date('Y-m-d', strtotime('-17 days'));
+	    }
+	    
+	    if (!empty ($searchInfo['to_time'])) {
+	        $toTimeDate = addslashes($searchInfo['to_time']);
+	    } else {
+	        $toTimeDate = date('Y-m-d', strtotime('-1 days'));
+	    }
+	    
+	    $this->set('fromTime', $fromTimeDate);
+	    $this->set('toTime', $toTimeDate);
+	    
+	    $websiteController = New WebsiteController();
+	    $websiteList = $websiteController->__getAllWebsites($userId, true);
+	    $this->set('websiteList', $websiteList);
+	    $websiteId = empty ($searchInfo['website_id']) ? $websiteList[0]['id'] : intval($searchInfo['website_id']);
+	    $this->set('websiteId', $websiteId);
+	    
+	    $sourceList = $this->__getWebsiteSourceList($websiteId);
+	    $this->set('sourceList', $sourceList);
+	    $sourceId = empty ($searchInfo['source_id']) ? $sourceList[0]['id'] : $searchInfo['source_id'];
+	    $this->set('sourceId', $sourceId);
+	    
+	    $conditions = " and s.website_id=$websiteId";
+	    $conditions .= empty ($sourceId) ? "" : " and s.source_id=$sourceId";
+	    $sql = "select s.* from website_analytics s
+		  where report_date>='$fromTimeDate' and report_date<='$toTimeDate' $conditions
+		  order by s.report_date";
+	    $reportList = $this->db->select($sql);
+	    
+	    // if reports not empty
+	    $colList = $this->metrics;
+	    $this->set('colList', $colList);
+	    $this->set('searchInfo', $searchInfo);
+	    
+	    $graphColList = array();
+	    if (!empty($searchInfo['attr_type'])) {
+	        $graphColList[$searchInfo['attr_type']] = $colList[$searchInfo['attr_type']];
+	        if ($searchInfo['attr_type'] == 'bounceRate') { 
+	            $this->set('reverseDir', true);
+	        }
+	    } else {
+	        $graphColList = $colList;
+	        unset($graphColList['bounceRate']);
+	    }
+	    
+	    if (!empty($reportList)) {
+	        
+	        $dataArr = "['Date', '" . implode("', '", array_values($graphColList)) . "']";
+	        
+	        // loop through data list
+	        foreach ($reportList as $dataInfo) {
+	            
+	            $valStr = "";
+	            foreach ($graphColList as $seId => $seVal) {
+	                $valStr .= ", ";
+	                $valStr .= !empty($dataInfo[$seId]) ? $dataInfo[$seId] : 0;
+	            }
+	            
+	            $dataArr .= ", ['{$dataInfo['report_date']}' $valStr]";
+	        }
+	        
+	        $this->set('dataArr', $dataArr);
+	        $this->set('graphTitle', $this->spTextTools['Website Analytics Summary']);
+	        $graphContent = $this->getViewContent('report/graph');
+	    } else {
+	        $graphContent = showErrorMsg($_SESSION['text']['common']['No Records Found'], false, true);
+	    }
+	    
+	    // get graph content
+	    $this->set('graphContent', $graphContent);
+	    $this->render('analytics/graphicalreport');
+	    
+	}
+	
+	// func to show keyword select box
+	function showSourceSelectBox($websiteId){
+	    $websiteId = intval($websiteId);
+	    $this->set('sourceList', $this->__getWebsiteSourceList($websiteId));
+	    $this->render('analytics/source_select_box', 'ajax');
 	}
 	
 }

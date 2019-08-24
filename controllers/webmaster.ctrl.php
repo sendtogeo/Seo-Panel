@@ -30,7 +30,7 @@ class WebMasterController extends GoogleAPIController {
 	var $sourceList = array('google');
 	var $colList = array();	
 	
-	function WebMasterController() {
+	function __construct() {
 		parent::__construct();
 
 		$this->spTextWB = $this->getLanguageTexts('webmaster', $_SESSION['lang_code']);
@@ -421,7 +421,6 @@ class WebMasterController extends GoogleAPIController {
 	function viewKeywordSearchSummary($searchInfo = '', $summaryPage = false, $cronUserId=false) {
 	
 		$userId = !empty($cronUserId) ? $cronUserId : isLoggedIn();
-		$keywordController = New KeywordController();
 		$source = $this->sourceList[0];
 		$this->set('summaryPage', $summaryPage);
 		$this->set('searchInfo', $searchInfo);

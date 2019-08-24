@@ -84,6 +84,7 @@ VALUES (NULL, 'Website Analytics', 'web-analytics', '1', '1', '1', '100', '1');
 -- 
 
 INSERT INTO `texts` (`category`, `label`, `content`) VALUES
+('seotools', 'Website Analytics Summary', 'Website Analytics Summary'),
 ('common', 'Source', 'Source'),
 ('analytics', 'view_id_not_found_error', 'Error: Analytics view ID is not set for website. Edit website and update view ID.'),
 ('seotools', 'web-analytics', 'Website Analytics'),

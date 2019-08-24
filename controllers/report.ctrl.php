@@ -947,7 +947,8 @@ class ReportController extends Controller {
 			'website-search-reports' => $this->spTextTools['Website Search Summary'],
 			'sitemap-reports' => $this->spTextTools['Sitemap Reports Summary'],
 			'keyword-search-reports' => $this->spTextTools['Keyword Search Summary'],
-			'social-media-reports' => $this->spTextTools['Social Media Report Summary'],
+		    'social-media-reports' => $this->spTextTools['Social Media Report Summary'],
+		    'analytics-reports' => $this->spTextTools['Website Analytics Summary'],
 		);
 		$this->set('reportTypes', $reportTypes);
 		$urlarg .= "&report_type=".$searchInfo['report_type'];		
@@ -1246,7 +1247,8 @@ class ReportController extends Controller {
 		}
 		
 		# website search report section
-		if (empty($searchInfo['report_type']) || in_array($searchInfo['report_type'], array('social-media-reports', 'website-search-reports', 'keyword-search-reports', 'sitemap-reports')) ) {
+		if (empty($searchInfo['report_type']) || in_array($searchInfo['report_type'], array('social-media-reports', 'website-search-reports', 'keyword-search-reports', 'sitemap-reports', 'analytics-reports')) ) {
+		    include_once(SP_CTRLPATH."/analytics.ctrl.php");
 			$webMasterCtrler = new WebMasterController();
 			$socialMediaCtrler = New SocialMediaController();
 			$webMasterCtrler->set('spTextTools', $this->spTextTools);
@@ -1274,6 +1276,21 @@ class ReportController extends Controller {
 			if (empty($searchInfo['report_type']) || ($searchInfo['report_type'] == 'sitemap-reports')) {
 				$websiteCtrler->set('spTextPanel', $this->spTextPanel);
 				$sitemapReport = $websiteCtrler->listSitemap($filterList, true, $cronUserId);
+			}
+			
+			// if website analytics reports
+			if (empty($searchInfo['report_type']) || ($searchInfo['report_type'] == 'analytics-reports')) {
+			    $analyticsCtrler = new AnalyticsController();
+			    $analyticsCtrler->set('spTextTools', $this->spTextTools);
+			    $analyticsCtrler->spTextTools = $this->spTextTools;
+			    $filterList = $searchInfo;
+			    $wmMaxFromTime = strtotime('-2 days');
+			    $wmMaxEndTime = strtotime('-1 days');
+			    $filterList['from_time'] = $fromTime > $wmMaxFromTime ? $wmMaxFromTime : $fromTime;
+			    $filterList['to_time'] = $toTime > $wmMaxEndTime ? $wmMaxEndTime : $toTime;
+			    $filterList['from_time'] = date('Y-m-d', $filterList['from_time']);
+			    $filterList['to_time'] = date('Y-m-d', $filterList['to_time']);
+			    $keywordSearchReport = $analyticsCtrler->viewAnalyticsSummary($filterList, true, $cronUserId);
 			}
 			
 			// if social media reports

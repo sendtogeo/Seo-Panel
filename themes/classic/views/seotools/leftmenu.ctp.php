@@ -291,9 +291,9 @@ foreach($menuList as $i => $menuInfo){
 						</a>
 					</li>
 				<?php }?>
-				<li><a href="javascript:void(0);" onclick="scriptDoLoad('analytics.php?sec=reportSummary', 'content')"><?php echo $spTextSA['Report Summary']?></a></li>
-				<li><a href="javascript:void(0);" onclick="scriptDoLoad('analytics.php?sec=viewDetailedReports', 'content')"><?php echo $spTextTools['Detailed Reports']?></a></li>
-				<li><a href="javascript:void(0);" onclick="scriptDoLoad('analytics.php?sec=viewGraphReports', 'content')"><?php echo $spTextTools['Graphical Reports']?></a></li>
+				<li><a href="javascript:void(0);" onclick="scriptDoLoad('analytics.php?sec=viewAnalyticsSummary', 'content')"><?php echo $spTextSA['Report Summary']?></a></li>
+				<li><a href="javascript:void(0);" onclick="scriptDoLoad('analytics.php?sec=viewAnalyticsReports', 'content')"><?php echo $spTextTools['Detailed Reports']?></a></li>
+				<li><a href="javascript:void(0);" onclick="scriptDoLoad('analytics.php?sec=viewAnalyticsGraphReports', 'content')"><?php echo $spTextTools['Graphical Reports']?></a></li>
 				<?php /*if(SP_USER_GEN_REPORT || isAdmin()){ ?>				
 					<?php if(SP_DEMO){?>
 		         		<li><a href="javascript:void(0);" onclick="alertDemoMsg();"><?php echo $spTextTools['Generate Reports']?></a></li>

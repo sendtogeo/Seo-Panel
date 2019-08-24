@@ -492,7 +492,7 @@ class CronController extends Controller {
 		$websiteInfo = $this->websiteInfo;
 		
 		// report date should be less than 2 days, then only reports will be generated
-		$reportDate = date('Y-m-d', $this->timeStamp);
+		$reportDate = date('Y-m-d', $this->timeStamp - (3 * 60 * 60 * 24));
 		
 		// loop through source list
 		foreach ($wmCtrler->sourceList as $source) {
@@ -521,19 +521,20 @@ class CronController extends Controller {
 		
 		$wmCtrler = New AnalyticsController();
 		$websiteInfo = $this->websiteInfo;
-		
-		// report date should be less than 2 days, then only reports will be generated
-		$reportDate = date('Y-m-d', $this->timeStamp - (3 * 60 * 60 * 24));
+		$reportDate = date('Y-m-d', $this->timeStamp - (60 * 60 * 24));
 			
 		// check whether reports already existing 
-		if (SP_MULTIPLE_CRON_EXEC && $wmCtrler->isReportsExists($websiteInfo['id'], $reportDate)) continue;
+		if (SP_MULTIPLE_CRON_EXEC && $wmCtrler->isReportsExists($websiteInfo['id'], $reportDate)) {
+		    $this->debugMsg("Analytics results already generated of <b>{$this->websiteInfo['name']}</b>.....<br>\n");
+		    return FALSE;
+		}
 			
 		// store results
 		$wmCtrler->storeWebsiteAnalytics($websiteInfo['id'], $reportDate);
 		$this->debugMsg("Saved analytics results of <b>{$this->websiteInfo['name']}</b>.....<br>\n");
 	}
 	
-	# func to show debug messages
+	// func to show debug messages
 	function debugMsg($msg='') {
 		if($this->debug == true) print $msg;
 	}

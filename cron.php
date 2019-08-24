@@ -44,6 +44,7 @@ if(!empty($_SERVER['REQUEST_METHOD'])){
 		}
 		
 	}else{
+	    
 		switch($_GET['sec']){
 			
 			case "generate":
@@ -70,6 +71,8 @@ if(!empty($_SERVER['REQUEST_METHOD'])){
     include_once(SP_CTRLPATH."/keyword.ctrl.php");
     include_once(SP_CTRLPATH."/moz.ctrl.php");
     include_once(SP_CTRLPATH."/webmaster.ctrl.php");
+    include_once(SP_CTRLPATH."/social_media.ctrl.php");
+    include_once(SP_CTRLPATH."/analytics.ctrl.php");
 	$controller = New CronController();
 	$controller->timeStamp = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
 	

@@ -3,7 +3,7 @@ echo showSectionHead($spTextTools['Quick Checker']);
 $actFun = SP_DEMO ? "alertDemoMsg()" : "scriptDoLoadPost('analytics.php', 'search_form', 'subcontent', '&sec=doQuickChecker')";
 ?>
 <form id='search_form' onsubmit="<?php echo $actFun; ?>;return false;">
-<table width="60%" class="search">
+<table class="search">
 	<tr>
 		<th><?php echo $spText['common']['Website']?>: </th>
 		<td>
@@ -17,8 +17,6 @@ $actFun = SP_DEMO ? "alertDemoMsg()" : "scriptDoLoadPost('analytics.php', 'searc
 				<?php }?>
 			</select>
 		</td>
-	</tr>
-	<tr>
 		<th width="100px;"><?php echo $spText['common']['Period']?>:</th>
     	<td width="236px">
     		<input type="text" value="<?php echo $fromTime?>" name="from_time"/> 
@@ -29,9 +27,6 @@ $actFun = SP_DEMO ? "alertDemoMsg()" : "scriptDoLoadPost('analytics.php', 'searc
 			});
 		  	</script>
     	</td>
-    </tr>
-	<tr>
-		<th>&nbsp;</th>
 		<td style="padding-left: 9px; padding-top: 10px;">
 			<a href="javascript:void(0);" onclick="<?php echo $actFun?>" class="actionbut"><?php echo $spText['button']['Proceed']?></a>
 		</td>

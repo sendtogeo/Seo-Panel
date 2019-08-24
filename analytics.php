@@ -40,6 +40,22 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		case "doQuickChecker":
 			$controller->doQuickChecker($_POST);
 			break;
+		    
+		case "viewAnalyticsSummary":
+		    $controller->viewAnalyticsSummary($_POST);
+		    break;
+		    
+		case "viewAnalyticsReports":
+		    $controller->viewAnalyticsReports($_POST);
+		    break;
+		    
+		case "viewAnalyticsGraphReports":
+		    $controller->viewAnalyticsGraphReports($_POST);
+		    break;
+		    
+		default:
+		    $controller->viewAnalyticsSummary($_POST);
+		    break;
 	}
 	
 } else {
@@ -49,23 +65,26 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		case "quickChecker":
 			$controller->viewQuickChecker($_GET);
 			break;
-
-	    case "report_generate":
-		    $userId = isLoggedIn();
-			//$controller->getAnalyticsResults($userId, "", "2019-08-22", "2019-08-22");
-			
-		    //$controller->getAnalyticsResults($userId, "", "2018-05-24", "2018-05-24");
 		    
-		    //$result = $controller->storeWebsiteAnalytics(20, "2018-05-23");
+		case "viewAnalyticsSummary":
+		    $controller->viewAnalyticsSummary($_GET);
+		    break;
 		    
-		    $result = $controller->storeWebsiteAnalytics(10, "2019-08-22");
+		case "viewAnalyticsReports":
+		    $controller->viewAnalyticsReports($_GET);
+		    break;
 		    
-            debugVar($result);		   
+		case "viewAnalyticsGraphReports":
+		    $controller->viewAnalyticsGraphReports($_GET);
+		    break;
 		    
-			break;
-			
+		case "source_box":
+		    $controller->showSourceSelectBox($_GET['website_id']);
+		    break;
+		    
 		default:
-		    print "Inn";
+		    $controller->viewAnalyticsSummary($_POST);
+		    break;
 		    
 	}
 	
