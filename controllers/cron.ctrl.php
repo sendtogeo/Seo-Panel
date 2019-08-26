@@ -491,24 +491,31 @@ class CronController extends Controller {
 		$wmCtrler = New WebMasterController();
 		$websiteInfo = $this->websiteInfo;
 		
-		// report date should be less than 2 days, then only reports will be generated
-		$reportDate = date('Y-m-d', $this->timeStamp - (3 * 60 * 60 * 24));
+		// check whether old reports are not generated. Then generate from it.
+		for ($i=4; $i>=2; $i--) {
 		
-		// loop through source list
-		foreach ($wmCtrler->sourceList as $source) {
+			// report date should be less than 2 days, then only reports will be generated
+			$reportDate = date('Y-m-d', $this->timeStamp - ($i * 60 * 60 * 24));
 			
-			// check whether reports already existing 
-			if (SP_MULTIPLE_CRON_EXEC && $wmCtrler->isReportsExists($websiteInfo['id'], $reportDate, $source)) continue;
-			
-			// store results
-			$wmCtrler->storeWebsiteAnalytics($websiteInfo['id'], $reportDate, $source);
-		}		
-
-		$this->debugMsg("Saved webmaster tools analytics results of <b>{$this->websiteInfo['name']}</b>.....<br>\n");
+			// loop through source list
+			foreach ($wmCtrler->sourceList as $source) {
+				
+				// check whether reports already existing 
+				if (SP_MULTIPLE_CRON_EXEC && $wmCtrler->isReportsExists($websiteInfo['id'], $reportDate, $source)) {
+					$this->debugMsg("Skip webmaster tools report($reportDate) generation of <b>{$this->websiteInfo['name']}</b>.....<br>\n");
+					continue;
+				}
+				
+				// store results
+				$wmCtrler->storeWebsiteAnalytics($websiteInfo['id'], $reportDate, $source);
+			}		
+	
+			$this->debugMsg("Saved webmaster tools report($reportDate) of <b>{$this->websiteInfo['name']}</b>.....<br>\n");
+		}
 		
 		// update webmaster tools sitemaps
 		$websiteController = New WebsiteController();
-		$websiteController->importWebmasterToolsSitemaps($websiteId);
+		$websiteController->importWebmasterToolsSitemaps($websiteId, true);
 		$this->debugMsg("Saved webmaster tools sitemaps of <b>{$this->websiteInfo['name']}</b>.....<br>\n");		
 		
 	}	

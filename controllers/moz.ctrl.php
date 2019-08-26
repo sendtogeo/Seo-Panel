@@ -36,7 +36,18 @@ class MozController extends Controller{
 		$secretKey = !empty($secretKey) ? $secretKey : SP_MOZ_API_SECRET;
 		
 		// if empty no need to crawl
-		if (empty($accessID) || empty($secretKey)) return $mozRankList;
+		if (empty($accessID) || empty($secretKey)) {
+			$alertCtler = new AlertController();
+			$alertInfo = array(
+				'alert_subject' => "Click here to enter MOZ API key",
+				'alert_message' => "Error: MOZ API key not found",
+				'alert_url' => SP_WEBPATH ."/admin-panel.php?sec=moz-settings",
+				'alert_type' => "danger",
+				'alert_category' => "reports",
+			);
+			$alertCtler->createAlert($alertInfo, false, true);
+			return $mozRankList;
+		}
 		
 		// Set your expires times for several minutes into the future.
 		// An expires time excessively far in the future will not be honored by the Mozscape API.

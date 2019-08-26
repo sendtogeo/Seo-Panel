@@ -664,15 +664,16 @@ class WebsiteController extends Controller{
 		$userId = isLoggedIn();
 		$this->set('spTextTools', $this->getLanguageTexts('seotools', $_SESSION['lang_code']));
 		$userCtrler = New UserController();
-		$userList = $userCtrler->__getAllUsers();
 		
 		// get all users
 		if(isAdmin()){
+			$userList = $userCtrler->__getAllUsers();
 			$this->set('userList', $userList);
 			$this->set('userSelected', empty($info['userid']) ? $userId : $info['userid']);
 			$this->set('isAdmin', 1);
 		} else {
-			$this->set('userName', $userList[$userId]['username']);
+			$userInfo = $userCtrler->__getUserInfo($userId);
+			$this->set('userName', $userInfo['username']);
 		}
 
 		// Check the user website count for validation
@@ -802,7 +803,7 @@ class WebsiteController extends Controller{
 	}
 	
 	// func to import webmaster tools sitemaps
-	function importWebmasterToolsSitemaps($websiteId) {
+	function importWebmasterToolsSitemaps($websiteId, $cronJob = false) {
 		$websiteId = intval($websiteId);
 		$webisteInfo = $this->__getWebsiteInfo($websiteId);
 
@@ -842,7 +843,11 @@ class WebsiteController extends Controller{
 				
 			}
 			
-			showSuccessMsg($this->spTextWeb["Successfully sync sitemaps from webmaster tools"], false);
+			if ($cronJob) {
+				echo $this->spTextWeb["Successfully sync sitemaps from webmaster tools"] . "<br>\n";
+			} else {
+				showSuccessMsg($this->spTextWeb["Successfully sync sitemaps from webmaster tools"], false);
+			}
 			
 		} else {
 			showErrorMsg($result['msg'], false);

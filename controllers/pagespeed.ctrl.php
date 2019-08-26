@@ -66,6 +66,17 @@ class PageSpeedController extends Controller{
 		} else {
 			$crawlInfo['crawl_status'] = 0;
 			$crawlInfo['log_message'] = "Google api key not set.";
+
+			$alertCtler = new AlertController();
+			$alertInfo = array(
+				'alert_subject' => "Click here to enter Google API key",
+				'alert_message' => "Error: Google API key not found",
+				'alert_url' => SP_WEBPATH ."/admin-panel.php?sec=google-settings",
+				'alert_type' => "danger",
+				'alert_category' => "reports",
+			);
+			$alertCtler->createAlert($alertInfo, false, true);
+			
 		}
 		
 		return $returnLog ? array($pageSpeedInfo, $crawlInfo) : $pageSpeedInfo;

@@ -58,6 +58,15 @@ class AnalyticsController extends GoogleAPIController {
 		
 		if (empty($VIEW_ID)) {
 		    $result['msg'] = $this->spTextGA['view_id_not_found_error'];
+		    $alertCtler = new AlertController();
+		    $alertInfo = array(
+	    		'alert_subject' => $this->spTextGA['view_id_not_found_error'],
+	    		'alert_message' => "",
+	    		'alert_url' => SP_WEBPATH ."/admin-panel.php",
+	    		'alert_type' => "danger",
+	    		'alert_category' => "reports",
+		    );
+		    $alertCtler->createAlert($alertInfo, $userId);
 		    return $result;
 		}
 		

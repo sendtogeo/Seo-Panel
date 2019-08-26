@@ -134,7 +134,13 @@ class AlertController extends Controller {
 	    
 	}
 	
-	function createAlert($alertInfo, $userId) {
+	function createAlert($alertInfo, $userId = false, $adminAlert = false) {
+		
+		if (!$userId && $adminAlert) {
+			$userCtler = new UserController();
+			$adminInfo = $userCtler->__getAdminInfo();
+			$userId = $adminInfo['id'];
+		}
 		
 		$dataList = array(
 			'user_id|int' => $userId,

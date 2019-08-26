@@ -60,6 +60,24 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$info['start_script'] = 'connections.php';
 			$controller->index($info);
 			break;
+		
+		case "settings":
+			$info['menu_selected'] = 'settings';
+			$info['start_script'] = 'settings.php';
+			$controller->index($info);
+			break;
+		
+		case "moz-settings":
+			$info['menu_selected'] = 'settings';
+			$info['start_script'] = 'settings.php?category=moz';
+			$controller->index($info);
+			break;
+		
+		case "google-settings":
+			$info['menu_selected'] = 'settings';
+			$info['start_script'] = 'settings.php?category=google';
+			$controller->index($info);
+			break;
 			
 		case "alerts":
 		    $info['menu_selected'] = 'my-profile';
