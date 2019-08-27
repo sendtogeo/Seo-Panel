@@ -158,8 +158,16 @@ class AlertController extends Controller {
 			$dataList['alert_type'] = $alertInfo['alert_type'];
 		}
 		
-		$this->dbHelper->insertRow($this->tableName, $dataList);
+		// check whether alert already exists
+		$cond = "user_id=" . intval($userId) . " and alert_subject='".addslashes($dataList['alert_subject'])."'";
+		$cond .= " and alert_message='".addslashes($dataList['alert_message'])."'";
+		$cond .= " and date(alert_time)='".date('Y-m-d')."'";
+		$existInfo = $this->dbHelper->getRow($this->tableName, $cond, "id");
 		
+		// if alert not exists
+		if (empty($existInfo['id'])) {		
+			$this->dbHelper->insertRow($this->tableName, $dataList);
+		}
 	}
 	
 }
