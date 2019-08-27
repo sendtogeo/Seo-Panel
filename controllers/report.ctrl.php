@@ -1290,7 +1290,7 @@ class ReportController extends Controller {
 			    $filterList['to_time'] = $toTime > $wmMaxEndTime ? $wmMaxEndTime : $toTime;
 			    $filterList['from_time'] = date('Y-m-d', $filterList['from_time']);
 			    $filterList['to_time'] = date('Y-m-d', $filterList['to_time']);
-			    $keywordSearchReport = $analyticsCtrler->viewAnalyticsSummary($filterList, true, $cronUserId);
+			    $analyticsReport = $analyticsCtrler->viewAnalyticsSummary($filterList, true, $cronUserId);
 			}
 			
 			// if social media reports
@@ -1312,6 +1312,7 @@ class ReportController extends Controller {
 				$this->set('keywordSearchReport', $keywordSearchReport);
 				$this->set('sitemapReport', $sitemapReport);
 				$this->set('socialMediaReport', $socialMediaReport);
+				$this->set('analyticsReport', $analyticsReport);
 			}
 			
 		}
