@@ -1283,7 +1283,6 @@ class ReportController extends Controller {
 			    $analyticsCtrler = new AnalyticsController();
 			    $analyticsCtrler->set('spTextTools', $this->spTextTools);
 			    $analyticsCtrler->spTextTools = $this->spTextTools;
-			    $filterList = $searchInfo;
 			    $wmMaxFromTime = strtotime('-2 days');
 			    $wmMaxEndTime = strtotime('-1 days');
 			    $filterList['from_time'] = $fromTime > $wmMaxFromTime ? $wmMaxFromTime : $fromTime;
