@@ -78,25 +78,3 @@ ALTER TABLE `websites` ADD `analytics_view_id` VARCHAR(120) NULL AFTER `crawled`
 
 INSERT INTO `seotools` (`id`, `name`, `url_section`, `user_access`, `reportgen`, `cron`, `priority`, `status`) 
 VALUES (NULL, 'Website Analytics', 'web-analytics', '1', '1', '1', '100', '1');
-
---
--- Text changes
--- 
-
-INSERT INTO `texts` (`category`, `label`, `content`) VALUES
-('seotools', 'Website Analytics Summary', 'Website Analytics Summary'),
-('common', 'Source', 'Source'),
-('analytics', 'view_id_not_found_error', 'Error: Analytics view ID is not set for website. Edit website and update view ID.'),
-('seotools', 'web-analytics', 'Website Analytics'),
-('website', 'Google Analytics View Id', 'Google Analytics View Id'),
-('website', 'Click here to get Google Analytics View Id', 'Click here to get Google Analytics View Id'),
-('analytics', 'Users', 'Users'),
-('analytics', 'New Users', 'New Users'),
-('analytics', 'Sessions', 'Sessions'),
-('analytics', 'Bounce Rate', 'Bounce Rate'),
-('analytics', 'Avg. Session Duration', 'Avg. Session Duration'),
-('analytics', 'Goal Completions', 'Goal Completions'),
-('common', 'General', 'General'),
-('reports', 'Reports Generated Successfully', 'Reports Generated Successfully'),
-('panel', 'Alerts', 'Alerts'),
-('panel', 'Website Access Manager', 'Website Access Manager');
