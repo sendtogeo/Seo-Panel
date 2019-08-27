@@ -51,7 +51,11 @@
 		<td class="td_left_col"><?php echo $spTextUser['Expiry Date']?>:</td>
 		<td class="td_right_col">
 			<input type="text" name="expiry_date" value="<?php echo $post['expiry_date']?>" class="date_fld">
-    		<img align="bottom" onclick="displayDatePicker('expiry_date', false, 'ymd', '-');" src="<?php echo SP_IMGPATH?>/cal.gif"/>
+			<script type="text/javascript">
+			$(function() {
+				$( "input[name='expiry_date']").datepicker({dateFormat: "yy-mm-dd"});
+			});
+		  	</script>
     		<p><?php echo $errMsg['expiry_date']?></p>
 		</td>
 	</tr>

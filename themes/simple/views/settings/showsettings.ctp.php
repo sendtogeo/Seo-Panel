@@ -16,7 +16,7 @@ if (!empty($errorMsg)) {
 if ($category == "moz") {
 	?>
 	<div id="topnewsbox" style="margin-bottom: 20px;">
-		<a class="bold_link" href="https://moz.com/help/guides/moz-api/mozscape/getting-started-with-mozscape/create-and-manage-your-account" target="_blank">
+		<a class="bold_link" href="https://moz.com/checkout/api" target="_blank">
 			<?php echo $spTextSettings['click-to-get-moz-account']; ?> &gt;&gt;
 		</a>
 	</div>
@@ -29,7 +29,7 @@ if ($category == "moz") {
 		</a>
 	</div>
 	<div id="topnewsbox" style="margin-bottom: 20px;">
-		<a class="bold_link" href="http://docs.seopanel.in/user_guide/settings.html#google-oauth2-credentials" target="_blank">
+		<a class="bold_link" href="<?php echo SP_HELP_LINK?>user_guide/settings.html#google-oauth2-credentials" target="_blank">
 			<?php echo $spTextSettings['click-to-get-google-api-client-id']; ?> &gt;&gt;
 		</a>
 	</div>

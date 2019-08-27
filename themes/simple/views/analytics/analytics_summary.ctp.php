@@ -2,14 +2,14 @@
 $borderCollapseVal = $pdfVersion ? "border-collapse: collapse;" : "";
 
 if(!$summaryPage && (!empty($printVersion) || !empty($pdfVersion))) {
-    $pdfVersion ? showPdfHeader($spTextTools['Keyword Search Summary']) : showPrintHeader($spTextTools['Keyword Search Summary']);
+    $pdfVersion ? showPdfHeader($spTextTools['Website Analytics Summary']) : showPrintHeader($spTextTools['Website Analytics Summary']);
     ?>
     <table width="80%" class="search">
-    	<?php if (!empty($websiteInfo['url'])) {?>
+    	<?php if (!empty($websiteId)) {?>
     		<tr>
     			<th><?php echo $spText['common']['Website']?>:</th>
         		<td>
-        			<?php echo $websiteInfo['url']; ?>
+        			<?php echo $websiteList[$websiteId]['url']; ?>
     			</td>
     		</tr>
 		<?php }?>
@@ -22,16 +22,15 @@ if(!$summaryPage && (!empty($printVersion) || !empty($pdfVersion))) {
 	</table>
     <?php
 } else {
-	
-	echo showSectionHead($spTextTools['Website Search Summary']);
+    echo showSectionHead($spTextTools['Website Analytics Summary']);
     
     // if not summary page show the filters
     if(!$summaryPage) {
-    	$scriptName = "webmaster-tools.php";    	
-    	?>
+    	$scriptName = "analytics.php";
+	    ?>
 		<form id='search_form'>
-		<?php $submitLink = "scriptDoLoadPost('webmaster-tools.php', 'search_form', 'content', '&sec=viewWebsiteSearchSummary')";?>
-		<table width="100%" class="search">
+		<?php $submitLink = "scriptDoLoadPost('analytics.php', 'search_form', 'content', '&sec=viewAnalyticsSummary')";?>
+		<table class="search">
 			<tr>
 				<th><?php echo $spText['common']['Name']?>: </th>
 				<td>
@@ -64,40 +63,39 @@ if(!$summaryPage && (!empty($printVersion) || !empty($pdfVersion))) {
 			</tr>
 		</table>
 		</form>
-		<?php
+		<?php	
     } else {
     	$scriptName = "archive.php";
     }
 
 	// url parameters
-	$mainLink = SP_WEBPATH."/$scriptName?sec=viewWebsiteSearchSummary&website_id=$websiteId&from_time=$fromTime&to_time=$toTime";
-	$mainLink .= "&search_name=" . $searchInfo['search_name'] . "&report_type=website-search-reports";
+	$mainLink = SP_WEBPATH."/$scriptName?sec=viewAnalyticsSummary&website_id=$websiteId&from_time=$fromTime&to_time=$toTime";
+	$mainLink .= "&search_name=" . $searchInfo['search_name'] . "&report_type=analytics-reports";
 	
 	// if not summary page show the filters
 	if(!$summaryPage) {
 		$directLink = $mainLink . "&order_col=$orderCol&order_val=$orderVal&pageno=$pageNo";
-		?>
-		<br><br>
-		<div style="float:left;margin-right: 10px;">
-			<a href="<?php echo $directLink?>&doc_type=pdf"><img src="<?php echo SP_IMGPATH?>/icon_pdf.png"></a> &nbsp;
-			<a href="<?php echo $directLink?>&doc_type=export"><img src="<?php echo SP_IMGPATH?>/icoExport.gif"></a> &nbsp;
-			<a target="_blank" href="<?php echo $directLink?>&doc_type=print"><img src="<?php echo SP_IMGPATH?>/print_button.gif?1"></a>
-		</div>
-		<?php
+		$pdfLink = "$directLink&doc_type=pdf";
+		$csvLink = "$directLink&doc_type=export";
+		$printLink = "$directLink&doc_type=print";
+		showExportDiv($pdfLink, $csvLink, $printLink);
 	}
 	
-	if (empty($pdfVersion)) echo $pagingDiv;
+	if (empty($pdfVersion) && empty($cronUserId)) echo $pagingDiv;
 }
 
-$baseColCount = count($colList);
-$colCount = ($baseColCount * 3) + 1;
+$baseColCount = count($metricColList);
+$colCount = ($baseColCount * 3) + 2;
 ?>
 <div id='subcontent' style="margin-top: 0px;">
+
 <table id="cust_tab">
 	<tr>
+		<th id="head" rowspan="2"><?php echo $spText['common']['Website']?></th>
+		<th id="head" rowspan="2"><?php echo $spText['common']['Source']?></th>
 		<?php
 		$hrefAttr = $pdfVersion ? "" : "href='javascript:void(0)'";
-		foreach (array_keys($colList) as $i => $colName){
+		foreach (array_keys($metricColList) as $i => $colName){
 		    
 		    $linkClass = "";
             if ($colName == $orderCol) {
@@ -107,11 +105,9 @@ $colCount = ($baseColCount * 3) + 1;
                 $oVal = 'DESC';
             }
             
-            $headerVal = ($colName == 'name') ? $_SESSION['text']['common']['Website'] : $colList[$colName];
-            $linkName = "<a id='sortLink' class='$linkClass' $hrefAttr onclick=\"scriptDoLoad('$mainLink&order_col=$colName&order_val=$oVal', 'content')\">$headerVal</a>";
-		    $rowSpan = ($colName == "name") ? 2 : 1;
+            $linkName = "<a id='sortLink' class='$linkClass' $hrefAttr onclick=\"scriptDoLoad('$mainLink&order_col=$colName&order_val=$oVal', 'content')\">$metricColList[$colName]</a>";
 			?>
-			<th id="head" rowspan="<?php echo $rowSpan?>" colspan="3"><?php echo $linkName; ?></th>
+			<th colspan="3" id="head"><?php echo $linkName; ?></th>
 			<?php
 			
 		}
@@ -121,8 +117,7 @@ $colCount = ($baseColCount * 3) + 1;
 		<?php
 		$pTxt = str_replace("-", "/", substr($fromTime, -5));
 		$cTxt = str_replace("-", "/", substr($toTime, -5));
-		foreach ($colList as $colName => $colVal) {
-			if ($colName == 'name') continue;
+		foreach ($metricColList as $colName => $colVal) {
 			?>
 			<th><?php echo $pTxt; ?></th>
 			<th><?php echo $cTxt; ?></th>
@@ -134,24 +129,27 @@ $colCount = ($baseColCount * 3) + 1;
 	<?php
 	if (count($baseReportList) > 0) {
 		foreach($baseReportList as $listInfo){
-			$keywordId = $listInfo['id'];
+			$sourceId = $listInfo['id'];
 			$rangeFromTime = date('Y-m-d', strtotime('-14 days', strtotime($fromTime)));
-            $scriptLink = "website_id={$listInfo['id']}&rep=1&from_time=$rangeFromTime&to_time=$toTime";          
+			$scriptLink = "website_id={$listInfo['website_id']}&source_id={$listInfo['id']}&rep=1&from_time=$rangeFromTime&to_time=$toTime";
+			$trClass = ($listInfo['source_name'] == 'total') ? "table-secondary" : "";
+			$sourceName = ($listInfo['source_name'] == 'total') ? "<b>".$spText['common']['Total']."</b>" : $listInfo['source_name'];
 			?>
-			<tr>
-				<td colspan="3"><a href="javascript:void(0)"><?php echo $listInfo['url']; ?></a></td>
+			<tr class="<?php echo $trClass?>">
+				<td>
+					<a href="javascript:void(0)"><?php echo $websiteList[$listInfo['website_id']]['url']; ?></a>
+				</td>
+				<td><?php echo $sourceName; ?></td>
 				<?php
-				foreach ($colList as $colName => $colVal){
-					if ($colName == 'name') continue;
-					
-					$prevRank = isset($listInfo[$colName]) ? $listInfo[$colName] : 0;
-					$currRank = isset($compareReportList[$keywordId][$colName]) ? $compareReportList[$keywordId][$colName] : 0;
+				foreach ($metricColList as $colName => $colVal) {
+					$currRank = isset($listInfo[$colName]) ? $listInfo[$colName] : 0;
+					$prevRank = isset($compareReportList[$listInfo['website_id']][$listInfo['id']][$colName]) ? $compareReportList[$listInfo['website_id']][$listInfo['id']][$colName] : 0;
 					$rankDiffTxt = "";
 					
-					// check rank difference
+					// find rank difefrence
 					$rankDiff = $currRank - $prevRank;
 					$rankDiff = round($rankDiff, 2);
-					if ($colName == 'average_position') $rankDiff = $rankDiff * -1;
+					if ($colName == 'bounceRate') $rankDiff = $rankDiff * -1;
 					
 					if ($rankDiff > 0) {
 						$rankDiffTxt = "<font class='green'>($rankDiff)</font>";
@@ -161,9 +159,9 @@ $colCount = ($baseColCount * 3) + 1;
 						$rankDiffTxt = "";
 					}
 
-					$prevRankLink = scriptAJAXLinkHrefDialog('webmaster-tools.php', 'content', $scriptLink . "&sec=viewWebsiteSearchReports", $prevRank);
-					$currRankLink = scriptAJAXLinkHrefDialog('webmaster-tools.php', 'content', $scriptLink . "&sec=viewWebsiteSearchReports", $currRank);
-					$graphLink = scriptAJAXLinkHrefDialog('webmaster-tools.php', 'content', $scriptLink . "&sec=viewWebsiteSearchGraphReports&attr_type=$colName", '&nbsp;', 'graphicon');
+					$prevRankLink = scriptAJAXLinkHrefDialog('analytics.php', 'content', $scriptLink . "&sec=viewAnalyticsReports", $prevRank);
+					$currRankLink = scriptAJAXLinkHrefDialog('analytics.php', 'content', $scriptLink . "&sec=viewAnalyticsReports", $currRank);
+					$graphLink = scriptAJAXLinkHrefDialog('analytics.php', 'content', $scriptLink . "&sec=viewAnalyticsGraphReports&attr_type=$colName", '&nbsp;', 'graphicon');
 					
 					// if pdf report remove links
 					if ($pdfVersion) {
@@ -179,8 +177,12 @@ $colCount = ($baseColCount * 3) + 1;
 				}
 				?>				
 			</tr>
-			<?php
+		<?php
 		}
+	} else {
+	    ?>
+	    <tr><td colspan="<?php echo $colCount?>"><b><?php echo $_SESSION['text']['common']['No Records Found']?></b></tr>
+	    <?php
 	}
 	?>
 </table>
