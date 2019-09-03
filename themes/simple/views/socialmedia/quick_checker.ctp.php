@@ -9,7 +9,7 @@ $actFun = SP_DEMO ? "alertDemoMsg()" : "scriptDoLoadPost('$pageScriptPath', 'sea
 		<th>&nbsp;</th>
 	</tr>
 	<tr class="form_data">
-		<td><?php echo $spText['common']['Website']?>: </td>
+		<td><?php echo $spText['label']['Type']?>: </td>
 		<td>
 			<select name="type">
 				<?php foreach($serviceList as $serviceName => $serviceInfo){?>

@@ -337,6 +337,15 @@ if (!empty($socialMediaReport)) {
 }
 ?>
 
+<?php
+if (!empty($analyticsReport)) {
+    ?>
+    <br>
+	<div class="table-responsive"><?php echo $analyticsReport;?></div>
+	<?php
+}
+?>
+
 </div>
 <br>
 <?php

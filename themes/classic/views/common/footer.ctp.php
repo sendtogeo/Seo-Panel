@@ -1,5 +1,5 @@
 <?php if (!empty($custSiteInfo['footer_copyright'])) {?>
-	<div><?php echo str_replace('[year]', date('Y'), $custSiteInfo['footer_copyright'])?></div>
+	<div><?php echo str_replace('[year]', date('Y'), convertMarkdownToHtml($custSiteInfo['footer_copyright']))?></div>
 <?php } else {?>
 	<div><?php echo str_replace('[year]', date('Y'), $spText['common']['copyright'])?></div>
     <div id="powered">

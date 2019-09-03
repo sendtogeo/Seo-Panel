@@ -65,10 +65,13 @@ if(!$summaryPage && (!empty($printVersion) || !empty($pdfVersion))) {
 				</td>
 				<th width="100px;"><?php echo $spText['common']['Period']?>:</th>
 	    		<td width="236px">
-	    			<input type="text" value="<?php echo $fromTime?>" name="from_time"/> 
-	    			<img align="bottom" onclick="displayDatePicker('from_time', false, 'ymd', '-');" src="<?php echo SP_IMGPATH?>/cal.gif"/> 
-	    			<input type="text" value="<?php echo $toTime?>" name="to_time"/> 
-	    			<img align="bottom" onclick="displayDatePicker('to_time', false, 'ymd', '-');" src="<?php echo SP_IMGPATH?>/cal.gif"/>
+	    			<input type="text" value="<?php echo $fromTime?>" name="from_time"/>
+	    			<input type="text" value="<?php echo $toTime?>" name="to_time"/>
+        			<script>
+        			$(function() {
+        				$( "input[name='from_time'], input[name='to_time']").datepicker({dateFormat: "yy-mm-dd"});
+        			});
+        		  	</script>
 	    		</td>
 				<td><a href="javascript:void(0);" onclick="<?php echo $submitLink?>" class="actionbut"><?php echo $spText['button']['Search']?></a></td>
 			</tr>

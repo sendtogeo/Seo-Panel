@@ -58,7 +58,7 @@ define('SP_PLUGININFOFILE', 'plugin.xml');
 define('SP_THEMEINFOFILE', 'theme.xml');
 
 # seo panel main site
-define('SP_MAIN_SITE', 'https://www.seopanel.in');
+define('SP_MAIN_SITE', 'https://www.seopanel.org');
 
 # seo panel plugin site info
 define('SP_PLUGINSITE', SP_MAIN_SITE . '/plugins/');
@@ -84,8 +84,11 @@ define('SP_CRAWL_LOG_CLEAR_TIME', 90);
 # The api language code
 define('SP_API_LANG_CODE', 'en');
 
+# The api language code
+define('SP_CUSTOM_DEV', false);
+
 # The seo panel help page
-define('SP_HELP_LINK', 'http://docs.seopanel.in/');
+define('SP_HELP_LINK', 'https://www.seopanel.org/docs/');
 
 # The seo panel forum page
 define('SP_FORUM_LINK', 'http://forum.seopanel.in/');

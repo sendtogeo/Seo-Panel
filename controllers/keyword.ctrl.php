@@ -343,9 +343,15 @@ class KeywordController extends Controller{
 	# func to get all keywords
 	function __getAllKeywords($userId='', $websiteId='', $isAdminCheck=false, $orderByWeb=false, $orderByValue='ASC', $searchName = ''){
 		$websiteId = intval($websiteId);
-		$sql = "select k.*,w.name website,w.url weburl from keywords k,websites w where k.website_id=w.id and k.status=1";		
-		if(!$isAdminCheck || !isAdmin() ){
-			if(!empty($userId)) $sql .= " and w.user_id=$userId";
+		$sql = "select k.*,w.name website,w.url weburl from keywords k,websites w where k.website_id=w.id and k.status=1";
+		
+		if(!$isAdminCheck || !isAdmin() ) {
+			if(!empty($userId)) {
+				$websiteCtrl = new WebsiteController();
+				$sql .= $websiteCtrl->getWebsiteUserAccessCondition($userId);
+			}
+			
+			//if(!empty($userId)) $sql .= " and w.user_id=$userId";
 		}
 		
 		if(!empty($websiteId)) $sql .= " and k.website_id=$websiteId";
@@ -511,9 +517,9 @@ class KeywordController extends Controller{
 			$seList[$listInfo['id']] = $listInfo;
 		}
 		
-		
+		$websiteCtlr = new WebsiteController();
 		$whereCond = "w.id=k.website_id and k.status=1 and w.status=1";
-		$whereCond .= !empty($userId) ? " and w.user_id=".intval($userId) : "";
+		$whereCond .= !empty($userId) ? $websiteCtlr->getWebsiteUserAccessCondition($userId) : "";
 		$list = $this->dbHelper->getAllRows('keywords k, websites w', $whereCond, "distinct k.searchengines"); 
 		
 		// show only required search engines

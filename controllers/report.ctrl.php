@@ -144,7 +144,7 @@ class ReportController extends Controller {
 		$scriptPath .= "&order_col=$orderCol&order_val=$orderVal";
 			
 		$conditions = " and w.status=1 and k.status=1";
-		$conditions .= isAdmin() ? "" : " and w.user_id=$userId";
+		$conditions .= isAdmin() ? "" : $websiteController->getWebsiteUserAccessCondition($userId);
 		$conditions .= !empty($websiteId) ? " and w.id=$websiteId" : "";
 		$conditions .= !empty($searchInfo['search_name']) ? " and k.name like '%".addslashes($searchInfo['search_name'])."%'" : "";
 					
@@ -947,7 +947,8 @@ class ReportController extends Controller {
 			'website-search-reports' => $this->spTextTools['Website Search Summary'],
 			'sitemap-reports' => $this->spTextTools['Sitemap Reports Summary'],
 			'keyword-search-reports' => $this->spTextTools['Keyword Search Summary'],
-			'social-media-reports' => $this->spTextTools['Social Media Report Summary'],
+		    'social-media-reports' => $this->spTextTools['Social Media Report Summary'],
+		    'analytics-reports' => $this->spTextTools['Website Analytics Summary'],
 		);
 		$this->set('reportTypes', $reportTypes);
 		$urlarg .= "&report_type=".$searchInfo['report_type'];		
@@ -997,7 +998,7 @@ class ReportController extends Controller {
 			$scriptPath .= "&report_type=keyword-position&order_col=$orderCol&order_val=$orderVal";
 			
     		$conditions = " and w.status=1 and k.status=1";
-    		$conditions .= isAdmin() ? "" : " and w.user_id=$userId";
+    		$conditions .= isAdmin() ? "" : $websiteCtrler->getWebsiteUserAccessCondition($userId);
     		$conditions .= !empty($websiteId) ? " and w.id=$websiteId" : "";
     		$conditions .= !empty($searchInfo['search_name']) ? " and k.name like '%".addslashes($searchInfo['search_name'])."%'" : "";
     		
@@ -1113,7 +1114,7 @@ class ReportController extends Controller {
 				$scriptPath .= "&report_type=website-stats";
 				$info['pageno'] = intval($info['pageno']);
 				$sql = "select * from websites w where w.status=1";
-				$sql .= isAdmin() ? "" : " and w.user_id=$userId";
+				$sql .= isAdmin() ? "" : $websiteCtrler->getWebsiteUserAccessCondition($userId);
     			$sql .= !empty($websiteId) ? " and w.id=$websiteId" : "";
 				
 				// search for user name
@@ -1246,14 +1247,15 @@ class ReportController extends Controller {
 		}
 		
 		# website search report section
-		if (empty($searchInfo['report_type']) || in_array($searchInfo['report_type'], array('social-media-reports', 'website-search-reports', 'keyword-search-reports', 'sitemap-reports')) ) {
+		if (empty($searchInfo['report_type']) || in_array($searchInfo['report_type'], array('social-media-reports', 'website-search-reports', 'keyword-search-reports', 'sitemap-reports', 'analytics-reports')) ) {
+		    include_once(SP_CTRLPATH."/analytics.ctrl.php");
 			$webMasterCtrler = new WebMasterController();
 			$socialMediaCtrler = New SocialMediaController();
 			$webMasterCtrler->set('spTextTools', $this->spTextTools);
 			$webMasterCtrler->spTextTools = $this->spTextTools;
 			$filterList = $searchInfo;
-			$wmMaxFromTime = strtotime('-4 days');
-			$wmMaxEndTime = strtotime('-3 days');
+			$wmMaxFromTime = strtotime('-3 days');
+			$wmMaxEndTime = strtotime('-2 days');
 			$filterList['from_time'] = $fromTime > $wmMaxFromTime ? $wmMaxFromTime : $fromTime;
 			$filterList['to_time'] = $toTime > $wmMaxEndTime ? $wmMaxEndTime : $toTime;
 			$filterList['from_time'] = date('Y-m-d', $filterList['from_time']);
@@ -1276,6 +1278,20 @@ class ReportController extends Controller {
 				$sitemapReport = $websiteCtrler->listSitemap($filterList, true, $cronUserId);
 			}
 			
+			// if website analytics reports
+			if (empty($searchInfo['report_type']) || ($searchInfo['report_type'] == 'analytics-reports')) {
+			    $analyticsCtrler = new AnalyticsController();
+			    $analyticsCtrler->set('spTextTools', $this->spTextTools);
+			    $analyticsCtrler->spTextTools = $this->spTextTools;
+			    $wmMaxFromTime = strtotime('-2 days');
+			    $wmMaxEndTime = strtotime('-1 days');
+			    $filterList['from_time'] = $fromTime > $wmMaxFromTime ? $wmMaxFromTime : $fromTime;
+			    $filterList['to_time'] = $toTime > $wmMaxEndTime ? $wmMaxEndTime : $toTime;
+			    $filterList['from_time'] = date('Y-m-d', $filterList['from_time']);
+			    $filterList['to_time'] = date('Y-m-d', $filterList['to_time']);
+			    $analyticsReport = $analyticsCtrler->viewAnalyticsSummary($filterList, true, $cronUserId);
+			}
+			
 			// if social media reports
 			if (empty($searchInfo['report_type']) || ($searchInfo['report_type'] == 'social-media-reports')) {
 				$filterList['from_time'] = $fromTimeShort;
@@ -1295,6 +1311,7 @@ class ReportController extends Controller {
 				$this->set('keywordSearchReport', $keywordSearchReport);
 				$this->set('sitemapReport', $sitemapReport);
 				$this->set('socialMediaReport', $socialMediaReport);
+				$this->set('analyticsReport', $analyticsReport);
 			}
 			
 		}

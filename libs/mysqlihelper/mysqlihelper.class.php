@@ -30,7 +30,7 @@ class MysqliHelper extends Database{
 	var $noRows = 0;
 
 	// constructor
-	function MysqliHelper($dbServer, $dbUser, $dbPassword, $dbName, $debug){
+	function __construct($dbServer, $dbUser, $dbPassword, $dbName, $debug){
 		global $SP_DB_CONN_OBJ;
 		$this->setDebugMode($debug);
 		

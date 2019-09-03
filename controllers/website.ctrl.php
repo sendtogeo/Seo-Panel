@@ -91,8 +91,10 @@ class WebsiteController extends Controller{
 	# func to get all Websites
 	function __getAllWebsites($userId = '', $isAdminCheck = false, $searchName = '') {
 		$sql = "select * from websites where status=1";
-		if(!$isAdminCheck || !isAdmin() ){
-			if(!empty($userId)) $sql .= " and user_id=" . intval($userId);
+		if(!$isAdminCheck || !isAdmin() ) {
+			if(!empty($userId)) {
+				$sql .= $this->getWebsiteUserAccessCondition($userId, "id", "user_id");
+			}
 		} 
 		
 		// if search string is not empty
@@ -124,12 +126,28 @@ class WebsiteController extends Controller{
 	function __getAllWebsitesWithActiveKeywords($userId='', $isAdminCheck=false){
 		$sql = "select w.* from websites w,keywords k where w.id=k.website_id and w.status=1 and k.status=1";
 		if(!$isAdminCheck || !isAdmin() ){
-			if(!empty($userId)) $sql .= " and user_id=" . intval($userId);
+			if(!empty($userId)) {
+				$sql .= $this->getWebsiteUserAccessCondition($userId);
+			}
 		} 
 		
 		$sql .= " group by w.id order by w.name";
 		$websiteList = $this->db->select($sql);
 		return $websiteList;
+	}
+	
+	function getWebsiteUserAccessCondition($userId, $col="w.id", $userCol = "w.user_id") {
+		if (SP_CUSTOM_DEV) {
+			$userCtrl = new UserController();
+			$webAccessList = $userCtrl->getUserWebsiteAccessList($userId);
+			$webIdList = array_keys($webAccessList);
+			$webIdList = !empty($webIdList) ? $webIdList : array(0);
+			$cond = " and ($userCol=" . intval($userId) . " or $col in (".implode($webIdList, ',')."))";
+		} else {
+			$cond = " and $userCol=" . intval($userId);
+		}
+		
+		return $cond;
 	}
 
 	# func to change status
@@ -233,6 +251,7 @@ class WebsiteController extends Controller{
 			$userId = isLoggedIn();
 		}
 
+		$errMsg = [];
 		$listInfo['name'] = strip_tags($listInfo['name']);
 		$this->set('post', $listInfo);
 		$errMsg['name'] = formatErrorMsg($this->validate->checkBlank($listInfo['name']));
@@ -251,9 +270,9 @@ class WebsiteController extends Controller{
 		if(!$this->validate->flagErr){
 			if (!$this->__checkName($listInfo['name'], $userId)) {
 			    if (!$this->__checkWebsiteUrl($listInfo['url'])) {
-    				$sql = "insert into websites(name,url,title,description,keywords,user_id,status)
+    				$sql = "insert into websites(name,url,title,description,analytics_view_id,keywords,user_id,status)
     				values('".addslashes($listInfo['name'])."','".addslashes($listInfo['url'])."','".
-    				addslashes($listInfo['title'])."','".addslashes($listInfo['description'])."','".
+    				addslashes($listInfo['title'])."','".addslashes($listInfo['description'])."', '".addslashes($listInfo['analytics_view_id'])."', '".
     				addslashes($listInfo['keywords'])."', $userId, $statusVal)";
     				$this->db->query($sql);
     				
@@ -371,6 +390,7 @@ class WebsiteController extends Controller{
 						user_id = $userId,
 						title = '".addslashes($listInfo['title'])."',
 						description = '".addslashes($listInfo['description'])."',
+						analytics_view_id = '".addslashes($listInfo['analytics_view_id'])."',
 						$statusVal
 						keywords = '".addslashes($listInfo['keywords'])."'
 						where id={$listInfo['id']}";
@@ -590,13 +610,14 @@ class WebsiteController extends Controller{
 		$status = 'invalid';
 		
 		if (!empty($wInfo[0]) && !empty($wInfo[1])) {
-
+		    $listInfo = [];
 			$listInfo['name'] = trim($wInfo[0]);
 			$listInfo['url'] = trim($wInfo[1]);
 			$listInfo['title'] = $wInfo[2] ? trim($wInfo[2]) : "";
 			$listInfo['description'] = $wInfo[3] ? trim($wInfo[3]) : "";
 			$listInfo['keywords'] = $wInfo[4] ? trim($wInfo[4]) : "";
 			$listInfo['status'] = intval($wInfo[5]);
+			$listInfo['analytics_view_id'] = $wInfo[6] ? trim($wInfo[6]) : "";
 			$listInfo['userid'] = $userId;
 			$return = $this->createWebsite($listInfo, true);
 			
@@ -643,15 +664,16 @@ class WebsiteController extends Controller{
 		$userId = isLoggedIn();
 		$this->set('spTextTools', $this->getLanguageTexts('seotools', $_SESSION['lang_code']));
 		$userCtrler = New UserController();
-		$userList = $userCtrler->__getAllUsers();
 		
 		// get all users
 		if(isAdmin()){
+			$userList = $userCtrler->__getAllUsers();
 			$this->set('userList', $userList);
 			$this->set('userSelected', empty($info['userid']) ? $userId : $info['userid']);
 			$this->set('isAdmin', 1);
 		} else {
-			$this->set('userName', $userList[$userId]['username']);
+			$userInfo = $userCtrler->__getUserInfo($userId);
+			$this->set('userName', $userInfo['username']);
 		}
 
 		// Check the user website count for validation
@@ -781,7 +803,7 @@ class WebsiteController extends Controller{
 	}
 	
 	// func to import webmaster tools sitemaps
-	function importWebmasterToolsSitemaps($websiteId) {
+	function importWebmasterToolsSitemaps($websiteId, $cronJob = false) {
 		$websiteId = intval($websiteId);
 		$webisteInfo = $this->__getWebsiteInfo($websiteId);
 
@@ -821,7 +843,11 @@ class WebsiteController extends Controller{
 				
 			}
 			
-			showSuccessMsg($this->spTextWeb["Successfully sync sitemaps from webmaster tools"], false);
+			if ($cronJob) {
+				echo $this->spTextWeb["Successfully sync sitemaps from webmaster tools"] . "<br>\n";
+			} else {
+				showSuccessMsg($this->spTextWeb["Successfully sync sitemaps from webmaster tools"], false);
+			}
 			
 		} else {
 			showErrorMsg($result['msg'], false);

@@ -27,7 +27,7 @@ class UserController extends Controller{
 	function index($info=''){
 		
 		if(!isset($info['referer'])) {
-			$info['referer'] = isValidReferer($_SERVER['HTTP_REFERER']);
+			$info['red_referer'] = isValidReferer($_SERVER['HTTP_REFERER']);
 			$this->set('post', $info);
 		}
 				
@@ -90,7 +90,7 @@ class UserController extends Controller{
 						$uInfo['lang_code'] = $userInfo['lang_code'];
 						$this->setLoginSession($uInfo);
 						
-						if ($referer = isValidReferer($_POST['referer'])) {
+						if ($referer = isValidReferer($_POST['red_referer'])) {
 							redirectUrl($referer);
 						} else {
 							redirectUrl(SP_WEBPATH."/");	
@@ -957,6 +957,47 @@ class UserController extends Controller{
 		$expiryTimeStamp = mktime(23, 59, 59, $month, date('d'), date('Y'));
 		$expiryDate = date('Y-m-d', $expiryTimeStamp);
 		return $expiryDate;
+	}
+	
+	function manageWebsiteAccessManager($info = "") {
+	    $userList = $this->__getAllUsers(1, false);
+	    $userId = isset($info['wam_user']) ? intval($info['wam_user']) : $userList[0]['id'];
+
+        if (isset($info['action'])) {
+            $sql = "delete from user_website_access where user_id=" . $info['wam_user'];
+            $this->db->query($sql);
+            
+            foreach($info['check_ws'] as $key => $val) {
+                $sql = "insert into user_website_access(user_id,website_id) values(". $userId . ", " . intval($val) . ")";
+                $this->db->query($sql);
+            }
+            $this->set("msg", formatSuccessMsg("Updated user website access!"));
+        }
+
+	    $loggedinUserId = isLoggedIn();
+	    $sql = "select w.*,uwa.id  as uwa_id,uwa.access from websites w left join user_website_access uwa on w.id=uwa.website_id and uwa.user_id=$userId and w.user_id=$loggedinUserId";
+	    $userWebsiteList = $this->db->select($sql);
+	    $this->set("userWebsiteList", $userWebsiteList);
+	    $this->set("userId", $userId);
+	    $this->set("userList", $userList);
+	    $this->render('user/websiteAccessManager');
+	}
+	
+	function getUserWebsiteAccessList($userId) {
+		$accessList = array();
+		$cond = "user_id=".intval($userId);
+		$list = $this->dbHelper->getAllRows("user_website_access", $cond);
+		foreach ($list as $listInfo) {
+			$accessList[$listInfo['website_id']] = $listInfo;	
+		}
+		
+		return $accessList;
+	}
+	
+	function getUserWebsiteAccessCount($userId) {
+		$cond = "user_id=".intval($userId);
+		$info = $this->dbHelper->getRow("user_website_access", $cond, "count(*) count");
+		return $info['count'];
 	}
 	
 }

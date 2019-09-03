@@ -20,7 +20,7 @@ $post['url'] = empty($post['url']) ? "http://" : $post['url'];
 ?>
 <form id="newWebsite">
 <input type="hidden" name="sec" value="create"/>
-<table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
+<table width="100%" class="list">
 	<tr class="listHead">
 		<td class="left" width='30%'><?php echo $spTextPanel['New Website']?></td>
 		<td class="right">&nbsp;</td>
@@ -65,14 +65,15 @@ $post['url'] = empty($post['url']) ? "http://" : $post['url'];
 	<tr class="white_row">
 		<td class="td_left_col"><?php echo $spText['label']['Keywords']?>:</td>
 		<td class="td_right_col"><textarea name="keywords" id="webkeywords"><?php echo $post['keywords']?></textarea><?php echo $errMsg['keywords']?></td>
-	</tr>		
-	<tr class="blue_row">
-		<td class="tab_left_bot_noborder"></td>
-		<td class="tab_right_bot"></td>
 	</tr>
-	<tr class="listBot">
-		<td class="left" colspan="1"></td>
-		<td class="right"></td>
+	<tr class="white_row">
+		<td class="td_left_col"><?php echo $spTextWeb['Google Analytics View Id']?>:</td>
+		<td class="td_right_col">
+    		<input type="text" name="analytics_view_id" value="<?php echo $post['analytics_view_id']?>">
+			<div style="padding: 10px 6px;">
+    			<a target="_blank" href="https://www.youtube.com/watch?v=x1MljgyLeRM"><?php echo $spTextWeb['Click here to get Google Analytics View Id']; ?> &gt;&gt;</a>
+    		</div>
+		</td>
 	</tr>
 </table>
 <table width="100%" cellspacing="0" cellpadding="0" border="0" class="actionSec">

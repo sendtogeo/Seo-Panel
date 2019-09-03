@@ -29,8 +29,8 @@ class Mysql extends Database{
 	var $lastInsertId;
 	var $noRows = 0;
 
-	# constructor
-	function Mysql($dbServer, $dbUser, $dbPassword, $dbName, $debug){
+	// constructor
+	function __construct($dbServer, $dbUser, $dbPassword, $dbName, $debug){
 		$this->setDebugMode($debug);
 		
 		// check connection id existing and it is a resource
