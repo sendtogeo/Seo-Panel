@@ -55,19 +55,26 @@ class OverviewController extends Controller {
 	    }
 	    
 	    $this->set("seList", $seLIst);
-	    $pageOVUrl = SP_WEBPATH . "/$this->baseUrl?sec=page-overview-data&from_time=$fromDate&to_time=$toDate";
+	    $pageOVUrl = SP_WEBPATH . "/$this->baseUrl?sec=page-overview-data&website_id=$websiteId&from_time=$fromDate&to_time=$toDate";
 	    $this->set("pageOVUrl", $pageOVUrl);
 	    $this->render('report/page_overview');
 	}
 	
 	function showPageOverviewData($seachInfo) {
-	    debugVar($seachInfo);
+	    $websiteId = intval($seachInfo['website_id']);
+	    $seId = intval($seachInfo['se_id']);
+		$sql = "select distinct(srd.url), sr.* from searchresults sr, searchresultdetails srd, keywords k where sr.id=srd.searchresult_id and
+				sr.keyword_id=k.id and k.website_id=$websiteId and sr.searchengine_id=$seId order by rank asc limit " . SP_PAGINGNO_DEFAULT;
+		
+		$result = $this->db->select($sql);
+		debugvar($result);
+		
 	}
 	
 	function showKeywordOverview($websiteId, $fromDate, $toDate) {
 	    echo "$websiteId, $fromDate, $toDate";
 	    
-	    $this->render('report/keyborad_overview');
+	    $this->render('report/keyword_overview');
 	}
 	
 }

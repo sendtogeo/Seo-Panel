@@ -37,25 +37,22 @@
 </div>
 
 <script type="text/javascript">
-$(document).ready(function(){
+$(document).ready(function() {
+	scriptDoLoad('<?php echo $defaultPageOVUrl?>', 'section-0', '');
+});
 
-	$.get('<?php echo $defaultPageOVUrl?>', function(data) {
-	    $('#section-0').html(data);
-	  });
-	});
+$('[data-toggle="tab"]').on('click', function(){
+    var $this = $(this),
+    source = $this.attr('data-href'),
+    pane = $this.attr('data-target');
+    area = $this.attr('aria-controls');
+  
+    if($(pane).is(':empty')) {
 
-	$('[data-toggle="tab"]').on('click', function(){
-	    var $this = $(this),
-	    source = $this.attr('data-href'),
-	    pane = $this.attr('data-target');
-	  
-	    if($(pane).is(':empty')) {  // check if pane is empty, if so get data
-	      $.get(source, function(data) {
-	          $(pane).html(data);
-	      });
+      scriptDoLoad(source, area, '');
 
-	      $(this).tab('show');
-	      return false;
-	    }
-	});
+      $(this).tab('show');
+      return false;
+    }
+});
 </script>
