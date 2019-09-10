@@ -28,6 +28,9 @@ $controller = New OverviewController();
 $controller->view->menu = 'home';
 $controller->layout = 'ajax';
 
+$spTextHome = $controller->getLanguageTexts('home', $_SESSION['lang_code']);
+$controller->set('spTextHome', $spTextHome);
+
 // set site details according to customizer plugin
 $custSiteInfo = getCustomizerDetails();
 if (!empty($custSiteInfo['site_title'])) $controller->set('spTitle', $custSiteInfo['site_title']);
@@ -48,6 +51,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
 	    case "keyword-overview":
 	        $controller->showKeywordOverview($_GET['website_id'], $_GET['from_time'], $_GET['to_time']);
+	        break;
+	        
+	    case "keyword-overview-data":
+	        $controller->showKeywordOverviewData($_GET);
 	        break;
 	    
 	    default:

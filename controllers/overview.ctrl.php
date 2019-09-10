@@ -63,18 +63,53 @@ class OverviewController extends Controller {
 	function showPageOverviewData($seachInfo) {
 	    $websiteId = intval($seachInfo['website_id']);
 	    $seId = intval($seachInfo['se_id']);
-		$sql = "select distinct(srd.url), sr.* from searchresults sr, searchresultdetails srd, keywords k where sr.id=srd.searchresult_id and
-				sr.keyword_id=k.id and k.website_id=$websiteId and sr.searchengine_id=$seId order by rank asc limit " . SP_PAGINGNO_DEFAULT;
+	    
+	    $conditions = !empty($seachInfo['from_time']) ? " and sr.result_date>='".addslashes($seachInfo['from_time'])."'" : "";
+	    $conditions .= !empty($seachInfo['to_time']) ? " and sr.result_date<='".addslashes($seachInfo['to_time'])."'" : "";
+	    
+		$sql = "select * from (
+                    select distinct srd.url, sr.rank,sr.result_date, sr.keyword_id, k.name as keyword 
+                    from searchresults sr, searchresultdetails srd, keywords k 
+                    where sr.id=srd.searchresult_id and sr.keyword_id=k.id and k.website_id=$websiteId and sr.searchengine_id=$seId $conditions
+                    order by rank asc, result_date DESC
+                ) as p group by p.url limit " . SP_PAGINGNO;
 		
-		$result = $this->db->select($sql);
-		debugvar($result);
-		
+		$pageResultList = $this->db->select($sql);
+		$this->set("pageResultList", $pageResultList);
+		$this->render('report/page_overview_data');
 	}
 	
 	function showKeywordOverview($websiteId, $fromDate, $toDate) {
-	    echo "$websiteId, $fromDate, $toDate";
+	    $keywordController = new KeywordController();
+	    $seLIst = $keywordController->getUserKeywordSearchEngineList("", $websiteId);
 	    
+	    if (empty($seLIst)) {
+	        showErrorMsg($_SESSION['text']['common']['No Records Found']);
+	    }
+	    
+	    $this->set("seList", $seLIst);
+	    $keywordOVUrl = SP_WEBPATH . "/$this->baseUrl?sec=keyword-overview-data&website_id=$websiteId&from_time=$fromDate&to_time=$toDate";
+	    $this->set("keywordOVUrl", $keywordOVUrl);
 	    $this->render('report/keyword_overview');
+	}
+	
+	function showKeywordOverviewData($seachInfo) {
+	    $websiteId = intval($seachInfo['website_id']);
+	    $seId = intval($seachInfo['se_id']);
+	    
+	    $conditions = !empty($seachInfo['from_time']) ? " and sr.result_date>='".addslashes($seachInfo['from_time'])."'" : "";
+	    $conditions .= !empty($seachInfo['to_time']) ? " and sr.result_date<='".addslashes($seachInfo['to_time'])."'" : "";
+	    
+	    $sql = "select * from (
+                    select distinct sr.keyword_id, srd.url, sr.rank,sr.result_date, k.name as keyword
+                    from searchresults sr, searchresultdetails srd, keywords k
+                    where sr.id=srd.searchresult_id and sr.keyword_id=k.id and k.website_id=$websiteId and sr.searchengine_id=$seId $conditions
+                    order by rank asc, result_date DESC
+                ) as p group by p.keyword_id limit " . SP_PAGINGNO;
+	    
+	    $keywordResultList = $this->db->select($sql);
+	    $this->set("keywordResultList", $keywordResultList);
+	    $this->render('report/keyword_overview_data');
 	}
 	
 }
