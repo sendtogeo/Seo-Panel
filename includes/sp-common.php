@@ -312,9 +312,16 @@ function pluginConfirmPOSTMethod($formName, $area='content', $args=''){
 
 # func to create plugin menu
 function pluginMenu($args='', $area='content') {
-	$script = "seo-plugins.php?pid=".PLUGIN_ID;	
-	$request = "scriptDoLoad('$script', '$area', '$args')";
-	return $request;
+    $pluginId = Session::readSession('plugin_id');
+    $script = "seo-plugins.php?pid=".$pluginId;
+    $request = "scriptDoLoad('$script', '$area', '$args')";
+    return $request;
+}
+
+function pluginLink($args = '') {
+    $script = SP_WEBPATH . "/seo-plugins.php?pid=" . PLUGIN_ID;
+    $script .= (substr($args, 0, 1) == '&') ? $args : "&$args";
+    return $script;
 }
 
 # func to remove new lines from a string
