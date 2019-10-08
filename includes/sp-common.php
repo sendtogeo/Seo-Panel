@@ -312,8 +312,7 @@ function pluginConfirmPOSTMethod($formName, $area='content', $args=''){
 
 # func to create plugin menu
 function pluginMenu($args='', $area='content') {
-	$pluginId = Session::readSession('plugin_id');
-	$script = "seo-plugins.php?pid=".$pluginId;	
+	$script = "seo-plugins.php?pid=".PLUGIN_ID;	
 	$request = "scriptDoLoad('$script', '$area', '$args')";
 	return $request;
 }
