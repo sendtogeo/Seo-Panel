@@ -584,3 +584,10 @@ div.tab button.active {	background-color: #ccc;}
 .ui-dialog-title{color: white;}
 
 #content{padding-top: 6px;}
+
+.sub_menu_link{
+    background-color: #c7cbce;
+    color: #2e3436;
+    margin-left: 2px;
+}
+.sub_menu_link:hover{color: black;}

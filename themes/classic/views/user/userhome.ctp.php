@@ -8,12 +8,12 @@
             $ovTabView = "active";
         }
         ?>
-		<ul class="nav nav-tabs">
+		<ul class="nav nav-tabs" style="margin-top: 6px;">
             <li class="nav-item">
-            	<a class="nav-link <?php echo $dbTabClass?>" href="<?php echo SP_WEBPATH?>/"><?php echo $spText['common']['Dashboard']?></a>
+            	<a class="sub_menu_link nav-link <?php echo $dbTabClass?>" href="<?php echo SP_WEBPATH?>/"><?php echo $spText['common']['Dashboard']?></a>
             </li>
             <li class="nav-item">
-            	<a class="nav-link <?php echo $ovTabView?>" href="<?php echo SP_WEBPATH?>/overview.php"><?php echo $spText['label']['Overview']?></a>
+            	<a class="sub_menu_link nav-link <?php echo $ovTabView?>" href="<?php echo SP_WEBPATH?>/overview.php"><?php echo $spText['label']['Overview']?></a>
             </li>
         </ul>
     <?php }?>
