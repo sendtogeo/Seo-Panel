@@ -1,4 +1,4 @@
-<?php $seStyle = empty($seStyle) ? 150 : $seStyle; ?>  
+<?php $seStyle = empty($seStyle) ? 200 : $seStyle; ?>  
 <select name="se_id" id="se_id" style="width:<?php echo $seStyle?>px;" onchange="<?php echo $onChange?>">
 	<?php if($seNull){ ?>
 		<option value="">-- <?php echo $spText['common']['Select']?> --</option>
