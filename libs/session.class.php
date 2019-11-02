@@ -48,5 +48,23 @@ class Session extends Seopanel{
 		@Session::setSession('text', "");
         session_destroy();	    
 	}
+	
+	public static function setSessionMessages($msg, $error=true) {
+	    $sessionVar = $error ? "sp_error_msg" : "sp_success_msg";
+	    $_SESSION[$sessionVar] = $msg;
+	}
+	
+	public static function showSessionMessges($exit=false) {
+	    if (!empty($_SESSION['sp_success_msg'])) {
+	        showSuccessMsg($_SESSION['sp_success_msg'], $exit);
+	        $_SESSION['sp_success_msg'] = "";
+	    }
+	    
+	    if (!empty($_SESSION['sp_error_msg'])) {
+	        showErrorMsg($_SESSION['sp_error_msg'], $exit);
+	        $_SESSION['sp_error_msg'] = "";
+	    }
+	}
+	
 }
 ?>
