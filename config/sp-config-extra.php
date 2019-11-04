@@ -85,7 +85,7 @@ define('SP_CRAWL_LOG_CLEAR_TIME', 90);
 define('SP_API_LANG_CODE', 'en');
 
 # The api language code
-define('SP_CUSTOM_DEV', false);
+define('SP_CUSTOM_DEV', true);
 
 # The seo panel help page
 define('SP_HELP_LINK', 'https://www.seopanel.org/docs/');
