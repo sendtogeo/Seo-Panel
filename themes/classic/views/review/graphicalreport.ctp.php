@@ -28,7 +28,7 @@
 	<tr>
 		<th><?php echo $spText['common']['Url']?>: </th>
 		<td id="link_area">
-			<?php echo $this->render('socialmedia/social_media_link_select_box', 'ajax'); ?>
+			<?php echo $this->render('review/review_link_select_box', 'ajax'); ?>
 		</td>
 		<th><?php echo $spText['label']['Report Type']?>: </th>
 		<td>

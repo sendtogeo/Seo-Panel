@@ -120,7 +120,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		default:
 			$controller->showReviewLinks($_GET);
 			break;
-	}
-	
+	}	
 }
 ?>

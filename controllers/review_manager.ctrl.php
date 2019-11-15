@@ -313,7 +313,7 @@ class ReviewManagerController extends ReviewBase{
 	}	
 	
 	function getReviewDetails($smType, $smLink) {
-		$result = ['status' => 0, 'likes' => 0, 'followers' => 0, 'msg' => $_SESSION['text']['common']['Internal error occured']];
+		$result = ['status' => 0, 'reviews' => 0, 'rating' => 0, 'msg' => $_SESSION['text']['common']['Internal error occured']];
 		$smInfo = $this->serviceList[$smType];
 		
 		if (!empty($smInfo) && !empty($smLink)) {
@@ -328,24 +328,24 @@ class ReviewManagerController extends ReviewBase{
 			if (!empty($smContentInfo['page'])) {
 			    $matches = [];
 
-				// find likes
+				// find reviews
 				if (!empty($smInfo['regex']['like'])) {
 					preg_match($smInfo['regex']['like'], $smContentInfo['page'], $matches);
 					
 					if (!empty($matches[1])) {
 						$result['status'] = 1;
-						$result['likes'] = formatNumber($matches[1]);
+						$result['reviews'] = formatNumber($matches[1]);
 					}
 					
 				}
 				
-				// find followers
+				// find rating
 				if (!empty($smInfo['regex']['follower'])) {
 					preg_match($smInfo['regex']['follower'], $smContentInfo['page'], $matches);
 						
 					if (!empty($matches[1])) {
 						$result['status'] = 1;
-						$result['followers'] = formatNumber($matches[1]);
+						$result['rating'] = formatNumber($matches[1]);
 					}
 						
 				}
@@ -367,7 +367,7 @@ class ReviewManagerController extends ReviewBase{
 		$websiteId = intval($websiteId);
 		$date = addslashes($date);
 		$sql = "select link.*, lr.id result_id from review_links link left join 
-			review_link_results lr on (link.id=lr.sm_link_id and lr.report_date='$date') 
+			review_link_results lr on (link.id=lr.review_link_id and lr.report_date='$date') 
 			where link.status=1 and link.website_id=$websiteId and lr.id is NULL";
 		
 		$linkList = $this->db->select($sql);
@@ -377,9 +377,9 @@ class ReviewManagerController extends ReviewBase{
 	
 	function saveReviewLinkResults($linkId, $linkInfo) {		
 		$dataList = [
-			'sm_link_id|int' => $linkId,
-			'likes|int' => $linkInfo['likes'],
-			'followers|int' => $linkInfo['followers'],
+			'review_link_id|int' => $linkId,
+			'reviews|int' => $linkInfo['reviews'],
+			'rating|float' => $linkInfo['rating'],
 			'report_date' => date('Y-m-d'),
 		];
 		
@@ -432,7 +432,7 @@ class ReviewManagerController extends ReviewBase{
 			$orderCol = $searchInfo['order_col'];
 			$orderVal = getOrderByVal($searchInfo['order_val']);
 		} else {
-			$orderCol = "followers";
+			$orderCol = "rating";
 			$orderVal = 'DESC';
 		}
 	
@@ -453,11 +453,11 @@ class ReviewManagerController extends ReviewBase{
 		$conditions .= !empty($searchInfo['search_name']) ? " and sml.url like '%".addslashes($searchInfo['search_name'])."%'" : "";
 		$conditions .= !empty($searchInfo['type']) ? " and sml.type='".addslashes($searchInfo['type'])."'" : "";
 	
-		$subSql = "select [cols] from $this->linkTable sml, $this->linkReportTable r where sml.id=r.sm_link_id
+		$subSql = "select [cols] from $this->linkTable sml, $this->linkReportTable r where sml.id=r.review_link_id
 		and sml.status=1 $conditions and r.report_date='$toTime'";
 	
 		$sql = "
-		(" . str_replace("[cols]", "sml.id,sml.url,sml.website_id,sml.type,r.likes,r.followers", $subSql) . ")
+		(" . str_replace("[cols]", "sml.id,sml.url,sml.website_id,sml.type,r.reviews,r.rating", $subSql) . ")
 			UNION
 			(select sml.id,sml.url,sml.website_id,sml.type,0,0 from $this->linkTable sml where sml.status=1 $conditions
 			and sml.id not in (". str_replace("[cols]", "distinct(sml.id)", $subSql) ."))
@@ -489,8 +489,8 @@ class ReviewManagerController extends ReviewBase{
 				$keywordIdList[] = $info['id'];
 			}
 	
-			$sql = "select sml.id,sml.url,sml.website_id,sml.type,r.followers,r.likes
-			from $this->linkTable sml, $this->linkReportTable r where sml.id=r.sm_link_id
+			$sql = "select sml.id,sml.url,sml.website_id,sml.type,r.rating,r.reviews
+			from $this->linkTable sml, $this->linkReportTable r where sml.id=r.review_link_id
 			and sml.status=1 $conditions and r.report_date='$fromTime'";
 			$sql .= " and sml.id in(" . implode(",", $keywordIdList) . ")";
 			$reportList = $this->db->select($sql);
@@ -614,7 +614,7 @@ class ReviewManagerController extends ReviewBase{
 		if (!empty($linkId)) {
 		
     		$sql = "select s.* from $this->linkReportTable s
-    		where report_date>='$fromTimeDate' and report_date<='$toTimeDate' and s.sm_link_id=$linkId
+    		where report_date>='$fromTimeDate' and report_date<='$toTimeDate' and s.review_link_id=$linkId
     		order by s.report_date";
     		$reportList = $this->db->select($sql);
     		
@@ -710,7 +710,7 @@ class ReviewManagerController extends ReviewBase{
 	    if (!empty($linkId)) {
 	        
 	        $sql = "select s.* from $this->linkReportTable s
-    		where report_date>='$fromTimeDate' and report_date<='$toTimeDate'  and s.sm_link_id=$linkId
+    		where report_date>='$fromTimeDate' and report_date<='$toTimeDate'  and s.review_link_id=$linkId
     		order by s.report_date";
 	        $reportList = $this->db->select($sql);
     		

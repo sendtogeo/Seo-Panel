@@ -2,7 +2,7 @@
 $borderCollapseVal = $pdfVersion ? "border-collapse: collapse;" : "";
 
 if(!$summaryPage && (!empty($printVersion) || !empty($pdfVersion))) {
-    $pdfVersion ? showPdfHeader($spTextTools['Social Media Report Summary']) : showPrintHeader($spTextTools['Social Media Report Summary']);
+    $pdfVersion ? showPdfHeader($spTextTools['Review Report Summary']) : showPrintHeader($spTextTools['Review Report Summary']);
     ?>
     <table width="80%" class="search">
     	<?php if (!empty($websiteId)) {?>
@@ -22,7 +22,7 @@ if(!$summaryPage && (!empty($printVersion) || !empty($pdfVersion))) {
 	</table>
     <?php
 } else {
-    echo showSectionHead($spTextTools['Social Media Report Summary']);
+    echo showSectionHead($spTextTools['Review Report Summary']);
     
     // if not summary page show the filters
     if(!$summaryPage) {
@@ -84,7 +84,7 @@ if(!$summaryPage && (!empty($printVersion) || !empty($pdfVersion))) {
 
 	// url parameters
 	$mainLink = SP_WEBPATH."/$scriptName?sec=reportSummary&website_id=$websiteId&from_time=$fromTime&to_time=$toTime&type={$searchInfo['type']}";
-	$mainLink .= "&search_name={$searchInfo['search_name']}&report_type=social-media-reports";
+	$mainLink .= "&search_name={$searchInfo['search_name']}&report_type=review-reports";
 	
 	// if not summary page show the filters
 	if(!$summaryPage) {
@@ -157,7 +157,6 @@ $colCount = ($baseColCount * 3) + 2;
 						<a href="javascript:void(0)"><?php echo $websiteList[$listInfo['website_id']]['url']; ?></a>
 					</td>
 					<td colspan="3">
-						<i class="fab fa-<?php echo strtolower($listInfo['type'])?>"></i>
 						<?php echo $listInfo['url']; ?>
 					</td>
 					<?php

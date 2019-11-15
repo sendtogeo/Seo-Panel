@@ -949,6 +949,7 @@ class ReportController extends Controller {
 			'keyword-search-reports' => $this->spTextTools['Keyword Search Summary'],
 		    'social-media-reports' => $this->spTextTools['Social Media Report Summary'],
 		    'analytics-reports' => $this->spTextTools['Website Analytics Summary'],
+		    'review-reports' => $this->spTextTools['Review Report Summary'],
 		);
 		$this->set('reportTypes', $reportTypes);
 		$urlarg .= "&report_type=".$searchInfo['report_type'];		
@@ -1247,10 +1248,11 @@ class ReportController extends Controller {
 		}
 		
 		# website search report section
-		if (empty($searchInfo['report_type']) || in_array($searchInfo['report_type'], array('social-media-reports', 'website-search-reports', 'keyword-search-reports', 'sitemap-reports', 'analytics-reports')) ) {
+		if (empty($searchInfo['report_type']) || in_array($searchInfo['report_type'], array('review-reports', 'social-media-reports', 'website-search-reports', 'keyword-search-reports', 'sitemap-reports', 'analytics-reports')) ) {
 		    include_once(SP_CTRLPATH."/analytics.ctrl.php");
 			$webMasterCtrler = new WebMasterController();
 			$socialMediaCtrler = New SocialMediaController();
+			$reviewCtrler = New ReviewManagerController();
 			$webMasterCtrler->set('spTextTools', $this->spTextTools);
 			$webMasterCtrler->spTextTools = $this->spTextTools;
 			$filterList = $searchInfo;
@@ -1301,6 +1303,16 @@ class ReportController extends Controller {
 				$socialMediaCtrler->spTextTools = $this->spTextTools;
 				$socialMediaReport = $socialMediaCtrler->viewReportSummary($filterList, true, $cronUserId);
 			}
+
+			// if social media reports
+			if (empty($searchInfo['report_type']) || ($searchInfo['report_type'] == 'review-reports')) {
+				$filterList['from_time'] = $fromTimeShort;
+				$filterList['to_time'] = $toTimeShort;
+				$reviewCtrler->set('spTextTools', $this->spTextTools);
+				$reviewCtrler->set('spTextPanel', $this->spTextPanel);
+				$reviewCtrler->spTextTools = $this->spTextTools;
+				$reviewReport = $reviewCtrler->viewReportSummary($filterList, true, $cronUserId);
+			}
 			
 			if ($exportVersion) {
 				$exportContent .= $websiteSearchReport;
@@ -1311,6 +1323,7 @@ class ReportController extends Controller {
 				$this->set('keywordSearchReport', $keywordSearchReport);
 				$this->set('sitemapReport', $sitemapReport);
 				$this->set('socialMediaReport', $socialMediaReport);
+				$this->set('reviewReport', $reviewReport);
 				$this->set('analyticsReport', $analyticsReport);
 			}
 			

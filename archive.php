@@ -28,6 +28,7 @@ include_once(SP_CTRLPATH."/searchengine.ctrl.php");
 include_once(SP_CTRLPATH."/report.ctrl.php");
 include_once(SP_CTRLPATH."/webmaster.ctrl.php");
 include_once(SP_CTRLPATH."/social_media.ctrl.php");
+include_once(SP_CTRLPATH."/review_manager.ctrl.php");
 $controller = New ReportController();
 $controller->layout = 'ajax';
 $controller->spTextTools = $controller->getLanguageTexts('seotools', $_SESSION['lang_code']);

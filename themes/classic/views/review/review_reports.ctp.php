@@ -28,7 +28,7 @@
 	<tr>
 		<th><?php echo $spText['common']['Url']?>: </th>
 		<td id="link_area">
-			<?php echo $this->render('socialmedia/social_media_link_select_box', 'ajax'); ?>
+			<?php echo $this->render('review/review_link_select_box', 'ajax'); ?>
 		</td>
 		<td colspan="2">
 			<a href="javascript:void(0);" onclick="scriptDoLoadPost('<?php echo $pageScriptPath ?>', 'search_form', 'content', '&sec=viewDetailedReports')" class="actionbut"><?php echo $spText['button']['Show Records']?></a>
@@ -42,8 +42,8 @@
 <table id="cust_tab">	
 	<tr>
 		<th><?php echo $spText['common']['Date']?></th>
-		<th><?php echo $spText['label']['Followers']?></th>
-		<th><?php echo $spText['label']['Likes']?></th>
+		<th><?php echo $spText['label']['Reviews']?></th>
+		<th><?php echo $spText['label']['Rating']?></th>
 	</tr>
 	<?php
 	if (count($list) > 0) {
@@ -51,8 +51,8 @@
     		?>
     		<tr>
     			<td><?php echo $listInfo['report_date']; ?></td>
-    			<td><b><?php echo $listInfo['followers'].'</b> '. $listInfo['rank_diff_followers']?></td>
-    			<td><b><?php echo $listInfo['likes'].'</b> '. $listInfo['rank_diff_likes']?></td>
+    			<td><b><?php echo $listInfo['reviews'].'</b> '. $listInfo['rank_diff_reviews']?></td>
+    			<td><b><?php echo $listInfo['rating'].'</b> '. $listInfo['rank_diff_rating']?></td>
     		</tr>
     		<?php	
     	}
