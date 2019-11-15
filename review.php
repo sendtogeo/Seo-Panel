@@ -31,7 +31,7 @@ $controller = New ReviewManagerController();
 $controller->view->menu = 'seotools';
 $controller->layout = 'ajax';
 $controller->set('spTextTools', $controller->getLanguageTexts('seotools', $_SESSION['lang_code']));
-$controller->spTextRM = $controller->getLanguageTexts('reviews', $_SESSION['lang_code']);
+$controller->spTextRM = $controller->getLanguageTexts('review', $_SESSION['lang_code']);
 $controller->set('spTextRM', $controller->spTextRM);
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {

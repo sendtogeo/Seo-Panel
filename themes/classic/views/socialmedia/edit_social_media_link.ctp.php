@@ -57,7 +57,7 @@ if(!empty($validationMsg)){
 	</tr>
 	<tr class="form_data">
 		<td><?php echo $spText['common']['Link']?>:</td>
-		<td><input type="url" name="url" value="<?php echo $post['url']?>" style="width: 400px;"><?php echo $errMsg['url']?></td>
+		<td><input type="url" name="url" value="<?php echo $post['url']?>" class="form-control"><?php echo $errMsg['url']?></td>
 	</tr>
 </table>
 <br>

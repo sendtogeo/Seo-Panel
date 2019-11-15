@@ -28,13 +28,20 @@ class ReviewBase extends Controller {
     function __construct() {
     	 
     	$this->serviceList = [
-    		"google_my_business" => [
+    		"google" => [
     			"label" => "Google My Business",
     			"regex" => [
     				"reviews" => '/(\d.*?)/is',
     				"rating" => '/(\d.*?)/is',
     			],
     		],
+    	    "glassdoor" => [
+    	        "label" => "Glassdoor",
+    	        "regex" => [
+    	            "reviews" => '/(\d.*?)/is',
+    	            "rating" => '/(\d.*?)/is',
+    	        ],
+    	    ],
     	];
     	
     	parent::__construct();

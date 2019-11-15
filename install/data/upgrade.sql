@@ -36,6 +36,9 @@ VALUES ('Review Manager', 'review-manager', '1', '1', '1', '100', '1');
 
 
 INSERT INTO `texts` (`category`, `label`, `content`) VALUES 
+('subscription', 'Review Link Count', 'Review Link Count'), 
+('review', 'New Review Link', 'New Review Link'), 
+('review', 'Edit Review Link', 'Edit Review Link'), 
 ('seotools', 'Review Links', 'Review Links'), 
 ('seotools', 'review-manager', 'Review Manager'), 
 ('label', 'Rating', 'Rating'), 

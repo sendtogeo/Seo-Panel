@@ -1,5 +1,5 @@
 <?php
-echo showSectionHead($spTextTools['Social Media Links']);
+echo showSectionHead($spTextTools['Review Links']);
 $searchFun = "scriptDoLoadPost('$pageScriptPath', 'searchForm', 'content')";
 ?>
 <form name="searchForm" id="searchForm" onsubmit="return false;">
@@ -76,7 +76,6 @@ $searchFun = "scriptDoLoadPost('$pageScriptPath', 'searchForm', 'content')";
 				<td width="40px"><?php echo $listInfo['id']?></td>
 				<td><?php echo $projectLink?></td>
 				<td>
-					<i class="fab fa-<?php echo strtolower($serviceList[$listInfo['type']]['label'])?>"></i>
 					<?php echo $serviceList[$listInfo['type']]['label']?>
 				</td>
 				<td><?php echo $listInfo['url']?></td>				
@@ -114,8 +113,8 @@ $searchFun = "scriptDoLoadPost('$pageScriptPath', 'searchForm', 'content')";
 <table width="100%" class="actionSec">
 	<tr>
     	<td>
-         	<a onclick="scriptDoLoad('<?php echo $pageScriptPath?>', 'content', 'sec=newSocialMediaLink')" href="javascript:void(0);" class="actionbut">
-         		<?php echo $spTextSMC['New Social Media Link']?>
+         	<a onclick="scriptDoLoad('<?php echo $pageScriptPath?>', 'content', 'sec=newReviewLink')" href="javascript:void(0);" class="actionbut">
+         		<?php echo $spTextRM['New Review Link']?>
          	</a>
     	</td>
 	</tr>

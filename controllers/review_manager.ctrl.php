@@ -34,6 +34,8 @@ class ReviewManagerController extends ReviewBase{
     var $spTextRM;
         
     function __construct() {
+        parent::__construct();
+        
     	$this->set('pageScriptPath', $this->pageScriptPath);
     	$this->set( 'serviceList', $this->serviceList );
     	$this->set( 'pageNo', $_REQUEST['pageno']);
@@ -43,8 +45,6 @@ class ReviewManagerController extends ReviewBase{
 			'reviews' => $_SESSION['text']['label']['Reviews'],
 			'rating' => $_SESSION['text']['label']['Rating'],
 		);
-    	
-    	parent::__construct();
     }
     
     function showReviewLinks($searchInfo = '') {

@@ -48,6 +48,15 @@
 	</tr>
 	
 	<tr class="form_data">
+		<td><?php echo $spTextSubscription['Review Link Count']?>:</td>
+		<td>
+			<input type="number" name="review_link_count" id="review_link_count" value="<?php echo $post['review_link_count']?>">
+			<?php echo $errMsg['review_link_count']?>
+			<p><?php echo $spTextSubscription['infinite_limit_text']?></p>
+		</td>
+	</tr>
+	
+	<tr class="form_data">
 		<td><?php echo $spText['common']['Search Engine Count']?>:</td>
 		<td>
 			<input type="number" name="searchengine_count" id="searchengine_count" value="<?php echo $post['searchengine_count']?>">
