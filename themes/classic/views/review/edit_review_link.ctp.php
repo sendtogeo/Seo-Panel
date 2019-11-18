@@ -57,7 +57,17 @@ if(!empty($validationMsg)){
 	</tr>
 	<tr class="form_data">
 		<td><?php echo $spText['common']['Link']?>:</td>
-		<td><input type="url" name="url" value="<?php echo $post['url']?>" class="form-control" required="required"><?php echo $errMsg['url']?></td>
+		<td>
+			<input type="url" name="url" value="<?php echo $post['url']?>" class="form-control" required="required">
+			<?php echo $errMsg['url']?>
+			<?php
+			$serviceSelName = !empty($post['type']) ? $post['type'] : "google";
+			if (!empty($serviceList[$serviceSelName]['example'])) {
+				?>
+				<p><b>Eg:</b> <?php echo implode(', ', $serviceList[$serviceSelName]['example'])?></p>
+				<?php
+			}?>
+		</td>
 	</tr>
 </table>
 <br>

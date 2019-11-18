@@ -280,6 +280,10 @@ class CronController extends Controller {
 					$this->socialMediaCheckerCron($websiteId);
 					break;
 					
+				case "review-manager":
+					$this->reviewCheckerCron($websiteId);
+					break;
+					
 				case "web-analytics":
 					$this->analyticsCron($websiteId);
 					break;
@@ -368,6 +372,39 @@ class CronController extends Controller {
 		
 		echo "Saved social media results of website id: <b>$websiteId</b>.....</br>\n";
 	
+	}
+	
+	# func to generate review checker reports from cron
+	function reviewCheckerCron($websiteId) {
+		include_once(SP_CTRLPATH."/review_manager.ctrl.php");
+		$this->debugMsg("Starting review Checker cron for website: {$this->websiteInfo['name']}....<br>\n");
+	
+		$reviewController = New ReviewManagerController();
+		$websiteInfo = $this->websiteInfo;
+		
+		$linkList = $reviewController->getAllLinksWithOutReports($websiteInfo['id'], date('Y-m-d', $this->timeStamp));
+		if (SP_MULTIPLE_CRON_EXEC && empty($linkList)) {
+			$this->debugMsg("No review links left to generate report for website: {$this->websiteInfo['name']}....<br>\n");
+			return true;
+		}
+		
+		// loop through link list and save the data
+		foreach ($linkList as $linkInfo) {
+			$result = $reviewController->getReviewDetails($linkInfo['type'], $linkInfo['url']);
+			
+			if ($result['status']) {
+				echo "Crawled review results of <b>{$linkInfo['name']}</b>.....</br>\n";
+			} else {
+				echo "Failed Crawling of review results of <b>{$linkInfo['name']}</b>.....</br>\n";
+				echo $result['msg'];
+			}
+			
+			// save the review data
+			$reviewController->saveReviewLinkResults($linkInfo['id'], $result);
+			
+		}
+		
+		echo "Saved review results of website id: <b>$websiteId</b>.....</br>\n";
 	}	
 	
 	# func to generate backlink reports from cron
