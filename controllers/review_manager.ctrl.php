@@ -325,29 +325,38 @@ class ReviewManagerController extends ReviewBase{
 			
 			$smContentInfo = $this->spider->getContent($smLink);
 			
+			// testing val
+			/*$myfile = fopen(SP_TMPPATH . "/gbusiness.html", "w") or die("Unable to open file!");
+			fwrite($myfile, $smContentInfo['page']);
+			fclose($myfile);
+			exit;
+
+			$smContentInfo = [];
+			$myfile = fopen(SP_TMPPATH . "/gbusiness.html", "r") or die("Unable to open file!");
+			$smContentInfo['page'] = fread($myfile,filesize(SP_TMPPATH . "/gbusiness.html"));
+			fclose($myfile);*/
+			
 			if (!empty($smContentInfo['page'])) {
 			    $matches = [];
 
 				// find reviews
-				if (!empty($smInfo['regex']['like'])) {
-					preg_match($smInfo['regex']['like'], $smContentInfo['page'], $matches);
+				if (!empty($smInfo['regex']['reviews'])) {
+				    preg_match($smInfo['regex']['reviews'], $smContentInfo['page'], $matches);
 					
 					if (!empty($matches[1])) {
 						$result['status'] = 1;
 						$result['reviews'] = formatNumber($matches[1]);
 					}
-					
 				}
 				
 				// find rating
-				if (!empty($smInfo['regex']['follower'])) {
-					preg_match($smInfo['regex']['follower'], $smContentInfo['page'], $matches);
+				if (!empty($smInfo['regex']['rating'])) {
+					preg_match($smInfo['regex']['rating'], $smContentInfo['page'], $matches);
 						
 					if (!empty($matches[1])) {
 						$result['status'] = 1;
 						$result['rating'] = formatNumber($matches[1]);
-					}
-						
+					}	
 				}
 				
 			} else {
