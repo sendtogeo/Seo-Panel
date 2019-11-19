@@ -367,7 +367,7 @@ class CronController extends Controller {
 			
 			// save the social media data
 			$socialMediaCtrler->saveSocialMediaLinkResults($linkInfo['id'], $result);
-			
+			sleep(SP_CRAWL_DELAY + 5);
 		}
 		
 		echo "Saved social media results of website id: <b>$websiteId</b>.....</br>\n";
@@ -401,7 +401,7 @@ class CronController extends Controller {
 			
 			// save the review data
 			$reviewController->saveReviewLinkResults($linkInfo['id'], $result);
-			
+			sleep(SP_CRAWL_DELAY + 5);
 		}
 		
 		echo "Saved review results of website id: <b>$websiteId</b>.....</br>\n";

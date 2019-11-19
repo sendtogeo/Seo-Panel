@@ -40,9 +40,10 @@ class ReviewBase extends Controller {
     	    "glassdoor" => [
     	        "label" => "Glassdoor",
     	        "regex" => [
-    	            "reviews" => '/(\d.*?)/is',
-    	            "rating" => '/(\d.*?)/is',
+    				"reviews" => '/"reviewCount":([0-9.,]+)/is',
+    				"rating" => '/"overallRating":(\d+\.\d+)/is',
     	        ],
+    		    'example' => ['https://www.glassdoor.com/Overview/Working-at-Google-EI_IE9079.11,17.htm']
     	    ],
     	];
     	

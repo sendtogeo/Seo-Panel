@@ -1461,8 +1461,8 @@ class ReportController extends Controller {
 		
 	# function to sent Email Notification For ReportGeneration
 	function sentEmailNotificationForReportGen($userInfo, $fromTime, $toTime) {
-	    
-	    $searchInfo = array(
+		$fromTime = !empty($fromTime) ? $fromTime : date('Y-m-d', strtotime('-1 days'));
+		$searchInfo = array(
     	    'website_id' => 0,
             'report_type' => '',
             'from_time' => date('Y-m-d', $fromTime),
