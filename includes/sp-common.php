@@ -773,13 +773,13 @@ function timeElapsedString($datetime, $full = false) {
     $diff->d -= $diff->w * 7;
     
     $string = array(
-        'y' => 'year',
-        'm' => 'month',
-        'w' => 'week',
-        'd' => 'day',
-        'h' => 'hour',
-        'i' => 'minute',
-        's' => 'second',
+        'y' => $_SESSION['text']['label']['Year'],
+        'm' => $_SESSION['text']['label']['Month'],
+        'w' => $_SESSION['text']['label']['Week'],
+        'd' => $_SESSION['text']['label']['Day'],
+        'h' => $_SESSION['text']['label']['Hour'],
+        'i' => $_SESSION['text']['label']['Minute'],
+        's' => $_SESSION['text']['label']['Second'],
     );
     
     foreach ($string as $k => &$v) {
@@ -791,6 +791,6 @@ function timeElapsedString($datetime, $full = false) {
     }
     
     if (!$full) $string = array_slice($string, 0, 1);
-    return $string ? implode(', ', $string) . ' ago' : 'just now';
+    return $string ? implode(', ', $string) . ' '. $_SESSION['text']['label']['Ago'] : $_SESSION['text']['label']['Just Now'];
 }
 ?>
