@@ -114,8 +114,22 @@
     <div id="dialogContent" style="display:none;"></div>
     <?php
     // add google analytics code to verify the site hits 
-    if ( defined('SP_GOOGLE_ANALYTICS_TRACK_CODE')) { 
-    	echo SP_GOOGLE_ANALYTICS_TRACK_CODE;
+    if ( defined('SP_GOOGLE_ANALYTICS_TRACK_CODE')) {
+    	if (!stristr(SP_GOOGLE_ANALYTICS_TRACK_CODE, '<script')) {
+    		?>
+    		<!-- Global site tag (gtag.js) - Google Analytics -->
+			<script async src="https://www.googletagmanager.com/gtag/js?id=<?php echo SP_GOOGLE_ANALYTICS_TRACK_CODE?>"></script>
+			<script>
+			  window.dataLayer = window.dataLayer || [];
+			  function gtag(){dataLayer.push(arguments);}
+			  gtag('js', new Date());
+			
+			  gtag('config', '<?php echo SP_GOOGLE_ANALYTICS_TRACK_CODE?>');
+			</script>
+    		<?php
+    	} else {
+    		echo SP_GOOGLE_ANALYTICS_TRACK_CODE;
+    	}
     }
     ?>
 </body>

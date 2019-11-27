@@ -1,5 +1,5 @@
 <?php
-$headText = ($editAction == 'updateSocialMediaLink') ? $spTextSMC['Edit Social Media Link'] : $spTextSMC['New Social Media Link'];
+$headText = ($editAction == 'updateReviewLink') ? $spTextRM['Edit Review Link'] : $spTextRM['New Review Link'];
 echo showSectionHead($headText);
 
 // if error occured
@@ -13,7 +13,7 @@ if(!empty($validationMsg)){
 ?>
 <form id="edit_form" onsubmit="return false;">
 <input type="hidden" name="sec" value="<?php echo $editAction?>"/>
-<?php if ($editAction == 'updateSocialMediaLink') {?>
+<?php if ($editAction == 'updateReviewLink') {?>
 	<input type="hidden" name="id" value="<?php echo $post['id']?>"/>
 <?php }?>
 <table id="cust_tab">
@@ -57,7 +57,17 @@ if(!empty($validationMsg)){
 	</tr>
 	<tr class="form_data">
 		<td><?php echo $spText['common']['Link']?>:</td>
-		<td><input type="url" name="url" value="<?php echo $post['url']?>" class="form-control"><?php echo $errMsg['url']?></td>
+		<td>
+			<input type="url" name="url" value="<?php echo $post['url']?>" class="form-control" required="required">
+			<?php echo $errMsg['url']?>
+			<?php
+			$serviceSelName = !empty($post['type']) ? $post['type'] : "google";
+			if (!empty($serviceList[$serviceSelName]['example'])) {
+				?>
+				<p><b>Eg:</b> <?php echo implode(', ', $serviceList[$serviceSelName]['example'])?></p>
+				<?php
+			}?>
+		</td>
 	</tr>
 </table>
 <br>

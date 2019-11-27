@@ -346,6 +346,15 @@ if (!empty($analyticsReport)) {
 }
 ?>
 
+<?php
+if (!empty($reviewReport)) {
+    ?>
+    <br>
+	<div class="table-responsive"><?php echo $reviewReport;?></div>
+	<?php
+}
+?>
+
 </div>
 <br>
 <?php
