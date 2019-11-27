@@ -31,8 +31,8 @@ class ReviewBase extends Controller {
     		"google" => [
     			"label" => "Google My Business",
     			"regex" => [
-    				"reviews" => '/<ol><div class="g.*> ([0-9.,]+) reviews<\/span>/is',
-    				"rating" => '/<ol><div class="g.*>(\d+\.\d+)<\/span>/is',
+    				"reviews" => '/<span>([0-9.,]+) Google reviews<\/span>/is',
+    				"rating" => '/<\/g-popup>.*?aria-label="Rated (\d+\.\d+) out/is',
     			],
     		    "url_part" => '?hl=en',
     		    'example' => ['https://www.google.com/search?q=kfc+Damrak']
