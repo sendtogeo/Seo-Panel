@@ -34,6 +34,8 @@ ALTER TABLE `review_link_results` ADD CONSTRAINT `review_link_rel` FOREIGN KEY (
 INSERT INTO `seotools` (`name`, `url_section`, `user_access`, `reportgen`, `cron`, `priority`, `status`) 
 VALUES ('Review Manager', 'review-manager', '1', '1', '1', '100', '1');
 
+UPDATE `searchengines` SET `regex` = '<div.*?class=\"?g.*?>.*?<div.*?class=\"r\"*?>.*?<a href=\"(.*?)\".*?>.*?<span.*?>(.*?)<\\/span><\\/h3>' WHERE `url` LIKE '%google%';
+
 
 INSERT INTO `texts` (`category`, `label`, `content`) VALUES 
 ('label', 'Year', 'Year'),

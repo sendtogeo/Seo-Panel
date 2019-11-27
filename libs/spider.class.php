@@ -53,14 +53,9 @@ class Spider{
 		if(!empty($_SERVER['HTTP_USER_AGENT'])) $this->_CURLOPT_USERAGENT = $_SERVER['HTTP_USER_AGENT'];
 
 		// user agents
-		$this->userAgentList[] = "Mozilla/5.0 (compatible; MSIE 7.0; Windows NT 5.1; SV1; .NET CLR 2.0.50727)";
-		$this->userAgentList[] = "Mozilla/5.0 (compatible; MSIE 7.0b; Windows NT 5.2; .NET CLR 1.1.4322; .NET CLR 2.0.50727; InfoPath.2; .NET CLR 3.0.04506.30)";
-		$this->userAgentList[] = "Mozilla/5.0 (Mozilla/5.0; MSIE 7.0; Windows NT 5.1; FDM; SV1; .NET CLR 3.0.04506.30)";
-		$this->userAgentList[] = "Mozilla/5.0 (compatible; MSIE 7.0; Windows NT 5.2; .NET CLR 2.0.50727)";
-		$this->userAgentList[] = "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.0; search bar)";
-		$this->userAgentList[] = "Mozilla/5.0 (Windows; U; MSIE 9.0; WIndows NT 9.0; en-US))";
-		$this->userAgentList[] = defined('SP_USER_AGENT') ? SP_USER_AGENT : $this->_CURLOPT_USERAGENT;
-		
+		$this->userAgentList['google'] = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:69.0) Gecko/20100101 Firefox/69.0";
+		$this->userAgentList['bing'] = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:69.0) Gecko/20100101 Firefox/69.0";
+		$this->userAgentList['default'] = defined('SP_USER_AGENT') ? SP_USER_AGENT : $this->_CURLOPT_USERAGENT;
 	}	
 	
 	# func to format urls
@@ -256,9 +251,9 @@ class Spider{
 		if(isset($matches[1])) return trim($matches[1]) ;
 	}
 	
-	# function to get then useragent
-	function getUserAgent() {
-	    $userAgentKey = array_rand($this->userAgentList, 1);
+	# function to get the useragent
+	function getUserAgent($key = false) {
+	    $userAgentKey = !empty($key) ? $key : 'default';
 	    return $this->userAgentList[$userAgentKey];    
 	}
 	
@@ -299,14 +294,21 @@ class Spider{
 		if (stristr($url, SP_MAIN_SITE)) {
 		    $this -> _CURLOPT_USERAGENT = "";
 		} else {
-    		$this->_CURLOPT_USERAGENT = defined('SP_USER_AGENT') ? SP_USER_AGENT : $this->_CURLOPT_USERAGENT;
+		    $ugKey = false;
+		    if (stristr($url, 'google.')) {
+		        $ugKey = 'google';
+		    } else if (stristr($url, 'bing.')) {
+		        $ugKey = 'bing';
+		    }
+		    
+    		$this->_CURLOPT_USERAGENT = $this->getUserAgent($ugKey);
     		if( strlen( $this -> _CURLOPT_USERAGENT ) > 0 ) {
     			curl_setopt( $this -> _CURL_RESOURCE , CURLOPT_USERAGENT, $this -> _CURLOPT_USERAGENT );
     		}
 		}
 		
 		// set custom headers for google domains
-		if (stristr($url, 'google')) {
+		if (stristr($url, 'google.')) {
 			$this->setCustomHeaders();
 		}
 
@@ -347,7 +349,8 @@ class Spider{
 			    showErrorMsg("No active proxies found!! Please check your proxy settings from Admin Panel.");
 			}
 		}
-			
+		
+		$ret = [];
 		$ret['page'] = curl_exec( $this -> _CURL_RESOURCE );
 		$ret['error'] = curl_errno( $this -> _CURL_RESOURCE );
 		$ret['errmsg'] = curl_error( $this -> _CURL_RESOURCE );
@@ -357,6 +360,7 @@ class Spider{
 		// update crawl log in database for future reference
 		if ($logCrawl) {
 			$crawlLogCtrl = new CrawlLogController();
+			$crawlInfo = [];
 			$crawlInfo['crawl_status'] = $ret['error'] ? 0 : 1;
 			$crawlInfo['ref_id'] = $crawlInfo['crawl_link'] = addslashes($this->effectiveUrl);
 			$crawlInfo['crawl_referer'] = addslashes($this-> _CURLOPT_REFERER);
@@ -419,8 +423,7 @@ class Spider{
 	
 	# func to check proxy 
 	function checkProxy($proxyInfo) {
-		
-		$this->_CURLOPT_USERAGENT = defined('SP_USER_AGENT') ? SP_USER_AGENT : $this->_CURLOPT_USERAGENT;
+		$this->_CURLOPT_USERAGENT = $this->getUserAgent();
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($ch, CURLOPT_PROXY, $proxyInfo['proxy'].":".$proxyInfo['port']);

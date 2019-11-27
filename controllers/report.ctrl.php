@@ -675,7 +675,19 @@ class ReportController extends Controller {
 			$result = $this->spider->getContent($seUrl);
 			$pageContent = $this->formatPageContent($seInfoId, $result['page']);
 			
+			// testing code for regex
+            /*$testFileName = SP_TMPPATH . "/google.html";
+            $myfile = fopen($testFileName, "w") or die("Unable to open file!");
+            fwrite($myfile, $pageContent);
+            fclose($myfile);
+            exit;
+            
+            $myfile = fopen($testFileName, "r") or die("Unable to open file!");
+            $pageContent = fread($myfile,filesize($testFileName));
+            fclose($myfile);*/
+			
 			$crawlLogCtrl = new CrawlLogController();
+			$crawlInfo = [];
 			$crawlInfo['crawl_type'] = 'keyword';
 			$crawlInfo['ref_id'] = empty($keywordInfo['id']) ? $keywordInfo['name'] : $keywordInfo['id'];
 			$crawlInfo['subject'] = $seInfoId;
