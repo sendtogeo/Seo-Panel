@@ -35,28 +35,3 @@ INSERT INTO `seotools` (`name`, `url_section`, `user_access`, `reportgen`, `cron
 VALUES ('Review Manager', 'review-manager', '1', '1', '1', '100', '1');
 
 UPDATE `searchengines` SET `regex` = '<div.*?class=\"?g.*?>.*?<div.*?class=\"r\"*?>.*?<a href=\"(.*?)\".*?>.*?<span.*?>(.*?)<\\/span><\\/h3>' WHERE `url` LIKE '%google%';
-
-
-INSERT INTO `texts` (`category`, `label`, `content`) VALUES 
-('label', 'Year', 'Year'),
-('label', 'Week', 'Week'),
-('label', 'Day', 'Day'),
-('label', 'Hour', 'Hour'),
-('label', 'Minute', 'Minute'),
-('label', 'Second', 'Second'),
-('label', 'Ago', 'Ago'),
-('label', 'Just Now', 'Just Now'),
-('seotools', 'Review Report Summary', 'Review Report Summary'), 
-('subscription', 'Review Link Count', 'Review Link Count'), 
-('review', 'New Review Link', 'New Review Link'), 
-('review', 'Edit Review Link', 'Edit Review Link'), 
-('seotools', 'Review Links', 'Review Links'), 
-('seotools', 'review-manager', 'Review Manager'), 
-('label', 'Rating', 'Rating'), 
-('label', 'Reviews', 'Reviews'), 
-('home', 'Page Overview Report', 'Page Overview Report'),
-('home', 'Keyword Overview Report', 'Keyword Overview Report'),
-('label', 'Overview', 'Overview');
-
-
-
