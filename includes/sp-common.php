@@ -312,10 +312,16 @@ function pluginConfirmPOSTMethod($formName, $area='content', $args=''){
 
 # func to create plugin menu
 function pluginMenu($args='', $area='content') {
-	$pluginId = Session::readSession('plugin_id');
-	$script = "seo-plugins.php?pid=".$pluginId;	
-	$request = "scriptDoLoad('$script', '$area', '$args')";
-	return $request;
+    $pluginId = Session::readSession('plugin_id');
+    $script = "seo-plugins.php?pid=".$pluginId;
+    $request = "scriptDoLoad('$script', '$area', '$args')";
+    return $request;
+}
+
+function pluginLink($args = '') {
+    $script = SP_WEBPATH . "/seo-plugins.php?pid=" . PLUGIN_ID;
+    $script .= (substr($args, 0, 1) == '&') ? $args : "&$args";
+    return $script;
 }
 
 # func to remove new lines from a string
@@ -756,5 +762,35 @@ function showExportDiv($pdfLink, $csvLink, $printLink) {
 		<a target="_blank" href="<?php echo $printLink?>"><i class="fas fa-print"></i></a>
 	</div>
     <?php
+}
+
+function timeElapsedString($datetime, $full = false) {
+    $now = new DateTime;
+    $ago = new DateTime($datetime);
+    $diff = $now->diff($ago);
+    
+    $diff->w = floor($diff->d / 7);
+    $diff->d -= $diff->w * 7;
+    
+    $string = array(
+        'y' => $_SESSION['text']['label']['Year'],
+        'm' => $_SESSION['text']['label']['Month'],
+        'w' => $_SESSION['text']['label']['Week'],
+        'd' => $_SESSION['text']['label']['Day'],
+        'h' => $_SESSION['text']['label']['Hour'],
+        'i' => $_SESSION['text']['label']['Minute'],
+        's' => $_SESSION['text']['label']['Second'],
+    );
+    
+    foreach ($string as $k => &$v) {
+        if ($diff->$k) {
+            $v = $diff->$k . ' ' . $v . ($diff->$k > 1 ? 's' : '');
+        } else {
+            unset($string[$k]);
+        }
+    }
+    
+    if (!$full) $string = array_slice($string, 0, 1);
+    return $string ? implode(', ', $string) . ' '. $_SESSION['text']['label']['Ago'] : $_SESSION['text']['label']['Just Now'];
 }
 ?>

@@ -675,7 +675,19 @@ class ReportController extends Controller {
 			$result = $this->spider->getContent($seUrl);
 			$pageContent = $this->formatPageContent($seInfoId, $result['page']);
 			
+			// testing code for regex
+            /*$testFileName = SP_TMPPATH . "/google.html";
+            $myfile = fopen($testFileName, "w") or die("Unable to open file!");
+            fwrite($myfile, $pageContent);
+            fclose($myfile);
+            exit;
+            
+            $myfile = fopen($testFileName, "r") or die("Unable to open file!");
+            $pageContent = fread($myfile,filesize($testFileName));
+            fclose($myfile);*/
+			
 			$crawlLogCtrl = new CrawlLogController();
+			$crawlInfo = [];
 			$crawlInfo['crawl_type'] = 'keyword';
 			$crawlInfo['ref_id'] = empty($keywordInfo['id']) ? $keywordInfo['name'] : $keywordInfo['id'];
 			$crawlInfo['subject'] = $seInfoId;
@@ -949,6 +961,7 @@ class ReportController extends Controller {
 			'keyword-search-reports' => $this->spTextTools['Keyword Search Summary'],
 		    'social-media-reports' => $this->spTextTools['Social Media Report Summary'],
 		    'analytics-reports' => $this->spTextTools['Website Analytics Summary'],
+		    'review-reports' => $this->spTextTools['Review Report Summary'],
 		);
 		$this->set('reportTypes', $reportTypes);
 		$urlarg .= "&report_type=".$searchInfo['report_type'];		
@@ -1247,10 +1260,11 @@ class ReportController extends Controller {
 		}
 		
 		# website search report section
-		if (empty($searchInfo['report_type']) || in_array($searchInfo['report_type'], array('social-media-reports', 'website-search-reports', 'keyword-search-reports', 'sitemap-reports', 'analytics-reports')) ) {
+		if (empty($searchInfo['report_type']) || in_array($searchInfo['report_type'], array('review-reports', 'social-media-reports', 'website-search-reports', 'keyword-search-reports', 'sitemap-reports', 'analytics-reports')) ) {
 		    include_once(SP_CTRLPATH."/analytics.ctrl.php");
 			$webMasterCtrler = new WebMasterController();
 			$socialMediaCtrler = New SocialMediaController();
+			$reviewCtrler = New ReviewManagerController();
 			$webMasterCtrler->set('spTextTools', $this->spTextTools);
 			$webMasterCtrler->spTextTools = $this->spTextTools;
 			$filterList = $searchInfo;
@@ -1301,6 +1315,16 @@ class ReportController extends Controller {
 				$socialMediaCtrler->spTextTools = $this->spTextTools;
 				$socialMediaReport = $socialMediaCtrler->viewReportSummary($filterList, true, $cronUserId);
 			}
+
+			// if social media reports
+			if (empty($searchInfo['report_type']) || ($searchInfo['report_type'] == 'review-reports')) {
+				$filterList['from_time'] = $fromTimeShort;
+				$filterList['to_time'] = $toTimeShort;
+				$reviewCtrler->set('spTextTools', $this->spTextTools);
+				$reviewCtrler->set('spTextPanel', $this->spTextPanel);
+				$reviewCtrler->spTextTools = $this->spTextTools;
+				$reviewReport = $reviewCtrler->viewReportSummary($filterList, true, $cronUserId);
+			}
 			
 			if ($exportVersion) {
 				$exportContent .= $websiteSearchReport;
@@ -1311,6 +1335,7 @@ class ReportController extends Controller {
 				$this->set('keywordSearchReport', $keywordSearchReport);
 				$this->set('sitemapReport', $sitemapReport);
 				$this->set('socialMediaReport', $socialMediaReport);
+				$this->set('reviewReport', $reviewReport);
 				$this->set('analyticsReport', $analyticsReport);
 			}
 			
@@ -1448,8 +1473,8 @@ class ReportController extends Controller {
 		
 	# function to sent Email Notification For ReportGeneration
 	function sentEmailNotificationForReportGen($userInfo, $fromTime, $toTime) {
-	    
-	    $searchInfo = array(
+		$fromTime = !empty($fromTime) ? $fromTime : date('Y-m-d', strtotime('-1 days'));
+		$searchInfo = array(
     	    'website_id' => 0,
             'report_type' => '',
             'from_time' => date('Y-m-d', $fromTime),

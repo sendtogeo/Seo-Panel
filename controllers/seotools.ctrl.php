@@ -110,6 +110,10 @@ class SeoToolsController extends Controller{
 				$defaultScript = "social_media.php";
 				break;
 				
+			case "review-manager":
+				$defaultScript = "review.php";
+				break;
+				
 			case "web-analytics":
 			    $defaultScript = "analytics.php";
 			    break;

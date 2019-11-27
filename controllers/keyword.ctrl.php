@@ -506,7 +506,7 @@ class KeywordController extends Controller{
 		
 	}
 	
-	function getUserKeywordSearchEngineList($userId = "") {
+	function getUserKeywordSearchEngineList($userId = "", $websiteId = false) {
 		
 		$seController = New SearchEngineController();
 		$list = $seController->__getAllSearchEngines();
@@ -520,6 +520,7 @@ class KeywordController extends Controller{
 		$websiteCtlr = new WebsiteController();
 		$whereCond = "w.id=k.website_id and k.status=1 and w.status=1";
 		$whereCond .= !empty($userId) ? $websiteCtlr->getWebsiteUserAccessCondition($userId) : "";
+		$whereCond .= !empty($websiteId) ? " and w.id=".intval($websiteId) : "";
 		$list = $this->dbHelper->getAllRows('keywords k, websites w', $whereCond, "distinct k.searchengines"); 
 		
 		// show only required search engines

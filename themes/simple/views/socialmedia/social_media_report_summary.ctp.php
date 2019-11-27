@@ -156,7 +156,10 @@ $colCount = ($baseColCount * 3) + 2;
 					<td>
 						<a href="javascript:void(0)"><?php echo $websiteList[$listInfo['website_id']]['url']; ?></a>
 					</td>
-					<td colspan="3"><?php echo $listInfo['url']; ?></td>
+					<td colspan="3">
+						<i class="fab fa-<?php echo strtolower($listInfo['type'])?>"></i>
+						<?php echo $listInfo['url']; ?>
+					</td>
 					<?php
 					foreach ($colList as $colName => $colVal){
 						if ($colName == 'url') continue;

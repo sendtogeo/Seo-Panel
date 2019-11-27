@@ -75,7 +75,10 @@ $searchFun = "scriptDoLoadPost('$pageScriptPath', 'searchForm', 'content')";
 			<tr>
 				<td width="40px"><?php echo $listInfo['id']?></td>
 				<td><?php echo $projectLink?></td>
-				<td><?php echo $serviceList[$listInfo['type']]['label']?></td>
+				<td>
+					<i class="fab fa-<?php echo strtolower($serviceList[$listInfo['type']]['label'])?>"></i>
+					<?php echo $serviceList[$listInfo['type']]['label']?>
+				</td>
 				<td><?php echo $listInfo['url']?></td>				
 				<td><?php echo $listInfo['website_name']?></td>
 				<td><?php echo $listInfo['status'] ? $spText['common']["Active"] : $spText['common']["Inactive"];?></td>

@@ -126,32 +126,46 @@ class SeoPluginsController extends Controller{
 
 	# func to load plugin css files
 	function loadAllPluginCss($pluginPathDir = "", $pluginCssWebPath = "") {
+		$styleCont = "";
 		$pluginPathDir = !empty($pluginPathDir) ? $pluginPathDir : PLUGIN_PATH."/css";
 		$pluginCssWebPath = !empty($pluginCssWebPath) ? $pluginCssWebPath : PLUGIN_CSSPATH;
 		if(file_exists($pluginPathDir)){
 			if ($handle = opendir($pluginPathDir)) {
 				while (false !== ($file = readdir($handle))) {
 					if ( ($file != ".") && ($file != "..") &&  preg_match('/\.css$/i', $file) ) {
-						return '<script>loadJsCssFile("'.$pluginCssWebPath."/".$file.'", "css")</script>';
+						$styleCont .= 'loadJsCssFile("'.$pluginCssWebPath."/".$file.'", "css");';
 					}
 				}
 			}
 		}
+		
+		if (!empty($styleCont)) {
+			$styleCont = "<script>$styleCont</script>";
+		}
+		
+		return $styleCont;
 	}
 	
 	# func to load plugin js files
 	function loadAllPluginJs($pluginPathDir = "", $pluginJsWebPath = "") {
+		$styleCont = "";
 		$pluginPathDir = !empty($pluginPathDir) ? $pluginPathDir : PLUGIN_PATH."/js";
 		$pluginJsWebPath = !empty($pluginJsWebPath) ? $pluginJsWebPath : PLUGIN_JSPATH;
 		if(file_exists($pluginPathDir)){
 			if ($handle = opendir($pluginPathDir)) {
 				while (false !== ($file = readdir($handle))) {
 					if ( ($file != ".") && ($file != "..") &&  preg_match('/\.js$/i', $file) ) {
-						return '<script>loadJsCssFile("'.$pluginJsWebPath."/".$file.'", "js")</script>';
+						$styleCont .= 'loadJsCssFile("'.$pluginJsWebPath."/".$file.'", "js");';
 					}
 				}
 			}
 		}
+		
+		if (!empty($styleCont)) {
+			$styleCont = "<script>$styleCont</script>";
+		}
+		
+		return $styleCont;
 	}
 	
 	# index function
