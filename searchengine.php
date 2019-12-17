@@ -61,6 +61,17 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		    }
 		    $controller->listSE($_POST);
 		    break;
+		    
+		case "do-sync-se":
+		    $result = $controller->doSyncSearchEngines();
+		    if ($result['status']) {
+                Session::setSessionMessages($result['result'], false);
+		    } else {
+		        Session::setSessionMessages($result['result'], true);
+		    }
+		    
+		    $controller->showSyncSearchEngines();
+		    break;
 
 		default:
 			$controller->listSE($_POST);
@@ -84,6 +95,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$controller->__deleteSearchEngine($_GET['seId']);
 			$controller->listSE($_GET);
 			break;
+			
+		case "sync-se":
+		    $controller->showSyncSearchEngines($_GET);
+		    break;
 
 		default:
 			$controller->listSE($_GET);

@@ -96,6 +96,12 @@ if(!empty($_SERVER['REQUEST_METHOD'])){
 	
 	// call cronjob function
 	echo "\n\n=== Cron job execution started on - " . date("Y-m-d H:i:s") . " ===\n";
+	
+	// sync search engines
+	$seCtrler = new SearchEngineController();
+	$ret_sync = $seCtrler->doSyncSearchEngines(true, true);
+	echo $ret_sync['result'] . "\n";
+	
 	$controller->executeCron($includeList, $userList);
 	echo "\n=== Cron job execution completed on - " . date("Y-m-d H:i:s") . " ===\n\n";
 	

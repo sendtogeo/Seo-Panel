@@ -73,6 +73,7 @@ foreach($menuList as $i => $menuInfo){
 			<script type="text/javascript">scriptList[<?php echo $i?>] = 'searchengine.php';</script>			
 			<ul id='subui'>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('searchengine.php', 'content')"><?php echo $spTextPanel['Search Engine Manager']?></a></li>
+				<li><a href="javascript:void(0);" onclick="scriptDoLoad('searchengine.php?sec=sync-se', 'content')"><?php echo $spTextPanel['Sync Search Engines']?></a></li>
 			</ul>
 			<?php
 			break;

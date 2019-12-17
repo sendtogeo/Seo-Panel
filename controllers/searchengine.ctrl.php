@@ -120,7 +120,7 @@ class SearchEngineController extends Controller{
 	}
 	
 	# function to check whether captcha found in search engine results
-	static function isCaptchInSearchResults($searchContent) {
+	public static function isCaptchInSearchResults($searchContent) {
 
 		$captchFound = false;
 		
@@ -158,6 +158,80 @@ class SearchEngineController extends Controller{
 		}
 		
 		return $validation;
+	}
+	
+	// func to show sync search engines
+	function showSyncSearchEngines($info=[]) {
+	    
+	    $pageScriptPath = 'searchengine.php?sec=sync-se';
+	    $sql = "select * from sync_searchengines order by sync_time DESC";
+	    
+	    # pagination setup
+	    $this->db->query($sql, true);
+	    $this->paging->setDivClass('pagingdiv');
+	    $this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
+	    $pagingDiv = $this->paging->printPages($pageScriptPath, '', 'scriptDoLoad', 'content', 'layout=ajax');
+	    $this->set('pagingDiv', $pagingDiv);
+	    $sql .= " limit ".$this->paging->start .",". $this->paging->per_page;
+	    $syncList = $this->db->select($sql);
+	    $this->set('syncList', $syncList);
+	    
+	    $this->set('pageScriptPath', $pageScriptPath);
+	    $this->set('pageNo', $info['pageno']);
+	    $this->render('searchengine/list_sync_searchengines');
+	}
+	
+	// do sync search engines from sp main website
+	function doSyncSearchEngines($checkAlreadyExecuted = false, $cronJob = false) {
+	    
+	    // check whether already executed sync
+	    if ($checkAlreadyExecuted) {
+	        $row = $this->dbHelper->getRow("sync_searchengines", "sync_time>TIMESTAMP(DATE_SUB(NOW(), INTERVAL ". SP_SYNC_SE_INTERVAL ." day))");
+	        if (!empty($row['id'])) {
+	            return ['status' => false, 'result' => "Search engines already synced."];
+	        }
+	    }
+	    
+	    $dataList = ['status' => 0];
+	    $syncUrl = SP_MAIN_SITE . "/get_searchengine_updates.php";
+	    $ret = $this->spider->getContent($syncUrl);
+	    if (!empty($ret['page'])) {
+	        
+	        // check whethere required content exists in the page crawled
+	        if (stristr($ret['page'], 'UPDATE ')) {
+	            
+	            $queryList = explode(';', $ret['page']);
+	            foreach ($queryList as $query) {
+	                if (!empty($query)) {
+	                   $this->db->query(trim($query));
+	                }
+	            }
+	            
+	            $dataList['result'] = "Search engines successfully synced.";
+	            $dataList['status'] = 1;
+	            
+	            // update admin alerts section
+	            if ($cronJob) {
+	                $alertCtrl = new AlertController();
+	                $alertInfo = array(
+	                    'alert_subject' => "Search Engine Sync",
+	                    'alert_message' => $dataList['result'],
+	                    'alert_category' => "reports",
+	                    'alert_url' => SP_WEBPATH,
+	                );
+	                $alertCtrl->createAlert($alertInfo, false, true);
+	            }
+	            
+	        } else {
+	            $dataList['result'] = "Internal error occured during search engine sync.";
+	        }
+	        
+	    } else {
+	        $dataList['result'] = $ret['errmsg'];
+	    }
+	    
+	    $this->dbHelper->insertRow("sync_searchengines", $dataList);
+	    return $dataList;
 	}
 	
 }
