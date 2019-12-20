@@ -373,6 +373,13 @@ class KeywordController extends Controller{
 		$listInfo = $this->db->select($sql, true);
 		return empty($listInfo['id']) ? false :  $listInfo;
 	}
+	
+	function __getWebisteKeywords($websiteId, $searchInfo=[]) {
+	    $cond = "website_id=".intval($websiteId);
+	    $cond .= isset($searchInfo['status']) ? " and status=".intval($searchInfo['status']) : "";
+	    $cond .= isset($searchInfo['search']) ? " and name like '%".addslashes($searchInfo['search'])."%'" : "";
+	    return $this->dbHelper->getAllRows('keywords', $cond);
+	}
 
 	function editKeyword($keywordId, $listInfo=''){	
 					

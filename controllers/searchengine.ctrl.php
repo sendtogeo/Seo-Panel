@@ -30,6 +30,13 @@ class SearchEngineController extends Controller{
 		return $seList;
 	}
 	
+	function __searchSerachEngines($searchInfo=[]) {
+	    $cond = "1=1";
+	    $cond .= isset($searchInfo['status']) ? " and status=".intval($searchInfo['status']) : "";
+	    $cond .= isset($searchInfo['search']) ? " and url like '%".addslashes($searchInfo['search'])."%'" : "";
+	    return $this->dbHelper->getAllRows('searchengines', $cond);
+	}
+	
 	# func to get search engine info
 	function __getsearchEngineInfo($seId){
 		$sql = "select * from searchengines where id=$seId";

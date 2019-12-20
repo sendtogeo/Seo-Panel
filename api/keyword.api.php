@@ -49,7 +49,7 @@ class KeywordAPI extends Seopanel{
 	/**
 	 * The constructor of API
 	 */
-	function KeywordAPI() {
+	function __construct() {
 		include_once(SP_CTRLPATH . "/keyword.ctrl.php");
 		include_once(SP_CTRLPATH . "/report.ctrl.php");
 		$this->ctrler = new KeywordController();
@@ -66,7 +66,7 @@ class KeywordAPI extends Seopanel{
 
 	/**
 	 * function to get keyword report and format it
-	 * @param id $keywordInfo		The information about keyword
+	 * @param array $keywordInfo		The information about keyword
 	 * @param int $fromTime			The time stamp of from time
 	 * @param int $toTime			The time stamp of to time
 	 * @return $keywordInfo			The formatted keyword info with position details
@@ -213,7 +213,7 @@ class KeywordAPI extends Seopanel{
 		$keywordId = intval($info['id']);
 		$returnInfo = array();
 	
-		// validate the keyword ifd and keyword info
+		// validate the keyword id and keyword info
 		if (!empty($keywordId)) {
 			if ($keywordInfo = $this->ctrler->__getKeywordInfo($keywordId)) {
 				$returnInfo['response'] = 'success';
@@ -225,6 +225,31 @@ class KeywordAPI extends Seopanel{
 		$returnInfo['response'] = 'Error';
 		$returnInfo['error_msg'] = "The invalid keyword id provided";
 		return 	$returnInfo;
+	}
+	
+	/**
+	 * function to get website keywords
+	 * @param Array $info			The input details to process the api
+	 * 		$info['id']  		    The id of the website	- Mandatory
+	 * 		$info['status']  		The status of the keyword
+	 * 		$info['search']  		The search keyword
+	 * @return Array $returnInfo  	Contains informations about keyword
+	 */
+	function getWebsiteKeywords($info) {
+	    $websiteId = intval($info['id']);
+	    $returnInfo = array();
+	    
+	    // validate the website id
+	    if (!empty($websiteId)) {
+	        $keywordList = $this->ctrler->__getWebisteKeywords($websiteId, $info);
+            $returnInfo['response'] = 'success';
+            $returnInfo['result'] = $keywordList;
+            return $returnInfo;
+	    }
+	    
+	    $returnInfo['response'] = 'Error';
+	    $returnInfo['error_msg'] = "The invalid website id provided";
+	    return 	$returnInfo;
 	}
 	
 	/**

@@ -43,7 +43,7 @@ class WebsiteAPI extends Seopanel{
 	/**
 	 * The constructor of API
 	 */
-	function WebsiteAPI() {
+	function __construct() {
 		$this->ctrler = new WebsiteController();
 		$seController = New SearchEngineController();
 		$list = $seController->__getAllSearchEngines();
@@ -64,7 +64,7 @@ class WebsiteAPI extends Seopanel{
 
 	/**
 	 * function to get website reports rank, backlinks, saturation and directory submission
-	 * @param id $websiteInfo		The information about website
+	 * @param array $websiteInfo		The information about website
 	 * @param int $fromTime			The time stamp of from time
 	 * @param int $toTime			The time stamp of to time
 	 * @return $websiteInfo			The formatted website info with position details
@@ -156,8 +156,7 @@ class WebsiteAPI extends Seopanel{
 			
 		return 	$returnInfo;
 		
-	}
-	
+	}	
 	
 	/**
 	 * function to get website report using user id
@@ -200,8 +199,7 @@ class WebsiteAPI extends Seopanel{
 		
 		return 	$returnInfo;
 		
-	}
-	
+	}	
 	
 	/**
 	 * function to get website information
@@ -225,6 +223,31 @@ class WebsiteAPI extends Seopanel{
 		$returnInfo['response'] = 'Error';
 		$returnInfo['error_msg'] = "The invalid website id provided";
 		return 	$returnInfo;
+	}
+	
+	/**
+	 * function to get user websites
+	 * @param Array $info			The input details to process the api
+	 * 		$info['id']  		    The id of the user	- Mandatory
+	 * 		$info['status']  		The status of the websites[0/1]
+	 * 		$info['search']  		The search keyword
+	 * @return Array $returnInfo  	Contains informations about website
+	 */
+	function getUserWebsites($info) {
+	    $userId = intval($info['id']);
+	    $returnInfo = array();
+	    
+	    // validate the website ifd and website info
+	    if (!empty($userId)) {
+	        $websiteList = $this->ctrler->__getUserWebsites($userId, $info);
+            $returnInfo['response'] = 'success';
+            $returnInfo['result'] = $websiteList;
+            return $returnInfo;
+	    }
+	    
+	    $returnInfo['response'] = 'Error';
+	    $returnInfo['error_msg'] = "The invalid user id provided";
+	    return 	$returnInfo;
 	}
 	
 	/**
