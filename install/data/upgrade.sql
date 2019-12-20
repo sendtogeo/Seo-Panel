@@ -19,4 +19,6 @@ ALTER TABLE `sync_searchengines` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 
 INSERT INTO `texts` (`category`, `label`, `content`) VALUES 
+('seotools', 'note_report_generation', 'We recommend to use cron jobs for reports generation.
+This action may cause captcha in search engine results.'),
 ('panel', 'Sync Search Engines', 'Sync Search Engines');

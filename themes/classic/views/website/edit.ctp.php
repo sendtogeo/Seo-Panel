@@ -64,7 +64,9 @@ if(!empty($validationMsg)){
 		<td class="td_right_col">
     		<input type="text" name="analytics_view_id" value="<?php echo $post['analytics_view_id']?>">
 			<div style="padding: 10px 6px;">
-    			<a target="_blank" href="https://www.youtube.com/watch?v=x1MljgyLeRM"><?php echo $spTextWeb['Click here to get Google Analytics View Id']; ?> &gt;&gt;</a>
+    			<a target="_blank" href="<?php echo SP_MAIN_SITE?>/blog/2019/12/how-do-i-find-the-google-analytics-view-id/">
+    				<?php echo $spTextWeb['Click here to get Google Analytics View Id']; ?> &gt;&gt;
+    			</a>
     		</div>
 		</td>
 	</tr>
