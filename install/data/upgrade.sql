@@ -24,10 +24,3 @@ INSERT INTO `settings` (`set_label`, `set_name`, `set_val`, `set_category`, `set
 update settings set set_category='mail' where 
 set_name in ('SP_SMTP_MAIL', 'SP_SMTP_HOST', 'SP_SMTP_USERNAME', 'SP_SMTP_PASSWORD', 'SP_SMTP_PORT', 'SP_MAIL_ENCRYPTION');
 
-
-INSERT INTO `texts` (`category`, `label`, `content`) VALUES 
-('panel', 'Mail Settings', 'Mail Settings'),
-('settings', 'SP_SENDGRID_API', 'Enable Sendgrid API'),
-('seotools', 'note_report_generation', 'We recommend to use cron jobs for reports generation.
-This action may cause captcha in search engine results.'),
-('panel', 'Sync Search Engines', 'Sync Search Engines');
