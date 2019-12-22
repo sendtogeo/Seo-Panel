@@ -73,6 +73,7 @@ foreach($menuList as $i => $menuInfo){
 			<script type="text/javascript">scriptList[<?php echo $i?>] = 'searchengine.php';</script>			
 			<ul id='subui'>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('searchengine.php', 'content')"><?php echo $spTextPanel['Search Engine Manager']?></a></li>
+				<li><a href="javascript:void(0);" onclick="scriptDoLoad('searchengine.php?sec=sync-se', 'content')"><?php echo $spTextPanel['Sync Search Engines']?></a></li>
 			</ul>
 			<?php
 			break;
@@ -175,6 +176,7 @@ foreach($menuList as $i => $menuInfo){
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('settings.php', 'content')"><?php echo $spTextPanel['System Settings']?></a></li>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('settings.php?category=moz', 'content')"><?php echo $spTextPanel['MOZ Settings']?></a></li>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('settings.php?category=google', 'content')"><?php echo $spTextPanel['Google Settings']?></a></li>
+				<li><a href="javascript:void(0);" onclick="scriptDoLoad('settings.php?category=mail', 'content')"><?php echo $spTextPanel['Mail Settings']?></a></li>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('settings.php?sec=test_email', 'content')"><?php echo $spTextPanel['Test Email Settings']?></a></li>
 			</ul>
 			<?php
