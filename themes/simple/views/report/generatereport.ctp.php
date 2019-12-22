@@ -34,4 +34,5 @@
 
 <div id='subcontent'>
 	<p class='note'><?php echo $spTextTools['clickgeneratereports']?></p>
+	<p class='note'><?php echo $spTextTools['note_report_generation']?></p>
 </div>

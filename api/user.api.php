@@ -34,7 +34,7 @@ class UserAPI extends Seopanel{
 	 */
 	var $ctrler;
 	
-	function UserAPI() {
+	function __construct() {
 		include_once(SP_CTRLPATH . "/user.ctrl.php");
 		$this->ctrler = new UserController();
 	}

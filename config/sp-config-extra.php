@@ -39,9 +39,6 @@ define('SP_PLUGINMENUFILE', 'menu.ctp.php');
 # seo panel is hosted version or not
 define('SP_HOSTED_VERSION', 0);
 
-# use sendgrid api for email sending
-define('SP_SENDGRID_API', 0);
-
 # seo panel is demo system or not
 define('SP_DEMO', 0);
 
@@ -126,4 +123,7 @@ define('SP_HOSTED_LINK', "http://www.seopanel.net");
 # payment related variables
 define('SP_PAYMENT_CANCEL_LINK', SP_WEBPATH."/payment_cancel.php");
 define('SP_PAYMENT_RETURN_LINK', SP_WEBPATH."/payment_return.php");
+
+# define search engine sync interval in days
+define('SP_SYNC_SE_INTERVAL', 10);
 ?>

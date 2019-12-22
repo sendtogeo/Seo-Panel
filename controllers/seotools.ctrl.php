@@ -148,9 +148,7 @@ class SeoToolsController extends Controller{
 	}
 	
 	# func to list seo tools
-	function listSeoTools(){
-		
-		$userId = isLoggedIn();
+	function listSeoTools() {
 		$seoToolList = $this->__getAllSeoTools();
 		$this->set('list', $seoToolList);
 		$this->render('seotools/listseotools');	

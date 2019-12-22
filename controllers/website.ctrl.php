@@ -107,6 +107,13 @@ class WebsiteController extends Controller{
 		return $websiteList;
 	}
 	
+	function __getUserWebsites($userId, $searchInfo=[]) {
+	    $cond = "user_id=".intval($userId);
+	    $cond .= isset($searchInfo['status']) ? " and status=".intval($searchInfo['status']) : "";
+	    $cond .= isset($searchInfo['search']) ? " and url like '%".addslashes($searchInfo['search'])."%'" : "";
+        return $this->dbHelper->getAllRows('websites', $cond);
+	}
+	
 	# func to get all Websites
 	function __getCountAllWebsites($userId='', $statusCheck = true, $statusVal = 1){
 

@@ -1,6 +1,6 @@
 <?php echo showSectionHead($spTextPanel['Report Generation Manager']); ?>
 <form id='search_form'>
-<table width="400px" border="0" cellspacing="0" cellpadding="0" class="search">
+<table class="search">
 	<tr>
 		<th><?php echo $spText['common']['Website']?>: </th>
 		<td>
@@ -22,4 +22,5 @@
 
 <div id='subcontent'>
 	<p class='note'><?php echo $spTextTools['clickgeneratereports']?></p>
+	<p class='note'><?php echo $spTextTools['note_report_generation']?></p>
 </div>
