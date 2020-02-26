@@ -786,13 +786,13 @@ class WebsiteController extends Controller{
 		
 		$whereCond = "status=1";
 		
-		// check whethere request from cron job
-		if ($cronUserId && empty($websiteId)) {
-			$wIdList = [];
+		// check for wbsite id
+		if (empty($websiteId)) {
+			$wIdList = [0];
 			foreach ($websiteList as $websiteInfo) $wIdList[] = $websiteInfo['id'];
 			$whereCond .= " and website_id in (".implode(',', $wIdList).")";
 		} else {
-			$whereCond .= !empty($websiteId) ? " and website_id=$websiteId" : "";
+			$whereCond .= " and website_id=$websiteId";
 		}
 		
 		$sitemapList = $this->dbHelper->getAllRows("webmaster_sitemaps", $whereCond);
