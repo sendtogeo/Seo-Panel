@@ -33,11 +33,11 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 			</td>			
 			<th><?php echo $spText['common']['Period']?>:</th>
     		<td colspan="2">
-    			<input type="text" value="<?php echo $fromTime?>" name="from_time" id="from_time"/>
-    			<input type="text" value="<?php echo $toTime?>" name="to_time" id="to_time"/>
+    			<input type="text" value="<?php echo $fromTime?>" name="from_time" id="from_time_summary"/>
+    			<input type="text" value="<?php echo $toTime?>" name="to_time" id="to_time_summary"/>
 				<script>
 				  $( function() {
-				    $( "#from_time, #to_time").datepicker({dateFormat: "yy-mm-dd"});
+				    $( "#from_time_summary, #to_time_summary").datepicker({dateFormat: "yy-mm-dd"});
 				  } );
 			  	</script>
     		</td>
