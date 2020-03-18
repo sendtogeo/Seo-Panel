@@ -27,6 +27,7 @@ class AlertController extends Controller {
     var $alertType;
     var $tableName = "alerts";
     var $pgScriptPath = "alerts.php";
+    var $installAlertSubject = "Seo Panel installation is not up to date";
     
     function __construct() {
         parent::__construct();
@@ -168,6 +169,31 @@ class AlertController extends Controller {
 		if (empty($existInfo['id'])) {		
 			$this->dbHelper->insertRow($this->tableName, $dataList);
 		}
+	}	
+	
+	/**
+	 * function to update system alerts, eg: installation uptodate etc
+	 */
+	function updateSystemAlerts() {
+	    
+	    // instllation version check
+	    if (in_array(date('d'), [1, 18])) {
+	        $cond = "alert_subject='" .addslashes($this->installAlertSubject). "' and date(alert_time)='". date("Y-m-d"). "'";
+	        $alertList = $this->__getAllAlerts($cond);
+	        
+	        // chekc the installation version
+	        if (empty($alertList)) {
+	            $settingCtrler =  new SettingsController();
+	            list($oldVersion, $message) = $settingCtrler->checkVersion(true);
+	            
+	            if ($oldVersion) {
+// 	                $alertInfo = [];
+// 	                $this->createAlert($alertInfo);
+	            }
+	        }
+	        
+	    }
+	    
 	}
 	
 }
