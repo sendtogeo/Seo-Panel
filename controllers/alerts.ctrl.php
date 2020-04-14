@@ -27,7 +27,7 @@ class AlertController extends Controller {
     var $alertType;
     var $tableName = "alerts";
     var $pgScriptPath = "alerts.php";
-    var $installAlertSubject = "Seo Panel installation is not up to date";
+    var $installAlertSubject = "Seo Panel New Version is Available Now!";
     
     function __construct() {
         parent::__construct();
@@ -135,6 +135,10 @@ class AlertController extends Controller {
 	    
 	}
 	
+	/*
+	 * alert_type => [success|danger]
+	 * alert_category => [general|reports]
+	 */
 	function createAlert($alertInfo, $userId = false, $adminAlert = false) {
 		
 		if (!$userId && $adminAlert) {
@@ -176,25 +180,41 @@ class AlertController extends Controller {
 	 */
 	function updateSystemAlerts() {
 	    
-	    // instllation version check
-	    if (in_array(date('d'), [1, 18])) {
-	        $cond = "alert_subject='" .addslashes($this->installAlertSubject). "' and date(alert_time)='". date("Y-m-d"). "'";
-	        $alertList = $this->__getAllAlerts($cond);
+	    // installation version check
+	    if (in_array(date('d'), [1, 7, 14])) {
 	        
-	        // chekc the installation version
-	        if (empty($alertList)) {
-	            $settingCtrler =  new SettingsController();
-	            list($oldVersion, $message) = $settingCtrler->checkVersion(true);
-	            
-	            if ($oldVersion) {
-// 	                $alertInfo = [];
-// 	                $this->createAlert($alertInfo);
-	            }
+	        $informationCtrler = new InformationController();
+	        $check_info = $informationCtrler->__getTodayInformation('install_check');
+	        if (empty($check_info)) {
+    	        $cond = "and alert_subject='" .addslashes($this->installAlertSubject). "' and date(alert_time)='". date("Y-m-d"). "'";
+    	        $alertList = $this->__getAllAlerts($cond);
+    
+    	        // check the installation version
+    	        if (empty($alertList)) {
+    	            $settingCtrler = new SettingsController();
+    	            $settingCtrler->spTextSettings = $this->getLanguageTexts('settings', $_SESSION['lang_code']);
+    	            list($oldVersion, $message) = $settingCtrler->checkVersion(true);
+    
+    	            // if current version is old
+    	            if ($oldVersion) {
+    	                $alertInfo = array(
+    	                    'alert_subject' => $this->installAlertSubject,
+    	                    'alert_message' => $message,
+    	                    'alert_type' => "danger",
+    	                );
+    	                $this->createAlert($alertInfo, false, true);
+    	                $informationCtrler->updateTodayInformation($message, "install_check");
+    	                return ['status' => true, 'result' => "Installation version is old."];
+    	            } else {
+    	            	return ['status' => false, 'result' => "Installation version is uptodate."];	
+    	            }
+    	        }
 	        }
 	        
+	        return ['status' => false, 'result' => "Installation version check is already done."];
+	    } else {
+	    	return ['status' => false, 'result' => "Skip installation version check due to date."];
 	    }
-	    
 	}
-	
 }
 ?>
