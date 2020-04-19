@@ -277,6 +277,9 @@ class WebsiteController extends Controller{
 		if(!$this->validate->flagErr){
 			if (!$this->__checkName($listInfo['name'], $userId)) {
 			    if (!$this->__checkWebsiteUrl($listInfo['url'])) {
+			        $listInfo['title'] = substr($listInfo['title'], 0, 100);
+			        $listInfo['description'] = substr($listInfo['description'], 0, 500);
+			        $listInfo['keywords'] = substr($listInfo['keywords'], 0, 500);
     				$sql = "insert into websites(name,url,title,description,analytics_view_id,keywords,user_id,status)
     				values('".addslashes($listInfo['name'])."','".addslashes($listInfo['url'])."','".
     				addslashes($listInfo['title'])."','".addslashes($listInfo['description'])."', '".addslashes($listInfo['analytics_view_id'])."', '".
@@ -391,6 +394,9 @@ class WebsiteController extends Controller{
 			}
 
 			if (!$this->validate->flagErr) {
+			    $listInfo['title'] = substr($listInfo['title'], 0, 100);
+			    $listInfo['description'] = substr($listInfo['description'], 0, 500);
+			    $listInfo['keywords'] = substr($listInfo['keywords'], 0, 500);
 				$sql = "update websites set
 						name = '".addslashes($listInfo['name'])."',
 						url = '".addslashes($listInfo['url'])."',
