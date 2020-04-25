@@ -68,10 +68,10 @@ class OverviewController extends Controller {
 	    $conditions .= !empty($seachInfo['to_time']) ? " and sr.result_date<='".addslashes($seachInfo['to_time'])."'" : "";
 	    
 		$sql = "select * from (
-                    select distinct srd.url, sr.rank,sr.result_date, sr.keyword_id, k.name as keyword 
+                    select distinct srd.url, sr.`rank`,sr.result_date, sr.keyword_id, k.name as keyword
                     from searchresults sr, searchresultdetails srd, keywords k 
                     where sr.id=srd.searchresult_id and sr.keyword_id=k.id and k.website_id=$websiteId and sr.searchengine_id=$seId $conditions
-                    order by rank asc, result_date DESC
+                    order by `rank` asc, result_date DESC
                 ) as p group by p.url limit " . SP_PAGINGNO;
 		
 		$pageResultList = $this->db->select($sql);
@@ -101,10 +101,10 @@ class OverviewController extends Controller {
 	    $conditions .= !empty($seachInfo['to_time']) ? " and sr.result_date<='".addslashes($seachInfo['to_time'])."'" : "";
 	    
 	    $sql = "select * from (
-                    select distinct sr.keyword_id, srd.url, sr.rank,sr.result_date, k.name as keyword
+                    select distinct sr.keyword_id, srd.url, sr.`rank`,sr.result_date, k.name as keyword
                     from searchresults sr, searchresultdetails srd, keywords k
                     where sr.id=srd.searchresult_id and sr.keyword_id=k.id and k.website_id=$websiteId and sr.searchengine_id=$seId $conditions
-                    order by rank asc, result_date DESC
+                    order by `rank` asc, result_date DESC
                 ) as p group by p.keyword_id limit " . SP_PAGINGNO;
 	    
 	    $keywordResultList = $this->db->select($sql);
