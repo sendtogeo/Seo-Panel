@@ -206,6 +206,7 @@ class AlertController extends Controller {
     	                $informationCtrler->updateTodayInformation($message, "install_check");
     	                return ['status' => true, 'result' => "Installation version is old."];
     	            } else {
+    	                $informationCtrler->updateTodayInformation($message, "install_check");
     	            	return ['status' => false, 'result' => "Installation version is uptodate."];	
     	            }
     	        }
