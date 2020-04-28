@@ -22,6 +22,7 @@
 
 include_once("includes/sp-load.php");
 checkLoggedIn();
+isHavingWebsite();
 include_once(SP_CTRLPATH."/keyword.ctrl.php");
 include_once(SP_CTRLPATH."/overview.ctrl.php");
 $controller = New OverviewController();
