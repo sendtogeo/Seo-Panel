@@ -1,6 +1,7 @@
-<div class="col-sm-12">
-	
-    <?php if (SP_CUSTOM_DEV) {
+<div class="col-sm-12">	
+    <?php
+    $showOverview = true;
+    if ($showOverview) {
         $dbTabClass = "active";
         $ovTabView = "";
         if (!empty($custSubMenu)) {
@@ -16,9 +17,10 @@
             	<a class="sub_menu_link nav-link <?php echo $ovTabView?>" href="<?php echo SP_WEBPATH?>/overview.php"><?php echo $spText['label']['Overview']?></a>
             </li>
         </ul>
-    <?php }?>
+    	<?php
+    }?>
     
-    <?php if (SP_CUSTOM_DEV && !empty($custSubMenu)) {?>
+    <?php if ($showOverview && !empty($custSubMenu)) {?>
     	<?php include(SP_VIEWPATH."/report/overview.ctp.php");?>
     <?php } else {?> 
         <div id="content">
