@@ -534,7 +534,7 @@ class KeywordController extends Controller{
 		foreach ($list as $keywordInfo) {
 			$keySeList = explode(":", $keywordInfo['searchengines']);
 			foreach ($keySeList as $keySeId) {
-				if (empty($seDisplayList[$keySeId])) {
+				if (empty($seDisplayList[$keySeId]) && !empty($seList[$keySeId])) {
 					$seDisplayList[$keySeId] = $seList[$keySeId];
 				}
 			}

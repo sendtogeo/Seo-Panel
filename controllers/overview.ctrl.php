@@ -37,8 +37,8 @@ class OverviewController extends Controller {
 	    $websiteId = isset($searchInfo['website_id']) ? intval($searchInfo['website_id']) : $websiteList[0]['id'];
 	    $this->set('websiteId', $websiteId);
 	    
-	    $fromTime = !empty($searchInfo['from_time']) ? addslashes($searchInfo['from_time']) : date('Y-m-d', strtotime('-2 days'));
-	    $toTime = !empty($searchInfo['to_time']) ? addslashes($searchInfo['to_time']) : date('Y-m-d', strtotime('-1 days'));
+	    $fromTime = !empty($searchInfo['from_time']) ? addslashes($searchInfo['from_time']) : date('Y-m-d', strtotime('-14 days'));
+	    $toTime = !empty($searchInfo['to_time']) ? addslashes($searchInfo['to_time']) : date('Y-m-d');
 	    $this->set('fromTime', $fromTime);
 	    $this->set('toTime', $toTime);
 	    
@@ -67,14 +67,22 @@ class OverviewController extends Controller {
 	    $conditions = !empty($seachInfo['from_time']) ? " and sr.result_date>='".addslashes($seachInfo['from_time'])."'" : "";
 	    $conditions .= !empty($seachInfo['to_time']) ? " and sr.result_date<='".addslashes($seachInfo['to_time'])."'" : "";
 	    
-		$sql = "select * from (
-                    select distinct srd.url, sr.rank,sr.result_date, sr.keyword_id, k.name as keyword 
-                    from searchresults sr, searchresultdetails srd, keywords k 
-                    where sr.id=srd.searchresult_id and sr.keyword_id=k.id and k.website_id=$websiteId and sr.searchengine_id=$seId $conditions
-                    order by rank asc, result_date DESC
-                ) as p group by p.url limit " . SP_PAGINGNO;
+	    $sql = "select distinct srd.url, sr.`rank`,sr.result_date, sr.keyword_id, k.name as keyword
+	                    from searchresults sr, searchresultdetails srd, keywords k 
+	                    where sr.id=srd.searchresult_id and sr.keyword_id=k.id and k.website_id=$websiteId and sr.searchengine_id=$seId $conditions
+	                    order by `rank` asc, result_date DESC limit 0, 1000";
 		
-		$pageResultList = $this->db->select($sql);
+		$rList = $this->db->select($sql);
+		$pageResultList = [];
+		foreach ($rList as $rInfo) {
+			if (!isset($pageResultList[$rInfo['url']])) {
+				$pageResultList[$rInfo['url']] = $rInfo;
+				if(count($pageResultList) > SP_PAGINGNO) {
+					break;
+				}
+			}
+		}
+
 		$this->set("pageResultList", $pageResultList);
 		$this->render('report/page_overview_data');
 	}
@@ -100,14 +108,22 @@ class OverviewController extends Controller {
 	    $conditions = !empty($seachInfo['from_time']) ? " and sr.result_date>='".addslashes($seachInfo['from_time'])."'" : "";
 	    $conditions .= !empty($seachInfo['to_time']) ? " and sr.result_date<='".addslashes($seachInfo['to_time'])."'" : "";
 	    
-	    $sql = "select * from (
-                    select distinct sr.keyword_id, srd.url, sr.rank,sr.result_date, k.name as keyword
+	    $sql = "select distinct sr.keyword_id, srd.url, sr.`rank`,sr.result_date, k.name as keyword
                     from searchresults sr, searchresultdetails srd, keywords k
                     where sr.id=srd.searchresult_id and sr.keyword_id=k.id and k.website_id=$websiteId and sr.searchengine_id=$seId $conditions
-                    order by rank asc, result_date DESC
-                ) as p group by p.keyword_id limit " . SP_PAGINGNO;
+                    order by `rank` asc, result_date DESC limit 0, 1000";
+        
+        $rList = $this->db->select($sql);
+		$keywordResultList = [];
+		foreach ($rList as $rInfo) {
+			if (!isset($keywordResultList[$rInfo['keyword']])) {
+				$keywordResultList[$rInfo['keyword']] = $rInfo;
+				if(count($keywordResultList) > SP_PAGINGNO) {
+					break;
+				}
+			}
+		}        
 	    
-	    $keywordResultList = $this->db->select($sql);
 	    $this->set("keywordResultList", $keywordResultList);
 	    $this->render('report/keyword_overview_data');
 	}

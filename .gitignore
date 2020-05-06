@@ -2,5 +2,7 @@
 .project
 .settings
 .gitignore.swp
+*.sublime-workspace
+*.sublime-project
 plugins/*
 themes/odbox*

@@ -38,7 +38,7 @@ class ReportController extends Controller {
 		$fromTimeLabel = date('Y-m-d', $fromTime);
 		$toTimeLabel = date('Y-m-d', $toTime);
 		foreach($this->seLIst as $seInfo){
-			$sql = "select min(rank) as rank,result_date from searchresults 
+			$sql = "select min(`rank`) as `rank`,result_date from searchresults 
 			where keyword_id=$keywordId and searchengine_id=".$seInfo['id']."
 			and (result_date='$fromTimeLabel' or result_date='$toTimeLabel')
 			group by result_date order by result_date DESC limit 0, 2";
@@ -153,8 +153,8 @@ class ReportController extends Controller {
 		and r.searchengine_id=".intval($orderCol)." and r.result_date='" . addslashes($toTimeTxt) . "'
 		group by k.id";
 
-		$unionOrderCol = ($orderCol == "keyword") ? "name" : "rank";
-		$sql = "(". str_replace("[col]", "k.id,k.name,min(rank) rank,w.name website,w.url weburl", $subSql) .") 
+		$unionOrderCol = ($orderCol == "keyword") ? "name" : "`rank`";
+		$sql = "(". str_replace("[col]", "k.id,k.name,min(`rank`) `rank`,w.name website,w.url weburl", $subSql) .") 
 		UNION 
 		(select k.id,k.name,1000,w.name website,w.url weburl 
 		from keywords k, websites w  
@@ -841,7 +841,7 @@ class ReportController extends Controller {
 			}
 		}
 		
-		$sql = "insert into searchresults(keyword_id,searchengine_id,rank,time,result_date)
+		$sql = "insert into searchresults(keyword_id,searchengine_id,`rank`,`time`,result_date)
 				values({$matchInfo['keyword_id']},{$matchInfo['se_id']},{$matchInfo['rank']},$time,'$resultDate')";
 		$this->db->query($sql);
 		
@@ -896,13 +896,13 @@ class ReportController extends Controller {
 	
 	#function to save keyword cron trcker for multiple execution of cron same day
 	function saveCronTrackInfo($keywordId, $seId, $time) {
-	    $sql = "Insert into keywordcrontracker(keyword_id,searchengine_id,time) values($keywordId,$seId,$time)";
+	    $sql = "Insert into keywordcrontracker(keyword_id,searchengine_id,`time`) values($keywordId,$seId,$time)";
 	    $this->db->query($sql);
 	}
 	
 	# function to check whether cron executed for a particular keyword and search engine
 	function isCronExecuted($keywordId, $seId, $time) {
-	    $sql = "select keyword_id from keywordcrontracker where keyword_id=$keywordId and searchengine_id=$seId and time=$time";
+	    $sql = "select keyword_id from keywordcrontracker where keyword_id=$keywordId and searchengine_id=$seId and `time`=$time";
         $info = $this->db->select($sql, true);
 	    return empty($info['keyword_id']) ? false : true;
 	}
@@ -1020,8 +1020,8 @@ class ReportController extends Controller {
     		and r.searchengine_id=".intval($orderCol)." and r.result_date='" . addslashes($toTimeShort) . "'
     		group by k.id";
     		
-    		$unionOrderCol = ($orderCol == "keyword") ? "name" : "rank";
-    		$sql = "(". str_replace("[col]", "k.id,k.name,min(rank) rank,w.name website,w.url weburl", $subSql) .")
+    		$unionOrderCol = ($orderCol == "keyword") ? "name" : "`rank`";
+    		$sql = "(". str_replace("[col]", "k.id,k.name,min(`rank`) `rank`,w.name website,w.url weburl", $subSql) .")
     		UNION
     		(select k.id,k.name,1000,w.name website,w.url weburl
     		from keywords k, websites w

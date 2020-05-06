@@ -472,7 +472,6 @@ div.tab button.active {	background-color: #ccc;}
 #cust_tab th, .list .listHead td, .list .listHead th {
     text-align: left;
     background-color: #DAE5EE;
-    font-weight: normal;
 }
 
 .list .listHead td {
