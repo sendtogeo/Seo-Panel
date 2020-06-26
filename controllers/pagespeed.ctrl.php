@@ -43,7 +43,7 @@ class PageSpeedController extends Controller{
 		
 			$client = new Google_Client();
 			$client->setApplicationName("SP_CHECKER");		
-			$client->setDeveloperKey($apiKey);		
+			$client->setDeveloperKey($apiKey);
 			
 			try {
 				
@@ -86,8 +86,8 @@ class PageSpeedController extends Controller{
 	public static function formatPageSpeedData($pageSpeedInfo) {
 
 		$pageSpeedData = array(
-			'speed_score' => !empty($pageSpeedInfo['ruleGroups']['SPEED']['score'])	? $pageSpeedInfo['ruleGroups']['SPEED']['score'] : 0,
-			'usability_score' => !empty($pageSpeedInfo['ruleGroups']['USABILITY']['score'])	? $pageSpeedInfo['ruleGroups']['USABILITY']['score'] : 0,
+			'speed_score' => !empty($pageSpeedInfo['lighthouseResult']['categories']['performance']['score']) ? $pageSpeedInfo['lighthouseResult']['categories']['performance']['score'] * 100 : 0,
+			'usability_score' => !empty($pageSpeedInfo['lighthouseResult']['categories']['performance']['score']) ? $pageSpeedInfo['lighthouseResult']['categories']['performance']['score'] * 100 : 0,
 		);
 		
 		$detailsInfo = array();
