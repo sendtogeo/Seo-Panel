@@ -91,7 +91,9 @@ class PageSpeedController extends Controller{
 		);
 		
 		$detailsInfo = array();
-		foreach ($pageSpeedInfo['formattedResults']['ruleResults'] as $ruleSet => $ruleSetInfo) {
+		
+		// commented for API v5 version
+		/*foreach ($pageSpeedInfo['formattedResults']['ruleResults'] as $ruleSet => $ruleSetInfo) {
 		
 			$detailsInfo[$ruleSet] = array(
 				'localizedRuleName' => $ruleSetInfo['localizedRuleName'],
@@ -101,7 +103,7 @@ class PageSpeedController extends Controller{
 				'urlBlocks' => self::formatUrlBlock($ruleSetInfo['urlBlocks']),
 			);		
 		
-		}
+		}*/
 		
 		$pageSpeedData['details'] = $detailsInfo;
 		return $pageSpeedData;

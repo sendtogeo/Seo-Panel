@@ -23,7 +23,7 @@
             }
             $tdWidth = "25%";               
             $debugVar = !empty($_POST['debug']) ? "&debug=1" : "";
-            $debugVar .= !empty($_POST['debug_format']) ? "&debug_format=" . $_POST['debug_format'] : "" ;          
+            $debugVar .= !empty($_POST['debug_format']) ? "&debug_format=" . $_POST['debug_format'] : "" ;
 			?>
 			<tr class="<?php echo $class?>">
 				<td class="<?php echo $leftBotClass?>" style="text-align:left;padding-left:10px;"><?php echo $url?></td>
@@ -31,10 +31,11 @@
 				<td class="td_br_right"><?php echo $reportList[$url]['mobile']['speed_score'] ? $reportList[$url]['mobile']['speed_score'] : 0;?> / 100</td>
 				<td class="td_br_right"><?php echo $reportList[$url]['mobile']['usability_score'] ? $reportList[$url]['mobile']['usability_score'] : 0;?> / 100</td>
 				<td class="<?php echo $rightBotClass?>">
-					<a href="javascript:void(0);" onclick="scriptDoLoadDialog('index.php', 'tmp', 'sec=showdiv&div_id=details_id<?php echo $i?>', 1000, 800)"><?php echo $spText['common']['Details']?> >></a>
+					<a href="https://developers.google.com/speed/pagespeed/insights/?url=<?php echo $url; ?>" target="_blank"><?php echo $spText['common']['Details']?> >></a>
+					<!--<a href="javascript:void(0);" onclick="scriptDoLoadDialog('index.php', 'tmp', 'sec=showdiv&div_id=details_id<?php echo $i?>', 1000, 800)"><?php echo $spText['common']['Details']?> >></a>
 					<div id="details_id<?php echo $i?>" style="display: none;">
 						<?php include(SP_VIEWPATH."/pagespeed/pagespeeddetails.ctp.php");?>
-					</div>
+					</div> --?>
 				</td>
 			</tr>
 			<?php
