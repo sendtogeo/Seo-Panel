@@ -231,7 +231,7 @@ if (!empty($keywordPos) && !empty($seCount)) {
     			<th id="head" colspan="4"><?php echo $spTextHome['Ranks']?></th>
     			<th id="head" colspan="3"><?php echo $spTextHome['Backlinks']?></th>
     			<th id="head" colspan="2"><?php echo $spTextHome['Pages Indexed']?></th>
-    			<th id="head" colspan="3"><?php echo $spTextPS['Page Speed']?></th>
+    			<th id="head" colspan="2"><?php echo $spTextPS['Page Speed']?></th>
     			<th id="head" colspan="2"><?php echo $spTextHome['Directory Submission']?></th>
     		</tr>		
     		<tr>
