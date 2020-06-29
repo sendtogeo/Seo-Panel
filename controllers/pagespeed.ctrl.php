@@ -26,7 +26,6 @@ class PageSpeedController extends Controller{
 	var $colList = array(
 		'desktop_speed_score' => 'desktop_speed_score',
 		'mobile_speed_score' => 'mobile_speed_score',
-		'mobile_usability_score' => 'mobile_usability_score',
 	);
 	
 	// function to get moz rank
@@ -319,8 +318,7 @@ class PageSpeedController extends Controller{
 	}
 	
 	# func to show graphical reports
-	function showGraphicalReports($searchInfo = '') {
-	
+	function showGraphicalReports($searchInfo = '') {	
 		$userId = isLoggedIn();
 		$fromTime = !empty($searchInfo['from_time']) ? $searchInfo['from_time'] : date('Y-m-d', strtotime('-30 days'));
 		$toTime = !empty ($searchInfo['to_time']) ? $searchInfo['to_time'] : date("Y-m-d");
@@ -342,7 +340,7 @@ class PageSpeedController extends Controller{
 		$colList = $this->colList;
 		if (!empty($reportList)) {
 			
-			$colLableList = array($this->spTextPS['Desktop Speed'], $this->spTextPS['Mobile Speed'], $this->spTextPS['Mobile Usability']);
+			$colLableList = array($this->spTextPS['Desktop Speed'], $this->spTextPS['Mobile Speed']);
 			$dataArr = "['Date', '" . implode("', '", $colLableList) . "']";
 	
 			// loop through data list

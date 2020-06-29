@@ -222,7 +222,7 @@ if (!empty($keywordPos) && !empty($seCount)) {
 	<?php
 	if (!empty($websiteStats)) {
     	echo showSectionHead($spTextHome['Website Statistics']);
-    	$colSpan = 15; 
+    	$colSpan = 14; 
     	if (empty($pdfVersion)) echo $websitePagingDiv;
     	?>
     	<table id="cust_tab">
@@ -246,7 +246,6 @@ if (!empty($keywordPos) && !empty($seCount)) {
     			<th>Bing</th>
     			<th><?php echo $spTextPS['Desktop Speed']?></th>
     			<th><?php echo $spTextPS['Mobile Speed']?></th>
-    			<th><?php echo $spTextPS['Mobile Usability']?></th>
     			<th><?php echo $spText['common']['Total']?></th>
     			<th><?php echo $spText['common']['Active']?></th>
     		</tr>
@@ -269,7 +268,6 @@ if (!empty($keywordPos) && !empty($seCount)) {
     				$activeDirLink = scriptAJAXLinkHrefDialog('directories.php', 'content', "sec=reports&active=approved&&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['dirsub']['active']);
     				$desktopPageSpeedLink = scriptAJAXLinkHrefDialog('pagespeed.php', 'content', "sec=reports&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['desktop_speed_score']);
     				$mobilePageSpeedLink = scriptAJAXLinkHrefDialog('pagespeed.php', 'content', "sec=reports&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['mobile_speed_score']);
-    				$mobileUsabilityLink = scriptAJAXLinkHrefDialog('pagespeed.php', 'content', "sec=reports&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['mobile_usability_score']);
     				?>
     				<tr>
     					<td>
@@ -286,7 +284,6 @@ if (!empty($keywordPos) && !empty($seCount)) {
 						<td><?php echo $bingIndexLInk; ?></td>
 						<td><?php echo $desktopPageSpeedLink; ?></td>
 						<td><?php echo $mobilePageSpeedLink; ?></td>
-						<td><?php echo $mobileUsabilityLink; ?></td>
 						<td><?php echo $totaldirLink?></td>					
 						<td><?php echo $activeDirLink?></td>
     				</tr> 
