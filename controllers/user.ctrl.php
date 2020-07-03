@@ -975,7 +975,8 @@ class UserController extends Controller{
         }
 
 	    $loggedinUserId = isLoggedIn();
-	    $sql = "select w.*,uwa.id  as uwa_id,uwa.access from websites w left join user_website_access uwa on w.id=uwa.website_id and uwa.user_id=$userId and w.user_id=$loggedinUserId";
+	    $sql = "select w.*,uwa.id  as uwa_id,uwa.access from websites w left join user_website_access uwa on w.id=uwa.website_id and w.user_id=$loggedinUserId";
+	    $sql .= !empty($userId) ? " and uwa.user_id=$userId" : ""; 
 	    $userWebsiteList = $this->db->select($sql);
 	    $this->set("userWebsiteList", $userWebsiteList);
 	    $this->set("userId", $userId);
