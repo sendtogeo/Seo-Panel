@@ -37,8 +37,10 @@ foreach($menuList as $i => $menuInfo){
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('reports.php', 'content')"><?php echo $spTextTools['Detailed Position Reports']?></a></li>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('graphical-reports.php', 'content')"><?php echo $spTextTools['Graphical Position Reports']?></a></li>
 				<?php if (isQuickCheckerEnabled()) {?>
-					<li><a href="javascript:void(0);" onclick="scriptDoLoad('reports.php?sec=kwchecker', 'content')"><?php echo $spTextTools['Quick Position Checker']?></a></li>
-				<?php }?>				
+					<?php if (!SP_CUSTOM_DEV || isAdmin()) {?>
+						<li><a href="javascript:void(0);" onclick="scriptDoLoad('reports.php?sec=kwchecker', 'content')"><?php echo $spTextTools['Quick Position Checker']?></a></li>
+					<?php }?>
+				<?php }?>
 				
 				<?php if (isAdmin() || !SP_CUSTOM_DEV) {?>
 					<li><a href="javascript:void(0);" onclick="scriptDoLoad('keywords.php', 'content')"><?php echo $spTextTools['Keywords Manager']?></a></li>
