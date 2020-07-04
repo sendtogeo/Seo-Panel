@@ -757,7 +757,7 @@ function formatNumber($number) {
 function showExportDiv($pdfLink, $csvLink, $printLink) {
     ?>
 	<div class="export_div">
-		<a href="<?php echo $pdfLink?>"><i class="fas fa-file-pdf"></i></a>
+		<a href="<?php echo $pdfLink?>" target="_blank"><i class="fas fa-file-pdf"></i></a>
 		<a href="<?php echo $csvLink?>"><i class="fas fa-file-csv"></i></a>
 		<a target="_blank" href="<?php echo $printLink?>"><i class="fas fa-print"></i></a>
 	</div>

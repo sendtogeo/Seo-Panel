@@ -36,7 +36,7 @@ if(!empty($pdfVersion) || !empty($printVersion)) {
 } else {    
     ?>	
 	<td align="right" valign="bottom">
-		<a href="<?php echo $mainLink?>&sec=showreport&report_type=rp_links&doc_type=pdf"><img src="<?php echo SP_IMGPATH?>/icon_pdf.png"></a> &nbsp;
+		<a href="<?php echo $mainLink?>&sec=showreport&report_type=rp_links&doc_type=pdf" target="_blank"><img src="<?php echo SP_IMGPATH?>/icon_pdf.png"></a> &nbsp;
 		<a href="<?php echo $mainLink?>&sec=showreport&report_type=rp_links&doc_type=export"><img src="<?php echo SP_IMGPATH?>/icoExport.gif"></a> &nbsp;
 		<a target="_blank" href="<?php echo $mainLink?>&sec=showreport&report_type=rp_links&doc_type=print"><img src="<?php echo SP_IMGPATH?>/print_button.gif"></a>
 		<?php echo $pagingDiv?>
