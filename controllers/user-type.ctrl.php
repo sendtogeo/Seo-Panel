@@ -30,6 +30,8 @@ class UserTypeController extends Controller {
 	    'price', 'free_trial_period', 'keywordcount','websitecount', 'social_media_link_count', 'review_link_count', 'searchengine_count', 
 	    'directory_submit_limit', 'directory_submit_daily_limit', 'site_auditor_max_page_limit', 'enable_email_activation',
 	);
+
+	var $accessTypeList;
 	
 	/**
 	 * constructor
@@ -54,6 +56,11 @@ class UserTypeController extends Controller {
     	foreach ($toolAccessList as $toolInfo) {
     		$this->userSpecFields[] = $toolInfo['name'];
     	}
+
+    	$this->accessTypeList = [
+    		"write" => $_SESSION['text']['label']["Write"],
+    		"read" => $_SESSION['text']['label']["Read"],
+    	];
 		
 	}
 	
@@ -92,6 +99,8 @@ class UserTypeController extends Controller {
 			$currencyCtrler = new CurrencyController();
 			$this->set('currencyList', $currencyCtrler->getCurrencyCodeMapList());
 		}
+
+		$this->set('accessTypeList', $this->accessTypeList);
 		
 		$this->set('pageNo', $info['pageno']);		
 		$this->set('list', $userTypeList);		
@@ -118,6 +127,7 @@ class UserTypeController extends Controller {
 			$listInfo['keywordcount'] = stripslashes($listInfo['keywordcount']);
 			$listInfo['price'] = stripslashes($listInfo['price']);
 			$listInfo['status'] = stripslashes($listInfo['status']);
+			$listInfo['access_type'] = stripslashes($listInfo['access_type']);
 			$this->set('post', $listInfo);
 		
 			// if subscription plugin active
@@ -133,6 +143,8 @@ class UserTypeController extends Controller {
 			// get all seo tool access list
 			$toolAccessList = $this->getSeoToolAccessSettings($userTypeId);
 			$this->set('toolAccessList', $toolAccessList);
+
+			$this->set('accessTypeList', $this->accessTypeList);
 			
 			$this->render('usertypes/edit');
 			exit;
@@ -200,6 +212,7 @@ class UserTypeController extends Controller {
 				$sql = "update usertypes set
 						user_type = '".addslashes($listInfo['user_type'])."',
 						description = '".addslashes($listInfo['description'])."',
+						access_type = '".addslashes($listInfo['access_type'])."',
 						status = '".intval($listInfo['user_type_status'])."'
 						where id={$listInfo['id']}";
 				
@@ -272,9 +285,8 @@ class UserTypeController extends Controller {
 				
 					// Set status value and sql
 					$status = $listInfo['user_type_status'] == "" ? 1 : intval($listInfo['user_type_status']);				
-					$sql = "insert into usertypes(user_type,description,status)
-    				values('".addslashes($listInfo['user_type'])."','".addslashes($listInfo['description'])."',"
-    						 . $status . ")";
+					$sql = "insert into usertypes(user_type,description,status,access_type)
+    				values('".addslashes($listInfo['user_type'])."','".addslashes($listInfo['description'])."', $status, '". addslashes($listInfo['access_type']) ."')";
 					
 					if ($this->db->query($sql)) {
 
@@ -322,6 +334,8 @@ class UserTypeController extends Controller {
 		// get all seo tool access list
 		$toolAccessList = $this->getSeoToolAccessSettings();
 		$this->set('toolAccessList', $toolAccessList);
+
+		$this->set('accessTypeList', $this->accessTypeList);
 			
 		$this->render('usertypes/new');
 	}
