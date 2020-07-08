@@ -25,7 +25,7 @@ class Seopanel{
 	
 	var $data;
 	
-	# function load seo panel
+	// function load seo panel
 	function loadSeoPanel() {
 		
 		# include main classes
@@ -43,10 +43,10 @@ class Seopanel{
 		include_once(SP_LIBPATH.'/smtp.class.php');
 		@Session::startSession();
 		
-		# include common functions		
+		// include common functions		
 		include_once(SP_INCPATH.'/sp-common.php');
 		
-		# include coomon controllers classes
+		// include coomon controllers classes
 		include_once(SP_CTRLPATH.'/country.ctrl.php');
 		include_once(SP_CTRLPATH.'/language.ctrl.php');
 		include_once(SP_CTRLPATH.'/website.ctrl.php');
@@ -62,9 +62,23 @@ class Seopanel{
 		
 	}	
 	
-	# to set variable to render
+	// to set variable to render
 	function set($varName, $varValue){
 		$this->controller->set($varName, $varValue);
+	}
+
+	function setSpecialConditionalAccessGlobals() {
+
+	    // section to set SP_CUSTOM_DEV to provid eread access to users
+	    $customAccessUser = false;
+	    $userId = isLoggedIn();
+	    if ($userId && isPluginActivated("Subscription")) {
+	    	$userTypeCtler = new UserTypeController();
+	    	$userAccessType = $userTypeCtler->getUserAccessType($userId);
+			$customAccessUser = ($userAccessType == 'read') ? true : false;
+	    }
+
+		define('SP_CUSTOM_DEV', $customAccessUser);
 	}
 	
 }

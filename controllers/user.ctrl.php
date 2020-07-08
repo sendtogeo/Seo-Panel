@@ -416,7 +416,20 @@ class UserController extends Controller{
 		
 		$this->set('statusList', $statusList);
 		$this->set('info', $info);
-		
+
+		$userTypeCtrler = new UserTypeController();
+		$userTypeList = [];
+		$uTypeList = $userTypeCtrler->__getAllUserTypeList();
+		foreach ($uTypeList as $uTypeInfo) {
+			$userTypeList[$uTypeInfo['id']] = [
+				'user_type' => $uTypeInfo['user_type'],
+				'access_type' => $uTypeInfo['access_type'],
+			];
+		}
+
+		$this->set('userTypeList', $userTypeList);
+		$this->set('isSubscriptionActive', isPluginActivated("Subscription"));
+
 		$userList = $this->db->select($sql);
 		$this->set('userList', $userList);
 		$this->set('pageNo', $info['pageno']);			
@@ -497,6 +510,15 @@ class UserController extends Controller{
 		$sql = "select * from users where status=$active";
 		$sql .= $admin ? "" : " and utype_id!=1";
 		$sql .= " order by " . addslashes($orderByCol); 
+		$userList = $this->db->select($sql);
+		return $userList;
+	}
+	
+	// function get all users with read access	
+	function __getAllUsersWithReadAccess() {
+		$sql = "select u.*,ut.user_type from users u, usertypes ut
+				where u.utype_id=ut.id and u.status=1 and u.utype_id!=1 and ut.access_type='read'
+				order by username";
 		$userList = $this->db->select($sql);
 		return $userList;
 	}
@@ -960,7 +982,7 @@ class UserController extends Controller{
 	}
 	
 	function manageWebsiteAccessManager($info = "") {
-	    $userList = $this->__getAllUsers(1, false);
+	    $userList = $this->__getAllUsersWithReadAccess();
 	    $userId = isset($info['wam_user']) ? intval($info['wam_user']) : $userList[0]['id'];
 
         if (isset($info['action'])) {

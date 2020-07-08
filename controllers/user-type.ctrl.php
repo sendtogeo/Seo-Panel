@@ -685,6 +685,13 @@ class UserTypeController extends Controller {
 		$list = $this->dbHelper->getAllRows("usertypes");
 		return $list;
 	}
+
+	function getUserAccessType($userId) {
+		$sql = "select ut.access_type from users u, usertypes ut 
+	    			where u.utype_id=ut.id and u.id=" . intval($userId);
+		$userTypeInfo = $this->db->select($sql, true);
+		return !empty($userTypeInfo['access_type']) ? $userTypeInfo['access_type'] : 'write';
+	}
 	
 }
 ?>

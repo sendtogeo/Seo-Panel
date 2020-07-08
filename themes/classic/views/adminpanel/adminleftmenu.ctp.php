@@ -57,7 +57,7 @@ foreach($menuList as $i => $menuInfo){
 			<ul id='subui'>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('users.php', 'content')"><?php echo $spTextPanel['User Manager']?></a></li>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('users.php', 'content', 'sec=new')"><?php echo $spTextPanel['New User']?></a></li>
-				<?php if (SP_CUSTOM_DEV) {?>
+				<?php if (isPluginActivated("Subscription")) {?>
 					<li>
 						<a href="javascript:void(0);" onclick="scriptDoLoad('users.php', 'content', 'sec=website-access-manager')">
 							<?php echo $spTextPanel['Website Access Manager']?>

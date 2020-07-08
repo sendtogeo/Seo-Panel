@@ -1,6 +1,6 @@
 <form name="listform" id="listform">
 <?php echo showSectionHead($spTextPanel['User Manager']); ?>
-<table width="88%" border="0" cellspacing="0" cellpadding="0" class="search">
+<table class="search">
 	<?php $submitLink = "scriptDoLoadPost('users.php', 'listform', 'content')";?>
 	<tr>
 		<th><?php echo $spText['common']['Name']?>: </th>
@@ -28,41 +28,34 @@
 	</tr>
 </table>
 <?php echo $pagingDiv?>
-<table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
+<table class="list">
 	<tr class="listHead">
-		<td class="leftid"><input type="checkbox" id="checkall" onclick="checkList('checkall')"></td>
+		<td><input type="checkbox" id="checkall" onclick="checkList('checkall')"></td>
 		<td><?php echo $spText['common']['Id']?></td>
 		<td><?php echo $spText['login']['Username']?></td>
+		<td><?php echo $spText['login']['User Type']?></td>
 		<td><?php echo $spText['common']['Name']?></td>
 		<td><?php echo $spText['login']['Email']?></td>
 		<td><?php echo $spTextUser['Expiry Date']?></td>
 		<td><?php echo $spText['common']['Status']?></td>
-		<td class="right"><?php echo $spText['common']['Action']?></td>
+		<td><?php echo $spText['common']['Action']?></td>
 	</tr>
 	<?php
-	$colCount = 8; 
+	$colCount = 9; 
 	if(count($userList) > 0){
-		$catCount = count($userList);
 		foreach($userList as $i => $userInfo){
-			$class = ($i % 2) ? "blue_row" : "white_row";
-            if($catCount == ($i + 1)){
-                $leftBotClass = "tab_left_bot";
-                $rightBotClass = "tab_right_bot";
-            }else{
-                $leftBotClass = "td_left_border td_br_right";
-                $rightBotClass = "td_br_right";
-            }
-            $usernameLink = scriptAJAXLinkHref('users.php', 'content', "sec=edit&userId={$userInfo['id']}", "{$userInfo['username']}")
+            $usernameLink = scriptAJAXLinkHref('users.php', 'content', "sec=edit&userId={$userInfo['id']}", "{$userInfo['username']}");
 			?>
-			<tr class="<?php echo $class?>">				
-				<td class="<?php echo $leftBotClass?>"><input type="checkbox" name="ids[]" value="<?php echo $userInfo['id']?>"></td>
-				<td class="td_br_right"><?php echo $userInfo['id']?></td>
-				<td class="td_br_right left"><?php echo $usernameLink?></td>
-				<td class="td_br_right left"><?php echo $userInfo['first_name']." ".$userInfo['last_name']?></td>
-				<td class="td_br_right left"><?php echo $userInfo['email']?></td>
-				<td class="td_br_right left"><?php echo formatDate($userInfo['expiry_date']); ?></td>
-				<td class="td_br_right"><?php echo $userInfo['status'] ? $spText['common']["Active"] : $spText['common']["Inactive"];	?></td>
-				<td class="<?php echo $rightBotClass?>" width="100px">
+			<tr>				
+				<td><input type="checkbox" name="ids[]" value="<?php echo $userInfo['id']?>"></td>
+				<td><?php echo $userInfo['id']?></td>
+				<td><?php echo $usernameLink?></td>
+				<td><?php echo $userTypeList[$userInfo['utype_id']]['user_type']?></td>
+				<td><?php echo $userInfo['first_name']." ".$userInfo['last_name']?></td>
+				<td><?php echo $userInfo['email']?></td>
+				<td><?php echo formatDate($userInfo['expiry_date']); ?></td>
+				<td><?php echo $userInfo['status'] ? $spText['common']["Active"] : $spText['common']["Inactive"];	?></td>
+				<td>
 					<?php
 						if($userInfo['status']){
 							$statVal = "Inactivate";
@@ -72,10 +65,13 @@
 							$statLabel = $spText['common']["Activate"];
 						} 
 					?>
-					<select name="action" id="action<?php echo $userInfo['id']?>" onchange="doAction('users.php', 'content', 'userId=<?php echo $userInfo['id']?>&pageno=<?php echo $pageNo?>', 'action<?php echo $userInfo['id']?>')">
+					<select name="action" id="action<?php echo $userInfo['id']?>" onchange="doAction('users.php', 'content', 'userId=<?php echo $userInfo['id']?>&pageno=<?php echo $pageNo?>', 'action<?php echo $userInfo['id']?>')" style="width: 180px;">
 						<option value="select">-- <?php echo $spText['common']['Select']?> --</option>
 						<option value="<?php echo $statVal?>"><?php echo $statLabel?></option>
 						<option value="edit"><?php echo $spText['common']['Edit']?></option>
+						<?php if ($isSubscriptionActive && ($userTypeList[$userInfo['utype_id']]['access_type'] == 'read')) {?>
+							<option value="website-access-manager"><?php echo $spTextPanel['Website Access Manager']?></option>
+						<?php }?>
 						<option value="delete"><?php echo $spText['common']['Delete']?></option>
 					</select>
 				</td>
@@ -86,10 +82,6 @@
 		echo showNoRecordsList($colCount-2);		
 	} 
 	?>
-	<tr class="listBot">
-		<td class="left" colspan="<?php echo ($colCount-1)?>"></td>
-		<td class="right"></td>
-	</tr>
 </table>
 <?php
 if (SP_DEMO) {
@@ -100,7 +92,7 @@ if (SP_DEMO) {
     $delFun = "confirmSubmit('users.php', 'listform', 'content', '&sec=deleteall&pageno=$pageNo')";
 }   
 ?>
-<table width="100%" cellspacing="0" cellpadding="0" border="0" class="actionSec">
+<table class="actionSec">
 	<tr>
     	<td style="padding-top: 6px;">
          	<a onclick="scriptDoLoad('users.php', 'content', 'sec=new')" href="javascript:void(0);" class="actionbut">
