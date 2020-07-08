@@ -28,13 +28,16 @@ $controller->set('spTextPanel', $controller->getLanguageTexts('panel', $_SESSION
 $controller->spTextPlugin = $controller->getLanguageTexts('plugin', $_SESSION['lang_code']);
 $controller->set('spTextPlugin', $controller->spTextPlugin);
 
-if($_SERVER['REQUEST_METHOD'] == 'POST'){
-	
+if($_SERVER['REQUEST_METHOD'] == 'POST'){	
 	switch($_POST['sec']){
 		
 		case "update":
 			$controller->updateSeoPlugin($_POST);
 			break;
+			
+		default:
+		    $controller->listSeoPlugins('', false, $_POST);
+		    break;
 	}
 	
 }else{
@@ -43,7 +46,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		case "changestatus":
 			$status = empty($_GET['status']) ? 1 : 0;
 			$controller->changeStatus($_GET['seoplugin_id'], $status);			
-			$controller->listSeoPlugins();
+			$controller->listSeoPlugins('', false, $_GET);
 			break;
 			
 		case "edit":
@@ -63,9 +66,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			break;
 
 		default:
-			$controller->listSeoPlugins();
+		    $controller->listSeoPlugins('', false, $_GET);
 			break;
 	}
 }
-
 ?>

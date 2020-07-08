@@ -378,8 +378,7 @@ class UserController extends Controller{
 	}
 	
 	# func to show users
-	function listUsers($info=''){
-		
+	function listUsers($info='') {
 	    $info['pageno'] = intval($info['pageno']);
 		$pageScriptPath = 'users.php?stscheck=';
 		$pageScriptPath .= isset($info['stscheck']) ? $info['stscheck'] : "select";
@@ -389,6 +388,11 @@ class UserController extends Controller{
 		if (isset($info['stscheck']) && $info['stscheck'] != 'select') {
 			$info['stscheck'] = intval($info['stscheck']);
 			$sql .= " and status='{$info['stscheck']}'";
+		}
+		
+		if (!empty($info["user_type_id"])) {
+		    $sql .= " and utype_id=" . intval($info["user_type_id"]);
+		    $pageScriptPath .= "&user_type_id=" . $info['user_type_id'];
 		}
 		
 		// search for user name
@@ -401,13 +405,15 @@ class UserController extends Controller{
 		
 		$sql .= " order by username";
 		
-		# pagination setup		
+		// pagination setup		
 		$this->db->query($sql, true);
 		$this->paging->setDivClass('pagingdiv');
 		$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
 		$pagingDiv = $this->paging->printPages($pageScriptPath, '', 'scriptDoLoad', 'content', 'layout=ajax');		
 		$this->set('pagingDiv', $pagingDiv);
-		$sql .= " limit ".$this->paging->start .",". $this->paging->per_page;
+		$sql .= " limit ".$this->paging->start .",". $this->paging->per_page;		
+		$userList = $this->db->select($sql);
+		$this->set('userList', $userList);
 
 		$statusList = array(
 			$_SESSION['text']['common']['Active'] => 1,
@@ -421,18 +427,17 @@ class UserController extends Controller{
 		$userTypeList = [];
 		$uTypeList = $userTypeCtrler->__getAllUserTypeList();
 		foreach ($uTypeList as $uTypeInfo) {
-			$userTypeList[$uTypeInfo['id']] = [
-				'user_type' => $uTypeInfo['user_type'],
-				'access_type' => $uTypeInfo['access_type'],
-			];
+		    if ($uTypeInfo['id'] != 1) {
+    			$userTypeList[$uTypeInfo['id']] = [
+    				'user_type' => $uTypeInfo['user_type'],
+    				'access_type' => $uTypeInfo['access_type'],
+    			];
+		    }
 		}
 
 		$this->set('userTypeList', $userTypeList);
 		$this->set('isSubscriptionActive', isPluginActivated("Subscription"));
-
-		$userList = $this->db->select($sql);
-		$this->set('userList', $userList);
-		$this->set('pageNo', $info['pageno']);			
+		$this->set('pageNo', $info['pageno']);
 		$this->render('user/list', 'ajax');
 	}
 	

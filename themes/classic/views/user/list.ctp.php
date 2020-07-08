@@ -1,14 +1,14 @@
-<form name="listform" id="listform">
+<?php $submitLink = "scriptDoLoadPost('users.php', 'listform', 'content')";?>
+<form name="listform" id="listform" onsubmit="<?php echo $submitLink?>;return false;">
 <?php echo showSectionHead($spTextPanel['User Manager']); ?>
 <table class="search">
-	<?php $submitLink = "scriptDoLoadPost('users.php', 'listform', 'content')";?>
 	<tr>
-		<th><?php echo $spText['common']['Name']?>: </th>
-		<td width="100px">
+		<th><?php echo $spText['common']['Keyword']?>: </th>
+		<td>
 			<input type="text" name="user_name" value="<?php echo htmlentities($info['user_name'], ENT_QUOTES)?>" onblur="<?php echo $submitLink?>">
 		</td>
 		<th><?php echo $spText['common']['Status']?>: </th>
-		<td width="100px">
+		<td>
 			<select name="stscheck" onchange="<?php echo $submitLink?>">
 				<option value="select">-- <?php echo $spText['common']['Select']?> --</option>
 				<?php foreach($statusList as $key => $val){?>
@@ -16,6 +16,19 @@
 						<option value="<?php echo $val?>" selected><?php echo $key?></option>
 					<?php }else{?>
 						<option value="<?php echo $val?>"><?php echo $key?></option>
+					<?php }?>
+				<?php }?>
+			</select>
+		</td>
+		<th><?php echo $spText['login']['User Type']?>: </th>
+		<td>
+			<select name="user_type_id" onchange="<?php echo $submitLink?>">
+				<option value="">-- <?php echo $spText['common']['Select']?> --</option>
+				<?php foreach($userTypeList as $key => $val){?>
+					<?php if(isset($info["user_type_id"]) && ($info["user_type_id"] == $key)){?>
+						<option value="<?php echo $key?>" selected><?php echo $val['user_type']?></option>
+					<?php }else{?>
+						<option value="<?php echo $key?>"><?php echo $val['user_type']?></option>
 					<?php }?>
 				<?php }?>
 			</select>
