@@ -44,6 +44,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		    }
 		    
 			$controller->listCrawlLog($_POST);
+			break;
+			
+		case "mail":
+		    $controller->listMaillLog($_POST);
 		    break;
 		
 		default:
@@ -69,6 +73,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		case "crawl_log_details":
 			$controller->showCrawlLogDetails($_GET['id']);
 			break;
+			
+		case "mail":
+		    $controller->listMaillLog($_GET);
+		    break;
 		
 		default:
 			$controller->listCrawlLog($_GET);

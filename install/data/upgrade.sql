@@ -10,8 +10,22 @@ INSERT INTO `settings` (`set_label`, `set_name`, `set_val`, `set_category`, `set
 
 ALTER TABLE `usertypes` ADD `access_type` ENUM('read','write') NOT NULL DEFAULT 'write' AFTER `status`;
 
+CREATE TABLE `mail_logs` (
+  `id` bigint(20) NOT NULL,
+  `from_address` varchar(120) COLLATE utf8_unicode_ci NOT NULL,
+  `to_address` varchar(120) COLLATE utf8_unicode_ci NOT NULL,
+  `cc_address` varchar(120) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `subject` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT '0',
+  `mail_category` varchar(100) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'general'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-INSERT INTO `texts` (`category`, `label`, `content`) VALUES 
+ALTER TABLE `mail_logs` ADD PRIMARY KEY (`id`);
+ALTER TABLE `mail_logs` MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+
+
+INSERT INTO `texts` (`category`, `label`, `content`) VALUES   
+('panel', 'Mail Log Manager', 'Mail Log Manager'), 
 ('subscription', 'Access Type', 'Access Type'),  
 ('label', 'Write', 'Write'), 
 ('label', 'Read', 'Read');

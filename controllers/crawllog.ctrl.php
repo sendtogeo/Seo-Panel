@@ -30,7 +30,7 @@ class CrawlLogController extends Controller {
 	
 	/**
 	 * function to create crawl logs for report generation
-	 * @param $crawlInfo 	The array contains all detaisl of crawl
+	 * @param $crawlInfo   array contains all detaisl of crawl
 	 */
 	function createCrawlLog($crawlInfo) {
 		$dateTime = date('Y-m-d H:i:s');
@@ -69,9 +69,8 @@ class CrawlLogController extends Controller {
 	 * Function to display crawl log details 
 	 * @param Array $info	Contains all search details
 	 */
-	function listCrawlLog($info = ''){
-	
-		$userId = isLoggedIn();
+	function listCrawlLog($info = '') {
+	    
 		$sql = "select t.*, k.name keyword from $this->tablName t left join keywords k on t.ref_id=k.id where 1=1";
 		$conditions = "";
 	
@@ -179,6 +178,16 @@ class CrawlLogController extends Controller {
 		$this->set('urlParams', $urlParams);
 		$this->set('fromPopUp', $info['fromPopUp']);
 		$this->render('log/crawlloglist');
+	}
+	
+	/*
+	 * function to show mail logs
+	 */
+	function listMailLog($info = []) {
+	    
+	    $sql = "select * from mail_logs where 1=1";
+	    $conditions = "";	    
+	    $this->render('log/mail_log_list');	    
 	}
 	
 	/**

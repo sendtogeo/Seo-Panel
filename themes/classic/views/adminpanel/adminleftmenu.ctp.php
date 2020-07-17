@@ -153,6 +153,7 @@ foreach($menuList as $i => $menuInfo){
 			<script type="text/javascript">scriptList[<?php echo $i?>] = 'log.php?sec=crawl';</script>			
 			<ul id='subui'>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('log.php?sec=crawl', 'content')"><?php echo $spTextPanel['Crawl Log Manager']?></a></li>
+				<li><a href="javascript:void(0);" onclick="scriptDoLoad('log.php?sec=mail', 'content')"><?php echo $spTextPanel['Mail Log Manager']?></a></li>
 			</ul>
 			<?php
 			break;
