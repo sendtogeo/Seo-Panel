@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			break;
 			
 		case "mail":
-		    $controller->listMaillLog($_POST);
+		    $controller->listMailLog($_POST);
 		    break;
 		
 		default:
@@ -75,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			break;
 			
 		case "mail":
-		    $controller->listMaillLog($_GET);
+		    $controller->listMailLog($_GET);
 		    break;
 		
 		default:

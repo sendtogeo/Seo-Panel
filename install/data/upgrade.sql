@@ -17,6 +17,8 @@ CREATE TABLE `mail_logs` (
   `cc_address` varchar(120) COLLATE utf8_unicode_ci DEFAULT NULL,
   `subject` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT '0',
+  `log_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `log_message` text COLLATE utf8_unicode_ci DEFAULT NULL,
   `mail_category` varchar(100) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'general'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
@@ -24,7 +26,9 @@ ALTER TABLE `mail_logs` ADD PRIMARY KEY (`id`);
 ALTER TABLE `mail_logs` MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
 
 
-INSERT INTO `texts` (`category`, `label`, `content`) VALUES   
+INSERT INTO `texts` (`category`, `label`, `content`) VALUES 
+('label', 'From', 'From'),    
+('panel', 'Current Time', 'Current Time'),  
 ('panel', 'Mail Log Manager', 'Mail Log Manager'), 
 ('subscription', 'Access Type', 'Access Type'),  
 ('label', 'Write', 'Write'), 
