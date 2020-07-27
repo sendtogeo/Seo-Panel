@@ -48,13 +48,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			
 		case "mail":
 		    $controller->listMailLog($_POST);
+<<<<<<< HEAD
+		    break;
+		    
+		case "delete_mail_log":
+		    if (!empty($_POST['ids'])) {
+		        foreach($_POST['ids'] as $id) {
+		            $controller->deleteMailLog($id);
+		        }
+		    }
+		    
+		    $controller->listMailLog($_POST);
+=======
+>>>>>>> 8122c6b07623d0ac2d2de38078cdde20232d70df
 		    break;
 		
 		default:
 			$controller->listCrawlLog($_POST);
-			break;
-		
-		    
+			break;		    
 	}
 
 } else {
@@ -73,6 +84,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		case "crawl_log_details":
 			$controller->showCrawlLogDetails($_GET['id']);
 			break;
+			
+		case "clear_all_mail_log":
+		    $controller->clearAllMailLog();
+		    $controller->listMailLog($_GET);
+		    break;
+		    
+		case "mail_log_details":
+		    $controller->showCrawlLogDetails($_GET['id']);
+		    break;
 			
 		case "mail":
 		    $controller->listMailLog($_GET);

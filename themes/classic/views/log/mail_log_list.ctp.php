@@ -1,9 +1,15 @@
 <?php 
 echo showSectionHead($spTextPanel["Mail Log Manager"]);
+<<<<<<< HEAD
+$searchFun = "scriptDoLoadPost('log.php', 'listform', 'content', '&sec=mail')";
+?>
+<form name="listform" id="listform" onsubmit="<?php echo $searchFun?>;return false;">
+=======
 $searchFun = "scriptDoLoadPost('log.php', 'listform', 'content')";
 ?>
 <form name="listform" id="listform" onsubmit="<?php echo $searchFun?>;return false;">
 <input type="hidden" name="sec" value="mail">
+>>>>>>> 8122c6b07623d0ac2d2de38078cdde20232d70df
 <table class="search">
 	<tr>
 		<th><?php echo $spText['button']['Search']?>: </th>
