@@ -48,7 +48,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			
 		case "mail":
 		    $controller->listMailLog($_POST);
-<<<<<<< HEAD
 		    break;
 		    
 		case "delete_mail_log":
@@ -59,8 +58,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		    }
 		    
 		    $controller->listMailLog($_POST);
-=======
->>>>>>> 8122c6b07623d0ac2d2de38078cdde20232d70df
 		    break;
 		
 		default:
