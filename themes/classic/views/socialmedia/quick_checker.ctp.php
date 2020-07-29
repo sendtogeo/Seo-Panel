@@ -21,7 +21,7 @@ $actFun = SP_DEMO ? "alertDemoMsg()" : "scriptDoLoadPost('$pageScriptPath', 'sea
 	<tr class="form_data">
 		<td><?php echo $spText['common']['Link']?>: </td>		
 		<td>
-			<input type="url" style="width: 400px;" value="" name="url"/>
+			<input type="text" style="width: 400px;" value="" name="url"/>
 		</td>
 	</tr>
 	<tr class="form_data">

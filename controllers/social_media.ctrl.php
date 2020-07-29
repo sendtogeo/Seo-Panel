@@ -53,10 +53,13 @@ class SocialMediaController extends Controller{
     				"follower" => '/edge_followed_by.*?"count":(.*?)\}/is'
     			],
     		],
-    		/*"linkedin" => [
+    		"linkedin" => [
     			"label" => "LinkedIn",
-    			"regex" => "",
-    		],*/
+    		    "url" => "https://www.linkedin.com/pages-extensions/FollowCompany?id={CID}&counter=bottom",
+    		    "regex" => [
+    		        "follower" => '/<div.*?follower-count.*?>(.*?)<\/div>/is'
+    		    ],
+    		],
     		"pinterest" => [
     			"label" => "Pinterest",
     			"regex" => [
@@ -156,8 +159,10 @@ class SocialMediaController extends Controller{
             }
         }
         
-        if(!$this->validate->flagErr){
-            if (!stristr($listInfo['url'], $listInfo['type'])) {
+        if(!$this->validate->flagErr) {            
+            if ($listInfo['type'] == "linkedin") {
+                $errMsg['url'] = formatErrorMsg($this->validate->checkNumber($listInfo['url']));
+            } else if (!stristr($listInfo['url'], $listInfo['type'])) {
                 $errMsg['url'] = formatErrorMsg($_SESSION['text']['common']["Invalid value"]);
                 $this->validate->flagErr = true;
             }
@@ -228,7 +233,7 @@ class SocialMediaController extends Controller{
         if (!$this->validate->flagErr) {
             $dataList = [
                 'name' => $listInfo['name'],
-                'url' => addHttpToUrl($listInfo['url']),
+                'url' => ($listInfo['type'] == 'linkedin') ? $listInfo['url'] : addHttpToUrl($listInfo['url']),
                 'type' => $listInfo['type'],
                 'website_id|int' => $listInfo['website_id'],
             ];
@@ -268,7 +273,7 @@ class SocialMediaController extends Controller{
         if (!$this->validate->flagErr) {
             $dataList = [
                 'name' => $listInfo['name'],
-                'url' => addHttpToUrl($listInfo['url']),
+                'url' => ($listInfo['type'] == 'linkedin') ? $listInfo['url'] : addHttpToUrl($listInfo['url']),
                 'type' => $listInfo['type'],
                 'website_id|int' => $listInfo['website_id'],
             ];
@@ -321,14 +326,19 @@ class SocialMediaController extends Controller{
 
 	function doQuickChecker($listInfo = '') {
 		
-		if (!stristr($listInfo['url'], $listInfo['type'])) {
-			$errorMsg = formatErrorMsg($_SESSION['text']['common']["Invalid value"]);
-			$this->validate->flagErr = true;
-		}
+	    if ($listInfo['type'] == 'linkedin') {
+	        $errorMsg = formatErrorMsg($this->validate->checkNumber($listInfo['url']));
+	        $smLink = $listInfo['url'];
+	    } else {
+	        $smLink = addHttpToUrl($listInfo['url']);
+	        if (!stristr($listInfo['url'], $listInfo['type'])) {
+    			$errorMsg = formatErrorMsg($_SESSION['text']['common']["Invalid value"]);
+    			$this->validate->flagErr = true;
+            }
+	   }
 		
 		// if no error occured find social media details
-		if (!$this->validate->flagErr) {
-			$smLink = addHttpToUrl($listInfo['url']);
+		if (!$this->validate->flagErr) {			
 			$result = $this->getSocialMediaDetails($listInfo['type'], $smLink);
 			
 			// if call is success
@@ -358,6 +368,11 @@ class SocialMediaController extends Controller{
 			// if params needs to be added with url
 			if (!empty($smInfo['url_part'])) {
 				$smLink .= stristr($smLink, '?') ? str_replace("?", "&", $smInfo['url_part']) : $smInfo['url_part'];
+			}
+			
+			// if linkedin
+			if ($smType == 'linkedin') {
+			    $smLink = str_replace("{CID}", $smLink, $smInfo['url']);
 			}
 			
 			$smContentInfo = $this->spider->getContent($smLink);
