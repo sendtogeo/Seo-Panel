@@ -115,9 +115,8 @@ if(!empty($_SERVER['REQUEST_METHOD'])){
 	include_once(SP_CTRLPATH."/crawllog.ctrl.php");
 	$crawlLog = new CrawlLogController();
 	$crawlLog->clearCrawlLog(SP_CRAWL_LOG_CLEAR_TIME);
-	echo "Clearing crawl logs before " . SP_CRAWL_LOG_CLEAR_TIME . " days";
+	echo "Clearing crawl logs before " . SP_CRAWL_LOG_CLEAR_TIME . " days\n";
 	$crawlLog->clearMaillLog(SP_CRAWL_LOG_CLEAR_TIME);
-	echo "Clearing mail logs before " . SP_CRAWL_LOG_CLEAR_TIME . " days";
-	
+	echo "Clearing mail logs before " . SP_CRAWL_LOG_CLEAR_TIME . " days\n";	
 }
 ?>

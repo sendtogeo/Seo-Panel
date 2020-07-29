@@ -88,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		    break;
 		    
 		case "mail_log_details":
-		    $controller->showCrawlLogDetails($_GET['id']);
+		    $controller->showMailLogDetails($_GET['id']);
 		    break;
 			
 		case "mail":

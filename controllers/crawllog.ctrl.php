@@ -314,5 +314,42 @@ class CrawlLogController extends Controller {
 	    $sql = "delete from mail_logs where log_time < '$dateBefore'";
 	    $this->db->query($sql);
 	}
+	
+	/**
+	 * function to get mail log information
+	 * @param int $logId	The id of the log needs to be dispalyed
+	 */
+	function getMailLogInfo($logId) {
+	    $sql = "select * from mail_logs where id=".intval($logId);
+	    $logInfo = $this->db->select($sql, true);
+	    return $logInfo;
+	}
+	
+	/**
+	 * fucntion to show mail log details
+	 * @param int $logId	The id of the log needs to be dispalyed
+	 */
+	function showMailLogDetails($logId) {
+	    $logInfo = $this->getMailLogInfo($logId);
+	    $this->set('logInfo', $logInfo);
+	    $this->render('log/show_mail_log');
+	}
+	
+	/**
+	 * function to create mail logs
+	 * @param $mailInfo   array contains all details of mail
+	 */
+	function createMailLog($mailInfo) {
+	    
+	    foreach ($mailInfo as $key => $value) {
+	        $mailInfo[$key] = addslashes($value);
+	    }
+	    
+	    $sql = "INSERT INTO mail_logs(".implode(",", array_keys($mailInfo)).")";
+	    $sql .= " values ('".implode("','", array_values($mailInfo))."')";
+	    $this->db->query($sql);
+	    $logId = $this->db->getMaxId($this->tablName);
+	    return $logId;
+	}
 }
 ?>

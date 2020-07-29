@@ -27,7 +27,8 @@ ALTER TABLE `mail_logs` MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
 
 
 INSERT INTO `texts` (`category`, `label`, `content`) VALUES 
-('label', 'From', 'From'),    
+('log', 'Mail Log Details', 'Mail Log Details'),
+('label', 'From', 'From'),
 ('panel', 'Current Time', 'Current Time'),  
 ('panel', 'Mail Log Manager', 'Mail Log Manager'), 
 ('subscription', 'Access Type', 'Access Type'),  

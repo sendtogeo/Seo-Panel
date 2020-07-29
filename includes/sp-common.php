@@ -473,22 +473,33 @@ function sendMail($from, $fromName, $to ,$subject,$content, $attachment = ''){
 		$mail->AddAttachment($attachment);
 	}
 	
+	$mailLogInfo = [];
+	
 	// if sendgrid api should be used, if enabled it
 	if ($mail->Host == 'smtp.sendgrid.net' && SP_SENDGRID_API) {
-		$sendLog = sendMailBySendgridAPI($mail, $to);		
+		$sendLog = sendMailBySendgridAPI($mail, $to);
+		$mailLogInfo['mail_category'] = 'sendgrid';
 	} else {
 	
 		// normal mail send fails or not
 		if($mail->Send()){
 			$sendLog['status'] = 1;
 			$sendLog['log_message'] = "Success";
-			return true;
 		} else {
 			$sendLog['status'] = 0;
 			$sendLog['log_message'] = $mail->ErrorInfo;
 		}
 		
 	}
+	
+	// update mail log
+	$crawlLogCtrl = new CrawlLogController();	
+	$mailLogInfo['subject'] = $subject;
+	$mailLogInfo['from_address'] = $from;
+	$mailLogInfo['to_address'] = $to;
+	$mailLogInfo['status'] = $sendLog['status'];
+	$mailLogInfo['log_message'] = $sendLog['log_message'];
+	$crawlLogCtrl->createMailLog($mailLogInfo);
 	
 	return $sendLog['status'];
 	
