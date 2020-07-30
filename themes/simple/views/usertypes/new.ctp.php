@@ -23,6 +23,22 @@
 		<td><?php echo $spText['label']['Description']?>:</td>
 		<td><textarea name="description" id="usertypedescription"><?php echo $post['description']?></textarea><?php echo $errMsg['description']?></td>
 	</tr>
+	<?php if ($isPluginSubsActive) {?>
+		<tr class="form_data">
+			<td><?php echo $spTextSubscription['Access Type']?>:</td>
+			<td>
+				<select name="access_type">
+					<?php foreach ($accessTypeList as $accessType => $atLabel) {
+						$selectedVal = ($accessType == $post['access_type']) ? 'selected="selected"' : "";
+						?>
+						<option value="<?php echo $accessType ?>" <?php echo $selectedVal; ?> ><?php echo $atLabel; ?></option>
+					<?php }?>
+				</select>
+			</td>
+		</tr>
+	<?php } else { ?>
+		<input type="hidden" name="access_type" value="write">
+	<?php } ?>
 	<tr class="form_data">
 		<td><?php echo $spText['common']['Keywords Count']?>:</td>
 		<td>

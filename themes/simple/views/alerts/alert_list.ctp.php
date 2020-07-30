@@ -39,7 +39,7 @@ $searchFun = "scriptDoLoadPost('$pgScriptPath', 'listform', 'content')";
 </table>
 
 <br><br>
-<b>Current Time:</b> <?php echo date("Y-m-d H:i:s <b>T(P)</b>"); ?>
+<b><?php echo $spTextPanel["Current Time"]?>:</b> <?php echo date("Y-m-d H:i:s <b>T(P)</b>"); ?>
 <?php echo $pagingDiv?>
 <table width="100%" id="cust_tab">
 	<tr class="listHead">
