@@ -72,7 +72,7 @@ class Seopanel{
 	    // section to set SP_CUSTOM_DEV to provid eread access to users
 	    $customAccessUser = false;
 	    $userId = isLoggedIn();
-	    if ($userId && isPluginActivated("Subscription")) {
+	    if ($userId && !isAdmin() && isPluginActivated("Subscription")) {
 	    	$userTypeCtler = new UserTypeController();
 	    	$userAccessType = $userTypeCtler->getUserAccessType($userId);
 			$customAccessUser = ($userAccessType == 'read') ? true : false;
