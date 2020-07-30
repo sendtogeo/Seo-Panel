@@ -150,7 +150,7 @@ $colCount = ($baseColCount * 3) + 2;
 			foreach($baseReportList as $listInfo){
 				$keywordId = $listInfo['id'];
 				$rangeFromTime = date('Y-m-d', strtotime('-14 days', strtotime($fromTime)));
-				$scriptLink = "website_id=$websiteId&link_id={$listInfo['id']}&rep=1&from_time=$rangeFromTime&to_time=$toTime";          
+				$scriptLink = "website_id=$websiteId&link_id={$listInfo['id']}&rep=1&from_time=$rangeFromTime&to_time=$toTime";
 				?>
 				<tr>
 					<td>
@@ -158,7 +158,7 @@ $colCount = ($baseColCount * 3) + 2;
 					</td>
 					<td colspan="3">
 						<i class="fab fa-<?php echo strtolower($listInfo['type'])?>"></i>
-						<?php echo $listInfo['url']; ?>
+						<?php echo ($listInfo['type'] == 'linkedin') ? $listInfo['name'] : $listInfo['url']; ?>
 					</td>
 					<?php
 					foreach ($colList as $colName => $colVal){

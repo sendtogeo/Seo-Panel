@@ -26,7 +26,9 @@ ALTER TABLE `mail_logs` ADD PRIMARY KEY (`id`);
 ALTER TABLE `mail_logs` MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
 
 
-INSERT INTO `texts` (`category`, `label`, `content`) VALUES 
+INSERT INTO `texts` (`category`, `label`, `content`) VALUES
+('socialmedia', 'Click here to get LinkedIn Company Id', 'Click here to get LinkedIn Company Id'), 
+('socialmedia', 'Company Id', 'Company Id'),
 ('log', 'Mail Log Details', 'Mail Log Details'),
 ('label', 'From', 'From'),
 ('panel', 'Current Time', 'Current Time'),  
