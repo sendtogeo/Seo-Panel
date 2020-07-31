@@ -150,10 +150,13 @@ if(file_exists(SP_ABSPATH."/config/sp-config.php")){
         }
     }
     
-	# create super class object
+	// create super class object
 	include_once(SP_LIBPATH."/seopanel.class.php");
 	$seopanel = New Seopanel();
 	$seopanel->loadSeoPanel();
+
+	// special conditional access
+	$seopanel->setSpecialConditionalAccessGlobals();
 		
 }else{
 	die("<p>The config file could not be found.</p><p><a href=\"install/index.php\">Click here to install Seo Panel.</a></p>");

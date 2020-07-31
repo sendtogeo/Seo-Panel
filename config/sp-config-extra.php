@@ -36,12 +36,6 @@ define('SP_PLUGINDBFILE', 'database.sql');
 # The seo panel plugin menu file
 define('SP_PLUGINMENUFILE', 'menu.ctp.php');
 
-# seo panel is hosted version or not
-define('SP_HOSTED_VERSION', 0);
-
-# seo panel is demo system or not
-define('SP_DEMO', 0);
-
 # seo panel language testing mode
 define('SP_LANGTESTING', 0);
 
@@ -80,9 +74,6 @@ define('SP_CRAWL_LOG_CLEAR_TIME', 90);
 
 # The api language code
 define('SP_API_LANG_CODE', 'en');
-
-# The api language code
-define('SP_CUSTOM_DEV', false);
 
 # The seo panel help page
 define('SP_HELP_LINK', 'https://www.seopanel.org/docs/');

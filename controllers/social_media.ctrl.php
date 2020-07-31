@@ -53,10 +53,14 @@ class SocialMediaController extends Controller{
     				"follower" => '/edge_followed_by.*?"count":(.*?)\}/is'
     			],
     		],
-    		/*"linkedin" => [
+    		"linkedin" => [
     			"label" => "LinkedIn",
-    			"regex" => "",
-    		],*/
+    		    "url" => "https://www.linkedin.com/pages-extensions/FollowCompany?id={CID}&counter=bottom",
+    		    "regex" => [
+    		        "follower" => '/<div.*?follower-count.*?>(.*?)<\/div>/is'
+    		    ],
+    		    "show_url" => "https://www.linkedin.com/company",
+    		],
     		"pinterest" => [
     			"label" => "Pinterest",
     			"regex" => [
@@ -66,7 +70,7 @@ class SocialMediaController extends Controller{
     		"youtube" => [
     			"label" => "Youtube",
     			"regex" => [
-    				"follower" => '/aria-label=.*?subscribers.*?>(.*?)</is'
+    				"follower" => '/subscriberCountText":\{"runs.*?text":"(.*?) /is'
     			],
     		],
     	];
@@ -156,8 +160,10 @@ class SocialMediaController extends Controller{
             }
         }
         
-        if(!$this->validate->flagErr){
-            if (!stristr($listInfo['url'], $listInfo['type'])) {
+        if(!$this->validate->flagErr) {            
+            if ($listInfo['type'] == "linkedin") {
+                $errMsg['url'] = formatErrorMsg($this->validate->checkNumber($listInfo['url']));
+            } else if (!stristr($listInfo['url'], $listInfo['type'])) {
                 $errMsg['url'] = formatErrorMsg($_SESSION['text']['common']["Invalid value"]);
                 $this->validate->flagErr = true;
             }
@@ -228,7 +234,7 @@ class SocialMediaController extends Controller{
         if (!$this->validate->flagErr) {
             $dataList = [
                 'name' => $listInfo['name'],
-                'url' => addHttpToUrl($listInfo['url']),
+                'url' => ($listInfo['type'] == 'linkedin') ? $listInfo['url'] : addHttpToUrl($listInfo['url']),
                 'type' => $listInfo['type'],
                 'website_id|int' => $listInfo['website_id'],
             ];
@@ -268,7 +274,7 @@ class SocialMediaController extends Controller{
         if (!$this->validate->flagErr) {
             $dataList = [
                 'name' => $listInfo['name'],
-                'url' => addHttpToUrl($listInfo['url']),
+                'url' => ($listInfo['type'] == 'linkedin') ? $listInfo['url'] : addHttpToUrl($listInfo['url']),
                 'type' => $listInfo['type'],
                 'website_id|int' => $listInfo['website_id'],
             ];
@@ -321,14 +327,19 @@ class SocialMediaController extends Controller{
 
 	function doQuickChecker($listInfo = '') {
 		
-		if (!stristr($listInfo['url'], $listInfo['type'])) {
-			$errorMsg = formatErrorMsg($_SESSION['text']['common']["Invalid value"]);
-			$this->validate->flagErr = true;
-		}
+	    if ($listInfo['type'] == 'linkedin') {
+	        $errorMsg = formatErrorMsg($this->validate->checkNumber($listInfo['url']));
+	        $smLink = $listInfo['url'];
+	    } else {
+	        $smLink = addHttpToUrl($listInfo['url']);
+	        if (!stristr($listInfo['url'], $listInfo['type'])) {
+    			$errorMsg = formatErrorMsg($_SESSION['text']['common']["Invalid value"]);
+    			$this->validate->flagErr = true;
+            }
+	   }
 		
 		// if no error occured find social media details
-		if (!$this->validate->flagErr) {
-			$smLink = addHttpToUrl($listInfo['url']);
+		if (!$this->validate->flagErr) {			
 			$result = $this->getSocialMediaDetails($listInfo['type'], $smLink);
 			
 			// if call is success
@@ -358,6 +369,11 @@ class SocialMediaController extends Controller{
 			// if params needs to be added with url
 			if (!empty($smInfo['url_part'])) {
 				$smLink .= stristr($smLink, '?') ? str_replace("?", "&", $smInfo['url_part']) : $smInfo['url_part'];
+			}
+			
+			// if linkedin
+			if ($smType == 'linkedin') {
+			    $smLink = str_replace("{CID}", $smLink, $smInfo['url']);
 			}
 			
 			$smContentInfo = $this->spider->getContent($smLink);
@@ -487,16 +503,16 @@ class SocialMediaController extends Controller{
 			$conditions = " and sml.website_id in (".implode(',', array_keys($websiteList)).")";
 		}
 	
-		$conditions .= !empty($searchInfo['search_name']) ? " and sml.url like '%".addslashes($searchInfo['search_name'])."%'" : "";
+		$conditions .= !empty($searchInfo['search_name']) ? " and (sml.url like '%".addslashes($searchInfo['search_name'])."%' or sml.name like '%".addslashes($searchInfo['search_name'])."%')" : "";
 		$conditions .= !empty($searchInfo['type']) ? " and sml.type='".addslashes($searchInfo['type'])."'" : "";
 	
 		$subSql = "select [cols] from $this->linkTable sml, $this->linkReportTable r where sml.id=r.sm_link_id
 		and sml.status=1 $conditions and r.report_date='$toTime'";
 	
 		$sql = "
-		(" . str_replace("[cols]", "sml.id,sml.url,sml.website_id,sml.type,r.likes,r.followers", $subSql) . ")
+		(" . str_replace("[cols]", "sml.id,sml.url,sml.name,sml.website_id,sml.type,r.likes,r.followers", $subSql) . ")
 			UNION
-			(select sml.id,sml.url,sml.website_id,sml.type,0,0 from $this->linkTable sml where sml.status=1 $conditions
+			(select sml.id,sml.url,sml.name,sml.website_id,sml.type,0,0 from $this->linkTable sml where sml.status=1 $conditions
 			and sml.id not in (". str_replace("[cols]", "distinct(sml.id)", $subSql) ."))
 		order by " . addslashes($orderCol) . " " . addslashes($orderVal);
 	
@@ -559,8 +575,8 @@ class SocialMediaController extends Controller{
 	
 			$exportContent .= createExportContent($headList);
 			foreach($baseReportList as $listInfo){
-	
-				$valueList = array($websiteList[$listInfo['website_id']]['url'], $listInfo['url']);
+			    $listUrl = ($listInfo['type'] == 'linkedin') ? $listInfo['name'] : $listInfo['url'];
+				$valueList = array($websiteList[$listInfo['website_id']]['url'], $listUrl);
 				foreach ($this->colList as $colName => $colVal) {
 					if ($colName == 'url') continue;
 						

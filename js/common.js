@@ -176,6 +176,7 @@ function doAction(scriptUrl, scriptPos, scriptArgs, actionDiv) {
 		case "reports":
 		case "viewreports":
 		case "pagedetails":
+		case "website-access-manager":
 			scriptDoLoad(scriptUrl, scriptPos, scriptArgs);
 			break;
 	

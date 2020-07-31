@@ -14824,7 +14824,16 @@ INSERT INTO `texts` (`id`, `lang_code`, `category`, `label`, `content`, `changed
 (14819, 'fr', 'panel', 'Mail Settings', 'Paramètres Mail', '2020-02-14 11:14:52'),
 (14820, 'fr', 'panel', 'Sync Search Engines', 'Synchro moteurs de recherche', '2020-02-14 11:14:52'),
 (14821, 'fr', 'panel', 'Website Access Manager', 'Gestion des accès aux sites web', '2020-02-14 11:14:52'),
-(14822, 'fr', 'analytics', 'Avg. Session Duration', 'Durée moyenne de session', '2019-08-26 17:32:43');
+(14822, 'fr', 'analytics', 'Avg. Session Duration', 'Durée moyenne de session', '2019-08-26 17:32:43'),
+(14823, 'en', 'socialmedia', 'Click here to get LinkedIn Company Id', 'Click here to get LinkedIn Company Id', '2020-07-30 21:17:58'),
+(14824, 'en', 'socialmedia', 'Company Id', 'Company Id', '2020-07-30 21:17:58'),
+(14825, 'en', 'log', 'Mail Log Details', 'Mail Log Details', '2020-07-30 21:17:58'),
+(14826, 'en', 'label', 'From', 'From', '2020-07-30 21:17:58'),
+(14827, 'en', 'panel', 'Current Time', 'Current Time', '2020-07-30 21:17:58'),
+(14828, 'en', 'panel', 'Mail Log Manager', 'Mail Log Manager', '2020-07-30 21:17:58'),
+(14829, 'en', 'subscription', 'Access Type', 'Access Type', '2020-07-30 21:17:58'),
+(14830, 'en', 'label', 'Write', 'Write', '2020-07-30 21:17:58'),
+(14831, 'en', 'label', 'Read', 'Read', '2020-07-30 21:17:58');
 
 DROP TABLE IF EXISTS `translators`;
 CREATE TABLE `translators` (
@@ -14883,7 +14892,7 @@ ALTER TABLE `translators`
 
 
 ALTER TABLE `texts`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14823;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14832;
 
 ALTER TABLE `translators`
   MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;

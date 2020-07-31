@@ -60,7 +60,7 @@ if(!empty($msg)){ showSuccessMsg($msg, false);}
 	</tr>
 	<tr class="white_row">
 		<td class="tab_left_bot_noborder" style="text-align: right; padding: 12px;">
-			<?php if ($subscriptionActive && !isAdmin()) {?>
+			<?php if ($subscriptionActive && !isAdmin() && !SP_CUSTOM_DEV) {?>
 	         	<a onclick="scriptDoLoad('users.php?sec=renew-profile', 'content', 'layout=ajax')" href="javascript:void(0);" class="actionbut">
 	         		 &lt;&lt; <?php echo $spTextSubscription['Renew Subscription']; ?>
 	         	</a>

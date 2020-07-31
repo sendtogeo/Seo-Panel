@@ -168,7 +168,7 @@ class SeoPluginsController extends Controller{
 		return $styleCont;
 	}
 	
-	# index function
+	// index function
 	function showSeoPlugins($info=''){
 		$this->layout = "default";
 		
@@ -262,26 +262,52 @@ class SeoPluginsController extends Controller{
 	}
 
 	# func to list seo tools
-	function listSeoPlugins($msg='', $error=false){		
+	function listSeoPlugins($msg='', $error=false, $info=[]) {
+		if(empty($msg)) $this->__updateAllSeoPlugins();
 		
-		if(empty($msg)) $this->__updateAllSeoPlugins();		
+		$info['pageno'] = intval($info['pageno']);
 		$userId = isLoggedIn();
 		$this->set('msg', $msg);
 		$this->set('error', $error);
 		
-		$sql = "select * from seoplugins order by id";
+		$pageScriptPath = 'seo-plugins-manager.php?stscheck=';
+		$pageScriptPath .= isset($info['stscheck']) ? $info['stscheck'] : "select";
+		$sql = "select * from seoplugins where 1=1";
 		
-		# pagination setup		
+		// if status set
+		if (isset($info['stscheck']) && $info['stscheck'] != 'select') {
+		    $info['stscheck'] = intval($info['stscheck']);
+		    $sql .= " and status='{$info['stscheck']}'";
+		}
+		
+		// search for keyword
+		if (!empty($info['keyword'])) {
+		    $sql .= " and (label like '%".addslashes($info['keyword'])."%'
+			or name like '%".addslashes($info['keyword'])."%'
+			or description like '%".addslashes($info['keyword'])."%')";
+		    $pageScriptPath .= "&keyword=" . $info['keyword'];
+		}
+		
+		$sql .= " order by id";
+		
+		// pagination setup		
 		$this->db->query($sql, true);
 		$this->paging->setDivClass('pagingdiv');
 		$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
-		$pagingDiv = $this->paging->printPages('seo-plugins-manager.php?');		
+		$pagingDiv = $this->paging->printPages($pageScriptPath, '', 'scriptDoLoad', 'content', 'layout=ajax');
 		$this->set('pagingDiv', $pagingDiv);
 		$sql .= " limit ".$this->paging->start .",". $this->paging->per_page;
-		
 		$seoPluginList = $this->db->select($sql);
-		$this->set('pageNo', $_GET['pageno']);
 		$this->set('list', $seoPluginList);
+		
+		$statusList = array(
+		    $_SESSION['text']['common']['Active'] => 1,
+		    $_SESSION['text']['common']['Inactive'] => 0,
+		);
+		
+		$this->set('statusList', $statusList);
+		$this->set('info', $info);
+		$this->set('pageNo', $info['pageno']);
 		$this->render('seoplugins/listseoplugins');
 	}
 

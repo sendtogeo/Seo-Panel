@@ -211,9 +211,15 @@ class WebsiteController extends Controller{
 		    
 	}
 
-	function newWebsite($info=''){
-		
+	function newWebsite($info='') {
 		$userId = isLoggedIn();
+		
+		// check whether user have only readonly website access 
+		if (SP_CUSTOM_DEV) {
+		    redirectUrlByScript(SP_WEBPATH . "/admin-panel.php");
+		    exit;
+		}
+		
 		if(!empty($info['check']) && !$this->__getCountAllWebsites($userId)){
 			$this->set('msg', $this->spTextWeb['plscrtwebsite'].'<br>Please <a href="javascript:void(0);" onclick="scriptDoLoad(\'websites.php\', \'content\')">'.strtolower($_SESSION['text']['common']['Activate']).'</a> '.$this->spTextWeb['yourwebalreday']);
 		}
