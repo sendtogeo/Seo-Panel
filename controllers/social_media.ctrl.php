@@ -70,7 +70,7 @@ class SocialMediaController extends Controller{
     		"youtube" => [
     			"label" => "Youtube",
     			"regex" => [
-    				"follower" => '/aria-label=.*?subscribers.*?>(.*?)</is'
+    				"follower" => '/subscriberCountText":\{"runs.*?text":"(.*?) /is'
     			],
     		],
     	];
