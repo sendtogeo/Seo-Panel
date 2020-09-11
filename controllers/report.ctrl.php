@@ -632,6 +632,13 @@ class ReportController extends Controller {
 		if(empty($websiteUrl)) return $crawlResult;
 		if(empty($keywordInfo['name'])) return $crawlResult;
 		
+		// fix for www. and no www. in search results
+		if (stristr($websiteUrl, "www.")) {
+		    $websiteOtherUrl = str_ireplace("www.", "", $websiteUrl);
+		} else {
+		    $websiteOtherUrl = "www." . $websiteUrl;
+		}
+		
 		$time = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
 		$seList = explode(':', $keywordInfo['searchengines']);
 		foreach($seList as $seInfoId){
@@ -753,9 +760,15 @@ class ReportController extends Controller {
 						    $previousDomain = $currentDomain;
 						}
 						
-						if($this->showAll || (stristr($url, "http://" . $websiteUrl) || stristr($url, "https://" . $websiteUrl)) ){
+						if($this->showAll || ( 
+						      stristr($url, "http://" . $websiteUrl) || stristr($url, "https://" . $websiteUrl) || 
+						      stristr($url, "http://" . $websiteOtherUrl) || stristr($url, "https://" . $websiteOtherUrl)
+						    )){
 
-							if ($this->showAll && (stristr($url, "http://" . $websiteUrl) || stristr($url, "https://" . $websiteUrl)) ) {
+							if ($this->showAll && (
+                                    stristr($url, "http://" . $websiteUrl) || stristr($url, "https://" . $websiteUrl) || 
+                                    stristr($url, "http://" . $websiteOtherUrl) || stristr($url, "https://" . $websiteOtherUrl)
+							    )) {
 								$matchInfo['found'] = 1; 
 							} else {
 								$matchInfo['found'] = 0;
