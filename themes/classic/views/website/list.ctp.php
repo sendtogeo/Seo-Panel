@@ -57,7 +57,7 @@
 		<td class="right"><?php echo $spText['common']['Action']?></td>
 	</tr>
 	<?php
-	$colCount = empty($isAdmin) ? 6 : 7; 
+	$colCount = empty($isAdmin) ? 7 : 8; 
 	if(count($list) > 0){
 		$catCount = count($list);
 		foreach($list as $i => $listInfo){
