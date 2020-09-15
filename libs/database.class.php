@@ -125,7 +125,11 @@ class Database{
     		
     	// for loop through values
     	foreach ($dataList as $key => $value) {
-    		$sql .= "$key='$value',";
+    	    if (self::isDBConstantValue($value)) {
+    	        $sql .= "$key=$value,";
+    	    } else {
+    	        $sql .= "$key='$value',";
+    	    }
     	}
     		
     	$sql = rtrim($sql, ",");
@@ -137,6 +141,20 @@ class Database{
     	}
     
     	return FALSE;
+    }
+    
+    /**
+     * function to chekc whether value is db constant values
+     * @param mixed $value
+     * @return boolean
+     */
+    public static function isDBConstantValue($value) {
+        
+        if (in_array($value, ['NULL', 'CURRENT_TIMESTAMP', 'NOW()'])) {
+            return true;
+        }
+        
+        return false;
     }
 
     /**
