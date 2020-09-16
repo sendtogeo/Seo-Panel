@@ -804,4 +804,13 @@ function timeElapsedString($datetime, $full = false) {
     if (!$full) $string = array_slice($string, 0, 1);
     return $string ? implode(', ', $string) . ' '. $_SESSION['text']['label']['Ago'] : $_SESSION['text']['label']['Just Now'];
 }
+
+function createSelectList($list, $nameCol = 'name', $idCol = 'id' ) {
+    $newList = [];
+    foreach ($list as $listInfo) {
+        $newList[$listInfo[$idCol]] = $listInfo[$nameCol];
+    }
+
+    return $newList;
+}
 ?>
