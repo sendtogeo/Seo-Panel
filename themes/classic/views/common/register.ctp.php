@@ -109,11 +109,18 @@
                 <?php echo $errMsg['email']?>
 			</div>
 			<div class="form-group">
-            	<label><?php echo $spText['login']['Enter the code as it is shown']?>:</label>
-				<div class="form-group">
-                	<img src="<?php echo SP_WEBPATH?>/visual-captcha.php">
-				</div>
-				<input type="text" name="code" value="<?php echo $post['code']?>" class="form-control" required="required">
+    			<?php if (SP_ENABLE_RECAPTCHA && !empty(SP_RECAPTCHA_SITE_KEY) && !empty(SP_RECAPTCHA_SECRET_KEY)) {?>
+    				<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+        			<div class="form-group">
+    					<div class="g-recaptcha" data-sitekey="<?php echo SP_RECAPTCHA_SITE_KEY?>"></div>
+    				</div>
+    			<?php } else {?>
+                	<label><?php echo $spText['login']['Enter the code as it is shown']?>:</label>
+    				<div class="form-group">
+                    	<img src="<?php echo SP_WEBPATH?>/visual-captcha.php">
+    				</div>
+    				<input type="text" name="code" value="<?php echo $post['code']?>" class="form-control" required="required">
+				<?php }?>
 				<?php echo $errMsg['code']?>
 			</div>
 			<a href="<?php echo SP_WEBPATH?>/login.php" class="btn btn-secondary" role="button"><?php echo $spText['button']['Cancel']?></a>

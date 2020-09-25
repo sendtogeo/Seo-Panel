@@ -227,12 +227,30 @@ class Validation{
 	}
 	
 	# func to check captcha
-	function checkCaptcha($code) {
+	function checkCaptcha() {
 		$msg = '';
-		if(!PhpCaptcha::Validate($_POST['code'])){
-			$msg = $_SESSION['text']['common']["Invalid code entered"];
-			$this->flagErr = true;
-		}		
+		
+		if (SP_ENABLE_RECAPTCHA && !empty(SP_RECAPTCHA_SITE_KEY) && !empty(SP_RECAPTCHA_SECRET_KEY)) {		    
+		    if(isset($_POST['g-recaptcha-response']) && !empty($_POST['g-recaptcha-response'])) {
+		        $recaptchaUrl = 'https://www.google.com/recaptcha/api/siteverify?secret='.SP_RECAPTCHA_SECRET_KEY.'&response='.$_POST['g-recaptcha-response'];
+		        $spider = new Spider();
+		        $res = $spider->getContent($recaptchaUrl);
+		        $responseData = json_decode($res['page']);
+		        if(empty($responseData->success)) {
+		            $msg = $_SESSION['text']['common']['reCAPTCHA verification failed'];
+		            $this->flagErr = true;
+		        }
+		    } else {
+		        $msg = $_SESSION['text']['common']['reCAPTCHA verification failed'];
+		        $this->flagErr = true;
+		    }		    
+		} else {		
+    		if(!PhpCaptcha::Validate($_POST['code'])){
+    			$msg = $_SESSION['text']['common']["Invalid code entered"];
+    			$this->flagErr = true;
+    		}
+		}
+		
 		return $msg;
 	}
 	
