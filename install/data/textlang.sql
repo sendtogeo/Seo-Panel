@@ -14879,6 +14879,11 @@ INSERT INTO `translators` (`id`, `lang_code`, `trans_name`, `trans_company`, `tr
 (33, 'pt-BR', 'Edson Medeiros', 'We Marketing Digital', 'http://wemarketingdigital.com.br/'),
 (34, 'tr', 'Nuh Mehmet SOYLU', 'Mehmet SOYLU', 'http://mehmet-soylu.com/');
 
+INSERT INTO `texts` (`category`, `label`, `content`) VALUES
+('common', 'reCAPTCHA verification failed', 'reCAPTCHA verification failed'),
+('settings', 'SP_ENABLE_RECAPTCHA', 'Enable reCAPTCHA'),
+('settings', 'SP_RECAPTCHA_SITE_KEY', 'reCAPTCHA Site Key'),
+('settings', 'SP_RECAPTCHA_SECRET_KEY', 'reCAPTCHA Secret Key');
 
 ALTER TABLE `languages`
   ADD PRIMARY KEY (`lang_code`);
