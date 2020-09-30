@@ -14833,7 +14833,11 @@ INSERT INTO `texts` (`id`, `lang_code`, `category`, `label`, `content`, `changed
 (14828, 'en', 'panel', 'Mail Log Manager', 'Mail Log Manager', '2020-07-30 21:17:58'),
 (14829, 'en', 'subscription', 'Access Type', 'Access Type', '2020-07-30 21:17:58'),
 (14830, 'en', 'label', 'Write', 'Write', '2020-07-30 21:17:58'),
-(14831, 'en', 'label', 'Read', 'Read', '2020-07-30 21:17:58');
+(14831, 'en', 'label', 'Read', 'Read', '2020-07-30 21:17:58'),
+(14832, 'en', 'common', 'reCAPTCHA verification failed', 'reCAPTCHA verification failed', '2020-09-30 04:42:43'),
+(14833, 'en', 'settings', 'SP_ENABLE_RECAPTCHA', 'Enable reCAPTCHA', '2020-09-30 04:42:43'),
+(14834, 'en', 'settings', 'SP_RECAPTCHA_SITE_KEY', 'reCAPTCHA Site Key', '2020-09-30 04:42:43'),
+(14835, 'en', 'settings', 'SP_RECAPTCHA_SECRET_KEY', 'reCAPTCHA Secret Key', '2020-09-30 04:42:43');
 
 DROP TABLE IF EXISTS `translators`;
 CREATE TABLE `translators` (
@@ -14878,12 +14882,6 @@ INSERT INTO `translators` (`id`, `lang_code`, `trans_name`, `trans_company`, `tr
 (32, 'sv', '', 'sökoptimering.se', 'http://sökoptimering.se/'),
 (33, 'pt-BR', 'Edson Medeiros', 'We Marketing Digital', 'http://wemarketingdigital.com.br/'),
 (34, 'tr', 'Nuh Mehmet SOYLU', 'Mehmet SOYLU', 'http://mehmet-soylu.com/');
-
-INSERT INTO `texts` (`category`, `label`, `content`) VALUES
-('common', 'reCAPTCHA verification failed', 'reCAPTCHA verification failed'),
-('settings', 'SP_ENABLE_RECAPTCHA', 'Enable reCAPTCHA'),
-('settings', 'SP_RECAPTCHA_SITE_KEY', 'reCAPTCHA Site Key'),
-('settings', 'SP_RECAPTCHA_SECRET_KEY', 'reCAPTCHA Secret Key');
 
 ALTER TABLE `languages`
   ADD PRIMARY KEY (`lang_code`);
