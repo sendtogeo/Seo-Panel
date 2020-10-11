@@ -132,7 +132,7 @@ class ReviewManagerController extends ReviewBase{
             $websiteInfo = $websiteCtrl->__getWebsiteInfo($listInfo['website_id']);
             $newCount = !empty($listInfo['id']) ? 0 : 1;
             if (! $this->validateReviewLinkCount($websiteInfo['user_id'], $newCount)) {
-                $this->set('validationMsg', $this->spTextSMC['Your review link count already reached the limit']);
+                $this->set('validationMsg', 'Your review link count already reached the limit');
                 $this->validate->flagErr = true;
             }
         }
