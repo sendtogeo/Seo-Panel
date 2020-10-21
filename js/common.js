@@ -361,6 +361,13 @@ function checkGoogleAPIConnection(scriptUrl, scriptPos, scriptArgs) {
     scriptDoLoad(scriptUrl, scriptPos, scriptArgs);
 }
 
+function checkDataForSEOAPIConnection(scriptUrl, scriptPos, scriptArgs) {
+	apiLogin = $('input:text[name=SP_DFS_API_LOGIN]').val();
+	apiPassword = $('input:text[name=SP_DFS_API_PASSWORD]').val();
+	scriptArgs += "&api_login=" + apiLogin + "&api_password=" + apiPassword;
+	scriptDoLoad(scriptUrl, scriptPos, scriptArgs);
+}
+
 function openTab(tabName, dialog = false) {
 	dialogId = dialog ? "#dialogContent " : "";
 	$(dialogId + '.tabcontent').hide();	

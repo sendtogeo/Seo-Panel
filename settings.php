@@ -126,6 +126,25 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			}
 			
 			break;
+			
+		case "checkDataForSEOAPI":
+		    
+		    if (empty($_GET['api_login']) || empty($_GET['api_password'])) {
+		        print "<span class='error'>{$_SESSION['text']['label']['Fail']}</span>";
+		    } else {
+		        include_once(SP_CTRLPATH."/dataforseo.ctrl.php");
+		        $dfsCtrler = new DataForSEOController();
+		        $connResult = $dfsCtrler->__checkAPIConnection($_GET['api_login'], $_GET['api_password']);
+		        
+		        // if error occured
+		        if ($connResult['status']) {
+		            print "<span class='success'>{$_SESSION['text']['label']['Success']}</span>";
+		        } else {
+		            print "<span class='error'>{$connResult['message']}</span>";
+		        }
+		    }
+		    
+		    break;
 
 		default:
 		    $category = empty($_GET['category']) ? 'system' : $_GET['category']; 
@@ -133,5 +152,4 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			break;
 	}
 }
-
 ?>

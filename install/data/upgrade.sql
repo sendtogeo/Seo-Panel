@@ -4,4 +4,29 @@
 
 update `settings` set set_val='4.8.0' WHERE `set_name` LIKE 'SP_VERSION_NUMBER';
 
-UPDATE `searchengines` SET `regex` = '<div.*?class=\"?g.*?>.*?<div.*?class=\"r.*?\">.*?<a href=\"(.*?)\".*?>.*?<h3.*?>(.*?)<\\/h3>' WHERE `url` LIKE '%google%';
+UPDATE `searchengines` SET `regex` = '<div.*?class=\"?g.*?>.*?<div.*?class=\"r.*?\">.*?<a href=\"(.*?)\".*?>.*?<h3.*?>(.*?)<\\/h3>' 
+WHERE `url` LIKE '%google%';
+
+INSERT INTO `settings` (`set_label`, `set_name`, `set_val`, `set_category`, `set_type`, `display`) VALUES
+('Enable DataForSEO', 'SP_ENABLE_DFS', '0', 'dataforseo', 'bool', 1),
+('DataForSEO API Login', 'SP_DFS_API_LOGIN', '', 'dataforseo', 'large', 1),
+('DataForSEO API Password', 'SP_DFS_API_PASSWORD', '', 'dataforseo', 'large', 1),
+('DataForSEO Balance', 'SP_DFS_BALANCE', '0', 'dataforseo', 'small', 1);
+
+
+
+
+INSERT INTO `texts` (`category`, `label`, `content`) VALUES 
+('panel', 'DataForSEO Settings', 'DataForSEO Settings'),
+('settings', 'SP_ENABLE_DFS', 'Enable DataForSEO'),
+('settings', 'SP_DFS_API_LOGIN', 'API Login'),
+('settings', 'SP_DFS_API_PASSWORD', 'API Password'), 
+('settings', 'SP_DFS_BALANCE', 'DataForSEO Balance($)'),
+('settings', 'click-to-get-dataforseo-account', 'Click here to get DataForSEO account');
+
+
+
+
+
+
+

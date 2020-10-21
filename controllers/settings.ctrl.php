@@ -84,6 +84,10 @@ class SettingsController extends Controller{
 					$this->set('headLabel', $spTextPanel['Google Settings']);					
 					break;
 					
+				case "dataforseo":
+				    $this->set('headLabel', $spTextPanel['DataForSEO Settings']);
+				    break;
+					
 				case "mail":
 				    $this->set('headLabel', $spTextPanel['Mail Settings']);
 				    break;
