@@ -22,7 +22,7 @@ INSERT INTO `texts` (`category`, `label`, `content`) VALUES
 ('settings', 'SP_DFS_API_LOGIN', 'API Login'),
 ('settings', 'SP_DFS_API_PASSWORD', 'API Password'), 
 ('settings', 'SP_DFS_BALANCE', 'DataForSEO Balance($)'),
-('settings', 'click-to-get-dataforseo-account', 'Click here to get DataForSEO account');
+('settings', 'click-to-get-dataforseo-account', 'Click here to get Free DataForSEO account');
 
 
 

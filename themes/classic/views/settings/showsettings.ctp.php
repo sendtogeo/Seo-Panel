@@ -82,13 +82,12 @@ if ($category == "moz") {
 		// sp demo settings
 		$demoCheckArr = array(
 			'SP_API_KEY', 'API_SECRET', 'SP_SMTP_PASSWORD', 'SP_MOZ_API_ACCESS_ID', 'SP_MOZ_API_SECRET', 'SP_GOOGLE_API_KEY',
-			'SP_GOOGLE_API_CLIENT_ID', 'SP_GOOGLE_API_CLIENT_SECRET', 'SP_GOOGLE_ANALYTICS_TRACK_CODE', 'SP_DFS_API_LOGIN',
-			'SP_DFS_API_PASSWORD',
+			'SP_GOOGLE_API_CLIENT_ID', 'SP_GOOGLE_API_CLIENT_SECRET', 'SP_GOOGLE_ANALYTICS_TRACK_CODE', 'SP_RECAPTCHA_SITE_KEY', 
+			'SP_RECAPTCHA_SECRET_KEY', 'SP_DFS_API_LOGIN', 'SP_DFS_API_PASSWORD',
 		);
 		if (SP_DEMO && in_array($listInfo['set_name'], $demoCheckArr)) {
 			$listInfo['set_val'] = "********";
-		}
-		
+		}		
 		?>
 		<tr>
 			<td class="td_left_col">
@@ -143,7 +142,7 @@ if ($category == "moz") {
 								?>
 							</select>
 						<?php } else if ($listInfo['set_name'] == 'SP_DFS_BALANCE') {?>
-							<input readonly="readonly" type="text" name="<?php echo $listInfo['set_name']?>" value="<?php echo stripslashes($listInfo['set_val'])?>">
+							<label id='sp_dfs_balance'><?php echo stripslashes($listInfo['set_val'])?></label>
 						<?php } else {
 							$passTypeList = array('SP_SMTP_PASSWORD', 'API_SECRET');
 						    $type = in_array($listInfo['set_name'], $passTypeList) ? "password" : "text";

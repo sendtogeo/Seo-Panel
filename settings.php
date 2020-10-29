@@ -137,8 +137,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		        $connResult = $dfsCtrler->__checkAPIConnection($_GET['api_login'], $_GET['api_password']);
 		        
 		        // if error occured
-		        if ($connResult['status']) {
+		        if ($connResult['status'] == 'success') {
 		            print "<span class='success'>{$_SESSION['text']['label']['Success']}</span>";
+		            updateJsLocation("sp_dfs_balance",  $connResult['balance']);
 		        } else {
 		            print "<span class='error'>{$connResult['message']}</span>";
 		        }

@@ -105,6 +105,11 @@ class SettingsController extends Controller{
 		
 		$setList = $this->__getAllSettings(true, 1, $postInfo['category']);
 		foreach($setList as $setInfo){
+		    
+		    // exclude from update
+		    if ($setInfo['set_name'] == 'SP_DFS_BALANCE') {
+		        continue;
+		    }
 
 			switch($setInfo['set_name']){
 				
@@ -138,7 +143,7 @@ class SettingsController extends Controller{
 		            $sql = "Update reports_settings set report_interval=".$postInfo[$setInfo['set_name']]." where report_interval<".$postInfo[$setInfo['set_name']];
 		            $userList = $this->db->query($sql);
 		            break;
-			}
+			}			
 			
 			$sql = "update settings set set_val='".addslashes($postInfo[$setInfo['set_name']])."' where set_name='".addslashes($setInfo['set_name'])."'";
 			$this->db->query($sql);
