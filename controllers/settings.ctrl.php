@@ -296,5 +296,33 @@ class SettingsController extends Controller{
 		
 	}
 	
+	public static function getWebsiteOtherUrl($websiteUrl) {
+	    
+	    // fix for www. and no www. in search results
+	    if (stristr($websiteUrl, "www.")) {
+	        $websiteOtherUrl = str_ireplace("www.", "", $websiteUrl);
+	    } else {
+	        $websiteOtherUrl = "www." . $websiteUrl;
+	    }
+	    
+	    return $websiteOtherUrl;
+	}
+	
+	public static function getSearchResults($keywordInfo, $showAll = false, $seId = false, $cron = false) {
+	    $status = false;
+	    $results =  [];
+	    
+	    // check dataforseo is enabled
+	    if (SP_ENABLE_DFS && (SP_DFS_API_LOGIN != "") && (SP_DFS_API_PASSWORD != "")) {
+	        include_once(SP_CTRLPATH."/dataforseo.ctrl.php");
+	        $dfsCtrler = new DataForSEOController();
+	        $status = true;
+	        $results = $dfsCtrler->__getSERPResults($keywordInfo, $showAll, $seId, $cron);
+	    }
+	    
+	    return [$status, $results];
+	    
+	}
+	
 }
 ?>

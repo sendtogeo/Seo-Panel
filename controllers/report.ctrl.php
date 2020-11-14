@@ -627,17 +627,20 @@ class ReportController extends Controller {
 	
 	# func to crawl keyword
 	function crawlKeyword( $keywordInfo, $seId='', $cron=false, $removeDuplicate=true) {
+	    
+	    // check whether any api source is enabled for crawl keyword
+	    list($resDataStatus, $resData) = SettingsController::getSearchResults($keywordInfo, $this->showAll, $seId, $cron);
+	    if ($resDataStatus) {
+	        $this->seFound = $resData['seFound'];
+	        return $resData;
+	    }
+	    
 		$crawlResult = array();
 		$websiteUrl = formatUrl($keywordInfo['url'], false);
 		if(empty($websiteUrl)) return $crawlResult;
 		if(empty($keywordInfo['name'])) return $crawlResult;
 		
-		// fix for www. and no www. in search results
-		if (stristr($websiteUrl, "www.")) {
-		    $websiteOtherUrl = str_ireplace("www.", "", $websiteUrl);
-		} else {
-		    $websiteOtherUrl = "www." . $websiteUrl;
-		}
+		$websiteOtherUrl = SettingsController::getWebsiteOtherUrl($websiteUrl);
 		
 		$time = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
 		$seList = explode(':', $keywordInfo['searchengines']);
