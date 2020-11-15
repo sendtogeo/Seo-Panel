@@ -26,9 +26,12 @@ $searchFun = "scriptDoLoadPost('log.php', 'listform', 'content')";
 		<th width="100px;"><?php echo $spText['common']['Period']?>:</th>
     	<td width="236px">
     		<input type="text" value="<?php echo $fromTime?>" name="from_time"/> 
-    		<img align="bottom" onclick="displayDatePicker('from_time', false, 'ymd', '-');" src="<?php echo SP_IMGPATH?>/cal.gif"/> 
-    		<input type="text" value="<?php echo $toTime?>" name="to_time"/> 
-    		<img align="bottom" onclick="displayDatePicker('to_time', false, 'ymd', '-');" src="<?php echo SP_IMGPATH?>/cal.gif"/>
+    		<input type="text" value="<?php echo $toTime?>" name="to_time"/>		
+			<script>
+			$(function() {
+				$( "input[name='from_time'], input[name='to_time']").datepicker({dateFormat: "yy-mm-dd"});
+			});
+		  	</script>
     	</td>	
 		<th><?php echo $spText['common']['Search Engine']?>: </th>
 		<td>
@@ -76,7 +79,7 @@ $searchFun = "scriptDoLoadPost('log.php', 'listform', 'content')";
 </table>
 
 <br><br>
-<b>Current Time:</b> <?php echo date("Y-m-d H:i:s <b>T(P)</b>"); ?>
+<b><?php echo $spTextPanel["Current Time"]?>:</b> <?php echo date("Y-m-d H:i:s <b>T(P)</b>"); ?>
 <?php echo $pagingDiv?>
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
 	<tr class="listHead">

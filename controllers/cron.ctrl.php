@@ -174,6 +174,17 @@ class CronController extends Controller {
     				// update report generation logs
     				$reportCtrler->updateUserReportGenerationLogs($userInfo['id'], date('Y-m-d H:i:s'));
     				
+    				// update user alerts section
+    				$alertCtrl = new AlertController();
+    				$reportTxt = $this->getLanguageTexts('reports', $_SESSION['lang_code']);
+    				$alertInfo = array(
+    					'alert_subject' => $reportTxt["Reports Generated Successfully"],
+    					'alert_message' => $reportTxt['report_email_subject'],
+    					'alert_category' => "reports",
+    					'alert_url' => SP_WEBPATH,
+    				);
+    				$alertCtrl->createAlert($alertInfo, $userInfo['id']);
+    				
     				// send email notification if enabled
     				if (SP_REPORT_EMAIL_NOTIFICATION && $repSetInfo['email_notification']) {
     					$reportCtrler->spTextTools = $this->getLanguageTexts('seotools', $_SESSION['lang_code']);
@@ -268,6 +279,14 @@ class CronController extends Controller {
 				case "sm-checker":
 					$this->socialMediaCheckerCron($websiteId);
 					break;
+					
+				case "review-manager":
+					$this->reviewCheckerCron($websiteId);
+					break;
+					
+				case "web-analytics":
+					$this->analyticsCron($websiteId);
+					break;
 			}
 		}
 		
@@ -348,11 +367,44 @@ class CronController extends Controller {
 			
 			// save the social media data
 			$socialMediaCtrler->saveSocialMediaLinkResults($linkInfo['id'], $result);
-			
+			sleep(SP_CRAWL_DELAY + 5);
 		}
 		
 		echo "Saved social media results of website id: <b>$websiteId</b>.....</br>\n";
 	
+	}
+	
+	# func to generate review checker reports from cron
+	function reviewCheckerCron($websiteId) {
+		include_once(SP_CTRLPATH."/review_manager.ctrl.php");
+		$this->debugMsg("Starting review Checker cron for website: {$this->websiteInfo['name']}....<br>\n");
+	
+		$reviewController = New ReviewManagerController();
+		$websiteInfo = $this->websiteInfo;
+		
+		$linkList = $reviewController->getAllLinksWithOutReports($websiteInfo['id'], date('Y-m-d', $this->timeStamp));
+		if (SP_MULTIPLE_CRON_EXEC && empty($linkList)) {
+			$this->debugMsg("No review links left to generate report for website: {$this->websiteInfo['name']}....<br>\n");
+			return true;
+		}
+		
+		// loop through link list and save the data
+		foreach ($linkList as $linkInfo) {
+			$result = $reviewController->getReviewDetails($linkInfo['type'], $linkInfo['url']);
+			
+			if ($result['status']) {
+				echo "Crawled review results of <b>{$linkInfo['name']}</b>.....</br>\n";
+			} else {
+				echo "Failed Crawling of review results of <b>{$linkInfo['name']}</b>.....</br>\n";
+				echo $result['msg'];
+			}
+			
+			// save the review data
+			$reviewController->saveReviewLinkResults($linkInfo['id'], $result);
+			sleep(SP_CRAWL_DELAY + 5);
+		}
+		
+		echo "Saved review results of website id: <b>$websiteId</b>.....</br>\n";
 	}	
 	
 	# func to generate backlink reports from cron
@@ -476,31 +528,58 @@ class CronController extends Controller {
 		$wmCtrler = New WebMasterController();
 		$websiteInfo = $this->websiteInfo;
 		
-		// report date should be less than 2 days, then only reports will be generated
-		$reportDate = date('Y-m-d', $this->timeStamp - (3 * 60 * 60 * 24));
+		// check whether old reports are not generated. Then generate from it.
+		for ($i=4; $i>=2; $i--) {
 		
-		// loop through source list
-		foreach ($wmCtrler->sourceList as $source) {
+			// report date should be less than 2 days, then only reports will be generated
+			$reportDate = date('Y-m-d', $this->timeStamp - ($i * 60 * 60 * 24));
 			
-			// check whether reports already existing 
-			if (SP_MULTIPLE_CRON_EXEC && $wmCtrler->isReportsExists($websiteInfo['id'], $reportDate, $source)) continue;
-			
-			// store results
-			$wmCtrler->storeWebsiteAnalytics($websiteInfo['id'], $reportDate, $source);
-		}		
-
-		$this->debugMsg("Saved webmaster tools analytics results of <b>{$this->websiteInfo['name']}</b>.....<br>\n");
+			// loop through source list
+			foreach ($wmCtrler->sourceList as $source) {
+				
+				// check whether reports already existing 
+				if (SP_MULTIPLE_CRON_EXEC && $wmCtrler->isReportsExists($websiteInfo['id'], $reportDate, $source)) {
+					$this->debugMsg("Skip webmaster tools report($reportDate) generation of <b>{$this->websiteInfo['name']}</b>.....<br>\n");
+					continue;
+				}
+				
+				// store results
+				$wmCtrler->storeWebsiteAnalytics($websiteInfo['id'], $reportDate, $source);
+			}		
+	
+			$this->debugMsg("Saved webmaster tools report($reportDate) of <b>{$this->websiteInfo['name']}</b>.....<br>\n");
+		}
 		
 		// update webmaster tools sitemaps
 		$websiteController = New WebsiteController();
-		$websiteController->importWebmasterToolsSitemaps($websiteId);
+		$websiteController->importWebmasterToolsSitemaps($websiteId, true);
 		$this->debugMsg("Saved webmaster tools sitemaps of <b>{$this->websiteInfo['name']}</b>.....<br>\n");		
 		
+	}	
+	
+	// func to generate analytics reports from cron
+	function analyticsCron($websiteId){
+		
+		include_once(SP_CTRLPATH."/analytics.ctrl.php");
+		$this->debugMsg("Starting analytics cron for website: {$this->websiteInfo['name']}....<br>\n");
+		
+		$wmCtrler = New AnalyticsController();
+		$websiteInfo = $this->websiteInfo;
+		$reportDate = date('Y-m-d', $this->timeStamp - (60 * 60 * 24));
+			
+		// check whether reports already existing 
+		if (SP_MULTIPLE_CRON_EXEC && $wmCtrler->isReportsExists($websiteInfo['id'], $reportDate)) {
+		    $this->debugMsg("Analytics results already generated of <b>{$this->websiteInfo['name']}</b>.....<br>\n");
+		    return FALSE;
+		}
+			
+		// store results
+		$wmCtrler->storeWebsiteAnalytics($websiteInfo['id'], $reportDate);
+		$this->debugMsg("Saved analytics results of <b>{$this->websiteInfo['name']}</b>.....<br>\n");
 	}
 	
-	# func to show debug messages
-	function debugMsg($msg=''){
-		
+	// func to show debug messages
+	function debugMsg($msg='') {
 		if($this->debug == true) print $msg;
 	}
 	

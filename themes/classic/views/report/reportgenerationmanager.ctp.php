@@ -1,6 +1,6 @@
 <?php echo showSectionHead($spTextPanel['Report Generation Manager']); ?>
 <form id='search_form'>
-<table width="400px" border="0" cellspacing="0" cellpadding="0" class="search">
+<table class="search">
 	<tr>
 		<th><?php echo $spText['common']['Website']?>: </th>
 		<td>
@@ -13,7 +13,7 @@
 		<th nowrap="nowrap"><?php echo $spText['common']['Seo Tools']?>: </th>
 		<td colspan="2" style="font-size: 12px;">
 			<?php foreach($repTools as $i => $repInfo){ ?>
-				<input type="checkbox" name="repTools[]" value="<?php echo $repInfo['id']?>" checked="checked"> <?php echo $spTextTools[$repInfo['url_section']]?><br>				
+				<input type="checkbox" name="repTools[]" value="<?php echo $repInfo['id']?>"> <?php echo $spTextTools[$repInfo['url_section']]?><br>				
 			<?php }?>			
 		</td>		
 	</tr>
@@ -22,4 +22,5 @@
 
 <div id='subcontent'>
 	<p class='note'><?php echo $spTextTools['clickgeneratereports']?></p>
+	<p class='note'><?php echo $spTextTools['note_report_generation']?></p>
 </div>

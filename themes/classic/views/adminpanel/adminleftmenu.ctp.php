@@ -57,6 +57,13 @@ foreach($menuList as $i => $menuInfo){
 			<ul id='subui'>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('users.php', 'content')"><?php echo $spTextPanel['User Manager']?></a></li>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('users.php', 'content', 'sec=new')"><?php echo $spTextPanel['New User']?></a></li>
+				<?php if (isPluginActivated("Subscription")) {?>
+					<li>
+						<a href="javascript:void(0);" onclick="scriptDoLoad('users.php', 'content', 'sec=website-access-manager')">
+							<?php echo $spTextPanel['Website Access Manager']?>
+						</a>
+					</li>
+				<?php }?>
 			</ul>
 			<?php
 			break;
@@ -66,6 +73,7 @@ foreach($menuList as $i => $menuInfo){
 			<script type="text/javascript">scriptList[<?php echo $i?>] = 'searchengine.php';</script>			
 			<ul id='subui'>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('searchengine.php', 'content')"><?php echo $spTextPanel['Search Engine Manager']?></a></li>
+				<li><a href="javascript:void(0);" onclick="scriptDoLoad('searchengine.php?sec=sync-se', 'content')"><?php echo $spTextPanel['Sync Search Engines']?></a></li>
 			</ul>
 			<?php
 			break;
@@ -75,8 +83,10 @@ foreach($menuList as $i => $menuInfo){
 			<script type="text/javascript">scriptList[<?php echo $i?>] = 'archive.php';</script>			
 			<ul id='subui'>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('archive.php', 'content')"><?php echo $spTextPanel['Archived Reports']?></a></li>				
-				<?php if (isAdmin() || SP_ALLOW_USER_SCHEDULE_REPORT) {?>
-					<li><a href="javascript:void(0);" onclick="scriptDoLoad('reports.php?sec=schedule', 'content')"><?php echo $spTextPanel['Schedule Reports']?></a></li>
+				<?php if (!SP_CUSTOM_DEV) {?>
+    				<?php if (isAdmin() || SP_ALLOW_USER_SCHEDULE_REPORT) {?>
+    					<li><a href="javascript:void(0);" onclick="scriptDoLoad('reports.php?sec=schedule', 'content')"><?php echo $spTextPanel['Schedule Reports']?></a></li>
+    				<?php }?>
 				<?php }?>
 				<?php if (isAdmin()) {?>
     				<li><a href="javascript:void(0);" onclick="scriptDoLoad('cron.php', 'content')"><?php echo $spTextPanel['Report Generation Manager']?></a></li>
@@ -145,6 +155,7 @@ foreach($menuList as $i => $menuInfo){
 			<script type="text/javascript">scriptList[<?php echo $i?>] = 'log.php?sec=crawl';</script>			
 			<ul id='subui'>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('log.php?sec=crawl', 'content')"><?php echo $spTextPanel['Crawl Log Manager']?></a></li>
+				<li><a href="javascript:void(0);" onclick="scriptDoLoad('log.php?sec=mail', 'content')"><?php echo $spTextPanel['Mail Log Manager']?></a></li>
 			</ul>
 			<?php
 			break;
@@ -168,6 +179,7 @@ foreach($menuList as $i => $menuInfo){
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('settings.php', 'content')"><?php echo $spTextPanel['System Settings']?></a></li>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('settings.php?category=moz', 'content')"><?php echo $spTextPanel['MOZ Settings']?></a></li>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('settings.php?category=google', 'content')"><?php echo $spTextPanel['Google Settings']?></a></li>
+				<li><a href="javascript:void(0);" onclick="scriptDoLoad('settings.php?category=mail', 'content')"><?php echo $spTextPanel['Mail Settings']?></a></li>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('settings.php?sec=test_email', 'content')"><?php echo $spTextPanel['Test Email Settings']?></a></li>
 			</ul>
 			<?php
@@ -178,7 +190,10 @@ foreach($menuList as $i => $menuInfo){
 			<script type="text/javascript">scriptList[<?php echo $i?>] = 'users.php?sec=my-profile';</script>			
 			<ul id='subui'>
 				<li><a href="javascript:void(0);" onclick="scriptDoLoad('users.php?sec=my-profile', 'content')"><?php echo $spTextPanel['My Profile']?></a></li>
-				<li><a href="javascript:void(0);" onclick="scriptDoLoad('connections.php', 'content')"><?php echo $spTextPanel['Connections']?></a></li>
+				<?php if (!SP_CUSTOM_DEV) {?>
+					<li><a href="javascript:void(0);" onclick="scriptDoLoad('connections.php', 'content')"><?php echo $spTextPanel['Connections']?></a></li>
+					<li><a href="javascript:void(0);" onclick="scriptDoLoad('alerts.php', 'content')"><?php echo $spTextPanel['Alerts']?></a></li>
+				<?php }?>
 			</ul>
 			<?php
 			break;

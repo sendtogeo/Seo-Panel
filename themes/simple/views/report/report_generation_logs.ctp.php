@@ -4,10 +4,13 @@
 	<tr>
 		<th><?php echo $spText['common']['Period']?>:</th>
 		<td>
-			<input type="text" value="<?php echo $fromTime?>" name="from_time"/> 
-			<img align="bottom" onclick="displayDatePicker('from_time', false, 'ymd', '-');" src="<?php echo SP_IMGPATH?>/cal.gif"/> 
-			<input type="text" value="<?php echo $toTime?>" name="to_time"/> 
-			<img align="bottom" onclick="displayDatePicker('to_time', false, 'ymd', '-');" src="<?php echo SP_IMGPATH?>/cal.gif"/>
+			<input type="text" value="<?php echo $fromTime?>" name="from_time"/>
+			<input type="text" value="<?php echo $toTime?>" name="to_time"/>
+			<script>
+			$(function() {
+				$( "input[name='from_time'], input[name='to_time']").datepicker({dateFormat: "yy-mm-dd"});
+			});
+		  	</script>
 		</td>
 		<th><?php echo $spText['common']['User']?>: </th>
 		<td>
@@ -40,7 +43,7 @@ $(document).ready(function() {
 </script>
 
 <br><br>
-<b>Current Time:</b> <?php echo date("Y-m-d H:i:s <b>T(P)</b>"); ?>
+<b><?php echo $spTextPanel["Current Time"]?>:</b> <?php echo date("Y-m-d H:i:s <b>T(P)</b>"); ?>
 <br><br>
 <div id='subcontent'>
 <table id="cust_tab" class="tablesorter">

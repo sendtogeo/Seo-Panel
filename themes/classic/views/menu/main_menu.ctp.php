@@ -117,7 +117,7 @@ if (!empty($menuInfo['item_list'])) {
 		</li>
 	<?php } else { ?>
 		<li class="nav-item">
-			<a class="nav-link" href="<?php echo SP_DONATE_LINK?>" target="_blank">
+			<a class="nav-link" href="<?php echo SP_DONATE_LINK?>" target="_blank" rel="nofollow">
 			<i class="fas fa-donate"></i> <?php echo $spText['common']['Donate']?></a>
 		</li>
 	<?php }?>	

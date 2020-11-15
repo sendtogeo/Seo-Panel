@@ -343,9 +343,15 @@ class KeywordController extends Controller{
 	# func to get all keywords
 	function __getAllKeywords($userId='', $websiteId='', $isAdminCheck=false, $orderByWeb=false, $orderByValue='ASC', $searchName = ''){
 		$websiteId = intval($websiteId);
-		$sql = "select k.*,w.name website,w.url weburl from keywords k,websites w where k.website_id=w.id and k.status=1";		
-		if(!$isAdminCheck || !isAdmin() ){
-			if(!empty($userId)) $sql .= " and w.user_id=$userId";
+		$sql = "select k.*,w.name website,w.url weburl from keywords k,websites w where k.website_id=w.id and k.status=1";
+		
+		if(!$isAdminCheck || !isAdmin() ) {
+			if(!empty($userId)) {
+				$websiteCtrl = new WebsiteController();
+				$sql .= $websiteCtrl->getWebsiteUserAccessCondition($userId);
+			}
+			
+			//if(!empty($userId)) $sql .= " and w.user_id=$userId";
 		}
 		
 		if(!empty($websiteId)) $sql .= " and k.website_id=$websiteId";
@@ -366,6 +372,13 @@ class KeywordController extends Controller{
 		$sql = "select * from keywords where id=$keywordId";
 		$listInfo = $this->db->select($sql, true);
 		return empty($listInfo['id']) ? false :  $listInfo;
+	}
+	
+	function __getWebisteKeywords($websiteId, $searchInfo=[]) {
+	    $cond = "website_id=".intval($websiteId);
+	    $cond .= isset($searchInfo['status']) ? " and status=".intval($searchInfo['status']) : "";
+	    $cond .= isset($searchInfo['search']) ? " and name like '%".addslashes($searchInfo['search'])."%'" : "";
+	    return $this->dbHelper->getAllRows('keywords', $cond);
 	}
 
 	function editKeyword($keywordId, $listInfo=''){	
@@ -500,7 +513,7 @@ class KeywordController extends Controller{
 		
 	}
 	
-	function getUserKeywordSearchEngineList($userId = "") {
+	function getUserKeywordSearchEngineList($userId = "", $websiteId = false) {
 		
 		$seController = New SearchEngineController();
 		$list = $seController->__getAllSearchEngines();
@@ -511,16 +524,17 @@ class KeywordController extends Controller{
 			$seList[$listInfo['id']] = $listInfo;
 		}
 		
-		
+		$websiteCtlr = new WebsiteController();
 		$whereCond = "w.id=k.website_id and k.status=1 and w.status=1";
-		$whereCond .= !empty($userId) ? " and w.user_id=".intval($userId) : "";
+		$whereCond .= !empty($userId) ? $websiteCtlr->getWebsiteUserAccessCondition($userId) : "";
+		$whereCond .= !empty($websiteId) ? " and w.id=".intval($websiteId) : "";
 		$list = $this->dbHelper->getAllRows('keywords k, websites w', $whereCond, "distinct k.searchengines"); 
 		
 		// show only required search engines
 		foreach ($list as $keywordInfo) {
 			$keySeList = explode(":", $keywordInfo['searchengines']);
 			foreach ($keySeList as $keySeId) {
-				if (empty($seDisplayList[$keySeId])) {
+				if (empty($seDisplayList[$keySeId]) && !empty($seList[$keySeId])) {
 					$seDisplayList[$keySeId] = $seList[$keySeId];
 				}
 			}

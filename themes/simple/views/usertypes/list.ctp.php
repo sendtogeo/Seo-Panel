@@ -24,15 +24,17 @@ if ($isPluginSubsActive) {
 		<th><?php echo $spText['common']['Keywords Count']?></th>
 		<th><?php echo $spText['common']['Websites Count']?></th>
 		<th><?php echo $spTextSubscription['Social Media Link Count']?></th>
+		<th><?php echo $spTextSubscription['Review Link Count']?></th>
 		<th><?php echo $spTextSubscription['Directory Submit Limit']?></th>
 		<?php if ($isPluginSubsActive) {?>
 			<th><?php echo $spText['common']['Price']?></th>
+			<th><?php echo $spTextSubscription['Access Type']?></th>
 		<?php }?>
 		<th><?php echo $spText['common']['Status']?></th>
 		<th><?php echo $spText['common']['Action']?></th>
 	</tr>
 	<?php
-	$colCount = $isPluginSubsActive ? 11 : 10; 
+	$colCount = $isPluginSubsActive ? 13 : 11; 
 	if(count($list) > 0){
 		foreach($list as $i => $listInfo){            
             $userTypeLink = scriptAJAXLinkHref('user-types-manager.php', 'content', "sec=edit&userTypeId={$listInfo['id']}", "{$listInfo['user_type']}")
@@ -45,9 +47,13 @@ if ($isPluginSubsActive) {
 				<td><?php echo $listInfo['keywordcount']?></td>	
 				<td><?php echo $listInfo['websitecount']?></td>	
 				<td><?php echo $listInfo['social_media_link_count']?></td>	
+				<td><?php echo $listInfo['review_link_count']?></td>	
 				<td><?php echo $listInfo['directory_submit_limit']?></td>
 				<?php if ($isPluginSubsActive) {?>
-					<td><?php echo $currencySymbol . $listInfo['price']; ?></td>
+					<td>
+						<?php echo !empty($listInfo['price']) ? $currencySymbol . $listInfo['price'] : ""; ?>
+					</td>
+					<td><?php echo $accessTypeList[$listInfo['access_type']]; ?></td>
 				<?php }?>
 				<td><?php echo $listInfo['status'] ? $spText['common']["Active"] : $spText['common']["Inactive"];	?></td>
 				<td>

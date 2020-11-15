@@ -88,17 +88,9 @@ class SeoPluginsController extends Controller{
 			$pluginControler->initPlugin($data);
 			return $pluginControler;
 		} else {
-
 			$this->pluginCtrler = $pluginControler;
 			$action = empty($info['action']) ? "index" : $info['action'];
 			$data = $_REQUEST;
-		
-			// check whethere export report type action
-			if (empty($data['doc_type']) || ($data['doc_type'] != 'export')) {
-				$this->loadAllPluginCss();
-				$this->loadAllPluginJs();
-			}
-	
 			$pluginControler->initPlugin($data);
 			$pluginControler->$action($data);
 		}
@@ -133,32 +125,50 @@ class SeoPluginsController extends Controller{
 	}
 
 	# func to load plugin css files
-	function loadAllPluginCss() {
-		if(file_exists(PLUGIN_PATH."/css")){
-			if ($handle = opendir(PLUGIN_PATH."/css")) {
+	function loadAllPluginCss($pluginPathDir = "", $pluginCssWebPath = "") {
+		$styleCont = "";
+		$pluginPathDir = !empty($pluginPathDir) ? $pluginPathDir : PLUGIN_PATH."/css";
+		$pluginCssWebPath = !empty($pluginCssWebPath) ? $pluginCssWebPath : PLUGIN_CSSPATH;
+		if(file_exists($pluginPathDir)){
+			if ($handle = opendir($pluginPathDir)) {
 				while (false !== ($file = readdir($handle))) {
 					if ( ($file != ".") && ($file != "..") &&  preg_match('/\.css$/i', $file) ) {
-						print '<script>loadJsCssFile("'.PLUGIN_CSSPATH."/".$file.'", "css")</script>';
+						$styleCont .= 'loadJsCssFile("'.$pluginCssWebPath."/".$file.'", "css");';
 					}
 				}
 			}
 		}
+		
+		if (!empty($styleCont)) {
+			$styleCont = "<script>$styleCont</script>";
+		}
+		
+		return $styleCont;
 	}
 	
 	# func to load plugin js files
-	function loadAllPluginJs() {
-		if(file_exists(PLUGIN_PATH."/js")){
-			if ($handle = opendir(PLUGIN_PATH."/js")) {
+	function loadAllPluginJs($pluginPathDir = "", $pluginJsWebPath = "") {
+		$styleCont = "";
+		$pluginPathDir = !empty($pluginPathDir) ? $pluginPathDir : PLUGIN_PATH."/js";
+		$pluginJsWebPath = !empty($pluginJsWebPath) ? $pluginJsWebPath : PLUGIN_JSPATH;
+		if(file_exists($pluginPathDir)){
+			if ($handle = opendir($pluginPathDir)) {
 				while (false !== ($file = readdir($handle))) {
 					if ( ($file != ".") && ($file != "..") &&  preg_match('/\.js$/i', $file) ) {
-						print '<script>loadJsCssFile("'.PLUGIN_JSPATH."/".$file.'", "js")</script>';
+						$styleCont .= 'loadJsCssFile("'.$pluginJsWebPath."/".$file.'", "js");';
 					}
 				}
 			}
 		}
+		
+		if (!empty($styleCont)) {
+			$styleCont = "<script>$styleCont</script>";
+		}
+		
+		return $styleCont;
 	}
 	
-	# index function
+	// index function
 	function showSeoPlugins($info=''){
 		$this->layout = "default";
 		
@@ -227,6 +237,13 @@ class SeoPluginsController extends Controller{
 										</ul>";
 				}
 			}
+
+			// load plugin js and css files
+			$pluginPathDir = SP_PLUGINPATH."/".$pluginDirName;
+			$pluginWebPath = SP_WEBPATH . "/plugins/" . $pluginDirName;
+			$pluginCssJsCont = $this->loadAllPluginCss($pluginPathDir . "/css", $pluginWebPath . "/css");
+			$pluginCssJsCont .= $this->loadAllPluginJs($pluginPathDir . "/js", $pluginWebPath . "/js");
+			$menuList[$i]['menu'] .= $pluginCssJsCont;
 		}
 		
 		$this->set('menuList', $menuList);
@@ -245,26 +262,52 @@ class SeoPluginsController extends Controller{
 	}
 
 	# func to list seo tools
-	function listSeoPlugins($msg='', $error=false){		
+	function listSeoPlugins($msg='', $error=false, $info=[]) {
+		if(empty($msg)) $this->__updateAllSeoPlugins();
 		
-		if(empty($msg)) $this->__updateAllSeoPlugins();		
+		$info['pageno'] = intval($info['pageno']);
 		$userId = isLoggedIn();
 		$this->set('msg', $msg);
 		$this->set('error', $error);
 		
-		$sql = "select * from seoplugins order by id";
+		$pageScriptPath = 'seo-plugins-manager.php?stscheck=';
+		$pageScriptPath .= isset($info['stscheck']) ? $info['stscheck'] : "select";
+		$sql = "select * from seoplugins where 1=1";
 		
-		# pagination setup		
+		// if status set
+		if (isset($info['stscheck']) && $info['stscheck'] != 'select') {
+		    $info['stscheck'] = intval($info['stscheck']);
+		    $sql .= " and status='{$info['stscheck']}'";
+		}
+		
+		// search for keyword
+		if (!empty($info['keyword'])) {
+		    $sql .= " and (label like '%".addslashes($info['keyword'])."%'
+			or name like '%".addslashes($info['keyword'])."%'
+			or description like '%".addslashes($info['keyword'])."%')";
+		    $pageScriptPath .= "&keyword=" . $info['keyword'];
+		}
+		
+		$sql .= " order by id";
+		
+		// pagination setup		
 		$this->db->query($sql, true);
 		$this->paging->setDivClass('pagingdiv');
 		$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
-		$pagingDiv = $this->paging->printPages('seo-plugins-manager.php?');		
+		$pagingDiv = $this->paging->printPages($pageScriptPath, '', 'scriptDoLoad', 'content', 'layout=ajax');
 		$this->set('pagingDiv', $pagingDiv);
 		$sql .= " limit ".$this->paging->start .",". $this->paging->per_page;
-		
 		$seoPluginList = $this->db->select($sql);
-		$this->set('pageNo', $_GET['pageno']);
 		$this->set('list', $seoPluginList);
+		
+		$statusList = array(
+		    $_SESSION['text']['common']['Active'] => 1,
+		    $_SESSION['text']['common']['Inactive'] => 0,
+		);
+		
+		$this->set('statusList', $statusList);
+		$this->set('info', $info);
+		$this->set('pageNo', $info['pageno']);
 		$this->render('seoplugins/listseoplugins');
 	}
 

@@ -33,7 +33,7 @@ class GoogleAPIController extends Controller{
 	/*
 	 * contructor
 	 */
-	function GoogleAPIController() {
+	function __construct() {
 		parent::__construct();
 		$this->tokenCtrler = new UserTokenController();
 	}
@@ -44,7 +44,7 @@ class GoogleAPIController extends Controller{
 	function createAuthAPIClient() {
 
 		// if credentials defined
-		if (defined('SP_GOOGLE_API_CLIENT_ID') && defined('SP_GOOGLE_API_CLIENT_SECRET')) {
+		if (defined('SP_GOOGLE_API_CLIENT_ID') && defined('SP_GOOGLE_API_CLIENT_SECRET') && SP_GOOGLE_API_CLIENT_ID != '' && SP_GOOGLE_API_CLIENT_SECRET != '') {
 			$client = new Google_Client();
 			$client->setApplicationName("SP_CHECKER");
 			$client->setClientId(SP_GOOGLE_API_CLIENT_ID);
@@ -57,6 +57,15 @@ class GoogleAPIController extends Controller{
 			$client = $this->setAppScopes($client);
 			
 		} else {
+			$alertCtler = new AlertController();
+			$alertInfo = array(
+				'alert_subject' => "Click here to enter Google Auth Credentials",
+				'alert_message' => "Error: Google Auth Credentials not set",
+				'alert_url' => SP_WEBPATH ."/admin-panel.php?sec=google-settings",
+				'alert_type' => "danger",
+				'alert_category' => "reports",
+			);
+			$alertCtler->createAlert($alertInfo, false, true);
 			return "Error: Google Auth Credentials not set.";
 		}
 		
@@ -83,7 +92,16 @@ class GoogleAPIController extends Controller{
 			    $spTextWebmaster = $this->getLanguageTexts('webmaster', $_SESSION['lang_code']);
 			    $errorText = $spTextWebmaster["Error: Google api connection failed"] . ". ";
 			    $errorText .= "<a href='".SP_WEBPATH ."/admin-panel.php?sec=connections' target='_blank'>{$spTextWebmaster['Click here to connect to your google account']}.</a>";
-                return $errorText;
+                $alertCtler = new AlertController();
+                $alertInfo = array(
+					'alert_subject' => $spTextWebmaster['Click here to connect to your google account'],
+					'alert_message' => $spTextWebmaster["Error: Google api connection failed"],
+					'alert_url' => SP_WEBPATH ."/admin-panel.php?sec=connections",
+					'alert_type' => "danger",
+					'alert_category' => "reports",
+				);
+                $alertCtler->createAlert($alertInfo, $userId);
+			    return $errorText;
 			}
 			
 			// set token info
@@ -123,7 +141,7 @@ class GoogleAPIController extends Controller{
 	 * function to setup app scopes(read write permissions)
 	 */
 	function setAppScopes($client) {
-		$client->addScope(Google_Service_Webmasters::WEBMASTERS);
+	    $client->addScope([Google_Service_Webmasters::WEBMASTERS, Google_Service_AnalyticsReporting::ANALYTICS_READONLY]);
 		return $client;
 	}
 	

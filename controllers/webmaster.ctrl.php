@@ -30,7 +30,7 @@ class WebMasterController extends GoogleAPIController {
 	var $sourceList = array('google');
 	var $colList = array();	
 	
-	function WebMasterController() {
+	function __construct() {
 		parent::__construct();
 
 		$this->spTextWB = $this->getLanguageTexts('webmaster', $_SESSION['lang_code']);
@@ -421,7 +421,6 @@ class WebMasterController extends GoogleAPIController {
 	function viewKeywordSearchSummary($searchInfo = '', $summaryPage = false, $cronUserId=false) {
 	
 		$userId = !empty($cronUserId) ? $cronUserId : isLoggedIn();
-		$keywordController = New KeywordController();
 		$source = $this->sourceList[0];
 		$this->set('summaryPage', $summaryPage);
 		$this->set('searchInfo', $searchInfo);
@@ -444,8 +443,8 @@ class WebMasterController extends GoogleAPIController {
 				break;
 		}
 
-		$fromTime = !empty($searchInfo['from_time']) ? addslashes($searchInfo['from_time']) : date('Y-m-d', strtotime('-4 days'));
-		$toTime = !empty($searchInfo['to_time']) ? addslashes($searchInfo['to_time']) : date('Y-m-d', strtotime('-3 days'));
+		$fromTime = !empty($searchInfo['from_time']) ? addslashes($searchInfo['from_time']) : date('Y-m-d', strtotime('-3 days'));
+		$toTime = !empty($searchInfo['to_time']) ? addslashes($searchInfo['to_time']) : date('Y-m-d', strtotime('-2 days'));
 		$this->set('fromTime', $fromTime);
 		$this->set('toTime', $toTime);
 	
@@ -625,8 +624,8 @@ class WebMasterController extends GoogleAPIController {
 				break;
 		}
 
-		$fromTime = !empty($searchInfo['from_time']) ? addslashes($searchInfo['from_time']) : date('Y-m-d', strtotime('-4 days'));
-		$toTime = !empty($searchInfo['to_time']) ? addslashes($searchInfo['to_time']) : date('Y-m-d', strtotime('-3 days'));
+		$fromTime = !empty($searchInfo['from_time']) ? addslashes($searchInfo['from_time']) : date('Y-m-d', strtotime('-3 days'));
+		$toTime = !empty($searchInfo['to_time']) ? addslashes($searchInfo['to_time']) : date('Y-m-d', strtotime('-2 days'));
 		$this->set('fromTime', $fromTime);
 		$this->set('toTime', $toTime);
 	
@@ -648,7 +647,7 @@ class WebMasterController extends GoogleAPIController {
 		
 		$websiteId = intval($searchInfo['website_id']);
 		$conditions = !empty($websiteId) ? " and w.id=$websiteId" : "";
-		$conditions .= isAdmin() ? "" : " and w.user_id=$userId";
+		$conditions .= isAdmin() ? "" : $websiteController->getWebsiteUserAccessCondition($userId);
 		$conditions .= !empty($searchInfo['search_name']) ? " and w.url like '%".addslashes($searchInfo['search_name'])."%'" : "";
 		$this->set('websiteId', $websiteId);
 		
@@ -789,7 +788,7 @@ class WebMasterController extends GoogleAPIController {
 		if (!empty ($searchInfo['to_time'])) {
 			$toTime = addslashes($searchInfo['to_time']);
 		} else {
-			$toTime = date('Y-m-d', strtotime('-3 days'));
+			$toTime = date('Y-m-d', strtotime('-2 days'));
 		}
 		
 		$this->set('fromTime', $fromTime);
@@ -858,7 +857,7 @@ class WebMasterController extends GoogleAPIController {
 		if (!empty ($searchInfo['to_time'])) {
 			$toTimeDate = addslashes($searchInfo['to_time']);
 		} else {
-			$toTimeDate = date('Y-m-d', strtotime('-3 days'));
+			$toTimeDate = date('Y-m-d', strtotime('-2 days'));
 		}
 		
 		$this->set('fromTime', $fromTimeDate);
@@ -935,7 +934,7 @@ class WebMasterController extends GoogleAPIController {
 		if (!empty ($searchInfo['to_time'])) {
 			$toTimeDate = addslashes($searchInfo['to_time']);
 		} else {
-			$toTimeDate = date('Y-m-d', strtotime('-3 days'));
+			$toTimeDate = date('Y-m-d', strtotime('-2 days'));
 		}
 		
 		$this->set('fromTime', $fromTimeDate);
@@ -1022,7 +1021,7 @@ class WebMasterController extends GoogleAPIController {
 		if (!empty ($searchInfo['to_time'])) {
 			$toTimeDate = addslashes($searchInfo['to_time']);
 		} else {
-			$toTimeDate = date('Y-m-d', strtotime('-3 days'));
+			$toTimeDate = date('Y-m-d', strtotime('-2 days'));
 		}
 	
 		$this->set('fromTime', $fromTimeDate);
@@ -1093,8 +1092,8 @@ class WebMasterController extends GoogleAPIController {
 		$this->set('websiteList', $websiteList);
 		$websiteId = empty ($searchInfo['website_id']) ? $websiteList[0]['id'] : intval($searchInfo['website_id']);
 		$this->set('websiteId', $websiteId);
-		$this->set('fromTime', date('Y-m-d', strtotime('-4 days')));
-		$this->set('toTime', date('Y-m-d', strtotime('-3 days')));
+		$this->set('fromTime', date('Y-m-d', strtotime('-3 days')));
+		$this->set('toTime', date('Y-m-d', strtotime('-2 days')));
 		$this->render('webmaster/quick_checker');
 	}
 
@@ -1109,7 +1108,7 @@ class WebMasterController extends GoogleAPIController {
 			
 			if (!empty($websiteInfo['url'])) {
 				$reportStartDate = !empty($searchInfo['from_time']) ? $searchInfo['from_time'] : date('Y-m-d', strtotime('-10 days'));
-				$reportEndDate = !empty($searchInfo['to_time']) ? $searchInfo['to_time'] : date('Y-m-d', strtotime('-3 days'));
+				$reportEndDate = !empty($searchInfo['to_time']) ? $searchInfo['to_time'] : date('Y-m-d', strtotime('-2 days'));
 				
 				// store website analytics
 				$paramList = array(

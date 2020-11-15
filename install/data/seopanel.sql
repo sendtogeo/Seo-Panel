@@ -3,20 +3,42 @@
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8 */;
 
+CREATE TABLE IF NOT EXISTS `alerts` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `alert_subject` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
+  `alert_url` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `alert_category` varchar(32) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'general',
+  `alert_message` text COLLATE utf8_unicode_ci NOT NULL,
+  `alert_type` varchar(32) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'success',
+  `visited` tinyint(1) NOT NULL DEFAULT '0',
+  `alert_time` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `alert_user_delete` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `analytic_sources` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `source_name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `source_name` (`source_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `auditorpagelinks` (
-`id` bigint(20) NOT NULL,
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `report_id` bigint(20) NOT NULL,
   `link_url` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
   `link_anchor` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
   `link_title` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
   `nofollow` tinyint(1) NOT NULL DEFAULT '0',
   `extrenal` tinyint(1) NOT NULL DEFAULT '0',
-  `brocken` tinyint(1) NOT NULL DEFAULT '0'
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  `brocken` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `report_id` (`report_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `auditorprojects` (
-`id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `website_id` int(11) NOT NULL,
   `max_links` int(11) NOT NULL DEFAULT '500',
   `exclude_links` text COLLATE utf8_unicode_ci NOT NULL,
@@ -27,11 +49,13 @@ CREATE TABLE IF NOT EXISTS `auditorprojects` (
   `check_brocken` tinyint(1) NOT NULL DEFAULT '0',
   `score` float NOT NULL DEFAULT '0',
   `cron` tinyint(1) NOT NULL DEFAULT '1',
-  `status` tinyint(1) NOT NULL DEFAULT '1'
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  `status` tinyint(1) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id`),
+  KEY `website_id` (`website_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `auditorreports` (
-`id` bigint(24) NOT NULL,
+  `id` bigint(24) NOT NULL AUTO_INCREMENT,
   `project_id` int(11) NOT NULL,
   `page_url` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
   `page_title` varchar(180) COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -48,22 +72,28 @@ CREATE TABLE IF NOT EXISTS `auditorreports` (
   `crawled` tinyint(1) NOT NULL DEFAULT '0',
   `score` smallint(6) NOT NULL DEFAULT '0',
   `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `page_authority` float NOT NULL DEFAULT '0'
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  `page_authority` float NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `project_id_2` (`project_id`,`page_url`),
+  KEY `project_id` (`project_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `backlinkresults` (
-`id` bigint(20) unsigned NOT NULL,
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `website_id` int(11) NOT NULL,
   `google` int(11) NOT NULL,
   `msn` int(11) NOT NULL,
   `alexa` int(11) NOT NULL,
   `result_time` int(11) NOT NULL DEFAULT '0',
-  `result_date` date DEFAULT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  `result_date` date DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `result_date` (`result_date`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `country` (
   `country_code` char(2) COLLATE utf8_unicode_ci NOT NULL,
-  `country_name` varchar(50) COLLATE utf8_unicode_ci NOT NULL
+  `country_name` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`country_code`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 INSERT INTO `country` (`country_code`, `country_name`) VALUES
@@ -315,31 +345,37 @@ INSERT INTO `country` (`country_code`, `country_name`) VALUES
 ('ZW', 'Zimbabwe');
 
 CREATE TABLE IF NOT EXISTS `crawl_log` (
-`id` bigint(20) unsigned NOT NULL,
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `crawl_type` varchar(20) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'other',
-  `ref_id` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `ref_id` text COLLATE utf8_unicode_ci,
   `subject` varchar(60) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `crawl_link` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `crawl_referer` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `crawl_link` text COLLATE utf8_unicode_ci NOT NULL,
+  `crawl_referer` text COLLATE utf8_unicode_ci,
   `crawl_cookie` text COLLATE utf8_unicode_ci,
   `crawl_post_fields` text COLLATE utf8_unicode_ci,
   `crawl_useragent` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `crawl_status` tinyint(4) NOT NULL DEFAULT '1',
   `proxy_id` int(11) unsigned NOT NULL DEFAULT '0',
   `log_message` text COLLATE utf8_unicode_ci,
-  `crawl_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  `crawl_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `crawl_status` (`crawl_status`),
+  KEY `crawl_type` (`crawl_type`),
+  KEY `proxy_id` (`proxy_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `currency` (
-`id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(160) COLLATE utf8_unicode_ci NOT NULL,
   `iso_code` varchar(3) COLLATE utf8_unicode_ci NOT NULL,
   `symbol` varchar(3) COLLATE utf8_unicode_ci NOT NULL,
   `unicode` varchar(8) COLLATE utf8_unicode_ci NOT NULL,
   `position` varchar(6) COLLATE utf8_unicode_ci NOT NULL,
   `paypal` tinyint(1) NOT NULL DEFAULT '0',
-  `status` tinyint(1) NOT NULL DEFAULT '1'
-) ENGINE=MyISAM AUTO_INCREMENT=68 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  `status` tinyint(1) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `iso_code` (`iso_code`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=68 ;
 
 INSERT INTO `currency` (`id`, `name`, `iso_code`, `symbol`, `unicode`, `position`, `paypal`, `status`) VALUES
 (1, 'United Arab Emirates Dirham', 'AED', 'Ø¯.', '', 'after', 0, 1),
@@ -366,7 +402,7 @@ INSERT INTO `currency` (`id`, `name`, `iso_code`, `symbol`, `unicode`, `position
 (22, 'Egyptian Pound', 'EGP', 'EÂ£', 'E&#163;', 'before', 0, 1),
 (23, 'Euro', 'EUR', 'â‚¬', '&#128;', 'before', 1, 1),
 (24, 'Fiji Dollar', 'FJD', 'FJ$', 'FJ&#36;', 'before', 0, 1),
-(25, 'British Pound', 'GBP', 'Â£', '&#163;', 'before', 1, 1),
+(25, 'British Pound', 'GBP', '£', '&#163;', 'before', 1, 1),
 (26, 'Guatemalan Quetzal', 'GTQ', 'Q', 'Q', 'before', 0, 1),
 (27, 'Hong Kong Dollar', 'HKD', '$', '&#36;', 'before', 1, 1),
 (28, '', 'HRK', 'kn', 'kn', 'before', 0, 1),
@@ -411,7 +447,7 @@ INSERT INTO `currency` (`id`, `name`, `iso_code`, `symbol`, `unicode`, `position
 (67, 'South African Rand', 'ZAR', 'R', 'R', 'before', 0, 1);
 
 CREATE TABLE IF NOT EXISTS `directories` (
-`id` int(11) unsigned NOT NULL,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `domain` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
   `submit_url` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
   `captcha_script` varchar(100) CHARACTER SET latin1 NOT NULL DEFAULT 'captcha.php',
@@ -438,8 +474,10 @@ CREATE TABLE IF NOT EXISTS `directories` (
   `is_reciprocal` tinyint(1) NOT NULL DEFAULT '0',
   `pagerank` float NOT NULL DEFAULT '0',
   `domain_authority` float NOT NULL,
-  `page_authority` float NOT NULL
-) ENGINE=MyISAM AUTO_INCREMENT=160 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  `page_authority` float NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `submit_url` (`submit_url`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=160 ;
 
 INSERT INTO `directories` (`id`, `domain`, `submit_url`, `captcha_script`, `search_script`, `title_col`, `url_col`, `description_col`, `name_col`, `email_col`, `category_col`, `cptcha_col`, `imagehash_col`, `imagehashurl_col`, `reciprocal_col`, `extra_val`, `is_captcha`, `working`, `google_pagerank`, `alexa_rank`, `lang_code`, `checked`, `script_type_id`, `rank`, `is_reciprocal`, `pagerank`, `domain_authority`, `page_authority`) VALUES
 (145, 'http://www.listasweb.info', 'http://www.listasweb.info/submit.php', 'captcha.php', 'index.php?search=[--keyword--]', 'TITLE', 'URL', 'DESCRIPTION', 'OWNER_NAME', 'OWNER_EMAIL', 'CATEGORY_ID', 'CAPTCHA', 'IMAGEHASH', 'imagehash', 'RECPR_URL', 'LINK_TYPE=normal&submit=Continue&AGREERULES=on', 0, 0, 2, -1, 'en', 1, 1, 0, 0, 0, 0, 0),
@@ -586,16 +624,17 @@ INSERT INTO `directories` (`id`, `domain`, `submit_url`, `captcha_script`, `sear
 (158, 'http://www.searchnsearch.com', 'http://www.searchnsearch.com/submit.php', 'captcha.php', 'index.php?search=[--keyword--]', 'TITLE', 'URL', 'DESCRIPTION', 'OWNER_NAME', 'OWNER_EMAIL', 'CATEGORY_ID', 'CAPTCHA', 'IMAGEHASH', 'imagehash', 'RECPR_URL', 'LINK_TYPE=normal&submit=Continue&AGREERULES=on', 0, 1, 1, -1, 'en', 1, 1, 0, 0, 5.38, 29.48, 38.96);
 
 CREATE TABLE IF NOT EXISTS `dirsubmitinfo` (
-`id` bigint(24) unsigned NOT NULL,
+  `id` bigint(24) unsigned NOT NULL AUTO_INCREMENT,
   `website_id` int(11) unsigned NOT NULL,
   `directory_id` int(11) unsigned NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT '0',
   `active` tinyint(1) NOT NULL DEFAULT '0',
-  `submit_time` int(11) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  `submit_time` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `di_directory_meta` (
-`id` int(11) unsigned NOT NULL,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(150) COLLATE utf8_unicode_ci DEFAULT NULL,
   `captcha_script` varchar(100) CHARACTER SET latin1 NOT NULL DEFAULT 'captcha.php',
   `search_script` varchar(100) CHARACTER SET latin1 NOT NULL DEFAULT 'index.php?q=[--keyword--]',
@@ -614,84 +653,125 @@ CREATE TABLE IF NOT EXISTS `di_directory_meta` (
   `normal` varchar(16) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'normal',
   `free` varchar(16) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'free',
   `reciprocal` varchar(16) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'reciprocal',
-  `status` tinyint(1) NOT NULL DEFAULT '0'
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  `status` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=2 ;
 
 INSERT INTO `di_directory_meta` (`id`, `name`, `captcha_script`, `search_script`, `title_col`, `url_col`, `description_col`, `name_col`, `email_col`, `category_col`, `cptcha_col`, `imagehash_col`, `imagehashurl_col`, `reciprocal_col`, `extra_val`, `link_type_col`, `normal`, `free`, `reciprocal`, `status`) VALUES
 (1, 'phpLD', 'captcha.php', 'index.php?q=[--keyword--]', 'TITLE', 'URL', 'DESCRIPTION', 'OWNER_NAME', 'OWNER_EMAIL', 'CATEGORY_ID', 'CAPTCHA', 'IMAGEHASH', 'imagehash', 'RECPR_URL', 'LINK_TYPE=[--type--]&submit=Continue&AGREERULES=on', 'LINK_TYPE', 'normal', 'free', 'reciprocal', 1);
 
 CREATE TABLE IF NOT EXISTS `featured_directories` (
-`id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `directory_name` varchar(120) COLLATE utf8_unicode_ci NOT NULL,
   `directory_link` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
   `google_pagerank` smallint(6) NOT NULL DEFAULT '0',
   `coupon_code` varchar(120) COLLATE utf8_unicode_ci NOT NULL,
   `coupon_offer` float NOT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '0'
-) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  `status` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=6 ;
 
 INSERT INTO `featured_directories` (`id`, `directory_name`, `directory_link`, `google_pagerank`, `coupon_code`, `coupon_offer`, `status`) VALUES
 (1, 'directory.seopanel.in', 'http://directory.seofreetools.net/submit.php?LINK_TYPE=featured', 4, '', 0, 1),
-(4, 'beta-i.org', 'http://beta-i.org/submit.php?LINK_TYPE=4', 6, '', 0, 1);
+(4, 'beta-i.org', 'http://beta-i.org/submit.php?LINK_TYPE=4', 6, '', 0, 0),
+(5, 'directorymaximizer.com', 'http://www.directorymaximizer.com/af.php?af=207564&ad=5&p=1', 6, '', 0, 1);
 
 CREATE TABLE IF NOT EXISTS `information_list` (
-`id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `info_type` varchar(60) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'news',
   `content` text COLLATE utf8_unicode_ci NOT NULL,
-  `update_date` date NOT NULL
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  `update_date` date NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=2 ;
 
 INSERT INTO `information_list` (`id`, `info_type`, `content`, `update_date`) VALUES
 (1, 'news', '	<a style="text-decoration: none" href="http://www.seopanel.in/aboutus/sponsors/" target="_blank" id=''news_info''>\n		<b style="color:red;">New*</b> <b>Donate</b> <b style="color: green">$500</b> \n		and become a <b>premium sponsor of Seo Panel</b>. Also get <b>all plugins</b> we develop for Free!\n	</a>\n	', '2016-12-16');
 
 CREATE TABLE IF NOT EXISTS `keywordcrontracker` (
-`id` bigint(20) unsigned NOT NULL,
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `keyword_id` int(16) DEFAULT NULL,
   `searchengine_id` int(11) DEFAULT NULL,
-  `time` int(11) DEFAULT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  `time` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `keyword_id` (`keyword_id`),
+  KEY `searchengine_id` (`searchengine_id`),
+  KEY `time` (`time`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `keywords` (
-`id` bigint(24) unsigned NOT NULL,
+  `id` bigint(24) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(120) COLLATE utf8_unicode_ci DEFAULT NULL,
   `lang_code` varchar(8) COLLATE utf8_unicode_ci DEFAULT NULL,
   `country_code` varchar(8) COLLATE utf8_unicode_ci DEFAULT NULL,
   `website_id` int(11) DEFAULT NULL,
   `searchengines` varchar(120) CHARACTER SET latin1 DEFAULT NULL,
   `status` tinyint(1) DEFAULT '0',
-  `crawled` tinyint(1) NOT NULL DEFAULT '0'
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  `crawled` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `keyword_analytics` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `keyword_id` int(11) NOT NULL,
+  `clicks` int(11) NOT NULL,
+  `impressions` int(11) NOT NULL,
+  `ctr` float NOT NULL,
+  `average_position` float NOT NULL,
+  `report_date` date NOT NULL,
+  `source` enum('google','yahoo','bing','baidu','yandex') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'google',
+  PRIMARY KEY (`id`),
+  KEY `keyword_id` (`keyword_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `pagespeeddetails` (
-`id` bigint(20) unsigned NOT NULL,
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `website_id` int(11) NOT NULL,
   `desktop_score_details` text COLLATE utf8_unicode_ci NOT NULL,
   `mobile_score_details` text COLLATE utf8_unicode_ci NOT NULL,
-  `result_date` date NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  `result_date` date NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `result_date` (`result_date`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `pagespeedresults` (
-`id` bigint(20) unsigned NOT NULL,
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `website_id` int(11) NOT NULL,
   `desktop_speed_score` smallint(6) NOT NULL,
   `mobile_speed_score` smallint(6) NOT NULL,
   `mobile_usability_score` smallint(6) NOT NULL,
-  `result_date` date NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  `result_date` date NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `result_date` (`result_date`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `proxylist` (
-`id` int(11) unsigned NOT NULL,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `proxy` varchar(32) COLLATE utf8_unicode_ci DEFAULT NULL,
   `port` int(8) DEFAULT NULL,
   `proxy_auth` tinyint(1) NOT NULL DEFAULT '0',
   `proxy_username` varchar(64) COLLATE utf8_unicode_ci DEFAULT NULL,
   `proxy_password` varchar(64) COLLATE utf8_unicode_ci DEFAULT NULL,
   `status` tinyint(1) NOT NULL DEFAULT '0',
-  `checked` tinyint(1) NOT NULL DEFAULT '0'
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  `checked` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `qwp_settings` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `set_label` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
+  `set_name` varchar(64) CHARACTER SET latin1 NOT NULL,
+  `set_val` text COLLATE utf8_unicode_ci NOT NULL,
+  `set_type` enum('small','bool','medium','large','text') CHARACTER SET latin1 DEFAULT 'small',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `set_name` (`set_name`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=4 ;
+
+INSERT INTO `qwp_settings` (`id`, `set_label`, `set_name`, `set_val`, `set_type`) VALUES
+(2, 'Allow user to access the web proxy', 'QWP_ALLOW_USER_WEB_PROXY', '0', 'bool'),
+(3, 'Allow web server to act as a proxy', 'QWP_ALLOW_WEB_SERVER_ACT_AS_PROXY', '1', 'bool');
 
 CREATE TABLE IF NOT EXISTS `rankresults` (
-`id` bigint(20) unsigned NOT NULL,
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `website_id` int(11) NOT NULL,
   `google_pagerank` int(8) NOT NULL DEFAULT '0',
   `alexa_rank` int(11) NOT NULL,
@@ -699,31 +779,59 @@ CREATE TABLE IF NOT EXISTS `rankresults` (
   `result_time` int(11) NOT NULL DEFAULT '0',
   `domain_authority` float NOT NULL,
   `page_authority` float NOT NULL,
-  `result_date` date DEFAULT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  `result_date` date DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `result_date` (`result_date`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `reports_settings` (
-`id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL,
   `report_interval` int(11) NOT NULL DEFAULT '1',
   `email_notification` tinyint(1) NOT NULL DEFAULT '0',
-  `last_generated` int(11) NOT NULL
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  `last_generated` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `user_id` (`user_id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=2 ;
 
 INSERT INTO `reports_settings` (`id`, `user_id`, `report_interval`, `email_notification`, `last_generated`) VALUES
 (1, 1, 1, 1, 1481760000);
 
+CREATE TABLE IF NOT EXISTS `review_links` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `website_id` int(11) NOT NULL,
+  `name` varchar(120) COLLATE utf8_unicode_ci NOT NULL,
+  `url` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `type` varchar(60) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'google_my_business',
+  `status` tinyint(1) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `website_id` (`website_id`,`url`),
+  KEY `review_links_web_rel` (`website_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `review_link_results` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `review_link_id` int(11) NOT NULL,
+  `reviews` int(11) NOT NULL DEFAULT '0',
+  `rating` float NOT NULL DEFAULT '0',
+  `report_date` date NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `review_link_rel` (`review_link_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+
 CREATE TABLE IF NOT EXISTS `saturationresults` (
-`id` bigint(20) unsigned NOT NULL,
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `website_id` int(11) NOT NULL,
   `google` int(11) NOT NULL,
   `msn` int(11) NOT NULL,
   `result_time` int(11) NOT NULL DEFAULT '0',
-  `result_date` date DEFAULT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  `result_date` date DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `result_date` (`result_date`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `searchengines` (
-`id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `domain` varchar(120) COLLATE utf8_unicode_ci DEFAULT NULL,
   `url` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `cookie_send` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -738,33 +846,37 @@ CREATE TABLE IF NOT EXISTS `searchengines` (
   `title_index` int(11) NOT NULL DEFAULT '2',
   `description_index` int(11) NOT NULL DEFAULT '3',
   `encoding` varchar(32) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `status` tinyint(1) DEFAULT '0'
-) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  `status` tinyint(1) DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=4 ;
 
 INSERT INTO `searchengines` (`id`, `domain`, `url`, `cookie_send`, `no_of_results_page`, `start`, `start_offset`, `max_results`, `regex`, `from_pattern`, `to_pattern`, `url_index`, `title_index`, `description_index`, `encoding`, `status`) VALUES
-(1, 'www.google.com', 'http://www.google.com/search?hl=[--lang--]&num=[--num--]&q=[--keyword--]&start=[--start--]&cr=country[--country--]&as_qdr=all&gws_rd=cr&nfpr=1', '', 100, 0, 100, 100, '<div.*?class="?g.*?><h3 class="r"><a.*?href="\\/url\\?q=(.*?)&amp;sa=U.*?>(.*?)<\\/a>.*?<\\/div><span.*?>(.*?)<\\/span>', '<div id="?ires"?>', '<\\/ol>', 1, 2, 3, NULL, 1),
+(1, 'www.google.com', 'http://www.google.com/search?hl=[--lang--]&num=[--num--]&q=[--keyword--]&start=[--start--]&cr=country[--country--]&as_qdr=all&gws_rd=cr&nfpr=1', '', 100, 0, 100, 100, '<div.*?class="?g.*?>.*?<div.*?class="r"*?>.*?<a href="(.*?)".*?>.*?<span.*?>(.*?)<\\/span><\\/h3>', '<div id="?ires"?>', '<\\/ol>', 1, 2, 3, NULL, 1),
 (2, 'www.yahoo.com', 'http://search.yahoo.com/search?p=[--keyword--]&n=[--num--]&b=[--start--]&vl=lang_[--lang--]&fl=1&v=1&vc=[--country--]', 'sB=v=1&n=100&sh=1&rw=new', 100, 1, 100, 100, '<li.*?<h3.*?><a.*?RU=(.*?)\\/.*?>(.*?)<\\/a><\\/h3>.*?<p.*?>(.*?)<\\/p>', NULL, NULL, 1, 2, 3, NULL, 1),
 (3, 'www.bing.com', 'http://www.bing.com/search?q=[--keyword--]&scope=web&first=[--start--]&setmkt=[--lang--]-[--country--]', 'SRCHHPGUSR=NEWWND=0&NRSLT=50&SRCHLANG=[--lang--]', 50, 1, 50, 50, '<li.*?<h2><a.*?href="(.*?)".*?>(.*?)<\\/a><\\/h2>.*?<p.*?>(.*?)<\\/p>', NULL, NULL, 1, 2, 3, NULL, 1);
 
 CREATE TABLE IF NOT EXISTS `searchresultdetails` (
-`id` bigint(20) unsigned NOT NULL,
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `searchresult_id` bigint(24) unsigned DEFAULT NULL,
   `url` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `title` varchar(160) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `description` text COLLATE utf8_unicode_ci
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  `description` text COLLATE utf8_unicode_ci,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `searchresults` (
-`id` bigint(24) unsigned NOT NULL,
+  `id` bigint(24) unsigned NOT NULL AUTO_INCREMENT,
   `keyword_id` int(16) DEFAULT NULL,
   `searchengine_id` int(11) DEFAULT NULL,
   `rank` int(8) DEFAULT NULL,
   `time` int(11) DEFAULT NULL,
-  `result_date` date DEFAULT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  `result_date` date DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `result_date` (`result_date`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `seoplugins` (
-`id` int(11) unsigned NOT NULL,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `label` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `name` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `author` varchar(64) COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -772,41 +884,52 @@ CREATE TABLE IF NOT EXISTS `seoplugins` (
   `version` varchar(8) COLLATE utf8_unicode_ci DEFAULT NULL,
   `website` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `status` tinyint(1) NOT NULL DEFAULT '0',
-  `installed` tinyint(1) NOT NULL DEFAULT '0'
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  `installed` tinyint(1) NOT NULL DEFAULT '0',
+  `priority` int(11) NOT NULL DEFAULT '100',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=4 ;
 
-INSERT INTO `seoplugins` (`id`, `label`, `name`, `author`, `description`, `version`, `website`, `status`, `installed`) VALUES
-(1, 'Meta Tag Generator', 'MetaTagGenerator', 'Geo Varghese', 'Meta Tag Generator', '1.0.0', 'http://www.seopanel.in/plugins/', 1, 1),
-(2, 'Test Plugin', 'TestPlugin', 'Geo Varghese', 'Seo Panel Test Plugin: Check the structure of test plugin and it will help you to create new Seo Panel Plugins.', '1.0.0', 'http://www.seopanel.in/plugins/', 0, 1);
+INSERT INTO `seoplugins` (`id`, `label`, `name`, `author`, `description`, `version`, `website`, `status`, `installed`, `priority`) VALUES
+(1, 'Meta Tag Generator', 'MetaTagGenerator', 'Geo Varghese', 'Meta Tag Generator', '1.0.0', 'http://www.seopanel.in/plugins/', 1, 1, 100),
+(2, 'Test Plugin', 'TestPlugin', 'Geo Varghese', 'Seo Panel Test Plugin: Check the structure of test plugin and it will help you to create new Seo Panel Plugins.', '1.0.0', 'http://www.seopanel.in/plugins/', 0, 1, 100),
+(3, 'Quick Web Proxy', 'QuickWebProxy', 'Seo Panel', 'It will help you to create a web proxy server using your hosting server or external proxy servers', '1.0.0', 'https://www.seopanel.in/plugin/l/94/quick-web-proxy/', 1, 1, 100);
 
 CREATE TABLE IF NOT EXISTS `seotools` (
-`id` int(11) unsigned NOT NULL,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `url_section` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `user_access` tinyint(1) NOT NULL DEFAULT '1',
   `reportgen` tinyint(1) NOT NULL DEFAULT '1',
   `cron` tinyint(1) NOT NULL DEFAULT '0',
-  `status` tinyint(1) NOT NULL DEFAULT '0'
-) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  `priority` int(11) NOT NULL DEFAULT '100',
+  `status` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=12 ;
 
-INSERT INTO `seotools` (`id`, `name`, `url_section`, `user_access`, `reportgen`, `cron`, `status`) VALUES
-(1, 'Keyword Position Checker', 'keyword-position-checker', 1, 1, 1, 1),
-(2, 'Site Auditor', 'site-auditor', 1, 1, 0, 1),
-(3, 'Rank Checker', 'rank-checker', 1, 1, 1, 1),
-(4, 'Backlinks Checker', 'backlink-checker', 1, 1, 1, 1),
-(5, 'Directory Submission', 'directory-submission', 1, 1, 0, 1),
-(6, 'Search Engine Saturation', 'saturation-checker', 1, 1, 1, 1),
-(7, 'PageSpeed Insights', 'pagespeed', 1, 1, 1, 1);
+INSERT INTO `seotools` (`id`, `name`, `url_section`, `user_access`, `reportgen`, `cron`, `priority`, `status`) VALUES
+(1, 'Keyword Position Checker', 'keyword-position-checker', 1, 1, 1, 10, 1),
+(2, 'Site Auditor', 'site-auditor', 1, 1, 0, 100, 1),
+(3, 'Rank Checker', 'rank-checker', 1, 1, 1, 100, 1),
+(4, 'Backlinks Checker', 'backlink-checker', 1, 1, 1, 100, 1),
+(5, 'Directory Submission', 'directory-submission', 1, 1, 0, 100, 1),
+(6, 'Search Engine Saturation', 'saturation-checker', 1, 1, 1, 100, 1),
+(7, 'PageSpeed Insights', 'pagespeed', 1, 1, 1, 100, 1),
+(8, 'Webmaster Tools', 'webmaster-tools', 1, 1, 1, 20, 1),
+(9, 'Social Media Checker', 'sm-checker', 1, 1, 1, 100, 1),
+(10, 'Website Analytics', 'web-analytics', 1, 1, 1, 100, 1),
+(11, 'Review Manager', 'review-manager', 1, 1, 1, 100, 1);
 
 CREATE TABLE IF NOT EXISTS `settings` (
-`id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `set_label` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
   `set_name` varchar(64) CHARACTER SET latin1 NOT NULL,
   `set_val` text COLLATE utf8_unicode_ci NOT NULL,
   `set_category` varchar(32) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'system',
   `set_type` enum('small','bool','medium','large','text') CHARACTER SET latin1 DEFAULT 'small',
-  `display` tinyint(1) NOT NULL DEFAULT '1'
-) ENGINE=MyISAM AUTO_INCREMENT=51 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  `display` tinyint(1) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `set_name` (`set_name`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=57 ;
 
 INSERT INTO `settings` (`id`, `set_label`, `set_name`, `set_val`, `set_category`, `set_type`, `display`) VALUES
 (1, 'Seo Panel Title', 'SP_TITLE', 'Seo Panel: World''s first open source seo control panel for managing multiple web sites', 'system', 'large', 1),
@@ -851,30 +974,61 @@ INSERT INTO `settings` (`id`, `set_label`, `set_name`, `set_val`, `set_category`
 (40, 'API Secret', 'API_SECRET', '', 'api', 'medium', 1),
 (41, 'Company Name', 'SP_COMPANY_NAME', 'Seo Panel', 'system', 'medium', 1),
 (42, 'Currency', 'SP_PAYMENT_CURRENCY', 'USD', 'system', 'medium', 1),
-(43, 'Seo Panel version', 'SP_VERSION_NUMBER', '4.0.0', 'system', 'medium', 0),
+(43, 'Seo Panel version', 'SP_VERSION_NUMBER', '4.7.0', 'system', 'medium', 0),
 (44, 'Moz API Link', 'SP_MOZ_API_LINK', 'http://lsapi.seomoz.com/linkscape', 'moz', 'medium', 0),
 (45, 'Moz API Link', 'SP_MOZ_API_ACCESS_ID', '', 'moz', 'large', 1),
 (46, 'Moz API Link', 'SP_MOZ_API_SECRET', '', 'moz', 'large', 1),
 (47, 'Page authority check level first', 'SA_PA_CHECK_LEVEL_FIRST', '40', 'siteauditor', 'small', 0),
 (48, 'Page authority check level second', 'SA_PA_CHECK_LEVEL_SECOND', '75', 'siteauditor', 'small', 0),
 (49, 'Google API Key', 'SP_GOOGLE_API_KEY', '', 'google', 'large', 1),
-(50, 'Number of websites needs to be checked in each cron execution', 'SP_NUMBER_WEBSITES_CRON', '1', 'report', 'small', 0);
+(50, 'Number of websites needs to be checked in each cron execution', 'SP_NUMBER_WEBSITES_CRON', '1', 'report', 'small', 0),
+(51, 'Send custom header with curl request', 'SP_SEND_CUSTOM_HEADER_IN_CURL', '1', 'report', 'bool', 1),
+(52, 'Google API Client Id', 'SP_GOOGLE_API_CLIENT_ID', '', 'google', 'large', 1),
+(53, 'Google API Client Secret', 'SP_GOOGLE_API_CLIENT_SECRET', '', 'google', 'large', 1),
+(54, 'Google Analytics Tracking Code', 'SP_GOOGLE_ANALYTICS_TRACK_CODE', '', 'google', 'text', 1),
+(55, 'Enable Proxy for Google API', 'SP_ENABLE_PROXY_GOOGLE_API', '1', 'proxy', 'bool', 1),
+(56, 'Mail Encryption', 'SP_MAIL_ENCRYPTION', '', 'system', 'medium', 1);
 
 CREATE TABLE IF NOT EXISTS `skipdirectories` (
-`id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `website_id` int(11) NOT NULL,
-  `directory_id` int(11) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  `directory_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `website_id` (`website_id`,`directory_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `social_media_links` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `website_id` int(11) NOT NULL,
+  `name` varchar(120) COLLATE utf8_unicode_ci NOT NULL,
+  `url` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `type` varchar(60) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'facebook',
+  `status` tinyint(1) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `website_id` (`website_id`,`url`),
+  KEY `social_media_links_web_rel` (`website_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `social_media_link_results` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `sm_link_id` int(11) NOT NULL,
+  `likes` int(11) NOT NULL DEFAULT '0',
+  `followers` int(11) NOT NULL DEFAULT '0',
+  `report_date` date NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `social_media_link_rel` (`sm_link_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `testplugin` (
-`id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(64) CHARACTER SET latin1 NOT NULL,
   `description` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '0'
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  `status` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `themes` (
-`id` int(11) unsigned NOT NULL,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `folder` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   `author` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -882,19 +1036,21 @@ CREATE TABLE IF NOT EXISTS `themes` (
   `version` varchar(8) COLLATE utf8_unicode_ci DEFAULT NULL,
   `website` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `status` tinyint(1) NOT NULL DEFAULT '0',
-  `installed` tinyint(1) NOT NULL DEFAULT '0'
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  `installed` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=3 ;
 
 INSERT INTO `themes` (`id`, `name`, `folder`, `author`, `description`, `version`, `website`, `status`, `installed`) VALUES
 (1, 'Classic', 'classic', 'Geo Varghese', 'Classic theme of Seo Panel', '1.0.0', 'http://www.seopanel.in/theme/l/1/classic/', 1, 1),
 (2, 'Simple', 'simple', 'Geo Varghese', 'Simple theme of Seo Panel', '1.0.0', 'http://www.seopanel.in/theme/l/2/simple/', 0, 1);
 
 CREATE TABLE IF NOT EXISTS `timezone` (
-`id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `timezone_name` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
   `timezone_label` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
-  `gmt_diff` varchar(16) COLLATE utf8_unicode_ci NOT NULL DEFAULT '+00.00'
-) ENGINE=MyISAM AUTO_INCREMENT=91 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  `gmt_diff` varchar(16) COLLATE utf8_unicode_ci NOT NULL DEFAULT '+00.00',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=91 ;
 
 INSERT INTO `timezone` (`id`, `timezone_name`, `timezone_label`, `gmt_diff`) VALUES
 (1, 'Pacific/Midway', '(GMT-11:00) Midway Island, Samoa', '-11:00'),
@@ -989,7 +1145,7 @@ INSERT INTO `timezone` (`id`, `timezone_name`, `timezone_label`, `gmt_diff`) VAL
 (90, 'Pacific/Kiritimati', '(GMT+14:00) Kiritimati', '+14:00');
 
 CREATE TABLE IF NOT EXISTS `users` (
-`id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `utype_id` int(11) DEFAULT NULL,
   `username` varchar(64) COLLATE utf8_unicode_ci DEFAULT NULL,
   `password` varchar(64) COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -999,38 +1155,114 @@ CREATE TABLE IF NOT EXISTS `users` (
   `lang_code` varchar(8) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'en',
   `created` int(11) NOT NULL,
   `status` tinyint(4) DEFAULT '1',
-  `expiry_date` date DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  `expiry_date` date DEFAULT NULL,
+  `confirm_code` varchar(120) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `confirm` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=2 ;
 
-INSERT INTO `users` (`id`, `utype_id`, `username`, `password`, `first_name`, `last_name`, `email`, `lang_code`, `created`, `status`, `expiry_date`) VALUES
-(1, 1, 'spadmin', 'a4d312c461703c46a56b1bdcda9b5cdc', 'Seo Panel', 'Admin', '', 'en', 0, 1, NULL);
+INSERT INTO `users` (`id`, `utype_id`, `username`, `password`, `first_name`, `last_name`, `email`, `lang_code`, `created`, `status`, `expiry_date`, `confirm_code`, `confirm`) VALUES
+(1, 1, 'spadmin', 'a4d312c461703c46a56b1bdcda9b5cdc', 'Seo Panel', 'Admin', '', 'en', 0, 1, NULL, '', 0);
 
 CREATE TABLE IF NOT EXISTS `usertypes` (
-`id` int(8) NOT NULL,
+  `id` int(8) NOT NULL AUTO_INCREMENT,
   `user_type` varchar(16) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `description` varchar(64) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `status` tinyint(4) DEFAULT '1'
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  `description` text COLLATE utf8_unicode_ci,
+  `status` tinyint(4) DEFAULT '1',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=3 ;
 
 INSERT INTO `usertypes` (`id`, `user_type`, `description`, `status`) VALUES
 (1, 'admin', 'Super User', 1),
 (2, 'user', 'Normal User', 1);
 
+CREATE TABLE IF NOT EXISTS `user_report_logs` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `report_date` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+
 CREATE TABLE IF NOT EXISTS `user_specs` (
-`id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_type_id` int(11) NOT NULL,
   `spec_column` varchar(120) COLLATE utf8_unicode_ci NOT NULL,
   `spec_value` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `spec_category` varchar(32) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'system'
-) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  `spec_category` varchar(32) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'system',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `user_type_id` (`user_type_id`,`spec_column`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=19 ;
 
 INSERT INTO `user_specs` (`id`, `user_type_id`, `spec_column`, `spec_value`, `spec_category`) VALUES
 (1, 2, 'keywordcount', '50', 'system'),
 (2, 2, 'websitecount', '10', 'system'),
-(3, 2, 'price', '0', 'system');
+(3, 2, 'price', '0', 'system'),
+(4, 2, 'searchengine_count', '3', 'system'),
+(5, 2, 'directory_submit_limit', '150', 'system'),
+(6, 2, 'directory_submit_daily_limit', '100', 'system'),
+(7, 2, 'site_auditor_max_page_limit', '500', 'system'),
+(8, 2, 'plugin_1', '1', 'system'),
+(9, 2, 'plugin_2', '1', 'system'),
+(10, 2, 'plugin_3', '1', 'system'),
+(11, 2, 'seotool_1', '1', 'system'),
+(12, 2, 'seotool_2', '1', 'system'),
+(13, 2, 'seotool_3', '1', 'system'),
+(14, 2, 'seotool_4', '1', 'system'),
+(15, 2, 'seotool_5', '1', 'system'),
+(16, 2, 'seotool_6', '1', 'system'),
+(17, 2, 'seotool_7', '1', 'system'),
+(18, 2, 'seotool_8', '1', 'system');
+
+CREATE TABLE IF NOT EXISTS `user_tokens` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `access_token` text COLLATE utf8_unicode_ci NOT NULL,
+  `refresh_token` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `token_type` varchar(120) COLLATE utf8_unicode_ci NOT NULL,
+  `expires_in` int(11) NOT NULL DEFAULT '3600' COMMENT 'seconds',
+  `created` datetime NOT NULL,
+  `token_category` enum('google','twitter','facebook','linkedin') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'google',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `user_website_access` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `website_id` int(11) NOT NULL,
+  `access` enum('read','write') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'read',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `user_id` (`user_id`,`website_id`),
+  KEY `website_id_user_access_delete` (`website_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `webmaster_keywords` (
+  `id` bigint(24) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `website_id` int(11) DEFAULT NULL,
+  `status` tinyint(1) DEFAULT '1',
+  PRIMARY KEY (`id`),
+  KEY `website_id` (`website_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `webmaster_sitemaps` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `website_id` int(11) NOT NULL,
+  `path` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `last_submitted` datetime NOT NULL,
+  `last_downloaded` datetime NOT NULL,
+  `is_pending` tinyint(4) NOT NULL DEFAULT '0',
+  `warnings` int(11) NOT NULL DEFAULT '0',
+  `errors` int(11) NOT NULL DEFAULT '0',
+  `submitted` int(11) NOT NULL DEFAULT '0',
+  `indexed` int(11) NOT NULL DEFAULT '0',
+  `status` tinyint(4) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id`),
+  KEY `website_id` (`website_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `websites` (
-`id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(120) COLLATE utf8_unicode_ci DEFAULT NULL,
   `url` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `owner_name` varchar(64) COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -1050,395 +1282,120 @@ CREATE TABLE IF NOT EXISTS `websites` (
   `reciprocal_url` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `user_id` int(11) DEFAULT NULL,
   `status` tinyint(1) NOT NULL,
-  `crawled` tinyint(1) NOT NULL DEFAULT '0'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  `crawled` tinyint(1) NOT NULL DEFAULT '0',
+  `analytics_view_id` varchar(120) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
-
-ALTER TABLE `auditorpagelinks`
- ADD PRIMARY KEY (`id`), ADD KEY `report_id` (`report_id`);
-
-ALTER TABLE `auditorprojects`
- ADD PRIMARY KEY (`id`), ADD KEY `website_id` (`website_id`);
-
-ALTER TABLE `auditorreports`
- ADD PRIMARY KEY (`id`), ADD UNIQUE KEY `project_id_2` (`project_id`,`page_url`), ADD KEY `project_id` (`project_id`);
-
-ALTER TABLE `backlinkresults`
- ADD PRIMARY KEY (`id`), ADD KEY `result_date` (`result_date`);
-
-ALTER TABLE `country`
- ADD PRIMARY KEY (`country_code`);
-
-ALTER TABLE `crawl_log`
- ADD PRIMARY KEY (`id`), ADD KEY `crawl_status` (`crawl_status`), ADD KEY `crawl_type` (`crawl_type`), ADD KEY `ref_id` (`ref_id`), ADD KEY `proxy_id` (`proxy_id`);
-
-ALTER TABLE `currency`
- ADD PRIMARY KEY (`id`), ADD UNIQUE KEY `iso_code` (`iso_code`);
-
-ALTER TABLE `directories`
- ADD PRIMARY KEY (`id`), ADD UNIQUE KEY `submit_url` (`submit_url`);
-
-ALTER TABLE `dirsubmitinfo`
- ADD PRIMARY KEY (`id`);
-
-ALTER TABLE `di_directory_meta`
- ADD PRIMARY KEY (`id`);
-
-ALTER TABLE `featured_directories`
- ADD PRIMARY KEY (`id`);
-
-ALTER TABLE `information_list`
- ADD PRIMARY KEY (`id`);
-
-ALTER TABLE `keywordcrontracker`
- ADD PRIMARY KEY (`id`), ADD KEY `keyword_id` (`keyword_id`), ADD KEY `searchengine_id` (`searchengine_id`), ADD KEY `time` (`time`);
-
-ALTER TABLE `keywords`
- ADD PRIMARY KEY (`id`);
-
-ALTER TABLE `pagespeeddetails`
- ADD PRIMARY KEY (`id`), ADD KEY `result_date` (`result_date`);
-
-ALTER TABLE `pagespeedresults`
- ADD PRIMARY KEY (`id`), ADD KEY `result_date` (`result_date`);
-
-ALTER TABLE `proxylist`
- ADD PRIMARY KEY (`id`);
-
-ALTER TABLE `rankresults`
- ADD PRIMARY KEY (`id`), ADD KEY `result_date` (`result_date`);
-
-ALTER TABLE `reports_settings`
- ADD PRIMARY KEY (`id`), ADD UNIQUE KEY `user_id` (`user_id`);
-
-ALTER TABLE `saturationresults`
- ADD PRIMARY KEY (`id`), ADD KEY `result_date` (`result_date`);
-
-ALTER TABLE `searchengines`
- ADD PRIMARY KEY (`id`);
-
-ALTER TABLE `searchresultdetails`
- ADD PRIMARY KEY (`id`);
-
-ALTER TABLE `searchresults`
- ADD PRIMARY KEY (`id`), ADD KEY `result_date` (`result_date`);
-
-ALTER TABLE `seoplugins`
- ADD PRIMARY KEY (`id`);
-
-ALTER TABLE `seotools`
- ADD PRIMARY KEY (`id`);
-
-ALTER TABLE `settings`
- ADD PRIMARY KEY (`id`), ADD UNIQUE KEY `set_name` (`set_name`);
-
-ALTER TABLE `skipdirectories`
- ADD PRIMARY KEY (`id`), ADD UNIQUE KEY `website_id` (`website_id`,`directory_id`);
-
-ALTER TABLE `testplugin`
- ADD PRIMARY KEY (`id`);
-
-ALTER TABLE `themes`
- ADD PRIMARY KEY (`id`);
-
-ALTER TABLE `timezone`
- ADD PRIMARY KEY (`id`);
-
-ALTER TABLE `users`
- ADD PRIMARY KEY (`id`);
-
-ALTER TABLE `usertypes`
- ADD PRIMARY KEY (`id`);
-
-ALTER TABLE `user_specs`
- ADD PRIMARY KEY (`id`), ADD UNIQUE KEY `user_type_id` (`user_type_id`,`spec_column`);
-
-ALTER TABLE `websites`
- ADD PRIMARY KEY (`id`);
-
-
-ALTER TABLE `auditorpagelinks`
-MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
-ALTER TABLE `auditorprojects`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-ALTER TABLE `auditorreports`
-MODIFY `id` bigint(24) NOT NULL AUTO_INCREMENT;
-ALTER TABLE `backlinkresults`
-MODIFY `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT;
-ALTER TABLE `crawl_log`
-MODIFY `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT;
-ALTER TABLE `currency`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=68;
-ALTER TABLE `directories`
-MODIFY `id` int(11) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=160;
-ALTER TABLE `dirsubmitinfo`
-MODIFY `id` bigint(24) unsigned NOT NULL AUTO_INCREMENT;
-ALTER TABLE `di_directory_meta`
-MODIFY `id` int(11) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=2;
-ALTER TABLE `featured_directories`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=5;
-ALTER TABLE `information_list`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=2;
-ALTER TABLE `keywordcrontracker`
-MODIFY `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT;
-ALTER TABLE `keywords`
-MODIFY `id` bigint(24) unsigned NOT NULL AUTO_INCREMENT;
-ALTER TABLE `pagespeeddetails`
-MODIFY `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT;
-ALTER TABLE `pagespeedresults`
-MODIFY `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT;
-ALTER TABLE `proxylist`
-MODIFY `id` int(11) unsigned NOT NULL AUTO_INCREMENT;
-ALTER TABLE `rankresults`
-MODIFY `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT;
-ALTER TABLE `reports_settings`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=2;
-ALTER TABLE `saturationresults`
-MODIFY `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT;
-ALTER TABLE `searchengines`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=4;
-ALTER TABLE `searchresultdetails`
-MODIFY `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT;
-ALTER TABLE `searchresults`
-MODIFY `id` bigint(24) unsigned NOT NULL AUTO_INCREMENT;
-ALTER TABLE `seoplugins`
-MODIFY `id` int(11) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=3;
-ALTER TABLE `seotools`
-MODIFY `id` int(11) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=8;
-ALTER TABLE `settings`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=51;
-ALTER TABLE `skipdirectories`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-ALTER TABLE `testplugin`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-ALTER TABLE `themes`
-MODIFY `id` int(11) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=3;
-ALTER TABLE `timezone`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=91;
-ALTER TABLE `users`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=2;
-ALTER TABLE `usertypes`
-MODIFY `id` int(8) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=3;
-ALTER TABLE `user_specs`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=4;
-ALTER TABLE `websites`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- Seo Panel 3.13.0 changes
---
-
-UPDATE `currency` SET `symbol` = '£' WHERE `currency`.`id` =25;
-
-UPDATE `searchengines` SET `regex` = '<div.*?class="?g.*?><h3 class="r"><a href="(.*?)".*?>(.*?)<\\/a>.*?<\\/div><span.*?>(.*?)<\\/span>' WHERE `url` LIKE '%google%';
-
-INSERT INTO `settings` (`set_label`, `set_name`, `set_val`, `set_category`, `set_type`, `display`) VALUES
-('Send custom header with curl request', 'SP_SEND_CUSTOM_HEADER_IN_CURL', '1', 'report', 'bool', 1);
-
---
--- Quick web proxy plugin
---
-
-INSERT INTO `seoplugins` (`label`, `name`, `author`, `description`, `version`, `website`, `status`, `installed`) VALUES
-('Quick Web Proxy', 'QuickWebProxy', 'Seo Panel', 'It will help you to create a web proxy server using your hosting server or external proxy servers', '1.0.0', 'https://www.seopanel.in/plugin/l/94/quick-web-proxy/', 1, 1);
-
-CREATE TABLE IF NOT EXISTS `qwp_settings` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `set_label` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
-  `set_name` varchar(64) CHARACTER SET latin1 NOT NULL,
-  `set_val` text COLLATE utf8_unicode_ci NOT NULL,
-  `set_type` enum('small','bool','medium','large','text') CHARACTER SET latin1 DEFAULT 'small',
+CREATE TABLE IF NOT EXISTS `website_analytics` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `website_id` int(11) NOT NULL,
+  `source_id` bigint(20) NOT NULL,
+  `users` int(11) NOT NULL,
+  `newUsers` int(11) NOT NULL,
+  `sessions` int(11) NOT NULL,
+  `bounceRate` float NOT NULL,
+  `avgSessionDuration` float NOT NULL,
+  `goalCompletionsAll` int(11) NOT NULL,
+  `report_date` date NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `set_name` (`set_name`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=2 ;
-
---
--- Dumping data for table `qwp_settings`
---
-
-INSERT INTO `qwp_settings` (`set_label`, `set_name`, `set_val`, `set_type`) VALUES
-('Allow user to access the web proxy', 'QWP_ALLOW_USER_WEB_PROXY', '0', 'bool'),
-('Allow web server to act as a proxy', 'QWP_ALLOW_WEB_SERVER_ACT_AS_PROXY', '1', 'bool')
-ON DUPLICATE KEY UPDATE `set_type`=`set_type`;
-
---
--- Seo Panel 3.14.0 changes
---
-
-CREATE TABLE IF NOT EXISTS `user_tokens` (
-`id` bigint(20) NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `access_token` text COLLATE utf8_unicode_ci NOT NULL,
-  `refresh_token` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `token_type` varchar(120) COLLATE utf8_unicode_ci NOT NULL,
-  `expires_in` int(11) NOT NULL DEFAULT '3600' COMMENT 'seconds',
-  `created` datetime NOT NULL,
-  `token_category` enum('google','twitter','facebook','linkedin') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'google'
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
-ALTER TABLE `user_tokens` ADD PRIMARY KEY (`id`);
-ALTER TABLE `user_tokens` MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
-
-INSERT INTO `settings` (`set_label`, `set_name`, `set_val`, `set_category`, `set_type`, `display`) VALUES 
-('Google API Client Id', 'SP_GOOGLE_API_CLIENT_ID', '', 'google', 'large', '1'),
-('Google API Client Secret', 'SP_GOOGLE_API_CLIENT_SECRET', '', 'google', 'large', '1'),
-('Google Analytics Tracking Code', 'SP_GOOGLE_ANALYTICS_TRACK_CODE', '', 'google', 'text', '1');
-
-ALTER TABLE `users` ADD column `confirm_code` varchar(120) NOT NULL DEFAULT '';
-ALTER TABLE `users` ADD column `confirm` tinyint(1) NOT NULL DEFAULT '0';
+  KEY `website_analytics_delete` (`website_id`),
+  KEY `source_analytics_delete` (`source_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=3 ;
 
 CREATE TABLE IF NOT EXISTS `website_search_analytics` (
-`id` bigint(20) NOT NULL,
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `website_id` int(11) NOT NULL,
   `clicks` int(11) NOT NULL,
   `impressions` int(11) NOT NULL,
   `ctr` float NOT NULL,
   `average_position` float NOT NULL,
-  `report_date` date NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
-ALTER TABLE `website_search_analytics` ADD `source` ENUM( 'google', 'yahoo', 'bing', 'baidu', 'yandex' ) NOT NULL DEFAULT 'google';
-ALTER TABLE `website_search_analytics` ADD PRIMARY KEY (`id`), ADD KEY `website_id` (`website_id`);
-ALTER TABLE `website_search_analytics` MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
-
-CREATE TABLE IF NOT EXISTS `keyword_analytics` (
-`id` bigint(20) NOT NULL,
-  `keyword_id` int(11) NOT NULL,
-  `clicks` int(11) NOT NULL,
-  `impressions` int(11) NOT NULL,
-  `ctr` float NOT NULL,
-  `average_position` float NOT NULL,
-  `report_date` date NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
-ALTER TABLE `keyword_analytics` ADD `source` ENUM( 'google', 'yahoo', 'bing', 'baidu', 'yandex' ) NOT NULL DEFAULT 'google';
-ALTER TABLE `keyword_analytics` ADD PRIMARY KEY (`id`), ADD KEY `keyword_id` (`keyword_id`);
-ALTER TABLE `keyword_analytics` MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
-
-ALTER TABLE `usertypes` CHANGE `description` `description` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;
-
-ALTER TABLE `seotools` ADD `priority` INT NOT NULL DEFAULT '100' AFTER `cron` ;
-
-UPDATE `seotools` SET `priority` = '10' WHERE url_section='keyword-position-checker';
-
-INSERT `seotools` (`name`, `url_section` ,`user_access` ,`reportgen` ,`cron` ,`status`, `priority`)
-VALUES ('Webmaster Tools', 'webmaster-tools', '1', '1', '1', '1', '20');
-
-ALTER TABLE `seoplugins` ADD `priority` INT NOT NULL DEFAULT '100';
-
-CREATE TABLE IF NOT EXISTS `user_report_logs` (
-`id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `report_date` datetime NOT NULL
-) ENGINE=MyISAM;
-ALTER TABLE `user_report_logs` ADD PRIMARY KEY (`id`), ADD KEY `user_id` (`user_id`);
-ALTER TABLE `user_report_logs` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
-
-CREATE TABLE IF NOT EXISTS `webmaster_keywords` (
-`id` bigint(24) unsigned NOT NULL,
-  `name` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `website_id` int(11) DEFAULT NULL,
-  `status` tinyint(1) DEFAULT '1'
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-ALTER TABLE `webmaster_keywords` ADD PRIMARY KEY (`id`), ADD KEY `website_id` (`website_id`);
-ALTER TABLE `webmaster_keywords` MODIFY `id` bigint(24) unsigned NOT NULL AUTO_INCREMENT;
-
-INSERT INTO `settings` (`set_label`, `set_name`, `set_val`, `set_category`, `set_type`, `display`) VALUES
-('Enable Proxy for Google API', 'SP_ENABLE_PROXY_GOOGLE_API', '1', 'proxy', 'bool', 1);
-
-ALTER TABLE `crawl_log` CHANGE `crawl_link` `crawl_link` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL;
-
-ALTER TABLE `crawl_log` CHANGE `crawl_referer` `crawl_referer` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;
-
-ALTER TABLE crawl_log DROP INDEX ref_id;
-
-ALTER TABLE `crawl_log` CHANGE `ref_id` `ref_id` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;
-
---
--- Seo Panel 3.17.0 changes
---
-
-CREATE TABLE IF NOT EXISTS `webmaster_sitemaps` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `website_id` int(11) NOT NULL,
-  `path` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `last_submitted` datetime NOT NULL,
-  `last_downloaded` datetime NOT NULL,
-  `is_pending` tinyint(4) NOT NULL DEFAULT '0',
-  `warnings` int(11) NOT NULL DEFAULT '0',
-  `errors` int(11) NOT NULL DEFAULT '0',
-  `submitted` int(11) NOT NULL DEFAULT '0',
-  `indexed` int(11) NOT NULL DEFAULT '0',
-  `status` tinyint(4) NOT NULL DEFAULT '1',
+  `report_date` date NOT NULL,
+  `source` enum('google','yahoo','bing','baidu','yandex') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'google',
   PRIMARY KEY (`id`),
   KEY `website_id` (`website_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
 
-update  `featured_directories` set status=0 WHERE `directory_name` LIKE 'beta-i.org';
-INSERT INTO `featured_directories` (`directory_name`, `directory_link`, `google_pagerank`, `coupon_code`, `coupon_offer`, `status`)
-VALUES ('directorymaximizer.com', 'http://www.directorymaximizer.com/af.php?af=207564&ad=5&p=1', '6', '', 0, '1');
+ALTER TABLE `alerts`
+  ADD CONSTRAINT `alert_user_delete` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
 
-INSERT INTO `user_specs` (`user_type_id`, `spec_column`, `spec_value`, `spec_category`) VALUES
-(2, 'searchengine_count', '3', 'system'),
-(2, 'directory_submit_limit', '150', 'system'),
-(2, 'directory_submit_daily_limit', '100', 'system'),
-(2, 'site_auditor_max_page_limit', '500', 'system'),
-(2, 'plugin_1', '1', 'system'),
-(2, 'plugin_2', '1', 'system'),
-(2, 'plugin_3', '1', 'system'),
-(2, 'seotool_1', '1', 'system'),
-(2, 'seotool_2', '1', 'system'),
-(2, 'seotool_3', '1', 'system'),
-(2, 'seotool_4', '1', 'system'),
-(2, 'seotool_5', '1', 'system'),
-(2, 'seotool_6', '1', 'system'),
-(2, 'seotool_7', '1', 'system'),
-(2, 'seotool_8', '1', 'system');
+ALTER TABLE `review_links`
+  ADD CONSTRAINT `review_links_web_rel` FOREIGN KEY (`website_id`) REFERENCES `websites` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
+
+ALTER TABLE `review_link_results`
+  ADD CONSTRAINT `review_link_rel` FOREIGN KEY (`review_link_id`) REFERENCES `review_links` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
+
+ALTER TABLE `social_media_links`
+  ADD CONSTRAINT `social_media_links_web_rel` FOREIGN KEY (`website_id`) REFERENCES `websites` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
+
+ALTER TABLE `social_media_link_results`
+  ADD CONSTRAINT `social_media_link_rel` FOREIGN KEY (`sm_link_id`) REFERENCES `social_media_links` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
+
+ALTER TABLE `user_website_access`
+  ADD CONSTRAINT `website_id_user_access_delete` FOREIGN KEY (`website_id`) REFERENCES `websites` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
+  ADD CONSTRAINT `user_id_website_access_delete` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
+
+ALTER TABLE `website_analytics`
+  ADD CONSTRAINT `source_analytics_delete` FOREIGN KEY (`source_id`) REFERENCES `analytic_sources` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
+  ADD CONSTRAINT `website_analytics_delete` FOREIGN KEY (`website_id`) REFERENCES `websites` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
 
 --
--- Seo Panel 3.18.0 changes
+-- Seo Panel 4.3.0 changes
 --
 
-ALTER TABLE websites ENGINE = InnoDB;
-ALTER TABLE users ENGINE = InnoDB;
+UPDATE `searchengines` SET `regex` = '<div.*?class="?g.*?>.*?<div.*?class="r"*?>.*?<a href="(.*?)".*?>.*?<h3.*?>(.*?)<\\/h3>' WHERE `url` LIKE '%google%';
 
-CREATE TABLE `social_media_links` (
+CREATE TABLE `sync_searchengines` (
   `id` int(11) NOT NULL,
-  `website_id` int(11) NOT NULL,
-  `name` varchar(120) COLLATE utf8_unicode_ci NOT NULL,
-  `url` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `type` varchar(60) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'facebook',
-  `status` tinyint(1) NOT NULL DEFAULT '1'
+  `sync_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `status` tinyint(1) NOT NULL DEFAULT '0',
+  `result` text COLLATE utf8_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-ALTER TABLE `social_media_links` ADD PRIMARY KEY (`id`), ADD KEY `social_media_links_web_rel` (`website_id`);
-ALTER TABLE `social_media_links` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-ALTER TABLE `social_media_links` ADD CONSTRAINT `social_media_links_web_rel` FOREIGN KEY (`website_id`) REFERENCES `websites` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
-ALTER TABLE `social_media_links` ADD UNIQUE( `website_id`, `url`);
+ALTER TABLE `sync_searchengines` ADD PRIMARY KEY (`id`);
+ALTER TABLE `sync_searchengines` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
-CREATE TABLE `social_media_link_results` (
-  `id` bigint(20) NOT NULL,
-  `sm_link_id` int(11) NOT NULL,
-  `likes` int(11) NOT NULL DEFAULT '0',
-  `followers` int(11) NOT NULL DEFAULT '0',
-  `report_date` date NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-ALTER TABLE `social_media_link_results` ADD PRIMARY KEY (`id`), ADD KEY `social_media_link_rel` (`sm_link_id`);
-ALTER TABLE `social_media_link_results` MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
-ALTER TABLE `social_media_link_results` ADD CONSTRAINT `social_media_link_rel` FOREIGN KEY (`sm_link_id`) REFERENCES `social_media_links` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
+INSERT INTO `settings` (`set_label`, `set_name`, `set_val`, `set_category`, `set_type`, `display`) VALUES
+('Enable Sendgrid API', 'SP_SENDGRID_API', '0', 'mail', 'bool', 1);
 
-INSERT INTO `seotools` (`id`, `name`, `url_section`, `user_access`, `reportgen`, `cron`, `priority`, `status`) 
-VALUES (NULL, 'Social Media Checker', 'sm-checker', '1', '1', '1', '100', '1');
+update settings set set_category='mail' where 
+set_name in ('SP_SMTP_MAIL', 'SP_SMTP_HOST', 'SP_SMTP_USERNAME', 'SP_SMTP_PASSWORD', 'SP_SMTP_PORT', 'SP_MAIL_ENCRYPTION');
 
 --
--- Seo Panel 4.0.0 changes
+-- Seo Panel 4.6.0 changes
 --
 
 INSERT INTO `settings` (`set_label`, `set_name`, `set_val`, `set_category`, `set_type`, `display`) VALUES
-('Mail Encryption', 'SP_MAIL_ENCRYPTION', '', 'system', 'medium', 1);
+('Seo Panel Demo', 'SP_DEMO', '0', 'system', 'large', 0),
+('Seo Panel Hosted Version', 'SP_HOSTED_VERSION', '0', 'system', 'large', 0);
+
+ALTER TABLE `usertypes` ADD `access_type` ENUM('read','write') NOT NULL DEFAULT 'write' AFTER `status`;
+
+CREATE TABLE `mail_logs` (
+  `id` bigint(20) NOT NULL,
+  `from_address` varchar(120) COLLATE utf8_unicode_ci NOT NULL,
+  `to_address` varchar(120) COLLATE utf8_unicode_ci NOT NULL,
+  `cc_address` varchar(120) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `subject` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT '0',
+  `log_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `log_message` text COLLATE utf8_unicode_ci DEFAULT NULL,
+  `mail_category` varchar(100) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'general'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+ALTER TABLE `mail_logs` ADD PRIMARY KEY (`id`);
+ALTER TABLE `mail_logs` MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+
+--
+-- Seo Panel 4.7.0 changes
+--
+
+INSERT INTO `settings` (`set_label`, `set_name`, `set_val`, `set_category`, `set_type`, `display`) VALUES
+('Enable reCAPTCHA', 'SP_ENABLE_RECAPTCHA', '0', 'google', 'bool', 1),
+('reCAPTCHA Site Key', 'SP_RECAPTCHA_SITE_KEY', '', 'google', 'large', 1),
+('reCAPTCHA Secret Key', 'SP_RECAPTCHA_SECRET_KEY', '', 'google', 'large', 1);
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

@@ -12,11 +12,18 @@
 			<?php echo $errMsg['email']?>
 		</div>
 		<div class="form-group">
-			<label for="email"><?php echo $spText['login']['Enter the code as it is shown']?>:</label>
-			<div class="form-group">
-				<img src="<?php echo SP_WEBPATH?>/visual-captcha.php">
-			</div>
-			<input type="text" name="code" value="<?php echo $post['code']?>" required="required" class="form-control">
+			<?php if (SP_ENABLE_RECAPTCHA && !empty(SP_RECAPTCHA_SITE_KEY) && !empty(SP_RECAPTCHA_SECRET_KEY)) {?>
+				<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    			<div class="form-group">
+					<div class="g-recaptcha" data-sitekey="<?php echo SP_RECAPTCHA_SITE_KEY?>"></div>
+				</div>
+			<?php } else {?>
+				<label for="email"><?php echo $spText['login']['Enter the code as it is shown']?>:</label>
+    			<div class="form-group">
+    				<img src="<?php echo SP_WEBPATH?>/visual-captcha.php">
+    			</div>
+    			<input type="text" name="code" value="<?php echo $post['code']?>" required="required" class="form-control">
+			<?php }?>
 			<?php echo $errMsg['code']?>
 		</div>
 		<?php if (!isLoggedIn()) { ?>

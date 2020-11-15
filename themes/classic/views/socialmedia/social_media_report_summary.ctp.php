@@ -65,10 +65,13 @@ if(!$summaryPage && (!empty($printVersion) || !empty($pdfVersion))) {
 				</td>
 				<th width="100px;"><?php echo $spText['common']['Period']?>:</th>
 	    		<td width="236px">
-	    			<input type="text" value="<?php echo $fromTime?>" name="from_time"/> 
-	    			<img align="bottom" onclick="displayDatePicker('from_time', false, 'ymd', '-');" src="<?php echo SP_IMGPATH?>/cal.gif"/> 
-	    			<input type="text" value="<?php echo $toTime?>" name="to_time"/> 
-	    			<img align="bottom" onclick="displayDatePicker('to_time', false, 'ymd', '-');" src="<?php echo SP_IMGPATH?>/cal.gif"/>
+	    			<input type="text" value="<?php echo $fromTime?>" name="from_time"/>
+	    			<input type="text" value="<?php echo $toTime?>" name="to_time"/>
+        			<script>
+        			$(function() {
+        				$( "input[name='from_time'], input[name='to_time']").datepicker({dateFormat: "yy-mm-dd"});
+        			});
+        		  	</script>
 	    		</td>
 				<td><a href="javascript:void(0);" onclick="<?php echo $submitLink?>" class="actionbut"><?php echo $spText['button']['Search']?></a></td>
 			</tr>
@@ -89,7 +92,7 @@ if(!$summaryPage && (!empty($printVersion) || !empty($pdfVersion))) {
 		?>
 		<br><br>
 		<div style="float:left;margin-right: 10px;">
-			<a href="<?php echo $directLink?>&doc_type=pdf"><img src="<?php echo SP_IMGPATH?>/icon_pdf.png"></a> &nbsp;
+			<a href="<?php echo $directLink?>&doc_type=pdf" target="_blank"><img src="<?php echo SP_IMGPATH?>/icon_pdf.png"></a> &nbsp;
 			<a href="<?php echo $directLink?>&doc_type=export"><img src="<?php echo SP_IMGPATH?>/icoExport.gif"></a> &nbsp;
 			<a target="_blank" href="<?php echo $directLink?>&doc_type=print"><img src="<?php echo SP_IMGPATH?>/print_button.gif?1"></a>
 		</div>
@@ -147,13 +150,16 @@ $colCount = ($baseColCount * 3) + 2;
 			foreach($baseReportList as $listInfo){
 				$keywordId = $listInfo['id'];
 				$rangeFromTime = date('Y-m-d', strtotime('-14 days', strtotime($fromTime)));
-				$scriptLink = "website_id=$websiteId&link_id={$listInfo['id']}&rep=1&from_time=$rangeFromTime&to_time=$toTime";          
+				$scriptLink = "website_id=$websiteId&link_id={$listInfo['id']}&rep=1&from_time=$rangeFromTime&to_time=$toTime";
 				?>
 				<tr>
 					<td>
 						<a href="javascript:void(0)"><?php echo $websiteList[$listInfo['website_id']]['url']; ?></a>
 					</td>
-					<td colspan="3"><?php echo $listInfo['url']; ?></td>
+					<td colspan="3">
+						<i class="fab fa-<?php echo strtolower($listInfo['type'])?>"></i>
+						<?php echo ($listInfo['type'] == 'linkedin') ? $listInfo['name'] : $listInfo['url']; ?>
+					</td>
 					<?php
 					foreach ($colList as $colName => $colVal){
 						if ($colName == 'url') continue;

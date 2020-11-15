@@ -27,14 +27,16 @@ include_once(SP_CTRLPATH . "/seotools.ctrl.php");
 class UserTypeController extends Controller {
 	
 	public $userSpecFields = array(
-	    'price', 'free_trial_period', 'keywordcount','websitecount', 'social_media_link_count', 'searchengine_count', 
+	    'price', 'free_trial_period', 'keywordcount','websitecount', 'social_media_link_count', 'review_link_count', 'searchengine_count', 
 	    'directory_submit_limit', 'directory_submit_daily_limit', 'site_auditor_max_page_limit', 'enable_email_activation',
 	);
+
+	var $accessTypeList;
 	
 	/**
 	 * constructor
 	 */
-	function UserTypeController() {
+	function __construct() {
     	
     	// call parent constructor
     	parent::__construct();
@@ -54,6 +56,11 @@ class UserTypeController extends Controller {
     	foreach ($toolAccessList as $toolInfo) {
     		$this->userSpecFields[] = $toolInfo['name'];
     	}
+
+    	$this->accessTypeList = [
+    		"write" => $_SESSION['text']['label']["Write"],
+    		"read" => $_SESSION['text']['label']["Read"],
+    	];
 		
 	}
 	
@@ -92,6 +99,8 @@ class UserTypeController extends Controller {
 			$currencyCtrler = new CurrencyController();
 			$this->set('currencyList', $currencyCtrler->getCurrencyCodeMapList());
 		}
+
+		$this->set('accessTypeList', $this->accessTypeList);
 		
 		$this->set('pageNo', $info['pageno']);		
 		$this->set('list', $userTypeList);		
@@ -118,6 +127,7 @@ class UserTypeController extends Controller {
 			$listInfo['keywordcount'] = stripslashes($listInfo['keywordcount']);
 			$listInfo['price'] = stripslashes($listInfo['price']);
 			$listInfo['status'] = stripslashes($listInfo['status']);
+			$listInfo['access_type'] = stripslashes($listInfo['access_type']);
 			$this->set('post', $listInfo);
 		
 			// if subscription plugin active
@@ -133,6 +143,8 @@ class UserTypeController extends Controller {
 			// get all seo tool access list
 			$toolAccessList = $this->getSeoToolAccessSettings($userTypeId);
 			$this->set('toolAccessList', $toolAccessList);
+
+			$this->set('accessTypeList', $this->accessTypeList);
 			
 			$this->render('usertypes/edit');
 			exit;
@@ -175,6 +187,7 @@ class UserTypeController extends Controller {
 		$errMsg['websitecount'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['websitecount'])));
 		$errMsg['keywordcount'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['keywordcount'])));
 		$errMsg['social_media_link_count'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['social_media_link_count'])));
+		$errMsg['review_link_count'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['review_link_count'])));
 		$errMsg['searchengine_count'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['searchengine_count'])));
 		$errMsg['directory_submit_limit'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['directory_submit_limit'])));
 		$errMsg['directory_submit_daily_limit'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['directory_submit_daily_limit'])));
@@ -199,6 +212,7 @@ class UserTypeController extends Controller {
 				$sql = "update usertypes set
 						user_type = '".addslashes($listInfo['user_type'])."',
 						description = '".addslashes($listInfo['description'])."',
+						access_type = '".addslashes($listInfo['access_type'])."',
 						status = '".intval($listInfo['user_type_status'])."'
 						where id={$listInfo['id']}";
 				
@@ -255,6 +269,7 @@ class UserTypeController extends Controller {
 		$errMsg['websitecount'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['websitecount'])));
 		$errMsg['keywordcount'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['keywordcount'])));
 		$errMsg['social_media_link_count'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['social_media_link_count'])));
+		$errMsg['review_link_count'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['review_link_count'])));
 		$errMsg['searchengine_count'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['searchengine_count'])));
 		$errMsg['directory_submit_limit'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['directory_submit_limit'])));
 		$errMsg['directory_submit_daily_limit'] = formatErrorMsg($this->validate->checkNumber(trim($listInfo['directory_submit_daily_limit'])));
@@ -270,9 +285,8 @@ class UserTypeController extends Controller {
 				
 					// Set status value and sql
 					$status = $listInfo['user_type_status'] == "" ? 1 : intval($listInfo['user_type_status']);				
-					$sql = "insert into usertypes(user_type,description,status)
-    				values('".addslashes($listInfo['user_type'])."','".addslashes($listInfo['description'])."',"
-    						 . $status . ")";
+					$sql = "insert into usertypes(user_type,description,status,access_type)
+    				values('".addslashes($listInfo['user_type'])."','".addslashes($listInfo['description'])."', $status, '". addslashes($listInfo['access_type']) ."')";
 					
 					if ($this->db->query($sql)) {
 
@@ -320,6 +334,8 @@ class UserTypeController extends Controller {
 		// get all seo tool access list
 		$toolAccessList = $this->getSeoToolAccessSettings();
 		$this->set('toolAccessList', $toolAccessList);
+
+		$this->set('accessTypeList', $this->accessTypeList);
 			
 		$this->render('usertypes/new');
 	}
@@ -668,6 +684,13 @@ class UserTypeController extends Controller {
 	function __getAllUserTypeList() {
 		$list = $this->dbHelper->getAllRows("usertypes");
 		return $list;
+	}
+
+	function getUserAccessType($userId) {
+		$sql = "select ut.access_type from users u, usertypes ut 
+	    			where u.utype_id=ut.id and u.id=" . intval($userId);
+		$userTypeInfo = $this->db->select($sql, true);
+		return !empty($userTypeInfo['access_type']) ? $userTypeInfo['access_type'] : 'write';
 	}
 	
 }

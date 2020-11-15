@@ -27,7 +27,7 @@ class UserController extends Controller{
 	function index($info=''){
 		
 		if(!isset($info['referer'])) {
-			$info['referer'] = isValidReferer($_SERVER['HTTP_REFERER']);
+			$info['red_referer'] = isValidReferer($_SERVER['HTTP_REFERER']);
 			$this->set('post', $info);
 		}
 				
@@ -90,7 +90,7 @@ class UserController extends Controller{
 						$uInfo['lang_code'] = $userInfo['lang_code'];
 						$this->setLoginSession($uInfo);
 						
-						if ($referer = isValidReferer($_POST['referer'])) {
+						if ($referer = isValidReferer($_POST['red_referer'])) {
 							redirectUrl($referer);
 						} else {
 							redirectUrl(SP_WEBPATH."/");	
@@ -272,7 +272,7 @@ class UserController extends Controller{
 		$errMsg['firstName'] = formatErrorMsg($this->validate->checkBlank($userInfo['firstName']));
 		$errMsg['lastName'] = formatErrorMsg($this->validate->checkBlank($userInfo['lastName']));
 		$errMsg['email'] = formatErrorMsg($this->validate->checkEmail($userInfo['email']));
-		$errMsg['code'] = formatErrorMsg($this->validate->checkCaptcha($userInfo['code']));
+		$errMsg['code'] = formatErrorMsg($this->validate->checkCaptcha());
 		$errMsg['utype_id'] = formatErrorMsg($this->validate->checkNumber($userInfo['utype_id']));
 		
 		// if admin user type selected, show error
@@ -378,8 +378,7 @@ class UserController extends Controller{
 	}
 	
 	# func to show users
-	function listUsers($info=''){
-		
+	function listUsers($info='') {
 	    $info['pageno'] = intval($info['pageno']);
 		$pageScriptPath = 'users.php?stscheck=';
 		$pageScriptPath .= isset($info['stscheck']) ? $info['stscheck'] : "select";
@@ -389,6 +388,11 @@ class UserController extends Controller{
 		if (isset($info['stscheck']) && $info['stscheck'] != 'select') {
 			$info['stscheck'] = intval($info['stscheck']);
 			$sql .= " and status='{$info['stscheck']}'";
+		}
+		
+		if (!empty($info["user_type_id"])) {
+		    $sql .= " and utype_id=" . intval($info["user_type_id"]);
+		    $pageScriptPath .= "&user_type_id=" . $info['user_type_id'];
 		}
 		
 		// search for user name
@@ -401,13 +405,15 @@ class UserController extends Controller{
 		
 		$sql .= " order by username";
 		
-		# pagination setup		
+		// pagination setup		
 		$this->db->query($sql, true);
 		$this->paging->setDivClass('pagingdiv');
 		$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
 		$pagingDiv = $this->paging->printPages($pageScriptPath, '', 'scriptDoLoad', 'content', 'layout=ajax');		
 		$this->set('pagingDiv', $pagingDiv);
-		$sql .= " limit ".$this->paging->start .",". $this->paging->per_page;
+		$sql .= " limit ".$this->paging->start .",". $this->paging->per_page;		
+		$userList = $this->db->select($sql);
+		$this->set('userList', $userList);
 
 		$statusList = array(
 			$_SESSION['text']['common']['Active'] => 1,
@@ -416,10 +422,22 @@ class UserController extends Controller{
 		
 		$this->set('statusList', $statusList);
 		$this->set('info', $info);
-		
-		$userList = $this->db->select($sql);
-		$this->set('userList', $userList);
-		$this->set('pageNo', $info['pageno']);			
+
+		$userTypeCtrler = new UserTypeController();
+		$userTypeList = [];
+		$uTypeList = $userTypeCtrler->__getAllUserTypeList();
+		foreach ($uTypeList as $uTypeInfo) {
+		    if ($uTypeInfo['id'] != 1) {
+    			$userTypeList[$uTypeInfo['id']] = [
+    				'user_type' => $uTypeInfo['user_type'],
+    				'access_type' => $uTypeInfo['access_type'],
+    			];
+		    }
+		}
+
+		$this->set('userTypeList', $userTypeList);
+		$this->set('isSubscriptionActive', isPluginActivated("Subscription"));
+		$this->set('pageNo', $info['pageno']);
 		$this->render('user/list', 'ajax');
 	}
 	
@@ -497,6 +515,15 @@ class UserController extends Controller{
 		$sql = "select * from users where status=$active";
 		$sql .= $admin ? "" : " and utype_id!=1";
 		$sql .= " order by " . addslashes($orderByCol); 
+		$userList = $this->db->select($sql);
+		return $userList;
+	}
+	
+	// function get all users with read access	
+	function __getAllUsersWithReadAccess() {
+		$sql = "select u.*,ut.user_type from users u, usertypes ut
+				where u.utype_id=ut.id and u.status=1 and u.utype_id!=1 and ut.access_type='read'
+				order by username";
 		$userList = $this->db->select($sql);
 		return $userList;
 	}
@@ -856,7 +883,7 @@ class UserController extends Controller{
     function requestPassword($userEmail) {
         
 		$errMsg['email'] = formatErrorMsg($this->validate->checkEmail($userEmail));
-		$errMsg['code'] = formatErrorMsg($this->validate->checkCaptcha($userInfo['code']));
+		$errMsg['code'] = formatErrorMsg($this->validate->checkCaptcha());
 		$this->set('post', $_POST);
 		if(!$this->validate->flagErr){
 	        $userId = $this->__checkEmail($userEmail);
@@ -957,6 +984,48 @@ class UserController extends Controller{
 		$expiryTimeStamp = mktime(23, 59, 59, $month, date('d'), date('Y'));
 		$expiryDate = date('Y-m-d', $expiryTimeStamp);
 		return $expiryDate;
+	}
+	
+	function manageWebsiteAccessManager($info = "") {
+	    $userList = $this->__getAllUsersWithReadAccess();
+	    $userId = isset($info['wam_user']) ? intval($info['wam_user']) : $userList[0]['id'];
+
+        if (isset($info['action'])) {
+            $sql = "delete from user_website_access where user_id=" . $info['wam_user'];
+            $this->db->query($sql);
+            
+            foreach($info['check_ws'] as $key => $val) {
+                $sql = "insert into user_website_access(user_id,website_id) values(". $userId . ", " . intval($val) . ")";
+                $this->db->query($sql);
+            }
+            $this->set("msg", formatSuccessMsg("Updated user website access!"));
+        }
+
+	    $loggedinUserId = isLoggedIn();
+	    $sql = "select w.*,uwa.id  as uwa_id,uwa.access from websites w left join user_website_access uwa on w.id=uwa.website_id and w.user_id=$loggedinUserId";
+	    $sql .= !empty($userId) ? " and uwa.user_id=$userId" : ""; 
+	    $userWebsiteList = $this->db->select($sql);
+	    $this->set("userWebsiteList", $userWebsiteList);
+	    $this->set("userId", $userId);
+	    $this->set("userList", $userList);
+	    $this->render('user/websiteAccessManager');
+	}
+	
+	function getUserWebsiteAccessList($userId) {
+		$accessList = array();
+		$cond = "user_id=".intval($userId);
+		$list = $this->dbHelper->getAllRows("user_website_access", $cond);
+		foreach ($list as $listInfo) {
+			$accessList[$listInfo['website_id']] = $listInfo;	
+		}
+		
+		return $accessList;
+	}
+	
+	function getUserWebsiteAccessCount($userId) {
+		$cond = "user_id=".intval($userId);
+		$info = $this->dbHelper->getRow("user_website_access", $cond, "count(*) count");
+		return $info['count'];
 	}
 	
 }

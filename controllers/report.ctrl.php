@@ -38,7 +38,7 @@ class ReportController extends Controller {
 		$fromTimeLabel = date('Y-m-d', $fromTime);
 		$toTimeLabel = date('Y-m-d', $toTime);
 		foreach($this->seLIst as $seInfo){
-			$sql = "select min(rank) as rank,result_date from searchresults 
+			$sql = "select min(`rank`) as `rank`,result_date from searchresults 
 			where keyword_id=$keywordId and searchengine_id=".$seInfo['id']."
 			and (result_date='$fromTimeLabel' or result_date='$toTimeLabel')
 			group by result_date order by result_date DESC limit 0, 2";
@@ -144,7 +144,7 @@ class ReportController extends Controller {
 		$scriptPath .= "&order_col=$orderCol&order_val=$orderVal";
 			
 		$conditions = " and w.status=1 and k.status=1";
-		$conditions .= isAdmin() ? "" : " and w.user_id=$userId";
+		$conditions .= isAdmin() ? "" : $websiteController->getWebsiteUserAccessCondition($userId);
 		$conditions .= !empty($websiteId) ? " and w.id=$websiteId" : "";
 		$conditions .= !empty($searchInfo['search_name']) ? " and k.name like '%".addslashes($searchInfo['search_name'])."%'" : "";
 					
@@ -153,8 +153,8 @@ class ReportController extends Controller {
 		and r.searchengine_id=".intval($orderCol)." and r.result_date='" . addslashes($toTimeTxt) . "'
 		group by k.id";
 
-		$unionOrderCol = ($orderCol == "keyword") ? "name" : "rank";
-		$sql = "(". str_replace("[col]", "k.id,k.name,min(rank) rank,w.name website,w.url weburl", $subSql) .") 
+		$unionOrderCol = ($orderCol == "keyword") ? "name" : "`rank`";
+		$sql = "(". str_replace("[col]", "k.id,k.name,min(`rank`) `rank`,w.name website,w.url weburl", $subSql) .") 
 		UNION 
 		(select k.id,k.name,1000,w.name website,w.url weburl 
 		from keywords k, websites w  
@@ -632,6 +632,13 @@ class ReportController extends Controller {
 		if(empty($websiteUrl)) return $crawlResult;
 		if(empty($keywordInfo['name'])) return $crawlResult;
 		
+		// fix for www. and no www. in search results
+		if (stristr($websiteUrl, "www.")) {
+		    $websiteOtherUrl = str_ireplace("www.", "", $websiteUrl);
+		} else {
+		    $websiteOtherUrl = "www." . $websiteUrl;
+		}
+		
 		$time = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
 		$seList = explode(':', $keywordInfo['searchengines']);
 		foreach($seList as $seInfoId){
@@ -675,7 +682,19 @@ class ReportController extends Controller {
 			$result = $this->spider->getContent($seUrl);
 			$pageContent = $this->formatPageContent($seInfoId, $result['page']);
 			
+			// testing code for regex
+            /*$testFileName = SP_TMPPATH . "/google.html";
+            $myfile = fopen($testFileName, "w") or die("Unable to open file!");
+            fwrite($myfile, $pageContent);
+            fclose($myfile);
+            exit;
+            
+            $myfile = fopen($testFileName, "r") or die("Unable to open file!");
+            $pageContent = fread($myfile,filesize($testFileName));
+            fclose($myfile);*/
+			
 			$crawlLogCtrl = new CrawlLogController();
+			$crawlInfo = [];
 			$crawlInfo['crawl_type'] = 'keyword';
 			$crawlInfo['ref_id'] = empty($keywordInfo['id']) ? $keywordInfo['name'] : $keywordInfo['id'];
 			$crawlInfo['subject'] = $seInfoId;
@@ -741,9 +760,15 @@ class ReportController extends Controller {
 						    $previousDomain = $currentDomain;
 						}
 						
-						if($this->showAll || (stristr($url, "http://" . $websiteUrl) || stristr($url, "https://" . $websiteUrl)) ){
+						if($this->showAll || ( 
+						      stristr($url, "http://" . $websiteUrl) || stristr($url, "https://" . $websiteUrl) || 
+						      stristr($url, "http://" . $websiteOtherUrl) || stristr($url, "https://" . $websiteOtherUrl)
+						    )){
 
-							if ($this->showAll && (stristr($url, "http://" . $websiteUrl) || stristr($url, "https://" . $websiteUrl)) ) {
+							if ($this->showAll && (
+                                    stristr($url, "http://" . $websiteUrl) || stristr($url, "https://" . $websiteUrl) || 
+                                    stristr($url, "http://" . $websiteOtherUrl) || stristr($url, "https://" . $websiteOtherUrl)
+							    )) {
 								$matchInfo['found'] = 1; 
 							} else {
 								$matchInfo['found'] = 0;
@@ -829,7 +854,7 @@ class ReportController extends Controller {
 			}
 		}
 		
-		$sql = "insert into searchresults(keyword_id,searchengine_id,rank,time,result_date)
+		$sql = "insert into searchresults(keyword_id,searchengine_id,`rank`,`time`,result_date)
 				values({$matchInfo['keyword_id']},{$matchInfo['se_id']},{$matchInfo['rank']},$time,'$resultDate')";
 		$this->db->query($sql);
 		
@@ -884,13 +909,13 @@ class ReportController extends Controller {
 	
 	#function to save keyword cron trcker for multiple execution of cron same day
 	function saveCronTrackInfo($keywordId, $seId, $time) {
-	    $sql = "Insert into keywordcrontracker(keyword_id,searchengine_id,time) values($keywordId,$seId,$time)";
+	    $sql = "Insert into keywordcrontracker(keyword_id,searchengine_id,`time`) values($keywordId,$seId,$time)";
 	    $this->db->query($sql);
 	}
 	
 	# function to check whether cron executed for a particular keyword and search engine
 	function isCronExecuted($keywordId, $seId, $time) {
-	    $sql = "select keyword_id from keywordcrontracker where keyword_id=$keywordId and searchengine_id=$seId and time=$time";
+	    $sql = "select keyword_id from keywordcrontracker where keyword_id=$keywordId and searchengine_id=$seId and `time`=$time";
         $info = $this->db->select($sql, true);
 	    return empty($info['keyword_id']) ? false : true;
 	}
@@ -947,7 +972,9 @@ class ReportController extends Controller {
 			'website-search-reports' => $this->spTextTools['Website Search Summary'],
 			'sitemap-reports' => $this->spTextTools['Sitemap Reports Summary'],
 			'keyword-search-reports' => $this->spTextTools['Keyword Search Summary'],
-			'social-media-reports' => $this->spTextTools['Social Media Report Summary'],
+		    'social-media-reports' => $this->spTextTools['Social Media Report Summary'],
+		    'analytics-reports' => $this->spTextTools['Website Analytics Summary'],
+		    'review-reports' => $this->spTextTools['Review Report Summary'],
 		);
 		$this->set('reportTypes', $reportTypes);
 		$urlarg .= "&report_type=".$searchInfo['report_type'];		
@@ -997,7 +1024,7 @@ class ReportController extends Controller {
 			$scriptPath .= "&report_type=keyword-position&order_col=$orderCol&order_val=$orderVal";
 			
     		$conditions = " and w.status=1 and k.status=1";
-    		$conditions .= isAdmin() ? "" : " and w.user_id=$userId";
+    		$conditions .= isAdmin() ? "" : $websiteCtrler->getWebsiteUserAccessCondition($userId);
     		$conditions .= !empty($websiteId) ? " and w.id=$websiteId" : "";
     		$conditions .= !empty($searchInfo['search_name']) ? " and k.name like '%".addslashes($searchInfo['search_name'])."%'" : "";
     		
@@ -1006,8 +1033,8 @@ class ReportController extends Controller {
     		and r.searchengine_id=".intval($orderCol)." and r.result_date='" . addslashes($toTimeShort) . "'
     		group by k.id";
     		
-    		$unionOrderCol = ($orderCol == "keyword") ? "name" : "rank";
-    		$sql = "(". str_replace("[col]", "k.id,k.name,min(rank) rank,w.name website,w.url weburl", $subSql) .")
+    		$unionOrderCol = ($orderCol == "keyword") ? "name" : "`rank`";
+    		$sql = "(". str_replace("[col]", "k.id,k.name,min(`rank`) `rank`,w.name website,w.url weburl", $subSql) .")
     		UNION
     		(select k.id,k.name,1000,w.name website,w.url weburl
     		from keywords k, websites w
@@ -1113,7 +1140,7 @@ class ReportController extends Controller {
 				$scriptPath .= "&report_type=website-stats";
 				$info['pageno'] = intval($info['pageno']);
 				$sql = "select * from websites w where w.status=1";
-				$sql .= isAdmin() ? "" : " and w.user_id=$userId";
+				$sql .= isAdmin() ? "" : $websiteCtrler->getWebsiteUserAccessCondition($userId);
     			$sql .= !empty($websiteId) ? " and w.id=$websiteId" : "";
 				
 				// search for user name
@@ -1179,7 +1206,6 @@ class ReportController extends Controller {
 				$report = $report[0];				
 				$listInfo['desktop_speed_score'] = empty($report['desktop_speed_score']) ? "-" : $report['desktop_speed_score']." ".$report['rank_diff_desktop_speed_score'];
 				$listInfo['mobile_speed_score'] = empty($report['mobile_speed_score']) ? "-" : $report['mobile_speed_score']." ".$report['rank_diff_mobile_speed_score'];
-				$listInfo['mobile_usability_score'] = empty($report['mobile_usability_score']) ? "-" : $report['mobile_usability_score']." ".$report['rank_diff_mobile_usability_score'];
 								
 				$listInfo['dirsub']['total'] = $dirCtrler->__getTotalSubmitInfo($listInfo['id']);
 				$listInfo['dirsub']['active'] = $dirCtrler->__getTotalSubmitInfo($listInfo['id'], true);
@@ -1213,7 +1239,6 @@ class ReportController extends Controller {
 					'Bing '.$spTextHome['Indexed'],
 					$spTextPS['Desktop Speed'],
 					$spTextPS['Mobile Speed'],
-					$spTextPS['Mobile Usability'],
 					$_SESSION['text']['common']['Total'].' Submission',
 					$_SESSION['text']['common']['Active'].' Submission',
 				);
@@ -1233,7 +1258,6 @@ class ReportController extends Controller {
 						strip_tags($websiteInfo['msn']['indexed']),
 						strip_tags($websiteInfo['desktop_speed_score']),
 						strip_tags($websiteInfo['mobile_speed_score']),
-						strip_tags($websiteInfo['mobile_usability_score']),
 						$websiteInfo['dirsub']['total'],					
 						$websiteInfo['dirsub']['active'],
 					);
@@ -1246,14 +1270,16 @@ class ReportController extends Controller {
 		}
 		
 		# website search report section
-		if (empty($searchInfo['report_type']) || in_array($searchInfo['report_type'], array('social-media-reports', 'website-search-reports', 'keyword-search-reports', 'sitemap-reports')) ) {
+		if (empty($searchInfo['report_type']) || in_array($searchInfo['report_type'], array('review-reports', 'social-media-reports', 'website-search-reports', 'keyword-search-reports', 'sitemap-reports', 'analytics-reports')) ) {
+		    include_once(SP_CTRLPATH."/analytics.ctrl.php");
 			$webMasterCtrler = new WebMasterController();
 			$socialMediaCtrler = New SocialMediaController();
+			$reviewCtrler = New ReviewManagerController();
 			$webMasterCtrler->set('spTextTools', $this->spTextTools);
 			$webMasterCtrler->spTextTools = $this->spTextTools;
 			$filterList = $searchInfo;
-			$wmMaxFromTime = strtotime('-4 days');
-			$wmMaxEndTime = strtotime('-3 days');
+			$wmMaxFromTime = strtotime('-3 days');
+			$wmMaxEndTime = strtotime('-2 days');
 			$filterList['from_time'] = $fromTime > $wmMaxFromTime ? $wmMaxFromTime : $fromTime;
 			$filterList['to_time'] = $toTime > $wmMaxEndTime ? $wmMaxEndTime : $toTime;
 			$filterList['from_time'] = date('Y-m-d', $filterList['from_time']);
@@ -1276,6 +1302,20 @@ class ReportController extends Controller {
 				$sitemapReport = $websiteCtrler->listSitemap($filterList, true, $cronUserId);
 			}
 			
+			// if website analytics reports
+			if (empty($searchInfo['report_type']) || ($searchInfo['report_type'] == 'analytics-reports')) {
+			    $analyticsCtrler = new AnalyticsController();
+			    $analyticsCtrler->set('spTextTools', $this->spTextTools);
+			    $analyticsCtrler->spTextTools = $this->spTextTools;
+			    $wmMaxFromTime = strtotime('-2 days');
+			    $wmMaxEndTime = strtotime('-1 days');
+			    $filterList['from_time'] = $fromTime > $wmMaxFromTime ? $wmMaxFromTime : $fromTime;
+			    $filterList['to_time'] = $toTime > $wmMaxEndTime ? $wmMaxEndTime : $toTime;
+			    $filterList['from_time'] = date('Y-m-d', $filterList['from_time']);
+			    $filterList['to_time'] = date('Y-m-d', $filterList['to_time']);
+			    $analyticsReport = $analyticsCtrler->viewAnalyticsSummary($filterList, true, $cronUserId);
+			}
+			
 			// if social media reports
 			if (empty($searchInfo['report_type']) || ($searchInfo['report_type'] == 'social-media-reports')) {
 				$filterList['from_time'] = $fromTimeShort;
@@ -1284,6 +1324,16 @@ class ReportController extends Controller {
 				$socialMediaCtrler->set('spTextPanel', $this->spTextPanel);
 				$socialMediaCtrler->spTextTools = $this->spTextTools;
 				$socialMediaReport = $socialMediaCtrler->viewReportSummary($filterList, true, $cronUserId);
+			}
+
+			// if social media reports
+			if (empty($searchInfo['report_type']) || ($searchInfo['report_type'] == 'review-reports')) {
+				$filterList['from_time'] = $fromTimeShort;
+				$filterList['to_time'] = $toTimeShort;
+				$reviewCtrler->set('spTextTools', $this->spTextTools);
+				$reviewCtrler->set('spTextPanel', $this->spTextPanel);
+				$reviewCtrler->spTextTools = $this->spTextTools;
+				$reviewReport = $reviewCtrler->viewReportSummary($filterList, true, $cronUserId);
 			}
 			
 			if ($exportVersion) {
@@ -1295,6 +1345,8 @@ class ReportController extends Controller {
 				$this->set('keywordSearchReport', $keywordSearchReport);
 				$this->set('sitemapReport', $sitemapReport);
 				$this->set('socialMediaReport', $socialMediaReport);
+				$this->set('reviewReport', $reviewReport);
+				$this->set('analyticsReport', $analyticsReport);
 			}
 			
 		}
@@ -1431,8 +1483,8 @@ class ReportController extends Controller {
 		
 	# function to sent Email Notification For ReportGeneration
 	function sentEmailNotificationForReportGen($userInfo, $fromTime, $toTime) {
-	    
-	    $searchInfo = array(
+		$fromTime = !empty($fromTime) ? $fromTime : date('Y-m-d', strtotime('-1 days'));
+		$searchInfo = array(
     	    'website_id' => 0,
             'report_type' => '',
             'from_time' => date('Y-m-d', $fromTime),

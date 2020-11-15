@@ -144,7 +144,7 @@
    var $AntialiasQuality = 10;
 
    /* This function create the background picture */
-   function pChart($XSize,$YSize)
+   function __construct($XSize,$YSize)
     {
      $this->XSize   = $XSize;
      $this->YSize   = $YSize;

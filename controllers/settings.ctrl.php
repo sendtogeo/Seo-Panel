@@ -84,6 +84,10 @@ class SettingsController extends Controller{
 					$this->set('headLabel', $spTextPanel['Google Settings']);					
 					break;
 					
+				case "mail":
+				    $this->set('headLabel', $spTextPanel['Mail Settings']);
+				    break;
+					
 				default:					
 					break;
 				
@@ -169,16 +173,34 @@ class SettingsController extends Controller{
 	}
 	
 	# function to check version
-	function checkVersion() {
-	    $content = $this->spider->getContent(SP_VERSION_PAGE);
+	function checkVersion($return = false) {
+	    $oldVersion = false;
+	    
+	    // find latest version of SP
+	    $content = $this->spider->getContent(SP_VERSION_PAGE);	    
 	    $content['page'] = str_replace('Version:', '', $content['page']);
-	    $latestVersion = str_replace('.', '', $content['page']);
-	    $installVersion = str_replace('.', '', SP_VERSION_NUMBER);
+	    $vList = explode(".", $content['page']);
+	    $latestVersion = sprintf("%02d%02d%02d", $vList[0], $vList[1], $vList[2]);
+	    
+	    // current version of installation
+	    $vList = explode(".", SP_VERSION_NUMBER);
+	    $installVersion = sprintf("%02d%02d%02d", $vList[0], $vList[1], $vList[2]);
+	    
+	    // verify installation is upto date or not
 	    if ($latestVersion > $installVersion) {
-	        echo showErrorMsg($this->spTextSettings['versionnotuptodatemsg']."({$content['page']}) from <a href='".SP_DOWNLOAD_LINK."' target='_blank'>".SP_DOWNLOAD_LINK."</a>", false);
+	        $oldVersion = true;
+	        $message = $this->spTextSettings['versionnotuptodatemsg']."({$content['page']}) from <a href='".SP_DOWNLOAD_LINK."' target='_blank'>".SP_DOWNLOAD_LINK."</a>";
 	    } else {
-	        echo showSuccessMsg($this->spTextSettings["Your Seo Panel installation is up to date"], false);
+	        $message = $this->spTextSettings["Your Seo Panel installation is up to date"];
 	    }
+	    
+	    // if message needs to be returned
+	    if ($return) {
+	        return [$oldVersion, $message];
+	    } else {
+	        echo $oldVersion ? showErrorMsg($message, false) : showSuccessMsg($message, false);
+	    }
+	    
 	}
 
 	// show google api settings notification

@@ -30,7 +30,7 @@ class CrawlLogController extends Controller {
 	
 	/**
 	 * function to create crawl logs for report generation
-	 * @param $crawlInfo 	The array contains all detaisl of crawl
+	 * @param $crawlInfo   array contains all detaisl of crawl
 	 */
 	function createCrawlLog($crawlInfo) {
 		$dateTime = date('Y-m-d H:i:s');
@@ -69,9 +69,8 @@ class CrawlLogController extends Controller {
 	 * Function to display crawl log details 
 	 * @param Array $info	Contains all search details
 	 */
-	function listCrawlLog($info = ''){
-	
-		$userId = isLoggedIn();
+	function listCrawlLog($info = '') {
+	    
 		$sql = "select t.*, k.name keyword from $this->tablName t left join keywords k on t.ref_id=k.id where 1=1";
 		$conditions = "";
 	
@@ -180,7 +179,7 @@ class CrawlLogController extends Controller {
 		$this->set('fromPopUp', $info['fromPopUp']);
 		$this->render('log/crawlloglist');
 	}
-	
+
 	/**
 	 * fucntion to delete log id
 	 * @param int $logId	The id of the log needs to be deleted
@@ -222,14 +221,135 @@ class CrawlLogController extends Controller {
 	 * function to clear logs before an interval 
 	 * @param int $daysBefore 	The days before the crawl logs to be deleted
 	 */
-	function clearCrawlLog($daysBefore) {
-		
+	function clearCrawlLog($daysBefore) {		
 		$dateBefore = mktime(0, 0, 0, date('m'), date('d') - $daysBefore, date('y'));
 		$dateBefore = date('Y-m-d H:i:s', $dateBefore);
 		$sql = "delete from crawl_log where crawl_time < '$dateBefore'";
-		$this->db->query($sql);
-		
+		$this->db->query($sql);		
 	}
 	
+	/*
+	 * function to show mail logs
+	 */
+	function listMailLog($info = []) {
+	    
+	    $sql = "select * from mail_logs where 1=1";
+	    $conditions = "";
+	    
+	    if (isset($info['status'])) {
+	        if (($info['status'] == 'success') || ($info['status'] == 'fail')) {
+	            $statVal = ($info['status']=='success') ? 1 : 0;
+	            $conditions .= " and status=$statVal";
+	        }
+	    } else {
+	        $info['status'] = '';
+	    }
+	    
+	    if (empty($info['keyword'])) {
+	        $info['keyword'] =  '';
+	    } else {
+	        $info['keyword'] = urldecode($info['keyword']);
+	        $searchKeyword = addslashes($info['keyword']);
+	        $conditions .= " and (from_address like '%$searchKeyword%' or to_address like '%$searchKeyword%' or cc_address like '%$searchKeyword%'
+			or log_message like '%$searchKeyword%' or subject like '%$searchKeyword%')";
+	    }
+	    
+	    if (!empty($info['cat_type'])) {
+	        $catType = $info['cat_type'];
+	        $conditions .= " and mail_category='".addslashes($catType)."'";
+	    }
+	    
+	    // find different cat types
+	    $catTypeSql = "select distinct mail_category from mail_logs";
+	    $catTypeList = $this->db->select($catTypeSql);
+	    $this->set('catTypeList', $catTypeList);
+	    
+	    $fromTime = !empty($info['from_time']) ? $info['from_time'] : date('Y-m-d', strtotime('-30 days'));
+	    $toTime = !empty($info['to_time']) ? $info['to_time'] : date('Y-m-d');
+	    $this->set('fromTime', $fromTime);
+	    $this->set('toTime', $toTime);
+	    
+	    // sql created using param
+	    $sql .= " $conditions and log_time >='$fromTime 00:00:00' and log_time<='$toTime 23:59:59' order by id DESC";
+	    
+	    // pagination setup
+	    $this->db->query($sql, true);
+	    $this->paging->setDivClass('pagingdiv');
+	    $this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
+	    $pagingDiv = $this->paging->printPages('log.php', 'listform', 'scriptDoLoadPost', 'content', '&sec=mail' );
+	    $this->set('pagingDiv', $pagingDiv);
+	    $sql .= " limit ".$this->paging->start .",". $this->paging->per_page;
+	    
+	    $logList = $this->db->select($sql);
+	    $this->set('list', $logList);
+	    $this->set('pageNo', $info['pageno']);
+	    $this->set('post', $info);
+	    $this->render('log/mail_log_list');
+	}
+	
+	/**
+	 * fucntion to delete mail log id
+	 * @param int $logId	The id of the log needs to be deleted
+	 */
+	function deleteMailLog($logId) {
+	    $sql = "delete from mail_logs where id=".intval($logId);
+	    $this->db->query($sql);
+	}
+	
+	/**
+	 * function to clear all mail logs saved in teh system
+	 */
+	function clearAllMailLog() {
+	    $sql = "truncate mail_logs";
+	    $this->db->query($sql);
+	}
+	
+	/**
+	 * function to clear mail logs before an interval
+	 * @param int $daysBefore 	The days before the crawl logs to be deleted
+	 */
+	function clearMaillLog($daysBefore) {
+	    $dateBefore = mktime(0, 0, 0, date('m'), date('d') - $daysBefore, date('y'));
+	    $dateBefore = date('Y-m-d H:i:s', $dateBefore);
+	    $sql = "delete from mail_logs where log_time < '$dateBefore'";
+	    $this->db->query($sql);
+	}
+	
+	/**
+	 * function to get mail log information
+	 * @param int $logId	The id of the log needs to be dispalyed
+	 */
+	function getMailLogInfo($logId) {
+	    $sql = "select * from mail_logs where id=".intval($logId);
+	    $logInfo = $this->db->select($sql, true);
+	    return $logInfo;
+	}
+	
+	/**
+	 * fucntion to show mail log details
+	 * @param int $logId	The id of the log needs to be dispalyed
+	 */
+	function showMailLogDetails($logId) {
+	    $logInfo = $this->getMailLogInfo($logId);
+	    $this->set('logInfo', $logInfo);
+	    $this->render('log/show_mail_log');
+	}
+	
+	/**
+	 * function to create mail logs
+	 * @param $mailInfo   array contains all details of mail
+	 */
+	function createMailLog($mailInfo) {
+	    
+	    foreach ($mailInfo as $key => $value) {
+	        $mailInfo[$key] = addslashes($value);
+	    }
+	    
+	    $sql = "INSERT INTO mail_logs(".implode(",", array_keys($mailInfo)).")";
+	    $sql .= " values ('".implode("','", array_values($mailInfo))."')";
+	    $this->db->query($sql);
+	    $logId = $this->db->getMaxId($this->tablName);
+	    return $logId;
+	}
 }
 ?>

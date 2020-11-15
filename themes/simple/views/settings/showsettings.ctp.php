@@ -16,7 +16,7 @@ if (!empty($errorMsg)) {
 if ($category == "moz") {
 	?>
 	<div id="topnewsbox" style="margin-bottom: 20px;">
-		<a class="bold_link" href="https://moz.com/help/guides/moz-api/mozscape/getting-started-with-mozscape/create-and-manage-your-account" target="_blank">
+		<a class="bold_link" href="https://moz.com/checkout/api" target="_blank">
 			<?php echo $spTextSettings['click-to-get-moz-account']; ?> &gt;&gt;
 		</a>
 	</div>
@@ -29,7 +29,7 @@ if ($category == "moz") {
 		</a>
 	</div>
 	<div id="topnewsbox" style="margin-bottom: 20px;">
-		<a class="bold_link" href="http://docs.seopanel.in/user_guide/settings.html#google-oauth2-credentials" target="_blank">
+		<a class="bold_link" href="<?php echo SP_HELP_LINK?>user_guide/settings.html#google-oauth2-credentials" target="_blank">
 			<?php echo $spTextSettings['click-to-get-google-api-client-id']; ?> &gt;&gt;
 		</a>
 	</div>
@@ -41,16 +41,14 @@ if ($category == "moz") {
 <input type="hidden" value="<?php echo $category?>" name="category">
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
 	<tr class="listHead">
-		<td class="left" width='30%'><?php echo $headLabel?></td>
-		<td class="right">&nbsp;</td>
+		<td width='30%'><?php echo $headLabel?></td>
+		<td>&nbsp;</td>
 	</tr>
 	<?php 
-	foreach( $list as $i => $listInfo){ 
-		$class = ($i % 2) ? "blue_row" : "white_row";
-		switch($listInfo['set_type']){
-			
+	foreach( $list as $listInfo){
+		switch($listInfo['set_type']){			
 			case "small":
-				$width = 40;
+				$width = 100;
 				break;
 
 			case "bool":
@@ -64,12 +62,12 @@ if ($category == "moz") {
 				break;
 				
 			case "medium":
-				$width = 200;
+				$width = 300;
 				break;
 
 			case "large":
 			case "text":
-				$width = 500;
+			    $width = 'large';
 				break;
 		}
 		
@@ -83,7 +81,7 @@ if ($category == "moz") {
 		}
 		
 		?>
-		<tr class="<?php echo $class?>">
+		<tr>
 			<td class="td_left_col">
 				<?php
 				if ($listInfo['set_name'] == 'SP_PAYMENT_CURRENCY') {
@@ -138,8 +136,9 @@ if ($category == "moz") {
 						<?php } else {
 							$passTypeList = array('SP_SMTP_PASSWORD', 'API_SECRET');
 						    $type = in_array($listInfo['set_name'], $passTypeList) ? "password" : "text";
+						    $styleOpt = ($width == 'large') ? "class='form-control'" : "style='width: $width"."px'"
 						    ?>
-							<input type="<?php echo $type?>" name="<?php echo $listInfo['set_name']?>" value="<?php echo stripslashes($listInfo['set_val'])?>" style='width:<?php echo $width?>px'>
+							<input type="<?php echo $type?>" name="<?php echo $listInfo['set_name']?>" value="<?php echo stripslashes($listInfo['set_val'])?>" <?php echo $styleOpt?>>
 							<?php if ($listInfo['set_name'] == 'SP_MOZ_API_SECRET') {?>
 								<div style="padding: 10px 6px;">
 									<a href="javascript:void(0);" onclick="checkMozConnection('settings.php?sec=checkMozCon', 'show_conn_res')" style="text-decoration: none;"><?php echo $spTextSettings['Verify connection']; ?> &gt;&gt;</a>
@@ -155,7 +154,7 @@ if ($category == "moz") {
 						<?php }?>
 					<?php }?>
 				<?php }else{?>
-					<textarea name="<?php echo $listInfo['set_name']?>" style='width:<?php echo $width?>px'><?php echo stripslashes($listInfo['set_val'])?></textarea>
+					<textarea name="<?php echo $listInfo['set_name']?>" class="form-control"><?php echo stripslashes($listInfo['set_val'])?></textarea>
 				<?php }?>
 			</td>
 		</tr>

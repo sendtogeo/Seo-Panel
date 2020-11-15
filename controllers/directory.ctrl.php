@@ -217,7 +217,7 @@ class DirectoryController extends Controller{
 		
 		if(!empty($dirId)) $sql .= " and id=$dirId";
 		if(count($dirList) > 0) $sql .= " and id not in (".implode(',', $dirList).")";
-		$sql .= " order by rank DESC, extra_val ASC, id ASC";
+		$sql .= " order by `rank` DESC, extra_val ASC, id ASC";
 		$dirInfo = $this->db->select($sql, true);
 		$this->set('dirInfo', $dirInfo);		
 		
@@ -444,7 +444,7 @@ class DirectoryController extends Controller{
 				$status = 1;
 				
 				// to update the rank of directory
-				$sql = "update directories set rank=rank+1 where id=".$submitInfo['dir_id'];
+				$sql = "update directories set `rank`=`rank`+1 where id=".$submitInfo['dir_id'];
 				$this->db->query($sql);				
 			}
 			

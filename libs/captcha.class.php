@@ -87,7 +87,7 @@
       var $sFileType;
       var $sCode = '';
       
-      function PhpCaptcha(
+      function __construct(
          $aFonts, // array of TrueType fonts to use - specify full path
          $iWidth = CAPTCHA_WIDTH, // width of image
          $iHeight = CAPTCHA_HEIGHT // height of image
@@ -244,7 +244,7 @@
          
          // loop through and generate the code letter by letter
          for ($i = 0; $i < $this->iNumChars; $i++) {
-            if (count($this->aCharSet) > 0) {
+            if (is_countable($this->aCharSet) && count($this->aCharSet) > 0) {
                // select random character and add to code string
                $this->sCode .= $this->aCharSet[array_rand($this->aCharSet)];
             } else {
@@ -409,7 +409,7 @@
       var $sAudioPath;
       var $sCode;
       
-      function AudioPhpCaptcha(
+      function __construct(
          $sFlitePath = CAPTCHA_FLITE_PATH, // path to flite binary
          $sAudioPath = CAPTCHA_AUDIO_PATH // the location to temporarily store the generated audio CAPTCHA
       ) {
@@ -479,7 +479,7 @@
    
    // example sub class
    class PhpCaptchaColour extends PhpCaptcha {
-      function PhpCaptchaColour($aFonts, $iWidth = CAPTCHA_WIDTH, $iHeight = CAPTCHA_HEIGHT) {
+       function __construct($aFonts, $iWidth = CAPTCHA_WIDTH, $iHeight = CAPTCHA_HEIGHT) {
          // call parent constructor
          parent::PhpCaptcha($aFonts, $iWidth, $iHeight);
          

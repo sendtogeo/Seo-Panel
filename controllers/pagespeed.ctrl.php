@@ -26,7 +26,6 @@ class PageSpeedController extends Controller{
 	var $colList = array(
 		'desktop_speed_score' => 'desktop_speed_score',
 		'mobile_speed_score' => 'mobile_speed_score',
-		'mobile_usability_score' => 'mobile_usability_score',
 	);
 	
 	// function to get moz rank
@@ -43,7 +42,7 @@ class PageSpeedController extends Controller{
 		
 			$client = new Google_Client();
 			$client->setApplicationName("SP_CHECKER");		
-			$client->setDeveloperKey($apiKey);		
+			$client->setDeveloperKey($apiKey);
 			
 			try {
 				
@@ -66,6 +65,17 @@ class PageSpeedController extends Controller{
 		} else {
 			$crawlInfo['crawl_status'] = 0;
 			$crawlInfo['log_message'] = "Google api key not set.";
+
+			$alertCtler = new AlertController();
+			$alertInfo = array(
+				'alert_subject' => "Click here to enter Google API key",
+				'alert_message' => "Error: Google API key not found",
+				'alert_url' => SP_WEBPATH ."/admin-panel.php?sec=google-settings",
+				'alert_type' => "danger",
+				'alert_category' => "reports",
+			);
+			$alertCtler->createAlert($alertInfo, false, true);
+			
 		}
 		
 		return $returnLog ? array($pageSpeedInfo, $crawlInfo) : $pageSpeedInfo;
@@ -75,12 +85,14 @@ class PageSpeedController extends Controller{
 	public static function formatPageSpeedData($pageSpeedInfo) {
 
 		$pageSpeedData = array(
-			'speed_score' => !empty($pageSpeedInfo['ruleGroups']['SPEED']['score'])	? $pageSpeedInfo['ruleGroups']['SPEED']['score'] : 0,
-			'usability_score' => !empty($pageSpeedInfo['ruleGroups']['USABILITY']['score'])	? $pageSpeedInfo['ruleGroups']['USABILITY']['score'] : 0,
+			'speed_score' => !empty($pageSpeedInfo['lighthouseResult']['categories']['performance']['score']) ? $pageSpeedInfo['lighthouseResult']['categories']['performance']['score'] * 100 : 0,
+			'usability_score' => !empty($pageSpeedInfo['lighthouseResult']['categories']['performance']['score']) ? $pageSpeedInfo['lighthouseResult']['categories']['performance']['score'] * 100 : 0,
 		);
 		
 		$detailsInfo = array();
-		foreach ($pageSpeedInfo['formattedResults']['ruleResults'] as $ruleSet => $ruleSetInfo) {
+		
+		// commented for API v5 version
+		/*foreach ($pageSpeedInfo['formattedResults']['ruleResults'] as $ruleSet => $ruleSetInfo) {
 		
 			$detailsInfo[$ruleSet] = array(
 				'localizedRuleName' => $ruleSetInfo['localizedRuleName'],
@@ -90,7 +102,7 @@ class PageSpeedController extends Controller{
 				'urlBlocks' => self::formatUrlBlock($ruleSetInfo['urlBlocks']),
 			);		
 		
-		}
+		}*/
 		
 		$pageSpeedData['details'] = $detailsInfo;
 		return $pageSpeedData;
@@ -306,8 +318,7 @@ class PageSpeedController extends Controller{
 	}
 	
 	# func to show graphical reports
-	function showGraphicalReports($searchInfo = '') {
-	
+	function showGraphicalReports($searchInfo = '') {	
 		$userId = isLoggedIn();
 		$fromTime = !empty($searchInfo['from_time']) ? $searchInfo['from_time'] : date('Y-m-d', strtotime('-30 days'));
 		$toTime = !empty ($searchInfo['to_time']) ? $searchInfo['to_time'] : date("Y-m-d");
@@ -329,7 +340,7 @@ class PageSpeedController extends Controller{
 		$colList = $this->colList;
 		if (!empty($reportList)) {
 			
-			$colLableList = array($this->spTextPS['Desktop Speed'], $this->spTextPS['Mobile Speed'], $this->spTextPS['Mobile Usability']);
+			$colLableList = array($this->spTextPS['Desktop Speed'], $this->spTextPS['Mobile Speed']);
 			$dataArr = "['Date', '" . implode("', '", $colLableList) . "']";
 	
 			// loop through data list

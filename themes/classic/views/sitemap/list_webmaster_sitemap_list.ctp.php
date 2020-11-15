@@ -13,7 +13,7 @@ $(document).ready(function() {
 <?php if (!$summaryPage) {?>
 	<form id='search_form'>
 		<?php $submitLink = "scriptDoLoadPost('websites.php', 'search_form', 'content', '&sec=listSitemap')";?>
-		<table width="100%" class="search">
+		<table class="search">
 			<tr>
 				<th><?php echo $spText['common']['Website']?>: </th>
 				<td>

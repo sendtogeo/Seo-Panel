@@ -36,15 +36,6 @@ define('SP_PLUGINDBFILE', 'database.sql');
 # The seo panel plugin menu file
 define('SP_PLUGINMENUFILE', 'menu.ctp.php');
 
-# seo panel is hosted version or not
-define('SP_HOSTED_VERSION', 0);
-
-# use sendgrid api for email sending
-define('SP_SENDGRID_API', 0);
-
-# seo panel is demo system or not
-define('SP_DEMO', 0);
-
 # seo panel language testing mode
 define('SP_LANGTESTING', 0);
 
@@ -58,7 +49,7 @@ define('SP_PLUGININFOFILE', 'plugin.xml');
 define('SP_THEMEINFOFILE', 'theme.xml');
 
 # seo panel main site
-define('SP_MAIN_SITE', 'https://www.seopanel.in');
+define('SP_MAIN_SITE', 'https://www.seopanel.org');
 
 # seo panel plugin site info
 define('SP_PLUGINSITE', SP_MAIN_SITE . '/plugins/');
@@ -85,7 +76,7 @@ define('SP_CRAWL_LOG_CLEAR_TIME', 90);
 define('SP_API_LANG_CODE', 'en');
 
 # The seo panel help page
-define('SP_HELP_LINK', 'http://docs.seopanel.in/');
+define('SP_HELP_LINK', 'https://www.seopanel.org/docs/');
 
 # The seo panel forum page
 define('SP_FORUM_LINK', 'http://forum.seopanel.in/');
@@ -123,4 +114,7 @@ define('SP_HOSTED_LINK', "http://www.seopanel.net");
 # payment related variables
 define('SP_PAYMENT_CANCEL_LINK', SP_WEBPATH."/payment_cancel.php");
 define('SP_PAYMENT_RETURN_LINK', SP_WEBPATH."/payment_return.php");
+
+# define search engine sync interval in days
+define('SP_SYNC_SE_INTERVAL', 10);
 ?>

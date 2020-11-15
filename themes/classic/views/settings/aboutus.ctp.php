@@ -17,6 +17,10 @@ if (!empty($blogContent['blog_content'])) {
 	    		<td class="content" style="border-left: none;width: 30%">PHP, MYSQL, JQUERY</td>					
 	    		<td class="contentmid" style="text-align: left;padding-left: 10px">Deepthy Rao</td>
 	    	</tr>
+	    	<tr>
+	    		<td class="content" style="border-left: none;width: 30%">Visual Architect</td>					
+	    		<td class="contentmid" style="text-align: left;padding-left: 10px">Chris Sievert</td>
+	    	</tr>
 	    </table>    
 	    <br><br>
     <?php }?>

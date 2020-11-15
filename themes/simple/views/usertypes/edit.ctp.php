@@ -16,6 +16,22 @@
 		<td><?php echo $spText['label']['Description']?>:</td>
 		<td><textarea name="description" id="usertypedescription"><?php echo $post['description']?></textarea><?php echo $errMsg['description']?></td>
 	</tr>
+	<?php if ($isPluginSubsActive) {?>
+		<tr class="form_data">
+			<td><?php echo $spTextSubscription['Access Type']?>:</td>
+			<td>
+				<select name="access_type">
+					<?php foreach ($accessTypeList as $accessType => $atLabel) {
+						$selectedVal = ($accessType == $post['access_type']) ? 'selected="selected"' : "";
+						?>
+						<option value="<?php echo $accessType ?>" <?php echo $selectedVal; ?> ><?php echo $atLabel; ?></option>
+					<?php }?>
+				</select>
+			</td>
+		</tr>
+	<?php } else { ?>
+		<input type="hidden" name="access_type" value="<?php echo $post['access_type'] ?>">
+	<?php } ?>
 	<tr class="form_data">
 		<td><?php echo $spText['common']['Keywords Count']?>:</td>
 		<td>
@@ -35,6 +51,14 @@
 		<td>
 			<input type="number" name="social_media_link_count" id="social_media_link_count" value="<?php echo $post['social_media_link_count']?>">
 			<?php echo $errMsg['social_media_link_count']?>
+			<p><?php echo $spTextSubscription['infinite_limit_text']?></p>
+		</td>
+	</tr>
+	<tr class="form_data">
+		<td><?php echo $spTextSubscription['Review Link Count']?>:</td>
+		<td>
+			<input type="number" name="review_link_count" id="review_link_count" value="<?php echo $post['review_link_count']?>">
+			<?php echo $errMsg['review_link_count']?>
 			<p><?php echo $spTextSubscription['infinite_limit_text']?></p>
 		</td>
 	</tr>

@@ -109,6 +109,14 @@ class SeoToolsController extends Controller{
 			case "sm-checker":
 				$defaultScript = "social_media.php";
 				break;
+				
+			case "review-manager":
+				$defaultScript = "review.php";
+				break;
+				
+			case "web-analytics":
+			    $defaultScript = "analytics.php";
+			    break;
 
 			default:
 				$seoToolInfo = $this->__getSeoToolInfo('keyword-position-checker', 'url_section');
@@ -140,9 +148,7 @@ class SeoToolsController extends Controller{
 	}
 	
 	# func to list seo tools
-	function listSeoTools(){
-		
-		$userId = isLoggedIn();
+	function listSeoTools() {
 		$seoToolList = $this->__getAllSeoTools();
 		$this->set('list', $seoToolList);
 		$this->render('seotools/listseotools');	

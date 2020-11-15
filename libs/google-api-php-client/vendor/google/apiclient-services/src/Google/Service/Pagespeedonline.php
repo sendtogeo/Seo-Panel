@@ -44,8 +44,8 @@ class Google_Service_Pagespeedonline extends Google_Service
   {
     parent::__construct($client);
     $this->rootUrl = 'https://www.googleapis.com/';
-    $this->servicePath = 'pagespeedonline/v2/';
-    $this->version = 'v2';
+    $this->servicePath = 'pagespeedonline/v5/';
+    $this->version = 'v5';
     $this->serviceName = 'pagespeedonline';
 
     $this->pagespeedapi = new Google_Service_Pagespeedonline_Resource_Pagespeedapi(

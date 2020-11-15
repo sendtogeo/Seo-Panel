@@ -245,7 +245,18 @@ function isHavingWebsite() {
 	$userId = isLoggedIn();
 	$websiteCtrl = New WebsiteController();
 	$count = isAdmin() ? $websiteCtrl->__getCountAllWebsites() : $websiteCtrl->__getCountAllWebsites($userId);
-	if($count<=0){
+	
+	if($count <= 0){
+		
+		// check for user website access option
+		if (SP_CUSTOM_DEV && !isAdmin()) {
+			$userCtrl = new UserController();
+			$accessCount = $userCtrl->getUserWebsiteAccessCount($userId);
+			if ($accessCount > 0) {
+				return $accessCount;
+			}
+		}
+		
 		redirectUrl(SP_WEBPATH."/admin-panel.php?sec=newweb");
 	}
 }
@@ -270,16 +281,18 @@ function isUserHaveAccessToSeoTool($urlSection, $showError = true) {
 }
 
 # function to create plugin ajax get method
-function pluginGETMethod($args='', $area='content'){
-	$script = "seo-plugins.php?pid=".PLUGIN_ID;	
-	$request = "scriptDoLoad('$script', '$area', '$args')";
+function pluginGETMethod($args='', $area='content', $dialog = false){
+	$script = "seo-plugins.php?pid=".PLUGIN_ID;
+	$scriptFunc = $dialog ? "scriptDoLoadDialog" : "scriptDoLoad";
+	$request = "$scriptFunc('$script', '$area', '$args')";
 	return $request;
 }
 
 # function to create plugin ajax post method
-function pluginPOSTMethod($formName, $area='content', $args=''){
+function pluginPOSTMethod($formName, $area='content', $args='', $dialog = false){
 	$args = "&pid=".PLUGIN_ID."&$args";
-	$request = "scriptDoLoadPost('seo-plugins.php', '$formName', '$area', '$args')";
+	$scriptFunc = $dialog ? "popupScriptDoLoadPostDialog" : "scriptDoLoadPost";
+	$request = "$scriptFunc('seo-plugins.php', '$formName', '$area', '$args')";
 	return $request;
 }
 
@@ -299,10 +312,16 @@ function pluginConfirmPOSTMethod($formName, $area='content', $args=''){
 
 # func to create plugin menu
 function pluginMenu($args='', $area='content') {
-	$pluginId = Session::readSession('plugin_id');
-	$script = "seo-plugins.php?pid=".$pluginId;	
-	$request = "scriptDoLoad('$script', '$area', '$args')";
-	return $request;
+    $pluginId = Session::readSession('plugin_id');
+    $script = "seo-plugins.php?pid=".$pluginId;
+    $request = "scriptDoLoad('$script', '$area', '$args')";
+    return $request;
+}
+
+function pluginLink($args = '') {
+    $script = SP_WEBPATH . "/seo-plugins.php?pid=" . PLUGIN_ID;
+    $script .= (substr($args, 0, 1) == '&') ? $args : "&$args";
+    return $script;
 }
 
 # func to remove new lines from a string
@@ -338,7 +357,7 @@ function getCurrentUrl() {
 function isValidReferer($referer) {
 	
 	if(stristr($referer, SP_WEBPATH)) {
-		if (!stristr($referer, 'install')) {
+		if (!stristr($referer, 'install') && !stristr($referer, 'login.php')) {
 			$referer = str_ireplace("&lang_code=", "&", $referer);
 			return $referer;
 		}		
@@ -454,22 +473,33 @@ function sendMail($from, $fromName, $to ,$subject,$content, $attachment = ''){
 		$mail->AddAttachment($attachment);
 	}
 	
+	$mailLogInfo = [];
+	
 	// if sendgrid api should be used, if enabled it
 	if ($mail->Host == 'smtp.sendgrid.net' && SP_SENDGRID_API) {
-		$sendLog = sendMailBySendgridAPI($mail, $to);		
+		$sendLog = sendMailBySendgridAPI($mail, $to);
+		$mailLogInfo['mail_category'] = 'sendgrid';
 	} else {
 	
 		// normal mail send fails or not
 		if($mail->Send()){
 			$sendLog['status'] = 1;
 			$sendLog['log_message'] = "Success";
-			return true;
 		} else {
 			$sendLog['status'] = 0;
 			$sendLog['log_message'] = $mail->ErrorInfo;
 		}
 		
 	}
+	
+	// update mail log
+	$crawlLogCtrl = new CrawlLogController();	
+	$mailLogInfo['subject'] = $subject;
+	$mailLogInfo['from_address'] = $from;
+	$mailLogInfo['to_address'] = $to;
+	$mailLogInfo['status'] = $sendLog['status'];
+	$mailLogInfo['log_message'] = $sendLog['log_message'];
+	$crawlLogCtrl->createMailLog($mailLogInfo);
 	
 	return $sendLog['status'];
 	
@@ -592,7 +622,7 @@ function showPdfFooter($spText) {
 	if (!empty($custSiteInfo['footer_copyright'])) {
 		$copyrightTxt = str_replace('[year]', date('Y'), $custSiteInfo['footer_copyright']);
 	} else {
-		$copyrightTxt = str_replace("www.seopanel.in", "<a href='http://www.seopanel.in'>www.seopanel.in</a>", $spText['common']['copyright']);
+		$copyrightTxt = str_replace("www.seopanel.in", "<a href='https://www.seopanel.org'>www.seopanel.org</a>", $spText['common']['copyright']);
 	}
     ?>
     <div style="clear: both; margin-top: 30px;font-size: 12px; text-align: center;"><?php echo str_replace('[year]', date('Y'), $copyrightTxt)?></div>
@@ -738,10 +768,49 @@ function formatNumber($number) {
 function showExportDiv($pdfLink, $csvLink, $printLink) {
     ?>
 	<div class="export_div">
-		<a href="<?php echo $pdfLink?>"><i class="fas fa-file-pdf"></i></a>
+		<a href="<?php echo $pdfLink?>" target="_blank"><i class="fas fa-file-pdf"></i></a>
 		<a href="<?php echo $csvLink?>"><i class="fas fa-file-csv"></i></a>
 		<a target="_blank" href="<?php echo $printLink?>"><i class="fas fa-print"></i></a>
 	</div>
     <?php
+}
+
+function timeElapsedString($datetime, $full = false) {
+    $now = new DateTime;
+    $ago = new DateTime($datetime);
+    $diff = $now->diff($ago);
+    
+    $diff->w = floor($diff->d / 7);
+    $diff->d -= $diff->w * 7;
+    
+    $string = array(
+        'y' => $_SESSION['text']['label']['Year'],
+        'm' => $_SESSION['text']['label']['Month'],
+        'w' => $_SESSION['text']['label']['Week'],
+        'd' => $_SESSION['text']['label']['Day'],
+        'h' => $_SESSION['text']['label']['Hour'],
+        'i' => $_SESSION['text']['label']['Minute'],
+        's' => $_SESSION['text']['label']['Second'],
+    );
+    
+    foreach ($string as $k => &$v) {
+        if ($diff->$k) {
+            $v = $diff->$k . ' ' . $v . ($diff->$k > 1 ? 's' : '');
+        } else {
+            unset($string[$k]);
+        }
+    }
+    
+    if (!$full) $string = array_slice($string, 0, 1);
+    return $string ? implode(', ', $string) . ' '. $_SESSION['text']['label']['Ago'] : $_SESSION['text']['label']['Just Now'];
+}
+
+function createSelectList($list, $nameCol = 'name', $idCol = 'id' ) {
+    $newList = [];
+    foreach ($list as $listInfo) {
+        $newList[$listInfo[$idCol]] = $listInfo[$nameCol];
+    }
+
+    return $newList;
 }
 ?>

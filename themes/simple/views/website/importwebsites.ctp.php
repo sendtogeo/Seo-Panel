@@ -52,7 +52,7 @@ if(!empty($validationMsg)){
 			<br>
 			<b>&nbsp;CSV format:</b>
 			<br>
-			&nbsp;name, url, meta title, meta description, meta keywords, status
+			&nbsp;name, url, meta title, meta description, meta keywords, status, analytics view id
 			<br>
 			<br>
 			<a href="<?php echo SP_WEBPATH ?>/data/website_import_sample.csv" target="_blank">

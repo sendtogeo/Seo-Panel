@@ -33,11 +33,11 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 			</td>			
 			<th><?php echo $spText['common']['Period']?>:</th>
     		<td colspan="2">
-    			<input type="text" value="<?php echo $fromTime?>" name="from_time" id="from_time"/>
-    			<input type="text" value="<?php echo $toTime?>" name="to_time" id="to_time"/>
+    			<input type="text" value="<?php echo $fromTime?>" name="from_time" id="from_time_summary"/>
+    			<input type="text" value="<?php echo $toTime?>" name="to_time" id="to_time_summary"/>
 				<script>
 				  $( function() {
-				    $( "#from_time, #to_time").datepicker({dateFormat: "yy-mm-dd"});
+				    $( "#from_time_summary, #to_time_summary").datepicker({dateFormat: "yy-mm-dd"});
 				  } );
 			  	</script>
     		</td>
@@ -222,7 +222,7 @@ if (!empty($keywordPos) && !empty($seCount)) {
 	<?php
 	if (!empty($websiteStats)) {
     	echo showSectionHead($spTextHome['Website Statistics']);
-    	$colSpan = 15; 
+    	$colSpan = 14; 
     	if (empty($pdfVersion)) echo $websitePagingDiv;
     	?>
     	<table id="cust_tab">
@@ -231,7 +231,7 @@ if (!empty($keywordPos) && !empty($seCount)) {
     			<th id="head" colspan="4"><?php echo $spTextHome['Ranks']?></th>
     			<th id="head" colspan="3"><?php echo $spTextHome['Backlinks']?></th>
     			<th id="head" colspan="2"><?php echo $spTextHome['Pages Indexed']?></th>
-    			<th id="head" colspan="3"><?php echo $spTextPS['Page Speed']?></th>
+    			<th id="head" colspan="2"><?php echo $spTextPS['Page Speed']?></th>
     			<th id="head" colspan="2"><?php echo $spTextHome['Directory Submission']?></th>
     		</tr>		
     		<tr>
@@ -246,7 +246,6 @@ if (!empty($keywordPos) && !empty($seCount)) {
     			<th>Bing</th>
     			<th><?php echo $spTextPS['Desktop Speed']?></th>
     			<th><?php echo $spTextPS['Mobile Speed']?></th>
-    			<th><?php echo $spTextPS['Mobile Usability']?></th>
     			<th><?php echo $spText['common']['Total']?></th>
     			<th><?php echo $spText['common']['Active']?></th>
     		</tr>
@@ -269,7 +268,6 @@ if (!empty($keywordPos) && !empty($seCount)) {
     				$activeDirLink = scriptAJAXLinkHrefDialog('directories.php', 'content', "sec=reports&active=approved&&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['dirsub']['active']);
     				$desktopPageSpeedLink = scriptAJAXLinkHrefDialog('pagespeed.php', 'content', "sec=reports&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['desktop_speed_score']);
     				$mobilePageSpeedLink = scriptAJAXLinkHrefDialog('pagespeed.php', 'content', "sec=reports&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['mobile_speed_score']);
-    				$mobileUsabilityLink = scriptAJAXLinkHrefDialog('pagespeed.php', 'content', "sec=reports&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['mobile_usability_score']);
     				?>
     				<tr>
     					<td>
@@ -286,7 +284,6 @@ if (!empty($keywordPos) && !empty($seCount)) {
 						<td><?php echo $bingIndexLInk; ?></td>
 						<td><?php echo $desktopPageSpeedLink; ?></td>
 						<td><?php echo $mobilePageSpeedLink; ?></td>
-						<td><?php echo $mobileUsabilityLink; ?></td>
 						<td><?php echo $totaldirLink?></td>					
 						<td><?php echo $activeDirLink?></td>
     				</tr> 
@@ -333,6 +330,24 @@ if (!empty($socialMediaReport)) {
     ?>
     <br>
 	<div class="table-responsive"><?php echo $socialMediaReport;?></div>
+	<?php
+}
+?>
+
+<?php
+if (!empty($analyticsReport)) {
+    ?>
+    <br>
+	<div class="table-responsive"><?php echo $analyticsReport;?></div>
+	<?php
+}
+?>
+
+<?php
+if (!empty($reviewReport)) {
+    ?>
+    <br>
+	<div class="table-responsive"><?php echo $reviewReport;?></div>
 	<?php
 }
 ?>

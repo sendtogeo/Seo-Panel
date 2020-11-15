@@ -121,7 +121,7 @@ class BacklinkController extends Controller{
 				/*if (preg_match('/<LINKSIN NUM="(.*?)"/si', $pageContent, $r) ) {
 				}*/
 				
-				if (preg_match('/id="linksin-panel-content".*>([0-9,]+)<\/span>/si', $pageContent, $r)) {
+				if (preg_match('/linksin".*?big.*?>(.*?)</si', $pageContent, $r)) {
 				} else {
 					$crawlInfo['crawl_status'] = 0;
 					$crawlInfo['log_message'] = SearchEngineController::isCaptchInSearchResults($pageContent) ? "<font class=error>Captcha found</font> in search result page" : "Regex not matched error occured while parsing search results!";
