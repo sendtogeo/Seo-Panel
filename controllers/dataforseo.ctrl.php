@@ -66,7 +66,7 @@ class DataForSEOController extends Controller {
             }            
         }
         
-        return $connResult;        
+        return $connResult;
     }
     
     function getUserAccountDetails() {
@@ -91,6 +91,70 @@ class DataForSEOController extends Controller {
         return $res;
     }
     
+    public static function getSERPDomainCategory($seachEngine) {
+        $seDomianCat = 'google';
+        if (stristr($seachEngine, 'yahoo.')) {
+            $seDomianCat = 'yahoo';
+        } elseif (stristr($seachEngine, 'bing.')) {
+            $seDomianCat = 'bing';
+        } elseif (stristr($seachEngine, 'yandex.')) {
+            $seDomianCat = 'yandex';            
+        } elseif (stristr($seachEngine, 'baidu.')) {
+            $seDomianCat = 'baidu';            
+        }
+        
+        return $seDomianCat;
+    }    
+    
+    function doSERPAPICall($keywordInfo, $seachEngine, $cat='organic', $subCat='live', $dataType='regular') {
+        $connResult = [
+            'status' => false,
+            'message' => $_SESSION['text']['common']['Internal error occured'],
+            'data' => [],
+        ];
+        
+        $seDomianCat = DataForSEOController::getSERPDomainCategory($seachEngine);        
+        $searchInfo = array(
+            "se_domain" => $seachEngine,
+            "keyword" => mb_convert_encoding($keywordInfo['name'], "UTF-8"),
+        );
+        
+        if (!empty($keywordInfo['lang_code'])) {
+            $searchInfo['language_code'] = $keywordInfo['lang_code'];
+        }
+        
+        if (!empty($keywordInfo['location_name'])) {
+            $searchInfo['location_name'] = $keywordInfo['location_name'];
+        }        
+        
+        try {
+            $result = $this->restClient->post("/v3/serp/$seDomianCat/$cat/$subCat/$dataType", [$searchInfo]);
+            $connResult['status'] = true;
+            $connResult['message'] = "Success";
+        } catch (RestClientException $e) {
+            $msg = "HTTP code: {$e->getHttpCode()}\n";
+            $msg .= "Error code: {$e->getCode()}\n";
+            $msg .= "Message: {$e->getMessage()}\n";
+            $connResult['message'] = $msg;
+        }
+        
+        if ($connResult['status']) {
+            if ($result['status_code'] == 20000) {
+                foreach ($result['tasks'] as $taskInfo) {
+                    if ($taskInfo['status_code'] == 20000 && isset($taskInfo['result'][0])) {
+                        $connResult['data'] = $taskInfo['result'][0];
+                        break;
+                    }
+                }
+            } else {
+                $connResult['status'] = false;
+                $connResult['message'] = $result['status_message'];
+            }
+        }
+        
+        return $connResult;
+    }
+    
     function __getSERPResults($keywordInfo, $showAll = false, $seId = false, $cron = false) {
         
         $crawlResult = array();
@@ -101,8 +165,16 @@ class DataForSEOController extends Controller {
         
         $time = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
         $seController = New SearchEngineController();
-        $seList = $seController->__getAllCrawlFormatedSearchEngines();
+        $seList = $seController->__getAllCrawlFormatedSearchEngines();        
         $websiteOtherUrl = SettingsController::getWebsiteOtherUrl($websiteUrl);
+        
+        $countryCtrl = new CountryController();
+        $countryList = $countryCtrl->__getAllCountryAsList();
+        
+        // set country name as location
+        if (!empty($keywordInfo['country_code'])) {
+            $keywordInfo['location_name'] = $countryList[$keywordInfo['country_code']];
+        }
         
         $keySeList = explode(':', $keywordInfo['searchengines']);
         foreach($keySeList as $seInfoId) {
@@ -113,78 +185,71 @@ class DataForSEOController extends Controller {
             // if search engine not found continue
             if (empty($seList[$seInfoId])) continue;
             
+            // call serp api to get the results
             $seFound = true;
-            $crawlLogCtrl = new CrawlLogController();
-            $crawlInfo = [];
-            $crawlInfo['crawl_type'] = 'keyword';
-            $crawlInfo['ref_id'] = empty($keywordInfo['id']) ? $keywordInfo['name'] : $keywordInfo['id'];
-            $crawlInfo['subject'] = $seInfoId;
+            $seachEngine = formatUrl($seList[$seInfoId]['domain']);
+            $result = $this->doSERPAPICall($keywordInfo, $seachEngine);
             
-            $crawlStatus = 0;
-            if(empty($result['error'])){
+            // check crawl status
+            if(!empty($result['status'])) {
                 
                 // to update cron that report executed for akeyword on a search engine
                 if ($cron) {
                     $this->saveCronTrackInfo($keywordInfo['id'], $seInfoId, $time);
                 }
                 
-                // verify the urls existing in the result
-                preg_match_all($seList[$seInfoId]['regex'], $pageContent, $matches);
-                if (!empty($matches[$seList[$seInfoId]['url_index']])) {
-                    
-                    $urlList = $matches[$seList[$seInfoId]['url_index']];
+                // verify results array having search results
+                if (!empty($result['data']['items'])) {
                     $crawlResult[$seInfoId]['matched'] = array();
-                    $rank = 1;
-                    foreach($urlList as $i => $url){
-                                                
-                        if($showAll || (
+                    
+                    // loop through the results
+                    foreach ($result['data']['items'] as $itemInfo) {
+                        $url = $itemInfo['url'];
+                        if (
+                            $showAll || (
                             stristr($url, "http://" . $websiteUrl) || stristr($url, "https://" . $websiteUrl) ||
-                            stristr($url, "http://" . $websiteOtherUrl) || stristr($url, "https://" . $websiteOtherUrl)
-                            )) {
-                                
-                            if ($showAll && (
+                            stristr($url, "http://" . $websiteOtherUrl) || stristr($url, "https://" . $websiteOtherUrl))
+                        ) { 
+                            $matchInfo = [];
+                            if (
+                                $showAll && (
                                 stristr($url, "http://" . $websiteUrl) || stristr($url, "https://" . $websiteUrl) ||
-                                stristr($url, "http://" . $websiteOtherUrl) || stristr($url, "https://" . $websiteOtherUrl)
-                                )) {
-                                    $matchInfo['found'] = 1;
+                                stristr($url, "http://" . $websiteOtherUrl) || stristr($url, "https://" . $websiteOtherUrl))
+                            ) {
+                                $matchInfo['found'] = 1;
                             } else {
-                                    $matchInfo['found'] = 0;
+                                $matchInfo['found'] = 0;
                             }
-                                    
+                                
                             $matchInfo['url'] = $url;
-                            $matchInfo['title'] = strip_tags($matches[$seList[$seInfoId]['title_index']][$i]);
-                            $matchInfo['description'] = strip_tags($matches[$seList[$seInfoId]['description_index']][$i]);
-                            $matchInfo['rank'] = $rank;
+                            $matchInfo['title'] = $itemInfo['title'];
+                            $matchInfo['description'] = $itemInfo['description'];
+                            $matchInfo['rank'] = $itemInfo['rank_group'];
                             $crawlResult[$seInfoId]['matched'][] = $matchInfo;
                         }
-                        
-                        $rank++;
-                    }
-                    
-                    $crawlStatus = 1;                    
-                } else {
-                    
-                    // set crawl log info
-                    $crawlInfo['crawl_status'] = 0;
-                    $crawlInfo['log_message'] = SearchEngineController::isCaptchInSearchResults($pageContent) ? "<font class=error>Captcha found</font> in search result page" : "Regex not matched error occured while parsing search results!";
-                    
-                    if(SP_DEBUG){
-                        echo "<p class='note' style='text-align:left;'>Error occured while parsing $seUrl ".formatErrorMsg("Regex not matched <br>\n")."</p>";
                     }
                 }
             } else {
                 if (SP_DEBUG) {
-                    echo "<p class='note' style='text-align:left;'>Error occured while crawling $seUrl ".formatErrorMsg($result['errmsg']."<br>\n")."</p>";
+                    echo "<p class='note' style='text-align:left;'>
+                            Error occured while crawling  keyword {$keywordInfo['name']} from $seachEngine - ".formatErrorMsg($result['message']."<br>\n")."</p>";
                 }
             }
             
             $crawlResult[$seInfoId]['seFound'] = $seFound;
-            $crawlResult[$seInfoId]['status'] = $crawlStatus;
+            $crawlResult[$seInfoId]['status'] = $result['status'];
             
-            // update crawl log
-            $logId = $result['log_id'];
-            $crawlLogCtrl->updateCrawlLog($logId, $crawlInfo);
-            
+            // create crawl log
+            $crawlLogCtrl = new CrawlLogController();
+            $crawlInfo = [];
+            $crawlInfo['crawl_type'] = 'keyword';
+            $crawlInfo['crawl_status'] = $result['status'] ? 0 : 1;
+            $crawlInfo['ref_id'] = empty($keywordInfo['id']) ? $keywordInfo['name'] : $keywordInfo['id'];
+            $crawlInfo['subject'] = $seInfoId;
+            $crawlInfo['crawl_referer'] = "Dataforseo";
+            $crawlInfo['log_message'] = addslashes($result['message']);
+            $crawlInfo['crawl_link'] = !empty($result['data']['check_url']) ? $result['data']['check_url'] : "";
+            $crawlLogCtrl->createCrawlLog($crawlInfo);
         }
         
         return  $crawlResult;        
