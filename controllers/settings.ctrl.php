@@ -41,7 +41,9 @@ class SettingsController extends Controller{
     		
     		$currencyCtrler = new CurrencyController();
 	    	$this->set('currencyList', $currencyCtrler->__getAllCurrency(" and paypal=1 and status=1 and name!=''"));
-			
+	    	
+	    	$countryCtrl = new CountryController();
+	    	$this->set('countryList', $countryCtrl->__getAllCountryAsList());
 		}
 		
 		$this->set('category', $category);
@@ -327,8 +329,8 @@ class SettingsController extends Controller{
 	    $status = false;
 	    $results =  [];
 	    
-	    // check dataforseo is enabled
-	    if (SP_ENABLE_DFS && (SP_DFS_API_LOGIN != "") && (SP_DFS_API_PASSWORD != "")) {
+	    // check dataforseo is enabled for backlink and saturation checker
+	    if (SP_ENABLE_DFS && SP_ENABLE_DFS_BACK_SATU && (SP_DFS_API_LOGIN != "") && (SP_DFS_API_PASSWORD != "")) {
 	        include_once(SP_CTRLPATH."/dataforseo.ctrl.php");
 	        $dfsCtrler = new DataForSEOController();
 	        $status = true;

@@ -72,6 +72,17 @@ class BacklinkController extends Controller{
 	
 	function __getBacklinks ($engine) {
 		if (SP_DEMO && !empty($_SERVER['REQUEST_METHOD'])) return 0;
+		
+		
+		// check whether any api source is enabled for crawl keyword
+		if ($engine != 'alexa') {
+    		$searchInfo = ['name' => "link:$this->url", "engine" => $engine];
+    		list($resDataStatus, $resData) = SettingsController::getSearchResultCount($searchInfo, $cron);
+    		if ($resDataStatus) {
+    		    return $resData['count'];
+    		}
+		}
+		
 		$backlinkCount = 0;
 		switch ($engine) {
 			

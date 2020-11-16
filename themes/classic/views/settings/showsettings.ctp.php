@@ -93,7 +93,9 @@ if ($category == "moz") {
 			<td class="td_left_col">
 				<?php
 				if ($listInfo['set_name'] == 'SP_PAYMENT_CURRENCY') {
-					echo $spTextSubscription["Currency"] . ":";
+				    echo $spTextSubscription["Currency"] . ":";
+				} elseif ($listInfo['set_name'] == 'SP_DEFAULT_COUNTRY') {
+			        echo $spText['common']["Country"] . ":";
 				} else {
 					echo $spTextSettings[$listInfo['set_name']] . ":";
 				}
@@ -137,6 +139,17 @@ if ($category == "moz") {
 									$selectedVal = ($listInfo['set_val'] == $currencyInfo['iso_code']) ? "selected" : "";
 									?>
 									<option value="<?php echo $currencyInfo['iso_code']; ?>" <?php echo $selectedVal; ?>><?php echo $currencyInfo['name']; ?></option>
+									<?php
+								}
+								?>
+							</select>
+						<?php } else if ($listInfo['set_name'] == 'SP_DEFAULT_COUNTRY') {?>
+							<select  name="<?php echo $listInfo['set_name']?>">
+								<?php						
+								foreach ($countryList as $countryCode => $countryName) {
+									$selectedVal = ($listInfo['set_val'] == $countryCode) ? "selected" : "";
+									?>
+									<option value="<?php echo $countryCode; ?>" <?php echo $selectedVal; ?>><?php echo $countryName; ?></option>
 									<?php
 								}
 								?>

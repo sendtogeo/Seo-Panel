@@ -116,19 +116,17 @@ class DataForSEOController extends Controller {
         $seDomianCat = DataForSEOController::getSERPDomainCategory($seachEngine);        
         $searchInfo = array(
             "keyword" => mb_convert_encoding($keywordInfo['name'], "UTF-8"),
+            "location_name" => $keywordInfo['location_name'],
         );
         
-        if (stristr($seachEngine, ".")) {
-            $searchInfo['se_domain'] = $seachEngine;
-        }
+        // exceptions for baidu
+        if ($seDomianCat != "baidu") {
+            $searchInfo['language_code'] = !empty($keywordInfo['lang_code']) ? $keywordInfo['lang_code'] : SP_DEFAULTLANG;
         
-        if (!empty($keywordInfo['lang_code'])) {
-            $searchInfo['language_code'] = $keywordInfo['lang_code'];
+            if (stristr($seachEngine, ".")) {
+                $searchInfo['se_domain'] = $seachEngine;
+            }
         }
-        
-        if (!empty($keywordInfo['location_name'])) {
-            $searchInfo['location_name'] = $keywordInfo['location_name'];
-        }        
         
         try {
             $result = $this->restClient->post("/v3/serp/$seDomianCat/$cat/$subCat/$dataType", [$searchInfo]);
@@ -177,6 +175,8 @@ class DataForSEOController extends Controller {
         // set country name as location
         if (!empty($keywordInfo['country_code'])) {
             $keywordInfo['location_name'] = $countryList[$keywordInfo['country_code']];
+        } else {
+            $keywordInfo['location_name'] = $countryList[SP_DEFAULT_COUNTRY];
         }
         
         $keySeList = explode(':', $keywordInfo['searchengines']);
@@ -190,7 +190,8 @@ class DataForSEOController extends Controller {
             
             // call serp api to get the results
             $seFound = true;
-            $seachEngine = formatUrl($seList[$seInfoId]['domain']);
+            $urlInfo = parse_url($seList[$seInfoId]['url']);
+            $seachEngine = $urlInfo['host']; 
             $result = $this->doSERPAPICall($keywordInfo, $seachEngine);
             
             // check crawl status
@@ -246,7 +247,7 @@ class DataForSEOController extends Controller {
             $crawlLogCtrl = new CrawlLogController();
             $crawlInfo = [];
             $crawlInfo['crawl_type'] = 'keyword';
-            $crawlInfo['crawl_status'] = $result['status'] ? 0 : 1;
+            $crawlInfo['crawl_status'] = $result['status'] ? 1 : 0;
             $crawlInfo['ref_id'] = empty($keywordInfo['id']) ? $keywordInfo['name'] : $keywordInfo['id'];
             $crawlInfo['subject'] = $seInfoId;
             $crawlInfo['crawl_referer'] = $this->apiUrl;
@@ -259,10 +260,13 @@ class DataForSEOController extends Controller {
     }
     
     function __getSERPResultCount($keywordInfo, $cron = false) {
-        
         $crawlResult = array();
         if(empty($keywordInfo['name'])) return $crawlResult;
         if(empty($keywordInfo['engine'])) return $crawlResult;
+        
+        $countryCtrl = new CountryController();
+        $countryList = $countryCtrl->__getAllCountryAsList();
+        $keywordInfo['location_name'] = $countryList[SP_DEFAULT_COUNTRY];
         
         $result = $this->doSERPAPICall($keywordInfo, $keywordInfo['engine']);
         
@@ -281,7 +285,8 @@ class DataForSEOController extends Controller {
         // create crawl log
         $crawlLogCtrl = new CrawlLogController();
         $crawlInfo = [];
-        $crawlInfo['crawl_status'] = $result['status'] ? 0 : 1;
+        $crawlInfo['crawl_type'] = stristr($keywordInfo['name'], 'site:') ? 'saturation' : 'backlink';
+        $crawlInfo['crawl_status'] = $result['status'] ? 1 : 0;
         $crawlInfo['ref_id'] = $keywordInfo['name'];
         $crawlInfo['subject'] = $keywordInfo['engine'];
         $crawlInfo['crawl_referer'] = $this->apiUrl;
