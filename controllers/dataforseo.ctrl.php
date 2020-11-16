@@ -28,11 +28,11 @@ include_once(SP_LIBPATH."/dataforseo/RestClient.php");
 class DataForSEOController extends Controller {
     
     var $restClient;
-//     var $apiUrl = 'https://api.dataforseo.com/';
-    var $apiUrl = 'https://sandbox.dataforseo.com/';
+    var $apiUrl = 'https://api.dataforseo.com/';
     
     function __construct() {
         parent::__construct();
+        $this->apiUrl = SP_ENABLE_DFS_SANDBOX ? 'https://sandbox.dataforseo.com/' : $this->apiUrl;
         $this->restClient = new RestClient($this->apiUrl, null, SP_DFS_API_LOGIN, SP_DFS_API_PASSWORD);
     }
     
@@ -63,7 +63,7 @@ class DataForSEOController extends Controller {
                     $connResult['status'] = false;
                     $connResult['message'] = $result['status_message'];
                 }
-            }            
+            }
         }
         
         return $connResult;
@@ -93,13 +93,13 @@ class DataForSEOController extends Controller {
     
     public static function getSERPDomainCategory($seachEngine) {
         $seDomianCat = 'google';
-        if (stristr($seachEngine, 'yahoo.')) {
+        if (stristr($seachEngine, 'yahoo')) {
             $seDomianCat = 'yahoo';
-        } elseif (stristr($seachEngine, 'bing.')) {
+        } elseif (stristr($seachEngine, 'bing') || stristr($seachEngine, 'msn')) {
             $seDomianCat = 'bing';
-        } elseif (stristr($seachEngine, 'yandex.')) {
+        } elseif (stristr($seachEngine, 'yandex')) {
             $seDomianCat = 'yandex';            
-        } elseif (stristr($seachEngine, 'baidu.')) {
+        } elseif (stristr($seachEngine, 'baidu')) {
             $seDomianCat = 'baidu';            
         }
         
@@ -115,9 +115,12 @@ class DataForSEOController extends Controller {
         
         $seDomianCat = DataForSEOController::getSERPDomainCategory($seachEngine);        
         $searchInfo = array(
-            "se_domain" => $seachEngine,
             "keyword" => mb_convert_encoding($keywordInfo['name'], "UTF-8"),
         );
+        
+        if (stristr($seachEngine, ".")) {
+            $searchInfo['se_domain'] = $seachEngine;
+        }
         
         if (!empty($keywordInfo['lang_code'])) {
             $searchInfo['language_code'] = $keywordInfo['lang_code'];
@@ -246,13 +249,47 @@ class DataForSEOController extends Controller {
             $crawlInfo['crawl_status'] = $result['status'] ? 0 : 1;
             $crawlInfo['ref_id'] = empty($keywordInfo['id']) ? $keywordInfo['name'] : $keywordInfo['id'];
             $crawlInfo['subject'] = $seInfoId;
-            $crawlInfo['crawl_referer'] = "Dataforseo";
+            $crawlInfo['crawl_referer'] = $this->apiUrl;
             $crawlInfo['log_message'] = addslashes($result['message']);
             $crawlInfo['crawl_link'] = !empty($result['data']['check_url']) ? $result['data']['check_url'] : "";
             $crawlLogCtrl->createCrawlLog($crawlInfo);
         }
         
         return  $crawlResult;        
+    }
+    
+    function __getSERPResultCount($keywordInfo, $cron = false) {
+        
+        $crawlResult = array();
+        if(empty($keywordInfo['name'])) return $crawlResult;
+        if(empty($keywordInfo['engine'])) return $crawlResult;
+        
+        $result = $this->doSERPAPICall($keywordInfo, $keywordInfo['engine']);
+        
+        // check crawl status
+        if(!empty($result['status'])) {
+            $crawlResult['count'] = isset($result['data']['se_results_count']) ? $result['data']['se_results_count'] : 0;
+        } else {
+            if (SP_DEBUG) {
+                echo "<p class='note' style='text-align:left;'>
+                        Error occured while crawling  keyword {$keywordInfo['name']} from {$keywordInfo['engine']} - ".formatErrorMsg($result['message']."<br>\n")."</p>";
+            }
+        }
+        
+        $crawlResult['status'] = $result['status'];
+        
+        // create crawl log
+        $crawlLogCtrl = new CrawlLogController();
+        $crawlInfo = [];
+        $crawlInfo['crawl_status'] = $result['status'] ? 0 : 1;
+        $crawlInfo['ref_id'] = $keywordInfo['name'];
+        $crawlInfo['subject'] = $keywordInfo['engine'];
+        $crawlInfo['crawl_referer'] = $this->apiUrl;
+        $crawlInfo['log_message'] = addslashes($result['message']);
+        $crawlInfo['crawl_link'] = !empty($result['data']['check_url']) ? $result['data']['check_url'] : "";
+        $crawlLogCtrl->createCrawlLog($crawlInfo);
+        
+        return  $crawlResult;
     }
     
 }

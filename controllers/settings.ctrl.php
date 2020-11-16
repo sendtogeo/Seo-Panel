@@ -321,8 +321,21 @@ class SettingsController extends Controller{
 	    }
 	    
 	    return [$status, $results];
-	    
 	}
 	
+	public static function getSearchResultCount($keywordInfo, $cron = false) {
+	    $status = false;
+	    $results =  [];
+	    
+	    // check dataforseo is enabled
+	    if (SP_ENABLE_DFS && (SP_DFS_API_LOGIN != "") && (SP_DFS_API_PASSWORD != "")) {
+	        include_once(SP_CTRLPATH."/dataforseo.ctrl.php");
+	        $dfsCtrler = new DataForSEOController();
+	        $status = true;
+	        $results = $dfsCtrler->__getSERPResultCount($keywordInfo, $cron);
+	    }
+	    
+	    return [$status, $results];
+	}
 }
 ?>

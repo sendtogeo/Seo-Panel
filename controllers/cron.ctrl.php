@@ -305,7 +305,7 @@ class CronController extends Controller {
 		
 		$saturationCtrler->url = $websiteUrl = addHttpToUrl($websiteInfo['url']);			
 		foreach ($saturationCtrler->colList as $col => $dbCol) {
-			$websiteInfo[$col] = $saturationCtrler->__getSaturationRank($col);
+			$websiteInfo[$col] = $saturationCtrler->__getSaturationRank($col, true);
 		}
 			
 		$saturationCtrler->saveRankResults($websiteInfo, true);			

@@ -631,7 +631,11 @@ class ReportController extends Controller {
 	    // check whether any api source is enabled for crawl keyword
 	    list($resDataStatus, $resData) = SettingsController::getSearchResults($keywordInfo, $this->showAll, $seId, $cron);
 	    if ($resDataStatus) {
-	        $this->seFound = $resData['seFound'];
+	        $this->seFound = true;
+	        if (!empty($seId)) {
+	            $this->seFound = isset($resData[$seId]['seFound']) ? $resData[$seId]['seFound'] : 0;
+	        }
+	        
 	        return $resData;
 	    }
 	    
@@ -644,7 +648,7 @@ class ReportController extends Controller {
 		
 		$time = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
 		$seList = explode(':', $keywordInfo['searchengines']);
-		foreach($seList as $seInfoId){
+		foreach($seList as $seInfoId) {
 			
 			// function to execute only passed search engine
 			if(!empty($seId) && ($seInfoId != $seId)) continue;

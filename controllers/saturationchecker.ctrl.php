@@ -61,9 +61,18 @@ class SaturationCheckerController extends Controller{
 		echo "<a href='$saturationUrl' target='_blank'>$saturationCount</a>";
 	}
 	
-	function __getSaturationRank ($engine) {
+	function __getSaturationRank ($engine, $cron = false) {
 		if (SP_DEMO && !empty($_SERVER['REQUEST_METHOD'])) return 0;
+		
+		// check whether any api source is enabled for crawl keyword
+		$searchInfo = ['name' => "site:$this->url", "engine" => $engine];
+		list($resDataStatus, $resData) = SettingsController::getSearchResultCount($searchInfo, $cron);
+		if ($resDataStatus) {
+		    return $resData['count'];
+		}
+		
 		$saturationCount = 0;
+		$r = [];
 		switch ($engine) {
 			
 			#google
@@ -108,7 +117,6 @@ class SaturationCheckerController extends Controller{
 		$crawlInfo['ref_id'] = $this->url;
 		$crawlInfo['subject'] = $engine;
 		$crawlLogCtrl->updateCrawlLog($v['log_id'], $crawlInfo);
-		
 		return $saturationCount;
 	}
 	
