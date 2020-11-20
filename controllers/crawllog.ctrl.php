@@ -270,7 +270,7 @@ class CrawlLogController extends Controller {
 	    $this->set('toTime', $toTime);
 	    
 	    // sql created using param
-	    $sql .= " $conditions and log_time >='$fromTime 00:00:00' and log_time<='$toTime 23:59:59' order by id DESC";
+	    $sql .= " $conditions and log_time >='".addslashes($fromTime)." 00:00:00' and log_time<='".addslashes($toTime)." 23:59:59' order by id DESC";
 	    
 	    // pagination setup
 	    $this->db->query($sql, true);

@@ -270,8 +270,6 @@ class SeoPluginsController extends Controller{
 		$this->set('msg', $msg);
 		$this->set('error', $error);
 		
-		$pageScriptPath = 'seo-plugins-manager.php?stscheck=';
-		$pageScriptPath .= isset($info['stscheck']) ? $info['stscheck'] : "select";
 		$sql = "select * from seoplugins where 1=1";
 		
 		// if status set
@@ -279,6 +277,9 @@ class SeoPluginsController extends Controller{
 		    $info['stscheck'] = intval($info['stscheck']);
 		    $sql .= " and status='{$info['stscheck']}'";
 		}
+		
+		$pageScriptPath = 'seo-plugins-manager.php?stscheck=';
+		$pageScriptPath .= isset($info['stscheck']) ? $info['stscheck'] : "select";
 		
 		// search for keyword
 		if (!empty($info['keyword'])) {
@@ -352,7 +353,7 @@ class SeoPluginsController extends Controller{
 	function listPluginInfo($pluginId){
 	    $pluginId = intval($pluginId);		
 		$this->set('pluginInfo', $this->__getSeoPluginInfo($pluginId));	
-		$this->set('pageNo', $_GET['pageno']);	
+		$this->set('pageNo', intval($_GET['pageno']));	
 		$this->render('seoplugins/listplugininfo');
 	}
 	
