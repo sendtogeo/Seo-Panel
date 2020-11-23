@@ -419,7 +419,7 @@ input[name='from_time'], input[name='to_time'], input[name='expiry_date'], input
 a.bold_link{
 	text-decoration: none;
 	font-weight: bold;
-	font-size: 13px;
+	font-size: 14px;
 }
 
 .speed_details {text-align: left;}

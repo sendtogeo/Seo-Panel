@@ -37,7 +37,7 @@ if ($category == "moz") {
 } else if ($category == "dataforseo") {
     ?>
 	<div id="topnewsbox" style="margin-bottom: 20px;">
-		<a class="bold_link" href="https://dataforseo.com/?aff=108099" target="_blank">
+		<a class="bold_link" href="https://www.seopanel.org/blog/2020/11/how-to-integrate-dataforseo-with-seo-panel/" target="_blank">
 			<?php echo $spTextSettings['click-to-get-dataforseo-account']; ?> &gt;&gt;
 		</a>
 	</div>
