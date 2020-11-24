@@ -144,8 +144,12 @@ class DataForSEOController extends Controller {
                 foreach ($result['tasks'] as $taskInfo) {
                     if ($taskInfo['status_code'] == 20000 && isset($taskInfo['result'][0])) {
                         $connResult['data'] = $taskInfo['result'][0];
-                        break;
+                    } else {
+                        $connResult['status'] = false;
+                        $connResult['message'] = $taskInfo['status_message'];
                     }
+                    
+                    break;
                 }
             } else {
                 $connResult['status'] = false;
