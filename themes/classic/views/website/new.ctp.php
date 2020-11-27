@@ -16,7 +16,7 @@ if(!empty($validationMsg)){
 	<?php 
 }
 
-$post['url'] = empty($post['url']) ? "http://" : $post['url'];
+$post['url'] = empty($post['url']) ? "https://" : $post['url'];
 ?>
 <form id="newWebsite">
 <input type="hidden" name="sec" value="create"/>
