@@ -19,19 +19,3 @@ INSERT INTO `settings` (`set_label`, `set_name`, `set_val`, `set_category`, `set
 
 
 
-INSERT INTO `texts` (`category`, `label`, `content`) VALUES 
-('panel', 'DataForSEO Settings', 'DataForSEO Settings'),
-('settings', 'SP_ENABLE_DFS_BACK_SATU', 'Enable for Backlink and Saturation Checker'),
-('settings', 'SP_ENABLE_DFS_SANDBOX', 'Enable Sandbox'),
-('settings', 'SP_ENABLE_DFS', 'Enable DataForSEO'),
-('settings', 'SP_DFS_API_LOGIN', 'API Login'),
-('settings', 'SP_DFS_API_PASSWORD', 'API Password'), 
-('settings', 'SP_DFS_BALANCE', 'DataForSEO Balance($)'),
-('settings', 'click-to-get-dataforseo-account', 'Click here to get Free DataForSEO account');
-
-
-
-
-
-
-
