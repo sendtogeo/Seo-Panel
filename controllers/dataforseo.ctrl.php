@@ -176,6 +176,8 @@ class DataForSEOController extends Controller {
         $countryCtrl = new CountryController();
         $countryList = $countryCtrl->__getAllCountryAsList();
         
+        $reportCtrler = new ReportController();
+        
         // set country name as location
         if (!empty($keywordInfo['country_code'])) {
             $keywordInfo['location_name'] = $countryList[$keywordInfo['country_code']];
@@ -203,7 +205,7 @@ class DataForSEOController extends Controller {
                 
                 // to update cron that report executed for akeyword on a search engine
                 if ($cron) {
-                    $this->saveCronTrackInfo($keywordInfo['id'], $seInfoId, $time);
+                    $reportCtrler->saveCronTrackInfo($keywordInfo['id'], $seInfoId, $time);
                 }
                 
                 // verify results array having search results
