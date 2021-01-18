@@ -728,7 +728,14 @@ class DirectoryController extends Controller{
 	function showDirectoryManager($info=''){		
 		$info = sanitizeData($info);
 		$info['stscheck'] = isset($info['stscheck']) ? intval($info['stscheck']) : 1;
-		$capcheck = isset($info['capcheck']) ? (($info['capcheck'] == 'yes') ? 1 : 0 ) : "";  
+		
+		if (isset($info['capcheck']) && !empty($info['capcheck'])) {
+		    $capcheck = ($info['capcheck'] == 'yes') ? 1 : 0;
+		    $info['capcheck'] = ($info['capcheck'] == 'yes') ? "yes" : "no";
+		} else {
+		    $capcheck = "";
+		}
+		
 		$sql = "SELECT *,l.lang_name FROM directories d,languages l where d.lang_code=l.lang_code and working='{$info['stscheck']}'";		
 		if(!empty($info['dir_name'])) $sql .= " and domain like '%".addslashes($info['dir_name'])."%'";
 		if($info['capcheck'] != '') $sql .= " and is_captcha='$capcheck'";

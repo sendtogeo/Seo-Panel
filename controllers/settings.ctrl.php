@@ -41,7 +41,9 @@ class SettingsController extends Controller{
     		
     		$currencyCtrler = new CurrencyController();
 	    	$this->set('currencyList', $currencyCtrler->__getAllCurrency(" and paypal=1 and status=1 and name!=''"));
-			
+	    	
+	    	$countryCtrl = new CountryController();
+	    	$this->set('countryList', $countryCtrl->__getAllCountryAsList());
 		}
 		
 		$this->set('category', $category);
@@ -84,6 +86,10 @@ class SettingsController extends Controller{
 					$this->set('headLabel', $spTextPanel['Google Settings']);					
 					break;
 					
+				case "dataforseo":
+				    $this->set('headLabel', $spTextPanel['DataForSEO Settings']);
+				    break;
+					
 				case "mail":
 				    $this->set('headLabel', $spTextPanel['Mail Settings']);
 				    break;
@@ -101,6 +107,11 @@ class SettingsController extends Controller{
 		
 		$setList = $this->__getAllSettings(true, 1, $postInfo['category']);
 		foreach($setList as $setInfo){
+		    
+		    // exclude from update
+		    if ($setInfo['set_name'] == 'SP_DFS_BALANCE') {
+		        continue;
+		    }
 
 			switch($setInfo['set_name']){
 				
@@ -134,7 +145,7 @@ class SettingsController extends Controller{
 		            $sql = "Update reports_settings set report_interval=".$postInfo[$setInfo['set_name']]." where report_interval<".$postInfo[$setInfo['set_name']];
 		            $userList = $this->db->query($sql);
 		            break;
-			}
+			}			
 			
 			$sql = "update settings set set_val='".addslashes($postInfo[$setInfo['set_name']])."' where set_name='".addslashes($setInfo['set_name'])."'";
 			$this->db->query($sql);
@@ -287,5 +298,46 @@ class SettingsController extends Controller{
 		
 	}
 	
+	public static function getWebsiteOtherUrl($websiteUrl) {
+	    
+	    // fix for www. and no www. in search results
+	    if (stristr($websiteUrl, "www.")) {
+	        $websiteOtherUrl = str_ireplace("www.", "", $websiteUrl);
+	    } else {
+	        $websiteOtherUrl = "www." . $websiteUrl;
+	    }
+	    
+	    return $websiteOtherUrl;
+	}
+	
+	public static function getSearchResults($keywordInfo, $showAll = false, $seId = false, $cron = false) {
+	    $status = false;
+	    $results =  [];
+	    
+	    // check dataforseo is enabled
+	    if (SP_ENABLE_DFS && (SP_DFS_API_LOGIN != "") && (SP_DFS_API_PASSWORD != "")) {
+	        include_once(SP_CTRLPATH."/dataforseo.ctrl.php");
+	        $dfsCtrler = new DataForSEOController();
+	        $status = true;
+	        $results = $dfsCtrler->__getSERPResults($keywordInfo, $showAll, $seId, $cron);
+	    }
+	    
+	    return [$status, $results];
+	}
+	
+	public static function getSearchResultCount($keywordInfo, $cron = false) {
+	    $status = false;
+	    $results =  [];
+	    
+	    // check dataforseo is enabled for backlink and saturation checker
+	    if (SP_ENABLE_DFS && SP_ENABLE_DFS_BACK_SATU && (SP_DFS_API_LOGIN != "") && (SP_DFS_API_PASSWORD != "")) {
+	        include_once(SP_CTRLPATH."/dataforseo.ctrl.php");
+	        $dfsCtrler = new DataForSEOController();
+	        $status = true;
+	        $results = $dfsCtrler->__getSERPResultCount($keywordInfo, $cron);
+	    }
+	    
+	    return [$status, $results];
+	}
 }
 ?>

@@ -974,7 +974,7 @@ INSERT INTO `settings` (`id`, `set_label`, `set_name`, `set_val`, `set_category`
 (40, 'API Secret', 'API_SECRET', '', 'api', 'medium', 1),
 (41, 'Company Name', 'SP_COMPANY_NAME', 'Seo Panel', 'system', 'medium', 1),
 (42, 'Currency', 'SP_PAYMENT_CURRENCY', 'USD', 'system', 'medium', 1),
-(43, 'Seo Panel version', 'SP_VERSION_NUMBER', '4.7.0', 'system', 'medium', 0),
+(43, 'Seo Panel version', 'SP_VERSION_NUMBER', '4.8.0', 'system', 'medium', 0),
 (44, 'Moz API Link', 'SP_MOZ_API_LINK', 'http://lsapi.seomoz.com/linkscape', 'moz', 'medium', 0),
 (45, 'Moz API Link', 'SP_MOZ_API_ACCESS_ID', '', 'moz', 'large', 1),
 (46, 'Moz API Link', 'SP_MOZ_API_SECRET', '', 'moz', 'large', 1),
@@ -1396,6 +1396,22 @@ INSERT INTO `settings` (`set_label`, `set_name`, `set_val`, `set_category`, `set
 ('Enable reCAPTCHA', 'SP_ENABLE_RECAPTCHA', '0', 'google', 'bool', 1),
 ('reCAPTCHA Site Key', 'SP_RECAPTCHA_SITE_KEY', '', 'google', 'large', 1),
 ('reCAPTCHA Secret Key', 'SP_RECAPTCHA_SECRET_KEY', '', 'google', 'large', 1);
+
+--
+-- Seo Panel 4.8.0 changes
+--
+
+UPDATE `searchengines` SET `regex` = '<div.*?class=\"?g.*?>.*?<div.*?class=\"r.*?\">.*?<a href=\"(.*?)\".*?>.*?<h3.*?>(.*?)<\\/h3>'
+WHERE `url` LIKE '%google%';
+
+INSERT INTO `settings` (`set_label`, `set_name`, `set_val`, `set_category`, `set_type`, `display`) VALUES
+('Country', 'SP_DEFAULT_COUNTRY', 'US', 'system', 'small', 1),
+('Enable DataForSEO', 'SP_ENABLE_DFS', '0', 'dataforseo', 'bool', 1),
+('DataForSEO API Login', 'SP_DFS_API_LOGIN', '', 'dataforseo', 'large', 1),
+('DataForSEO API Password', 'SP_DFS_API_PASSWORD', '', 'dataforseo', 'large', 1),
+('DataForSEO Balance', 'SP_DFS_BALANCE', '0', 'dataforseo', 'small', 1),
+('Enable for Backlink and Saturation Checker', 'SP_ENABLE_DFS_BACK_SATU', '0', 'dataforseo', 'bool', 1),
+('Enable Sandbox', 'SP_ENABLE_DFS_SANDBOX', '0', 'dataforseo', 'bool', 1);
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

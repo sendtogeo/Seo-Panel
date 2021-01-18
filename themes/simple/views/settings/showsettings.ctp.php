@@ -34,12 +34,20 @@ if ($category == "moz") {
 		</a>
 	</div>
 	<?php
+} else if ($category == "dataforseo") {
+    ?>
+	<div id="topnewsbox" style="margin-bottom: 20px;">
+		<a class="bold_link" href="https://www.seopanel.org/blog/2020/11/how-to-integrate-dataforseo-with-seo-panel/" target="_blank">
+			<?php echo $spTextSettings['click-to-get-dataforseo-account']; ?> &gt;&gt;
+		</a>
+	</div>
+	<?php
 }
 ?>
 <form id="updateSettings">
 <input type="hidden" value="update" name="sec">
 <input type="hidden" value="<?php echo $category?>" name="category">
-<table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
+<table class="list">
 	<tr class="listHead">
 		<td width='30%'><?php echo $headLabel?></td>
 		<td>&nbsp;</td>
@@ -74,18 +82,20 @@ if ($category == "moz") {
 		// sp demo settings
 		$demoCheckArr = array(
 			'SP_API_KEY', 'API_SECRET', 'SP_SMTP_PASSWORD', 'SP_MOZ_API_ACCESS_ID', 'SP_MOZ_API_SECRET', 'SP_GOOGLE_API_KEY',
-			'SP_GOOGLE_API_CLIENT_ID', 'SP_GOOGLE_API_CLIENT_SECRET', 'SP_GOOGLE_ANALYTICS_TRACK_CODE'
+			'SP_GOOGLE_API_CLIENT_ID', 'SP_GOOGLE_API_CLIENT_SECRET', 'SP_GOOGLE_ANALYTICS_TRACK_CODE', 'SP_RECAPTCHA_SITE_KEY', 
+			'SP_RECAPTCHA_SECRET_KEY', 'SP_DFS_API_LOGIN', 'SP_DFS_API_PASSWORD',
 		);
 		if (SP_DEMO && in_array($listInfo['set_name'], $demoCheckArr)) {
 			$listInfo['set_val'] = "********";
-		}
-		
+		}		
 		?>
 		<tr>
 			<td class="td_left_col">
 				<?php
 				if ($listInfo['set_name'] == 'SP_PAYMENT_CURRENCY') {
-					echo $spTextSubscription["Currency"] . ":";
+				    echo $spTextSubscription["Currency"] . ":";
+				} elseif ($listInfo['set_name'] == 'SP_DEFAULT_COUNTRY') {
+			        echo $spText['common']["Country"] . ":";
 				} else {
 					echo $spTextSettings[$listInfo['set_name']] . ":";
 				}
@@ -133,6 +143,19 @@ if ($category == "moz") {
 								}
 								?>
 							</select>
+						<?php } else if ($listInfo['set_name'] == 'SP_DEFAULT_COUNTRY') {?>
+							<select  name="<?php echo $listInfo['set_name']?>">
+								<?php						
+								foreach ($countryList as $countryCode => $countryName) {
+									$selectedVal = ($listInfo['set_val'] == $countryCode) ? "selected" : "";
+									?>
+									<option value="<?php echo $countryCode; ?>" <?php echo $selectedVal; ?>><?php echo $countryName; ?></option>
+									<?php
+								}
+								?>
+							</select>
+						<?php } else if ($listInfo['set_name'] == 'SP_DFS_BALANCE') {?>
+							<label id='sp_dfs_balance'><?php echo stripslashes($listInfo['set_val'])?></label>
 						<?php } else {
 							$passTypeList = array('SP_SMTP_PASSWORD', 'API_SECRET');
 						    $type = in_array($listInfo['set_name'], $passTypeList) ? "password" : "text";
@@ -147,6 +170,11 @@ if ($category == "moz") {
 							<?php } else if ($listInfo['set_name'] == 'SP_GOOGLE_API_KEY') {?>
 								<div style="padding: 10px 6px;">
 									<a href="javascript:void(0);" onclick="checkGoogleAPIConnection('settings.php?sec=checkGoogleAPI', 'show_conn_res')" style="text-decoration: none;"><?php echo $spTextSettings['Verify connection']; ?> &gt;&gt;</a>
+								</div>
+								<div id="show_conn_res" style="padding: 10px 6px;"></div>
+							<?php } else if ($listInfo['set_name'] == 'SP_DFS_API_PASSWORD') {?>
+								<div style="padding: 10px 6px;">
+									<a href="javascript:void(0);" onclick="checkDataForSEOAPIConnection('settings.php?sec=checkDataForSEOAPI', 'show_conn_res')" style="text-decoration: none;"><?php echo $spTextSettings['Verify connection']; ?> &gt;&gt;</a>
 								</div>
 								<div id="show_conn_res" style="padding: 10px 6px;"></div>
 							<?php }?>
@@ -170,16 +198,8 @@ if ($category == "moz") {
 		<?php
 	}
 	?>
-	<tr class="blue_row">
-		<td class="tab_left_bot_noborder"></td>
-		<td class="tab_right_bot"></td>
-	</tr>
-	<tr class="listBot">
-		<td class="left" colspan="1"></td>
-		<td class="right"></td>
-	</tr>
 </table>
-<table width="100%" cellspacing="0" cellpadding="0" border="0" class="actionSec">
+<table class="actionSec">
 	<tr>
     	<td style="padding-top: 6px;text-align:right;">
     		<a onclick="scriptDoLoad('settings.php?category=<?php echo $category?>', 'content', 'layout=ajax')" href="javascript:void(0);" class="actionbut">

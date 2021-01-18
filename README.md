@@ -1,8 +1,8 @@
-#Seo Panel - World's first SEO Control Panel for Multiple Websites
+# Seo Panel - World's first SEO Control Panel for Multiple Websites
 
 An Award Winning open source seo control panel for managing search engine optimization of your websites
 
-##Requirements
+## Requirements
 
    1. PHP, MYSQL, Web Server(e.g APACHE)
 
@@ -11,7 +11,7 @@ An Award Winning open source seo control panel for managing search engine optimi
         http://php.net/manual/en/curl.setup.php
 
 
-##Seo Panel Installation: Simple 5 minute installation
+## Seo Panel Installation: Simple 5 minute installation
 
 Simply use Softaculous / Installatron / Webuzo / AMPPS to install SEO Panel or Follow the below steps
 
@@ -33,24 +33,24 @@ Simply use Softaculous / Installatron / Webuzo / AMPPS to install SEO Panel or F
 
 8. Please use following login details to access Admin Interface.
 
-####Admin Section:
+#### Admin Section:
 
 Username: spadmin
 
 Password: spadmin
 
 9. Go to Admin Panel => System Settings => MOZ Settings
-   	
+    
    Add moz api key using the link shown in the page
 
-####Note:
+#### Note:
 
 a. Please change password of administrator by visiting Profile link on right top of the seo panel to prevent from security threats.
 
 b. Remove install directory of seo panel
 
 
-##Online Seo Panel Resources:
+## Online Seo Panel Resources:
 
 
 a) Seo Panel Help Guide: http://docs.seopanel.in/
@@ -62,7 +62,7 @@ b) Seo Panel Support: http://www.seopanel.in/support/
 e) Seo Panel Contact: http://www.seopanel.in/contact/
 
 
-##The major features of Seo Panel:
+## The major features of Seo Panel:
 
 a) Automatic Directory Submission Tool
 
