@@ -246,7 +246,7 @@ class RankController extends Controller{
 				$Check = ($Check - $Int32Unit * (int) ($Check / $Int32Unit));
 				$Check = ($Check < -2147483648)? ($Check + $Int32Unit) : $Check;
 			}
-			$Check += ord($Str{$i});
+			$Check += ord($Str[$i]);
 		}
 		return $Check;
 	}
@@ -274,7 +274,7 @@ class RankController extends Controller{
 		$length = strlen($HashStr);
 
 		for ($i = $length - 1; $i >= 0; $i --) {
-			$Re = $HashStr{$i};
+			$Re = $HashStr[$i];
 			if (1 === ($Flag % 2)) {
 				$Re += $Re;
 				$Re = (int)($Re / 10) + ($Re % 10);

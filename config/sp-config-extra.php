@@ -116,5 +116,5 @@ define('SP_PAYMENT_CANCEL_LINK', SP_WEBPATH."/payment_cancel.php");
 define('SP_PAYMENT_RETURN_LINK', SP_WEBPATH."/payment_return.php");
 
 # define search engine sync interval in days
-define('SP_SYNC_SE_INTERVAL', 7);
+define('SP_SYNC_SE_INTERVAL', 5);
 ?>
