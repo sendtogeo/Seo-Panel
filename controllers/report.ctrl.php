@@ -929,7 +929,7 @@ class ReportController extends Controller {
 	
     # function to show system reports 
 	function showOverallReportSummary($searchInfo='', $cronUserId=false) {
-			
+	    $searchInfo['type'] = htmlentities($searchInfo['type'], ENT_QUOTES);
 		$spTextHome = $this->getLanguageTexts('home', $_SESSION['lang_code']);
         $this->set('spTextHome', $spTextHome);
         $this->set('cronUserId', $cronUserId);
