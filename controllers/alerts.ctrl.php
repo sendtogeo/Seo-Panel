@@ -68,6 +68,8 @@ class AlertController extends Controller {
 	 */
 	function listAlerts($info = '') {
 	    $userId = isLoggedIn();
+	    $info['from_time'] = htmlentities($info['from_time'], ENT_QUOTES);
+	    $info['to_time'] = htmlentities($info['to_time'], ENT_QUOTES);
 	    $fromTime = !empty($info['from_time']) ? $info['from_time'] : date('Y-m-d', strtotime('-30 days'));
 	    $toTime = !empty($info['to_time']) ? $info['to_time'] : date('Y-m-d');
 	    $this->set('fromTime', $fromTime);
@@ -76,6 +78,7 @@ class AlertController extends Controller {
 	    $sql = "select * from $this->tableName t where t.user_id=$userId and t.alert_time>='".addslashes("$fromTime 00:00:00")."'
 		        and t.alert_time<='" . addslashes("$toTime 23:59:59") . "'";
 	    $sql .= !empty($info['keyword']) ? " and (alert_subject like '%".addslashes($info['keyword'])."%' or alert_message like '%".addslashes($info['keyword'])."%')" : "";
+	    $sql .= !empty($info['alert_category']) ? " and alert_category='" . addslashes($info['alert_category']) ."'" : "";	    
 	    $sql .= " order by alert_time DESC";
 	    
 	    // pagination setup
