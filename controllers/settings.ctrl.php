@@ -26,7 +26,8 @@ class SettingsController extends Controller{
 	var $layout = 'ajax';
 	
 	# function to show system settings
-	function showSystemSettings($category='system') {		
+	function showSystemSettings($category='system') {
+	    $category = htmlentities($category, ENT_QUOTES);
 	    $category = addslashes($category);
 		$this->set('list', $this->__getAllSettings(true, 1, $category));
 		
