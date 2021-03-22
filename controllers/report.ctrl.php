@@ -983,6 +983,8 @@ class ReportController extends Controller {
 		    'analytics-reports' => $this->spTextTools['Website Analytics Summary'],
 		    'review-reports' => $this->spTextTools['Review Report Summary'],
 		);
+		
+		$searchInfo['report_type'] = htmlentities($searchInfo['report_type'], ENT_QUOTES);
 		$this->set('reportTypes', $reportTypes);
 		$urlarg .= "&report_type=".$searchInfo['report_type'];		
 				
