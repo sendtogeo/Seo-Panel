@@ -296,7 +296,7 @@ class WebsiteController extends Controller{
     				if ($apiCall) {
     					return array('success', 'Successfully created website');
     				} else {
-	    				$this->listWebsites();
+	    				$this->listWebsites([]);
 	    				exit;
     				}
     				
@@ -348,7 +348,7 @@ class WebsiteController extends Controller{
 			$this->render('website/edit');
 			exit;
 		}
-		$this->listWebsites();
+		$this->listWebsites([]);
 	}
 
 	function updateWebsite($listInfo, $apiCall = false){
@@ -419,7 +419,7 @@ class WebsiteController extends Controller{
 				if ($apiCall) {
 					return array('success', 'Successfully updated website');
 				} else {
-					$this->listWebsites();
+					$this->listWebsites([]);
 					exit;
 				}
 				

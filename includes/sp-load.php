@@ -150,6 +150,11 @@ if(file_exists(SP_ABSPATH."/config/sp-config.php")){
         }
     }
     
+    // format urls
+    if (isset($_REQUEST['url'])) {
+        $_REQUEST['url'] = html_entity_decode($_REQUEST['url'], ENT_QUOTES);
+    }
+    
 	// create super class object
 	include_once(SP_LIBPATH."/seopanel.class.php");
 	$seopanel = New Seopanel();
