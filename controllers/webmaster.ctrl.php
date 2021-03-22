@@ -777,6 +777,8 @@ class WebMasterController extends GoogleAPIController {
 	
 	# func to show website search reports
 	function viewWebsiteSearchReports($searchInfo = '') {
+	    $searchInfo['from_time'] = htmlentities($searchInfo['from_time'], ENT_QUOTES);
+	    $searchInfo['to_time'] = htmlentities($searchInfo['to_time'], ENT_QUOTES);
 	
 		$userId = isLoggedIn();
 		if (!empty ($searchInfo['from_time'])) {
