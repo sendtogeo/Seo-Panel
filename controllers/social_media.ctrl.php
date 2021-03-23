@@ -31,50 +31,50 @@ class SocialMediaController extends Controller{
     var $colList;
     
     function __construct() {
-    	 
+        $engineList = Spider::getCrawlEngineCategoryList("social_media");
     	$this->serviceList = [
     		"facebook" => [
     			"label" => "Facebook",
     			"regex" => [
-    				"like" => '/id="PagesLikesCountDOMID.*?<span.*?>(.*?)<span/is',
-    				"follower" => '/people like this.*?<div>(\d.*?)people follow this/is',
+    			    "like" => $engineList['facebook']['regex1'],
+    			    "follower" => $engineList['facebook']['regex2'],
     			],
     			"url_part" => '?locale=en_US'
     		],
     		"twitter" => [
     			"label" => "Twitter",
     			"regex" => [
-    				"follower" => '/\/followers".*?<div.*?>(.*?)<\/div>/is'
+    			    "follower" => $engineList['twitter']['regex1'],
     			],
     		],
     		"instagram" => [
     			"label" => "Instagram",
     			"regex" => [
-    				"follower" => '/edge_followed_by.*?"count":(.*?)\}/is'
+    			    "follower" => $engineList['instagram']['regex1'],
     			],
     		],
     		"linkedin" => [
     			"label" => "LinkedIn",
     		    "url" => "https://www.linkedin.com/pages-extensions/FollowCompany?id={CID}&counter=bottom",
     		    "regex" => [
-    		        "follower" => '/<div.*?follower-count.*?>(.*?)<\/div>/is'
+    		        "follower" => $engineList['linkedin']['regex1'],
     		    ],
     		    "show_url" => "https://www.linkedin.com/company",
     		],
     		"pinterest" => [
     			"label" => "Pinterest",
     			"regex" => [
-    				"follower" => '/pinterestapp:followers.*?content="(.*?)"/is'
+    			    "follower" => $engineList['pinterest']['regex1'],
     			],
     		],
     		"youtube" => [
     			"label" => "Youtube",
     			"regex" => [
-    				"follower" => '/subscriberCountText":\{"runs.*?text":"(.*?) /is'
+    			    "follower" => $engineList['youtube']['regex1'],
     			],
     		],
     	];
-    
+    	
     	$this->set('pageScriptPath', $this->pageScriptPath);
     	$this->set( 'serviceList', $this->serviceList );
     	$this->set( 'pageNo', $_REQUEST['pageno']);

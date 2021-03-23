@@ -26,13 +26,13 @@ class ReviewBase extends Controller {
     var $serviceList;
     
     function __construct() {
-    	 
+        $engineList = Spider::getCrawlEngineCategoryList("review");
     	$this->serviceList = [
     		"google" => [
     			"label" => "Google My Business",
     			"regex" => [
-    				"reviews" => '/<span>([0-9.,]+) Google reviews<\/span>/is',
-    				"rating" => '/<\/g-popup>.*?aria-label="Rated (\d+\.\d+) out/is',
+    			    "reviews" => $engineList['google']['regex1'],
+    			    "rating" => $engineList['google']['regex2'],
     			],
     		    "url_part" => '?hl=en',
     		    'example' => ['https://www.google.com/search?q=kfc+Damrak']
@@ -40,8 +40,8 @@ class ReviewBase extends Controller {
     	    "glassdoor" => [
     	        "label" => "Glassdoor",
     	        "regex" => [
-    				"reviews" => '/"reviewCount":([0-9.,]+)/is',
-    				"rating" => '/"overallRating":(\d+\.\d+)/is',
+    	            "reviews" => $engineList['glassdoor']['regex1'],
+    	            "rating" => $engineList['glassdoor']['regex2'],
     	        ],
     		    'example' => ['https://www.glassdoor.com/Overview/Working-at-Google-EI_IE9079.11,17.htm']
     	    ],
