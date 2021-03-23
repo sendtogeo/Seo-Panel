@@ -522,5 +522,13 @@ class Spider{
 					return 0;
 			}
 	}
+	
+	public static function getCrawlEngineInfo($engineName, $engineCategory) {
+	    $ctrler = new SearchEngineController();
+	    $whereCond = "engine_name='" . addslashes($engineName) ."' and engine_category='" . addslashes($engineCategory) . "'";
+	    $engineInfo = $ctrler->dbHelper->getRow('crawl_engines', $whereCond);
+	    return $engineInfo;
+	}
+	    
 }
 ?>
