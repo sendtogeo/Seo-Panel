@@ -931,6 +931,7 @@ class ReportController extends Controller {
 	function showOverallReportSummary($searchInfo='', $cronUserId=false) {
 	    $searchInfo['type'] = htmlentities($searchInfo['type'], ENT_QUOTES);
 	    $searchInfo['search_name'] = htmlentities($searchInfo['search_name'], ENT_QUOTES);
+	    $searchInfo['order_col'] = str_replace(' ', '', $searchInfo['order_col']);
 		$spTextHome = $this->getLanguageTexts('home', $_SESSION['lang_code']);
         $this->set('spTextHome', $spTextHome);
         $this->set('cronUserId', $cronUserId);
