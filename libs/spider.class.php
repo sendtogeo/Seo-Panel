@@ -541,7 +541,6 @@ class Spider{
 	    }
 	    
 	    return $engineList;
-	}
-	    
+	}	    
 }
 ?>
