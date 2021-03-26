@@ -40,6 +40,3 @@ INSERT INTO `crawl_engines` (`engine_name`, `engine_category`, `regex1`, `regex2
 ('youtube', 'social_media', '/subscriberCountText\":\\{\"runs.*?text\":\"(.*?) /is', NULL, NULL, NULL, 1),
 ('google', 'review', '/<span>([0-9.,]+) Google reviews<\\/span>/is', '/<\\/g-popup>.*?aria-label=\"Rated (\\d+\\.\\d+) out/is', NULL, NULL, 1),
 ('glassdoor', 'review', '/\"reviewCount\":([0-9.,]+)/is', '/\"overallRating\":(\\d+\\.\\d+)/is', NULL, NULL, 1);
-
-INSERT INTO `crawl_engines` (`id`, `engine_name`, `engine_category`, `regex1`, `regex2`, `regex3`, `status`) 
-VALUES (NULL, 'alexa', 'rank', '/\\<popularity url\\=\"(.*?)\" TEXT\\=\"([0-9]+)\"/si', NULL, NULL, '1');
