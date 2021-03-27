@@ -358,51 +358,59 @@ class SocialMediaController extends Controller{
 		$errorMsg = !empty($errorMsg) ? $errorMsg : $_SESSION['text']['common']['Internal error occured'];
 		showErrorMsg($errorMsg);
 		
-	}	
+	}
+	
+	function formatMediaLink($smType, $smLink) {
+	    $smInfo = $this->serviceList[$smType];
+	    switch ($smType) {
+	        case "facebook":
+	            $smLink = strtok($smLink, '?');	            
+	            $smLink = str_ireplace(["//facebook.com", "//www.facebook.com"], "//m.facebook.com", $smLink);
+	            $smLink = str_ireplace("http://", "https://", $smLink);
+	            $smLink = preg_replace('/\/$/', '', $smLink);
+	            $smLink .= "/community/";
+	            break;
+	            
+	        case "linkedin":
+	            $smLink = str_replace("{CID}", $smLink, $smInfo['url']);
+	            break;
+	    }
+	    
+	    // if params needs to be added with url
+	    if (!empty($smInfo['url_part'])) {
+	        $smLink .= stristr($smLink, '?') ? str_replace("?", "&", $smInfo['url_part']) : $smInfo['url_part'];
+	    }
+	    
+	    return $smLink;
+	}
 	
 	function getSocialMediaDetails($smType, $smLink) {
 		$result = ['status' => 0, 'likes' => 0, 'followers' => 0, 'msg' => $_SESSION['text']['common']['Internal error occured']];
-		$smInfo = $this->serviceList[$smType];
 		
+		$smInfo = $this->serviceList[$smType];
 		if (!empty($smInfo) && !empty($smLink)) {
-			
-			// if params needs to be added with url
-			if (!empty($smInfo['url_part'])) {
-				$smLink .= stristr($smLink, '?') ? str_replace("?", "&", $smInfo['url_part']) : $smInfo['url_part'];
-			}
-			
-			// if linkedin
-			if ($smType == 'linkedin') {
-			    $smLink = str_replace("{CID}", $smLink, $smInfo['url']);
-			}
-			
+			$smLink = $this->formatMediaLink($smType, $smLink);
 			$smContentInfo = $this->spider->getContent($smLink);
-			
 			if (!empty($smContentInfo['page'])) {
 			    $matches = [];
 
 				// find likes
 				if (!empty($smInfo['regex']['like'])) {
 					preg_match($smInfo['regex']['like'], $smContentInfo['page'], $matches);
-					
 					if (!empty($matches[1])) {
 						$result['status'] = 1;
 						$result['likes'] = formatNumber($matches[1]);
 					}
-					
 				}
 				
 				// find followers
 				if (!empty($smInfo['regex']['follower'])) {
 					preg_match($smInfo['regex']['follower'], $smContentInfo['page'], $matches);
-						
 					if (!empty($matches[1])) {
 						$result['status'] = 1;
 						$result['followers'] = formatNumber($matches[1]);
-					}
-						
+					}	
 				}
-				
 			} else {
 				$result['msg'] = $smContentInfo['errmsg'];
 			}
@@ -410,7 +418,6 @@ class SocialMediaController extends Controller{
 		}
 		
 		return $result;
-		
 	}
 	
 	/*
