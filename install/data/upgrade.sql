@@ -15,6 +15,8 @@ CREATE TABLE `crawl_engines` (
   `regex2` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `regex3` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `regex4` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `url` varchar(200) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `url_part` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
   `status` tinyint(1) NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
@@ -22,21 +24,25 @@ ALTER TABLE `crawl_engines`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `engine_name` (`engine_name`,`engine_category`);
 
-ALTER TABLE `crawl_engines`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;  
 
-INSERT INTO `crawl_engines` (`id`, `engine_name`, `engine_category`, `regex1`, `regex2`, `regex3`, `regex4`, `status`) VALUES
-(15, 'alexa', 'rank', '/\\<popularity url\\=\"(.*?)\" TEXT\\=\"([0-9]+)\"/si', NULL, NULL, NULL, 1),
-(16, 'bing', 'backlink', '/([0-9\\,]+) results/si', '/id=\"count\".*?>.*?\\(([0-9\\,]+).*?\\)/si', '/id=\"count\".*?>.*?([0-9\\,]+).*?/si', '/class=\"sb_count\".*?>.*?([0-9\\,]+).*?<\\/span>/si', 1),
-(17, 'alexa', 'backlink', '/linksin\".*?big.*?>(.*?)</si', NULL, NULL, NULL, 1),
-(18, 'google', 'backlink', '/about ([0-9\\,]+) result/si', '/<div id=resultStats>([0-9\\,]+) result/si', '/([0-9\\,]+) result/si', '/about <b>([0-9\\,]+)<\\/b> linking/si', 1),
-(19, 'google', 'saturation', '/about ([0-9\\,]+) result/si', '/<div id=resultStats>([0-9\\,]+) result/si', '/([0-9\\,]+) result/si', '/about <b>([0-9\\,]+)<\\/b> linking/si', 1),
-(20, 'bing', 'saturation', '/([0-9\\,]+) results/si', '/id=\"count\".*?>.*?\\(([0-9\\,]+).*?\\)/si', '/id=\"count\".*?>.*?([0-9\\,]+).*?/si', '/class=\"sb_count\".*?>.*?([0-9\\,]+).*?<\\/span>/si', 1),
-(21, 'facebook', 'social_media', '/description\".*?content=\".*?([\\d,]+) likes/is', '/Total Likes.*?>([\\d,]+).*?Total Follows/is', NULL, NULL, 1),
-(22, 'twitter', 'social_media', '/\\/followers\".*?<div.*?>(.*?)<\\/div>/is', NULL, NULL, NULL, 1),
-(23, 'instagram', 'social_media', '/edge_followed_by.*?\"count\":(.*?)\\}/is', NULL, NULL, NULL, 1),
-(24, 'linkedin', 'social_media', '/<div.*?follower-count.*?>(.*?)<\\/div>/is', NULL, NULL, NULL, 1),
-(25, 'pinterest', 'social_media', '/pinterestapp:followers.*?content=\"(.*?)\"/is', NULL, NULL, NULL, 1),
-(26, 'youtube', 'social_media', '/subscriberCountText\":\\{\"runs.*?text\":\"(.*?) /is', NULL, NULL, NULL, 1),
-(27, 'google', 'review', '/<span>([0-9.,]+) Google reviews<\\/span>/is', '/<\\/g-popup>.*?aria-label=\"Rated (\\d+\\.\\d+) out/is', NULL, NULL, 1),
-(28, 'glassdoor', 'review', '/\"reviewCount\":([0-9.,]+)/is', '/\"overallRating\":(\\d+\\.\\d+)/is', NULL, NULL, 1);
+ALTER TABLE `crawl_engines`
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+
+INSERT INTO `crawl_engines` (`id`, `engine_name`, `engine_category`, `regex1`, `regex2`, `regex3`, `regex4`, `url`, `url_part`, `status`) VALUES
+(15, 'alexa', 'rank', '/\\<popularity url\\=\"(.*?)\" TEXT\\=\"([0-9]+)\"/si', NULL, NULL, NULL, '', NULL, 1),
+(16, 'bing', 'backlink', '/([0-9\\,]+) results/si', '/id=\"count\".*?>.*?\\(([0-9\\,]+).*?\\)/si', '/id=\"count\".*?>.*?([0-9\\,]+).*?/si', '/class=\"sb_count\".*?>.*?([0-9\\,]+).*?<\\/span>/si', '', NULL, 1),
+(17, 'alexa', 'backlink', '/linksin\".*?big.*?>(.*?)</si', NULL, NULL, NULL, '', NULL, 1),
+(18, 'google', 'backlink', '/about ([0-9\\,]+) result/si', '/<div id=resultStats>([0-9\\,]+) result/si', '/([0-9\\,]+) result/si', '/about <b>([0-9\\,]+)<\\/b> linking/si', '', NULL, 1),
+(19, 'google', 'saturation', '/about ([0-9\\,]+) result/si', '/<div id=resultStats>([0-9\\,]+) result/si', '/([0-9\\,]+) result/si', '/about <b>([0-9\\,]+)<\\/b> linking/si', '', NULL, 1),
+(20, 'bing', 'saturation', '/([0-9\\,]+) results/si', '/id=\"count\".*?>.*?\\(([0-9\\,]+).*?\\)/si', '/id=\"count\".*?>.*?([0-9\\,]+).*?/si', '/class=\"sb_count\".*?>.*?([0-9\\,]+).*?<\\/span>/si', '', NULL, 1),
+(21, 'facebook', 'social_media', '/description\".*?content=\".*?([\\d,]+) likes/is', '/Total Likes.*?>([\\d,]+).*?Total Follows/is', NULL, NULL, '', '?locale=en_US', 1),
+(22, 'twitter', 'social_media', '/followers_count\".*?(\\d+)/is', NULL, NULL, NULL, 'https://cdn.syndication.twimg.com/widgets/followbutton/info.json?screen_names={ACC_NAME}', NULL, 1),
+(23, 'instagram', 'social_media', '/edge_followed_by.*?\"count\":(.*?)\\}/is', NULL, NULL, NULL, '', NULL, 1),
+(24, 'linkedin', 'social_media', '/<div.*?follower-count.*?>(.*?)<\\/div>/is', NULL, NULL, NULL, 'https://www.linkedin.com/pages-extensions/FollowCompany?id={CID}&counter=bottom', NULL, 1),
+(25, 'pinterest', 'social_media', '/pinterestapp:followers.*?content=\"(.*?)\"/is', NULL, NULL, NULL, '', NULL, 1),
+(26, 'youtube', 'social_media', '/subscriberCountText\":\\{\"runs.*?text\":\"(.*?) /is', NULL, NULL, NULL, '', NULL, 1),
+(27, 'google', 'review', '/<span>([0-9.,]+) Google reviews<\\/span>/is', '/<\\/g-popup>.*?aria-label=\"Rated (\\d+\\.\\d+) out/is', NULL, NULL, '', NULL, 1),
+(28, 'glassdoor', 'review', '/\"reviewCount\":([0-9.,]+)/is', '/\"overallRating\":(\\d+\\.\\d+)/is', NULL, NULL, '', NULL, 1);
+
+
+

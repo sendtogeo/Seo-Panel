@@ -39,10 +39,11 @@ class SocialMediaController extends Controller{
     			    "like" => $engineList['facebook']['regex1'],
     			    "follower" => $engineList['facebook']['regex2'],
     			],
-    			"url_part" => '?locale=en_US'
+    		    "url_part" => $engineList['facebook']['url_part'],
     		],
     		"twitter" => [
-    			"label" => "Twitter",
+    		    "label" => "Twitter",
+    		    "url" => $engineList['twitter']['url'],
     			"regex" => [
     			    "follower" => $engineList['twitter']['regex1'],
     			],
@@ -55,7 +56,7 @@ class SocialMediaController extends Controller{
     		],
     		"linkedin" => [
     			"label" => "LinkedIn",
-    		    "url" => "https://www.linkedin.com/pages-extensions/FollowCompany?id={CID}&counter=bottom",
+    		    "url" => $engineList['linkedin']['url'],
     		    "regex" => [
     		        "follower" => $engineList['linkedin']['regex1'],
     		    ],
@@ -362,17 +363,31 @@ class SocialMediaController extends Controller{
 	
 	function formatMediaLink($smType, $smLink) {
 	    $smInfo = $this->serviceList[$smType];
+	    $smLink = str_ireplace("http://", "https://", $smLink);
+	    
+	    // switch through the social media types
 	    switch ($smType) {
 	        case "facebook":
 	            $smLink = strtok($smLink, '?');	            
 	            $smLink = str_ireplace(["//facebook.com", "//www.facebook.com"], "//m.facebook.com", $smLink);
-	            $smLink = str_ireplace("http://", "https://", $smLink);
 	            $smLink = preg_replace('/\/$/', '', $smLink);
 	            $smLink .= "/community/";
 	            break;
 	            
 	        case "linkedin":
 	            $smLink = str_replace("{CID}", $smLink, $smInfo['url']);
+	            break;
+	            
+	        case "twitter":
+	            $smLink = strtok($smLink, '?');
+	            $smLink = preg_replace('/\/$/', '', $smLink);
+	            $linkList = explode('/', $smLink);
+	            $acountName = array_pop($linkList);
+	            if (!empty($acountName)) {
+	               $smLink = str_replace("{ACC_NAME}", $acountName, $smInfo['url']);
+	            } else {
+	                $smLink = "";
+	            }
 	            break;
 	    }
 	    
