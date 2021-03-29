@@ -40,9 +40,8 @@ INSERT INTO `crawl_engines` (`id`, `engine_name`, `engine_category`, `regex1`, `
 (23, 'instagram', 'social_media', '/edge_followed_by.*?\"count\":(.*?)\\}/is', NULL, NULL, NULL, '', NULL, 1),
 (24, 'linkedin', 'social_media', '/<div.*?follower-count.*?>(.*?)<\\/div>/is', NULL, NULL, NULL, 'https://www.linkedin.com/pages-extensions/FollowCompany?id={CID}&counter=bottom', NULL, 1),
 (25, 'pinterest', 'social_media', '/pinterestapp:followers.*?content=\"(.*?)\"/is', NULL, NULL, NULL, '', NULL, 1),
-(26, 'youtube', 'social_media', '/subscriberCountText\":\\{\"runs.*?text\":\"(.*?) /is', NULL, NULL, NULL, '', NULL, 1),
+(26, 'youtube', 'social_media', '/subscriberCountText\".*?\"(\\d.*?) subscribers\"/is', NULL, NULL, NULL, '', '/about', 1),
 (27, 'google', 'review', '/<span>([0-9.,]+) Google reviews<\\/span>/is', '/<\\/g-popup>.*?aria-label=\"Rated (\\d+\\.\\d+) out/is', NULL, NULL, '', NULL, 1),
 (28, 'glassdoor', 'review', '/\"reviewCount\":([0-9.,]+)/is', '/\"overallRating\":(\\d+\\.\\d+)/is', NULL, NULL, '', NULL, 1);
-
 
 

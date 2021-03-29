@@ -73,6 +73,7 @@ class SocialMediaController extends Controller{
     			"regex" => [
     			    "follower" => $engineList['youtube']['regex1'],
     			],
+    		    "url_part" => $engineList['youtube']['url_part'],
     		],
     	];
     	
@@ -388,6 +389,11 @@ class SocialMediaController extends Controller{
 	            } else {
 	                $smLink = "";
 	            }
+	            break;
+	            
+	        case "youtube":
+	            $smLink = strtok($smLink, '?');
+	            $smLink = preg_replace('/\/$/', '', $smLink);
 	            break;
 	    }
 	    
