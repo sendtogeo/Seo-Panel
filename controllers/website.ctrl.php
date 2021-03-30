@@ -387,7 +387,7 @@ class WebsiteController extends Controller{
 		// verify the form
 		if(!$this->validate->flagErr){
 
-			if($listInfo['name'] != $listInfo['oldName']){
+		    if(strtolower($listInfo['name']) != strtolower($listInfo['oldName'])){
 				if ($this->__checkName($listInfo['name'], $userId)) {
 					$errMsg['name'] = formatErrorMsg($this->spTextWeb['Website already exist']);
 					$this->validate->flagErr = true;
