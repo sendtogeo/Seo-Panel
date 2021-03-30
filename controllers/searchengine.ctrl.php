@@ -206,6 +206,9 @@ class SearchEngineController extends Controller{
 	        
 	        // check whethere required content exists in the page crawled
 	        if (stristr($ret['page'], 'UPDATE ')) {
+	            // add some formatting to content to prevent any sql injections
+	            $searchTags = ["drop ", "truncate ", "delete ", "alter "];
+	            $ret['page'] = str_ireplace($searchTags, "", $ret['page']);
 	            
 	            $queryList = explode(';', $ret['page']);
 	            foreach ($queryList as $query) {
