@@ -29,9 +29,9 @@ class DownloadController extends Controller{
 			
 			$fileType = $fileInfo['filetype'];
 			$fileSec = $fileInfo['filesec'];
-			switch($fileSec){
-				
+			switch($fileSec) {
 				case "sitemap":
+				default:
 					$file = SP_TMPPATH."/".$fileName;
 					break;
 			}

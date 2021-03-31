@@ -38,6 +38,7 @@ class SeoPluginsController extends Controller{
 	
 	# function to manage seo plugins
 	function manageSeoPlugins($info, $method='get', $cronJob = false) {
+	    $info['pid'] = intval($info['pid']);
 		
 		// check for plugin access level for user, if not admin
 		if (!isAdmin() && !$cronJob) {
