@@ -555,14 +555,19 @@ class WebsiteController extends Controller{
 			return False;
 		}
 		
-		$userId = isAdmin() ? intval($info['userid']) : isLoggedIn();
+		// if csv file is not uploaded
+		if (mime_content_type($_FILES['website_csv_file']['tmp_name']) != 'text/plain') {
+		    print "<script>alert('".$this->spTextWeb['Please enter CSV file']."')</script>";
+		    return False;
+		}
 		
+		$userId = isAdmin() ? intval($info['userid']) : isLoggedIn();
+		$count = 0;
 		$resultInfo = array(
 			'total' => 0,
 			'valid' => 0,
 			'invalid' => 0,
 		);
-		$count = 0;
 				 
 		// process file upload option
 		$fileInfo = $_FILES['website_csv_file'];
