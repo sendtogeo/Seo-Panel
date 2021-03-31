@@ -28,20 +28,19 @@ ALTER TABLE `crawl_engines`
 ALTER TABLE `crawl_engines`
   MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
-INSERT INTO `crawl_engines` (`id`, `engine_name`, `engine_category`, `regex1`, `regex2`, `regex3`, `regex4`, `url`, `url_part`, `status`) VALUES
-(15, 'alexa', 'rank', '/\\<popularity url\\=\"(.*?)\" TEXT\\=\"([0-9]+)\"/si', NULL, NULL, NULL, '', NULL, 1),
-(16, 'bing', 'backlink', '/([0-9\\,]+) results/si', '/id=\"count\".*?>.*?\\(([0-9\\,]+).*?\\)/si', '/id=\"count\".*?>.*?([0-9\\,]+).*?/si', '/class=\"sb_count\".*?>.*?([0-9\\,]+).*?<\\/span>/si', '', NULL, 1),
-(17, 'alexa', 'backlink', '/linksin\".*?big.*?>(.*?)</si', NULL, NULL, NULL, '', NULL, 1),
-(18, 'google', 'backlink', '/about ([0-9\\,]+) result/si', '/<div id=resultStats>([0-9\\,]+) result/si', '/([0-9\\,]+) result/si', '/about <b>([0-9\\,]+)<\\/b> linking/si', '', NULL, 1),
-(19, 'google', 'saturation', '/about ([0-9\\,]+) result/si', '/<div id=resultStats>([0-9\\,]+) result/si', '/([0-9\\,]+) result/si', '/about <b>([0-9\\,]+)<\\/b> linking/si', '', NULL, 1),
-(20, 'bing', 'saturation', '/([0-9\\,]+) results/si', '/id=\"count\".*?>.*?\\(([0-9\\,]+).*?\\)/si', '/id=\"count\".*?>.*?([0-9\\,]+).*?/si', '/class=\"sb_count\".*?>.*?([0-9\\,]+).*?<\\/span>/si', '', NULL, 1),
-(21, 'facebook', 'social_media', '/description\".*?content=\".*?([\\d,]+) likes/is', '/Total Likes.*?>([\\d,]+).*?Total Follows/is', NULL, NULL, '', '?locale=en_US', 1),
-(22, 'twitter', 'social_media', '/followers_count\".*?(\\d+)/is', NULL, NULL, NULL, 'https://cdn.syndication.twimg.com/widgets/followbutton/info.json?screen_names={ACC_NAME}', NULL, 1),
-(23, 'instagram', 'social_media', '/edge_followed_by.*?\"count\":(.*?)\\}/is', NULL, NULL, NULL, '', NULL, 1),
-(24, 'linkedin', 'social_media', '/<div.*?follower-count.*?>(.*?)<\\/div>/is', NULL, NULL, NULL, 'https://www.linkedin.com/pages-extensions/FollowCompany?id={CID}&counter=bottom', NULL, 1),
-(25, 'pinterest', 'social_media', '/pinterestapp:followers.*?content=\"(.*?)\"/is', NULL, NULL, NULL, '', NULL, 1),
-(26, 'youtube', 'social_media', '/subscriberCountText\".*?\"(\\d.*?) subscribers\"/is', NULL, NULL, NULL, '', '/about', 1),
-(27, 'google', 'review', '/<span>([0-9.,]+) Google reviews<\\/span>/is', '/<\\/g-popup>.*?aria-label=\"Rated (\\d+\\.\\d+) out/is', NULL, NULL, '', NULL, 1),
-(28, 'glassdoor', 'review', '/\"reviewCount\":([0-9.,]+)/is', '/\"overallRating\":(\\d+\\.\\d+)/is', NULL, NULL, '', NULL, 1);
-
+INSERT INTO `crawl_engines` (`engine_name`, `engine_category`, `regex1`, `regex2`, `regex3`, `regex4`, `url`, `url_part`, `status`) VALUES
+('alexa', 'rank', '/\\<popularity url\\=\"(.*?)\" TEXT\\=\"([0-9]+)\"/si', NULL, NULL, NULL, '', NULL, 1),
+('bing', 'backlink', '/([0-9\\,]+) results/si', '/id=\"count\".*?>.*?\\(([0-9\\,]+).*?\\)/si', '/id=\"count\".*?>.*?([0-9\\,]+).*?/si', '/class=\"sb_count\".*?>.*?([0-9\\,]+).*?<\\/span>/si', '', NULL, 1),
+('alexa', 'backlink', '/linksin\".*?big.*?>(.*?)</si', NULL, NULL, NULL, '', NULL, 1),
+('google', 'backlink', '/about ([0-9\\,]+) result/si', '/<div id=resultStats>([0-9\\,]+) result/si', '/([0-9\\,]+) result/si', '/about <b>([0-9\\,]+)<\\/b> linking/si', '', NULL, 1),
+('google', 'saturation', '/about ([0-9\\,]+) result/si', '/<div id=resultStats>([0-9\\,]+) result/si', '/([0-9\\,]+) result/si', '/about <b>([0-9\\,]+)<\\/b> linking/si', '', NULL, 1),
+('bing', 'saturation', '/([0-9\\,]+) results/si', '/id=\"count\".*?>.*?\\(([0-9\\,]+).*?\\)/si', '/id=\"count\".*?>.*?([0-9\\,]+).*?/si', '/class=\"sb_count\".*?>.*?([0-9\\,]+).*?<\\/span>/si', '', NULL, 1),
+('facebook', 'social_media', '/description\".*?content=\".*?([\\d,]+) likes/is', '/Total Likes.*?>([\\d,]+).*?Total Follows/is', NULL, NULL, '', '?locale=en_US', 1),
+('twitter', 'social_media', '/followers_count\".*?(\\d+)/is', NULL, NULL, NULL, 'https://cdn.syndication.twimg.com/widgets/followbutton/info.json?screen_names={ACC_NAME}', NULL, 1),
+('instagram', 'social_media', '/edge_followed_by.*?\"count\":(.*?)\\}/is', NULL, NULL, NULL, '', '/?__a=1', 1),
+('linkedin', 'social_media', '/<div.*?follower-count.*?>(.*?)<\\/div>/is', NULL, NULL, NULL, 'https://www.linkedin.com/pages-extensions/FollowCompany?id={CID}&counter=bottom', NULL, 1),
+('pinterest', 'social_media', '/pinterestapp:followers.*?content=\"(.*?)\"/is', NULL, NULL, NULL, '', NULL, 1),
+('youtube', 'social_media', '/subscriberCountText\".*?\"(\\d.*?) subscribers\"/is', NULL, NULL, NULL, '', '/about', 1),
+('google', 'review', '/<span>([0-9.,]+) Google reviews<\\/span>/is', '/<\\/g-popup>.*?aria-label=\"Rated (\\d+\\.\\d+) out/is', NULL, NULL, '', NULL, 1),
+('glassdoor', 'review', '/\"reviewCount\":([0-9.,]+)/is', '/\"overallRating\":(\\d+\\.\\d+)/is', NULL, NULL, '', NULL, 1);
 
