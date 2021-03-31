@@ -24,9 +24,7 @@ ALTER TABLE `crawl_engines`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `engine_name` (`engine_name`,`engine_category`);
 
-
-ALTER TABLE `crawl_engines`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+ALTER TABLE `crawl_engines` MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT;
 
 INSERT INTO `crawl_engines` (`engine_name`, `engine_category`, `regex1`, `regex2`, `regex3`, `regex4`, `url`, `url_part`, `status`) VALUES
 ('alexa', 'rank', '/\\<popularity url\\=\"(.*?)\" TEXT\\=\"([0-9]+)\"/si', NULL, NULL, NULL, '', NULL, 1),
