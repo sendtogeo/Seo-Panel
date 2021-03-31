@@ -151,7 +151,7 @@ if (!empty($keywordPos) && !empty($seCount)) {
 			?>
 		</tr>
 		<?php		 
-		if (count($list) > 0) {
+		if (!empty($list) && count($list) > 0) {
 			foreach($indexList as $keywordId => $rankValue){
 			    $listInfo = $list[$keywordId];
 				$positionInfo = $listInfo['position_info'];

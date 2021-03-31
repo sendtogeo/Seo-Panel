@@ -8,7 +8,7 @@
 	    <input type="hidden" name="sec" value="requestpass">
 		<div class="form-group">
 			<label for="email"><?php echo $spText['login']['Email']?>:</label> 
-			<input type="email" name="email" value="<?php echo $post['email']?>" required="required" class="form-control">
+			<input type="email" name="email" value="<?php echo htmlentities($post['email'], ENT_QUOTES)?>" required="required" class="form-control">
 			<?php echo $errMsg['email']?>
 		</div>
 		<div class="form-group">
