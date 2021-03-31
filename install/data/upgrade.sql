@@ -43,4 +43,3 @@ INSERT INTO `crawl_engines` (`engine_name`, `engine_category`, `regex1`, `regex2
 ('youtube', 'social_media', '/subscriberCountText\".*?\"(\\d.*?) subscribers\"/is', NULL, NULL, NULL, '', '/about', 1),
 ('google', 'review', '/<span>([0-9.,]+) Google reviews<\\/span>/is', '/<\\/g-popup>.*?aria-label=\"Rated (\\d+\\.\\d+) out/is', NULL, NULL, '', NULL, 1),
 ('glassdoor', 'review', '/\"reviewCount\":([0-9.,]+)/is', '/\"overallRating\":(\\d+\\.\\d+)/is', NULL, NULL, '', NULL, 1);
-
