@@ -142,14 +142,15 @@ class RankController extends Controller{
 		$rank = 0;
 		
 		// parse rank from teh page
-		if(!empty($ret['page'])){
-			if (preg_match('/\<popularity url\="(.*?)" TEXT\="([0-9]+)"/si', $ret['page'], $matches) ) {
+		if(!empty($ret['page'])) {
+		    $matches = [];
+		    $engineInfo = Spider::getCrawlEngineInfo('alexa', 'rank');
+		    if (preg_match($engineInfo['regex1'], $ret['page'], $matches) ) {
 				$rank = empty($matches[2]) ? 0 : $matches[2];	
 			} else {
 				$crawlInfo['crawl_status'] = 0;
 				$crawlInfo['log_message'] = SearchEngineController::isCaptchInSearchResults($ret['page']) ? "<font class=error>Captcha found</font> in search result page" : "Regex not matched error occured while parsing search results!";
 			}
-			
 		}
 		
 		// update crawl log
@@ -246,7 +247,7 @@ class RankController extends Controller{
 				$Check = ($Check - $Int32Unit * (int) ($Check / $Int32Unit));
 				$Check = ($Check < -2147483648)? ($Check + $Int32Unit) : $Check;
 			}
-			$Check += ord($Str{$i});
+			$Check += ord($Str[$i]);
 		}
 		return $Check;
 	}
@@ -274,7 +275,7 @@ class RankController extends Controller{
 		$length = strlen($HashStr);
 
 		for ($i = $length - 1; $i >= 0; $i --) {
-			$Re = $HashStr{$i};
+			$Re = $HashStr[$i];
 			if (1 === ($Flag % 2)) {
 				$Re += $Re;
 				$Re = (int)($Re / 10) + ($Re % 10);

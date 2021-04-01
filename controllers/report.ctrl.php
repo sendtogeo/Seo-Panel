@@ -929,7 +929,9 @@ class ReportController extends Controller {
 	
     # function to show system reports 
 	function showOverallReportSummary($searchInfo='', $cronUserId=false) {
-			
+	    $searchInfo['type'] = htmlentities($searchInfo['type'], ENT_QUOTES);
+	    $searchInfo['search_name'] = htmlentities($searchInfo['search_name'], ENT_QUOTES);
+	    $searchInfo['order_col'] = str_replace([' ', '*'], '', $searchInfo['order_col']);
 		$spTextHome = $this->getLanguageTexts('home', $_SESSION['lang_code']);
         $this->set('spTextHome', $spTextHome);
         $this->set('cronUserId', $cronUserId);
@@ -983,6 +985,8 @@ class ReportController extends Controller {
 		    'analytics-reports' => $this->spTextTools['Website Analytics Summary'],
 		    'review-reports' => $this->spTextTools['Review Report Summary'],
 		);
+		
+		$searchInfo['report_type'] = htmlentities($searchInfo['report_type'], ENT_QUOTES);
 		$this->set('reportTypes', $reportTypes);
 		$urlarg .= "&report_type=".$searchInfo['report_type'];		
 				

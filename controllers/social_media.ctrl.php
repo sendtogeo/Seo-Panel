@@ -31,50 +31,53 @@ class SocialMediaController extends Controller{
     var $colList;
     
     function __construct() {
-    	 
+        $engineList = Spider::getCrawlEngineCategoryList("social_media");
     	$this->serviceList = [
     		"facebook" => [
     			"label" => "Facebook",
     			"regex" => [
-    				"like" => '/id="PagesLikesCountDOMID.*?<span.*?>(.*?)<span/is',
-    				"follower" => '/people like this.*?<div>(\d.*?)people follow this/is',
+    			    "like" => $engineList['facebook']['regex1'],
+    			    "follower" => $engineList['facebook']['regex2'],
     			],
-    			"url_part" => '?locale=en_US'
+    		    "url_part" => $engineList['facebook']['url_part'],
     		],
     		"twitter" => [
-    			"label" => "Twitter",
+    		    "label" => "Twitter",
+    		    "url" => $engineList['twitter']['url'],
     			"regex" => [
-    				"follower" => '/\/followers".*?<div.*?>(.*?)<\/div>/is'
+    			    "follower" => $engineList['twitter']['regex1'],
     			],
     		],
     		"instagram" => [
     			"label" => "Instagram",
     			"regex" => [
-    				"follower" => '/edge_followed_by.*?"count":(.*?)\}/is'
+    			    "follower" => $engineList['instagram']['regex1'],
     			],
+    		    "url_part" => $engineList['instagram']['url_part'],
     		],
     		"linkedin" => [
     			"label" => "LinkedIn",
-    		    "url" => "https://www.linkedin.com/pages-extensions/FollowCompany?id={CID}&counter=bottom",
+    		    "url" => $engineList['linkedin']['url'],
     		    "regex" => [
-    		        "follower" => '/<div.*?follower-count.*?>(.*?)<\/div>/is'
+    		        "follower" => $engineList['linkedin']['regex1'],
     		    ],
     		    "show_url" => "https://www.linkedin.com/company",
     		],
     		"pinterest" => [
     			"label" => "Pinterest",
     			"regex" => [
-    				"follower" => '/pinterestapp:followers.*?content="(.*?)"/is'
+    			    "follower" => $engineList['pinterest']['regex1'],
     			],
     		],
     		"youtube" => [
     			"label" => "Youtube",
     			"regex" => [
-    				"follower" => '/subscriberCountText":\{"runs.*?text":"(.*?) /is'
+    			    "follower" => $engineList['youtube']['regex1'],
     			],
+    		    "url_part" => $engineList['youtube']['url_part'],
     		],
     	];
-    
+    	
     	$this->set('pageScriptPath', $this->pageScriptPath);
     	$this->set( 'serviceList', $this->serviceList );
     	$this->set( 'pageNo', $_REQUEST['pageno']);
@@ -358,51 +361,83 @@ class SocialMediaController extends Controller{
 		$errorMsg = !empty($errorMsg) ? $errorMsg : $_SESSION['text']['common']['Internal error occured'];
 		showErrorMsg($errorMsg);
 		
-	}	
+	}
+	
+	function formatMediaLink($smType, $smLink) {
+	    $smInfo = $this->serviceList[$smType];
+	    $smLink = str_ireplace("http://", "https://", $smLink);
+	    
+	    // switch through the social media types
+	    switch ($smType) {
+	        case "facebook":
+	            $smLink = strtok($smLink, '?');	            
+	            $smLink = str_ireplace(["//facebook.com", "//www.facebook.com"], "//m.facebook.com", $smLink);
+	            $smLink = preg_replace('/\/$/', '', $smLink);
+	            $smLink .= "/community/";
+	            break;
+	            
+	        case "linkedin":
+	            $smLink = str_replace("{CID}", $smLink, $smInfo['url']);
+	            break;
+	            
+	        case "twitter":
+	            $smLink = strtok($smLink, '?');
+	            $smLink = preg_replace('/\/$/', '', $smLink);
+	            $linkList = explode('/', $smLink);
+	            $acountName = array_pop($linkList);
+	            if (!empty($acountName)) {
+	               $smLink = str_replace("{ACC_NAME}", $acountName, $smInfo['url']);
+	            } else {
+	                $smLink = "";
+	            }
+	            break;
+	            
+	        case "youtube":
+	            $smLink = strtok($smLink, '?');
+	            $smLink = preg_replace('/\/$/', '', $smLink);
+	            break;
+	            
+	        case "instagram":
+	            $smLink = strtok($smLink, '?');
+	            $smLink = preg_replace('/\/$/', '', $smLink);
+	            break;
+	    }
+	    
+	    // if params needs to be added with url
+	    if (!empty($smInfo['url_part'])) {
+	        $smLink .= stristr($smLink, '?') ? str_replace("?", "&", $smInfo['url_part']) : $smInfo['url_part'];
+	    }
+	    
+	    return $smLink;
+	}
 	
 	function getSocialMediaDetails($smType, $smLink) {
 		$result = ['status' => 0, 'likes' => 0, 'followers' => 0, 'msg' => $_SESSION['text']['common']['Internal error occured']];
-		$smInfo = $this->serviceList[$smType];
 		
+		$smInfo = $this->serviceList[$smType];
 		if (!empty($smInfo) && !empty($smLink)) {
-			
-			// if params needs to be added with url
-			if (!empty($smInfo['url_part'])) {
-				$smLink .= stristr($smLink, '?') ? str_replace("?", "&", $smInfo['url_part']) : $smInfo['url_part'];
-			}
-			
-			// if linkedin
-			if ($smType == 'linkedin') {
-			    $smLink = str_replace("{CID}", $smLink, $smInfo['url']);
-			}
-			
+			$smLink = $this->formatMediaLink($smType, $smLink);
 			$smContentInfo = $this->spider->getContent($smLink);
-			
 			if (!empty($smContentInfo['page'])) {
 			    $matches = [];
 
 				// find likes
 				if (!empty($smInfo['regex']['like'])) {
 					preg_match($smInfo['regex']['like'], $smContentInfo['page'], $matches);
-					
 					if (!empty($matches[1])) {
 						$result['status'] = 1;
 						$result['likes'] = formatNumber($matches[1]);
 					}
-					
 				}
 				
 				// find followers
 				if (!empty($smInfo['regex']['follower'])) {
 					preg_match($smInfo['regex']['follower'], $smContentInfo['page'], $matches);
-						
 					if (!empty($matches[1])) {
 						$result['status'] = 1;
 						$result['followers'] = formatNumber($matches[1]);
-					}
-						
+					}	
 				}
-				
 			} else {
 				$result['msg'] = $smContentInfo['errmsg'];
 			}
@@ -410,7 +445,6 @@ class SocialMediaController extends Controller{
 		}
 		
 		return $result;
-		
 	}
 	
 	/*

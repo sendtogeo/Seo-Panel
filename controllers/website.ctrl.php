@@ -296,7 +296,7 @@ class WebsiteController extends Controller{
     				if ($apiCall) {
     					return array('success', 'Successfully created website');
     				} else {
-	    				$this->listWebsites();
+	    				$this->listWebsites([]);
 	    				exit;
     				}
     				
@@ -348,7 +348,7 @@ class WebsiteController extends Controller{
 			$this->render('website/edit');
 			exit;
 		}
-		$this->listWebsites();
+		$this->listWebsites([]);
 	}
 
 	function updateWebsite($listInfo, $apiCall = false){
@@ -387,7 +387,7 @@ class WebsiteController extends Controller{
 		// verify the form
 		if(!$this->validate->flagErr){
 
-			if($listInfo['name'] != $listInfo['oldName']){
+		    if(strtolower($listInfo['name']) != strtolower($listInfo['oldName'])){
 				if ($this->__checkName($listInfo['name'], $userId)) {
 					$errMsg['name'] = formatErrorMsg($this->spTextWeb['Website already exist']);
 					$this->validate->flagErr = true;
@@ -419,7 +419,7 @@ class WebsiteController extends Controller{
 				if ($apiCall) {
 					return array('success', 'Successfully updated website');
 				} else {
-					$this->listWebsites();
+					$this->listWebsites([]);
 					exit;
 				}
 				
@@ -555,14 +555,19 @@ class WebsiteController extends Controller{
 			return False;
 		}
 		
-		$userId = isAdmin() ? intval($info['userid']) : isLoggedIn();
+		// if csv file is not uploaded
+		if (mime_content_type($_FILES['website_csv_file']['tmp_name']) != 'text/plain') {
+		    print "<script>alert('".$this->spTextWeb['Please enter CSV file']."')</script>";
+		    return False;
+		}
 		
+		$userId = isAdmin() ? intval($info['userid']) : isLoggedIn();
+		$count = 0;
 		$resultInfo = array(
 			'total' => 0,
 			'valid' => 0,
 			'invalid' => 0,
 		);
-		$count = 0;
 				 
 		// process file upload option
 		$fileInfo = $_FILES['website_csv_file'];

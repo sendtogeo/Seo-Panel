@@ -522,5 +522,25 @@ class Spider{
 					return 0;
 			}
 	}
+	
+	public static function getCrawlEngineInfo($engineName, $engineCategory) {
+	    $ctrler = new SearchEngineController();
+	    $whereCond = "engine_name='" . addslashes($engineName) ."' and engine_category='" . addslashes($engineCategory) . "'";
+	    $engineInfo = $ctrler->dbHelper->getRow('crawl_engines', $whereCond);
+	    return $engineInfo;
+	}
+	
+	public static function getCrawlEngineCategoryList($engineCategory) {
+	    $ctrler = new SearchEngineController();
+	    $whereCond = "engine_category='" . addslashes($engineCategory) . "'";
+	    $list = $ctrler->dbHelper->getAllRows('crawl_engines', $whereCond);
+	    
+	    $engineList = [];
+	    foreach ($list as $listInfo) {
+	        $engineList[$listInfo['engine_name']] = $listInfo;
+	    }
+	    
+	    return $engineList;
+	}	    
 }
 ?>

@@ -50,6 +50,12 @@ if($_SERVER['REQUEST_METHOD'] == 'GET'){
 			</script>
 			<?php
 			break;
+			
+        case "sync_all_se":
+            include_once(SP_CTRLPATH."/searchengine.ctrl.php");
+            $seCtrler = new SearchEngineController();
+            $seCtrler->doSyncSearchEngines(true, true);
+            break;
 
 		default:
 			$controller->index($_GET);

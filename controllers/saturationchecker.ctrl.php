@@ -79,12 +79,13 @@ class SaturationCheckerController extends Controller{
 			case 'google':
 				$url = $this->saturationUrlList[$engine] . urlencode($this->url);			
 				$v = $this->spider->getContent($url);
-				$pageContent = empty($v['page']) ? '' :  $v['page'];				
-				
-				if (preg_match('/about ([0-9\,]+) result/si', $pageContent, $r)){					
-				} elseif (preg_match('/<div id=resultStats>([0-9\,]+) result/si', $pageContent, $r)){					
-				} elseif (preg_match('/([0-9\,]+) result/si', $pageContent, $r)){					
-				} elseif (preg_match('/about <b>([0-9\,]+)<\/b> from/si', $pageContent, $r)){					
+				$pageContent = empty($v['page']) ? '' :  $v['page'];
+				$r = [];
+				$engineInfo = Spider::getCrawlEngineInfo('google', 'saturation');
+				if (preg_match($engineInfo['regex1'], $pageContent, $r)){					
+				} elseif (preg_match($engineInfo['regex2'], $pageContent, $r)){					
+				} elseif (preg_match($engineInfo['regex3'], $pageContent, $r)){					
+				} elseif (preg_match($engineInfo['regex4'], $pageContent, $r)){					
 				} elseif (preg_match('/of <b>([0-9\,]+)<\/b>/si', $pageContent, $r) ) {
 				} else {
 					$crawlInfo['crawl_status'] = 0;
@@ -99,10 +100,12 @@ class SaturationCheckerController extends Controller{
 				$url = $this->saturationUrlList[$engine] . urlencode(addHttpToUrl($this->url));
 				$v = $this->spider->getContent($url);
 				$pageContent = empty($v['page']) ? '' :  $v['page'];
-		        if (preg_match('/([0-9\,]+) results/si', $pageContent, $r)) {
-				} elseif (preg_match('/id="count".*?>.*?\(([0-9\,]+).*?\)/si', $pageContent, $r)) {
-				} elseif (preg_match('/id="count".*?>.*?([0-9\,]+).*?/si', $pageContent, $r)) {
-				} elseif (preg_match('/class="sb_count".*?>.*?([0-9\,]+).*?<\/span>/si', $pageContent, $r)) {
+				$r = [];
+				$engineInfo = Spider::getCrawlEngineInfo('bing', 'saturation');
+				if (preg_match($engineInfo['regex1'], $pageContent, $r)) {
+				} elseif (preg_match($engineInfo['regex2'], $pageContent, $r)) {
+				} elseif (preg_match($engineInfo['regex3'], $pageContent, $r)) {
+				} elseif (preg_match($engineInfo['regex4'], $pageContent, $r)) {
 				} else {
 					$crawlInfo['crawl_status'] = 0;
 					$crawlInfo['log_message'] = SearchEngineController::isCaptchInSearchResults($pageContent) ? "<font class=error>Captcha found</font> in search result page" : "Regex not matched error occured while parsing search results!";
