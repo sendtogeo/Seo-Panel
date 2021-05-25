@@ -35,6 +35,7 @@ class SeoPluginsController extends Controller{
 	var $pluginCssPath;
 	var $pluginJsPath;
 	var $pluginScriptUrl;
+	var $pluginDirName;
 	
 	# function to manage seo plugins
 	function manageSeoPlugins($info, $method='get', $cronJob = false) {
@@ -62,7 +63,7 @@ class SeoPluginsController extends Controller{
 		$pluginControler = New $pluginDirName();
 		
 		// set plugin specific variabled
-		$pluginControlerpluginDirName = $pluginDirName;
+		$pluginControler->pluginDirName = $pluginDirName;
 		$pluginControler->pluginPath = $pluginPath;
 		$pluginControler->pluginId = $info['pid'];
 		$pluginControler->pluginViewPath = $this->getPluginViewPath($pluginControler->pluginPath);
