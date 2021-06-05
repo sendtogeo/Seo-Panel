@@ -451,7 +451,7 @@ class Spider{
 		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
 				
-		curl_setopt($ch, CURLOPT_URL, "http://www.google.com/search?q=twitter");
+		curl_setopt($ch, CURLOPT_URL, "https://www.google.com/search?q=twitter");
 		$ret['page'] = curl_exec( $ch );
 		$ret['error'] = curl_errno( $ch );
 		$ret['errmsg'] = curl_error( $ch );
