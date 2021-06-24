@@ -93,7 +93,6 @@ class Mysql extends Database{
 			$this->lastInsertId = @mysql_insert_id($this->connectionId);
 		}else{
 			$this->showError();
-			@mysql_free_result($res);
 		}
 		if($noRows) $this->noRows = mysql_num_rows($res);
 		return $res;

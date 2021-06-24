@@ -24,7 +24,7 @@
 class AdminPanelController extends Controller{	
 	
 	# index function
-	function index($info = ""){
+	function index($info=[]){
 		
 		if (isAdmin() || !SP_CUSTOM_DEV) {
 			$menuList[] = array(

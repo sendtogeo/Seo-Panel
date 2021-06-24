@@ -173,7 +173,7 @@ class ReviewManagerController extends ReviewBase{
         
     }
     
-    function newReviewLink($info = '') {
+    function newReviewLink($info=[]) {
         $userId = isLoggedIn();
         $this->set('post', $info);
         $webSiteCtrler = new WebsiteController();
@@ -278,7 +278,7 @@ class ReviewManagerController extends ReviewBase{
                 
     }
 
-	function viewQuickChecker($info='') {
+	function viewQuickChecker($info=[]) {
 		$this->render('review/quick_checker');
 	}
 

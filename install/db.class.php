@@ -47,7 +47,6 @@ class DB{
 		$res = @mysql_query($query, $this->connectionId);
 		if (empty($res)){
 			return $this->getError();
-			@mysql_free_result($res);
 		}
 		return $res;
 	}

@@ -157,7 +157,7 @@ class DirectoryController extends Controller{
 			$fp = fopen(SP_TMPPATH."/".$captchaFile, 'w');
 			fwrite($fp, $ret['page']);
 			fclose($fp);
-			$captchaUrl = SP_WEBPATH. "/tmp/" .$captchaFile ."?rand=".mktime();	
+			$captchaUrl = SP_WEBPATH. "/tmp/" .$captchaFile ."?rand=".time();	
 			$captchaUrlInfo['url'] = $captchaUrl;
 			
 			// check for captcha bypass plugin enabled or not
@@ -446,15 +446,14 @@ class DirectoryController extends Controller{
 				// to update the rank of directory
 				$sql = "update directories set `rank`=`rank`+1 where id=".$submitInfo['dir_id'];
 				$this->db->query($sql);				
-			}
-			
+			}			
 			
 			$sql = "select id from dirsubmitinfo where website_id={$submitInfo['website_id']} and directory_id={$submitInfo['dir_id']}";
 			$subInfo = $this->db->select($sql);
-			if(empty($subInfo[0][id])){
-				$sql = "insert into dirsubmitinfo(website_id,directory_id,status,submit_time) values({$submitInfo['website_id']}, {$submitInfo['dir_id']}, $status,".mktime().")";				
+			if(empty($subInfo) || empty($subInfo[id])){
+				$sql = "insert into dirsubmitinfo(website_id,directory_id,status,submit_time) values({$submitInfo['website_id']}, {$submitInfo['dir_id']}, $status,".time().")";				
 			}else{
-				$sql = "update dirsubmitinfo set status=$status,submit_time=".mktime()." where id={$subInfo[0][id]}";
+				$sql = "update dirsubmitinfo set status=$status,submit_time=".time()." where id={$subInfo[0][id]}";
 			}
 			$this->db->query($sql);			
 		}		
@@ -684,7 +683,7 @@ class DirectoryController extends Controller{
 	}
 	
 	# function to show featured directories
-	function showFeaturedSubmission($info="") {
+	function showFeaturedSubmission($info=[]) {
 	    $dirList = $this->getAllFeaturedDirectories();
 	    $this->set('list', $dirList);
 		$this->render('directory/featuredsubmission');
@@ -725,7 +724,7 @@ class DirectoryController extends Controller{
 	}
 	
 	# func to show directory manager
-	function showDirectoryManager($info=''){		
+	function showDirectoryManager($info=[]){		
 		$info = sanitizeData($info);
 		$info['stscheck'] = isset($info['stscheck']) ? intval($info['stscheck']) : 1;
 		
@@ -803,7 +802,7 @@ class DirectoryController extends Controller{
 	}
 	
 	# function to start directory check
-	function startDirectoryCheckStatus($info=''){
+	function startDirectoryCheckStatus($info=[]){
 		
 		$searchInfo = array();
 		if(isset($info['stscheck']) && ($info['stscheck'] != '')){

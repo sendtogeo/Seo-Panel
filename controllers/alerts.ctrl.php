@@ -66,7 +66,7 @@ class AlertController extends Controller {
 	 * Function to display alert details
 	 * @param Array $info	Contains all search details
 	 */
-	function listAlerts($info = '') {
+	function listAlerts($info=[]) {
 	    $userId = isLoggedIn();
 	    $info['from_time'] = htmlentities($info['from_time'], ENT_QUOTES);
 	    $info['to_time'] = htmlentities($info['to_time'], ENT_QUOTES);

@@ -155,6 +155,16 @@ if(file_exists(SP_ABSPATH."/config/sp-config.php")){
         $_REQUEST['url'] = html_entity_decode($_REQUEST['url'], ENT_QUOTES);
     }
     
+    // default assignments if it is empty
+    if($_SERVER['REQUEST_METHOD'] == 'GET') {
+        $_GET['sec'] = !empty($_GET['sec']) ? $_GET['sec'] : "";
+    }
+    
+    // default assignments if it is empty
+    if($_SERVER['REQUEST_METHOD'] == 'POST') {
+        $_POST['sec'] = !empty($_POST['sec']) ? $_POST['sec'] : "";
+    }
+    
 	// create super class object
 	include_once(SP_LIBPATH."/seopanel.class.php");
 	$seopanel = New Seopanel();

@@ -24,7 +24,7 @@
 class UserController extends Controller{	
 	
 	# index function
-	function index($info=''){
+	function index($info=[]){
 		
 		if(!isset($info['referer'])) {
 			$info['red_referer'] = isValidReferer($_SERVER['HTTP_REFERER']);
@@ -136,7 +136,7 @@ class UserController extends Controller{
 	}
 	
 	# register function
-	function register($info = ""){
+	function register($info=[]){
 		
 		$seopluginCtrler =  new SeoPluginsController();
 		$subscriptionActive = false;
@@ -378,7 +378,7 @@ class UserController extends Controller{
 	}
 	
 	# func to show users
-	function listUsers($info='') {
+	function listUsers($info=[]) {
 	    $info['pageno'] = intval($info['pageno']);
 		$pageScriptPath = 'users.php?stscheck=';
 		$pageScriptPath .= isset($info['stscheck']) ? $info['stscheck'] : "select";
@@ -568,7 +568,7 @@ class UserController extends Controller{
 					
 					// if render results
 					if ($renderResults) {					
-						$this->listUsers('ajax');
+						$this->listUsers();
 						exit;
 					} else {
 						return array('success', 'Successfully created user');
@@ -614,7 +614,8 @@ class UserController extends Controller{
 			$this->render('user/edit', 'ajax');
 			exit;
 		}
-		$this->listUsers('ajax');		
+		
+		$this->listUsers();
 	}
 	
 	function updateUser($userInfo, $renderResults = true){
@@ -677,7 +678,7 @@ class UserController extends Controller{
 				
 				// if render results
 				if ($renderResults) {
-					$this->listUsers('ajax');
+					$this->listUsers();
 					exit;
 				} else {
 					return array('success', 'Successfully updated user');
@@ -696,7 +697,7 @@ class UserController extends Controller{
 		
 	}
 	
-	function showMyProfile($info = ''){
+	function showMyProfile($info=[]){
 		$userId = isLoggedIn();		
 		if(!empty($userId)){
 			$userInfo = $this->__getUserInfo($userId);
@@ -713,7 +714,7 @@ class UserController extends Controller{
 	}
 	
 	# function to renew membership subscription
-	function renewMyProfile($info = ''){
+	function renewMyProfile($info=[]){
 		$userId = isLoggedIn();
 		$seopluginCtrler =  new SeoPluginsController();
 		
@@ -986,7 +987,7 @@ class UserController extends Controller{
 		return $expiryDate;
 	}
 	
-	function manageWebsiteAccessManager($info = "") {
+	function manageWebsiteAccessManager($info=[]) {
 	    $userList = $this->__getAllUsersWithReadAccess();
 	    $userId = isset($info['wam_user']) ? intval($info['wam_user']) : $userList[0]['id'];
 

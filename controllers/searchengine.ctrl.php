@@ -61,7 +61,7 @@ class SearchEngineController extends Controller{
 	}
 	
 	# func to show search engines
-	function listSE($info=''){
+	function listSE($info=[]){
 		$info = sanitizeData($info);
 		$info['stscheck'] = isset($info['stscheck']) ? intval($info['stscheck']) : 1;
 		$pageScriptPath = 'searchengine.php?stscheck=' . $info['stscheck'];

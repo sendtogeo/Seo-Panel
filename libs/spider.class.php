@@ -19,8 +19,9 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-
-include_once(SP_CTRLPATH."/proxy.ctrl.php");
+if (defined('SP_CTRLPATH')) {
+    include_once(SP_CTRLPATH."/proxy.ctrl.php");
+}
 
 class Spider{
 
@@ -46,9 +47,14 @@ class Spider{
 	var $effectiveUrl = null;
 	
 	# spider constructor
-	function __construct()	{			
-		$this -> _CURLOPT_COOKIEJAR = SP_TMPPATH.'/'.$this -> _CURLOPT_COOKIEJAR;
-		$this -> _CURLOPT_COOKIEFILE = SP_TMPPATH.'/'.$this -> _CURLOPT_COOKIEFILE;		
+	function __construct()	{
+	    
+	    // if tmp path defined
+	    if (defined('SP_TMPPATH')) {
+    		$this -> _CURLOPT_COOKIEJAR = SP_TMPPATH.'/'.$this -> _CURLOPT_COOKIEJAR;
+    		$this -> _CURLOPT_COOKIEFILE = SP_TMPPATH.'/'.$this -> _CURLOPT_COOKIEFILE;
+	    }
+	    
 		$this -> _CURL_RESOURCE = curl_init( );
 		if(!empty($_SERVER['HTTP_USER_AGENT'])) $this->_CURLOPT_USERAGENT = $_SERVER['HTTP_USER_AGENT'];
 
@@ -332,7 +338,7 @@ class Spider{
 		}
 		
 		// to use proxy if proxy enabled
-		if (SP_ENABLE_PROXY && $enableProxy) {
+		if ($enableProxy && SP_ENABLE_PROXY) {
 			$proxyCtrler = New ProxyController();
 			if ($proxyInfo = $proxyCtrler->getRandomProxy()) {
 				curl_setopt($this -> _CURL_RESOURCE, CURLOPT_PROXY, $proxyInfo['proxy'].":".$proxyInfo['port']);
@@ -373,7 +379,7 @@ class Spider{
 		}
 		
 		// disable proxy if not working
-		if (SP_ENABLE_PROXY && $enableProxy && !empty($ret['error']) && !empty($proxyInfo['id'])) {
+		if ($enableProxy && SP_ENABLE_PROXY && !empty($ret['error']) && !empty($proxyInfo['id'])) {
 			
 			// deactivate proxy
 			if (PROXY_DEACTIVATE_CRAWL) {

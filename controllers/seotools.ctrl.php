@@ -25,7 +25,7 @@ class SeoToolsController extends Controller{
 	var $layout = 'ajax';	
 	
 	# index function
-	function index($info=''){
+	function index($info=[]){
 		$this->layout = "default";
 		if(isAdmin()){
 			$sql = "select * from seotools where status=1";	

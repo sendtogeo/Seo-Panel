@@ -189,7 +189,7 @@ class ThemesController extends Controller{
 		$themeInfo = array();
 		$themeInfoFile = SP_THEMEPATH."/".$file."/".SP_THEMEINFOFILE;
 		if(file_exists($themeInfoFile)){
-			$xml = new XMLParser;
+		    $xml = new XML_Parser;
     		$pInfo = $xml->parse($themeInfoFile);
     		if(!empty($pInfo[0]['child'])){
     			foreach($pInfo[0]['child'] as $info){

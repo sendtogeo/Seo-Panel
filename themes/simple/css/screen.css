@@ -414,7 +414,7 @@ A.graphicon{
 .back {text-decoration: none;font-size: 15px;}
 
 input.long{width: 280px;}
-input[name='from_time'], input[name='to_time'], input[name='expiry_date'], input.date_fld{width: 104px}
+input[name='from_time'], input[name='to_time'], input[name='expiry_date'], input.date_fld{width: 130px}
 
 a.bold_link{
 	text-decoration: none;

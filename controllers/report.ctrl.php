@@ -262,12 +262,12 @@ class ReportController extends Controller {
 		if (!empty ($searchInfo['from_time'])) {
 			$fromTime = strtotime($searchInfo['from_time'] . ' 00:00:00');
 		} else {
-			$fromTime = @mktime(0, 0, 0, date('m'), date('d') - 30, date('Y'));
+			$fromTime = mktime(0, 0, 0, date('m'), date('d') - 30, date('Y'));
 		}
 		if (!empty ($searchInfo['to_time'])) {
 			$toTime = strtotime($searchInfo['to_time'] . ' 23:59:59');
 		} else {
-			$toTime = @mktime();
+			$toTime = time();
 		}
 		
 		$fromTimeDate = date('Y-m-d', $fromTime);
@@ -1484,7 +1484,7 @@ class ReportController extends Controller {
     		        $genReport = (date('d') == 1) ? true : false;
     		    } else {		    
         			$nextGenTime = $lastGeneratedTime + ( $repSetInfo['report_interval'] * 86400);
-        			$genReport = (mktime() > $nextGenTime) ? true : false;
+        			$genReport = (time() > $nextGenTime) ? true : false;
     		    }    
 		    }		    
 		}
