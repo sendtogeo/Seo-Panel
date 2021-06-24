@@ -149,7 +149,7 @@ class Install {
 	}
 	
 	# func to start installation
-	function startInstallation($info='', $errMsg='') {
+	function startInstallation($info=[], $errMsg='') {
 		if( ($info['php_support'] == 'red') || ($info['mysql_support'] == 'red') || ($info['curl_support'] == 'red')
 		|| ($info['config'] == 'red') ){
 			$this->checkRequirements(true);
@@ -300,9 +300,10 @@ class Install {
 		# create API Key if not exists
 		$this->createSeoPanelAPIKey($db);		
 		
-		if(gethostbynamel('seopanel.in')){
-			include_once SP_INSTALL_DIR.'/../libs/spider.class.php';
-			include_once(SP_INSTALL_CONFIG_FILE);
+		if(gethostbynamel('seopanel.org')){
+		    include_once(SP_INSTALL_DIR.'/../libs/spider.class.php');
+		    include_once(SP_INSTALL_CONFIG_FILE);
+		    include_once(SP_INSTALL_CONFIG_FILE_EXTRA);
 			$installUpdateUrl = "https://www.seopanel.org/installupdate.php?url=".urlencode($info['web_path'])."&ip=".$_SERVER['SERVER_ADDR']."&email=".urlencode($info['email']);
 			$installUpdateUrl .= "&version=".SP_INSTALLED;
 			$spider = New Spider();
@@ -590,7 +591,7 @@ class Install {
 		
 	}
 	
-	function proceedUpgrade($info=''){ 
+	function proceedUpgrade($info=[]){ 
 		if( ($info['php_support'] == 'red') || ($info['mysql_support'] == 'red') || ($info['curl_support'] == 'red')
 		|| ($info['config'] == 'red') || ($info['db_support'] == 'red')){
 			$this->checkUpgradeRequirements(true);

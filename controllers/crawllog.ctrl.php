@@ -69,7 +69,7 @@ class CrawlLogController extends Controller {
 	 * Function to display crawl log details 
 	 * @param Array $info	Contains all search details
 	 */
-	function listCrawlLog($info = '') {
+	function listCrawlLog($info=[]) {
 	    
 		$sql = "select t.*, k.name keyword from $this->tablName t left join keywords k on t.ref_id=k.id where 1=1";
 		$conditions = "";

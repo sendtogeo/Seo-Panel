@@ -684,7 +684,7 @@ class DirectoryController extends Controller{
 	}
 	
 	# function to show featured directories
-	function showFeaturedSubmission($info="") {
+	function showFeaturedSubmission($info=[]) {
 	    $dirList = $this->getAllFeaturedDirectories();
 	    $this->set('list', $dirList);
 		$this->render('directory/featuredsubmission');
@@ -725,7 +725,7 @@ class DirectoryController extends Controller{
 	}
 	
 	# func to show directory manager
-	function showDirectoryManager($info=''){		
+	function showDirectoryManager($info=[]){		
 		$info = sanitizeData($info);
 		$info['stscheck'] = isset($info['stscheck']) ? intval($info['stscheck']) : 1;
 		
@@ -803,7 +803,7 @@ class DirectoryController extends Controller{
 	}
 	
 	# function to start directory check
-	function startDirectoryCheckStatus($info=''){
+	function startDirectoryCheckStatus($info=[]){
 		
 		$searchInfo = array();
 		if(isset($info['stscheck']) && ($info['stscheck'] != '')){

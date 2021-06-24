@@ -171,7 +171,7 @@ class SeoPluginsController extends Controller{
 	}
 	
 	// index function
-	function showSeoPlugins($info=''){
+	function showSeoPlugins($info=[]){
 		$this->layout = "default";
 		
 		$menuList = array();
@@ -488,7 +488,7 @@ class SeoPluginsController extends Controller{
 		$pluginInfo = array();
 		$pluginInfoFile = SP_PLUGINPATH."/".$file."/".SP_PLUGININFOFILE;
 		if(file_exists($pluginInfoFile)){
-			$xml = new XMLParser;
+		    $xml = new XML_Parser;
     		$pInfo = $xml->parse($pluginInfoFile);
     		if(!empty($pInfo[0]['child'])){
     			foreach($pInfo[0]['child'] as $info){

@@ -24,7 +24,7 @@
 class KeywordController extends Controller{
 
 	# func to show keywords
-	function listKeywords($info=''){		
+	function listKeywords($info=[]){		
 		
 	    $userId = isLoggedIn();
 		$websiteController = New WebsiteController();

@@ -24,7 +24,7 @@
 class ProxyController extends Controller{
 
 	# func to show proxy list
-	function listProxy($info=''){
+	function listProxy($info=[]){
 		
 		$userId = isLoggedIn();
 		$sql = "select * from proxylist where 1=1";		
@@ -67,7 +67,7 @@ class ProxyController extends Controller{
 	}
 	
 	# func to show import proxy form
-	function showImportProxy($info = ''){
+	function showImportProxy($info=[]){
 		$this->render('proxy/importproxy');
 	}
 	
@@ -118,12 +118,12 @@ class ProxyController extends Controller{
 	}
 	
 	# func to check status of all proxy list
-	function showcheckAllStatus($info=''){
+	function showcheckAllStatus($info=[]){
 		$this->render('proxy/showcheckallstatus');
 	}
 	
 	# function to check all proxy status
-	function checkAllProxyStatus($info = '') {
+	function checkAllProxyStatus($info=[]) {
 		$isStatusCheck = false;
 		$this->updateProxyCheckedStatus(0, "");
 		if ($info['status'] != "") {
@@ -141,7 +141,7 @@ class ProxyController extends Controller{
 	}
 	
 	# func to check status of all proxy list
-	function runCheckStatus($info = '') {
+	function runCheckStatus($info=[]) {
 		$proxyId = intval($info['id']);
 		$this->checkStatus($proxyId);
 		$this->updateProxyCheckedStatus(1, " where id=$proxyId");
@@ -340,7 +340,7 @@ class ProxyController extends Controller{
 	 * function to show perfomance of a proxy
 	 * @param Array $info	Contains all search info details
 	 */
-	function showProxyPerfomance($info = '') {
+	function showProxyPerfomance($info=[]) {
 		
 		$sql = "select p.id as proxy_id, p.proxy, p.port, count(*) count, sum(crawl_status) success, avg(crawl_status) avg_score,
 		count(*) - sum(crawl_status) fail from crawl_log t join proxylist p on p.id=t.proxy_id where 1=1";

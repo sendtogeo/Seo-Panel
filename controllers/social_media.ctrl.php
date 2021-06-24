@@ -219,7 +219,7 @@ class SocialMediaController extends Controller{
         
     }
     
-    function newSocialMediaLink($info = '') {
+    function newSocialMediaLink($info=[]) {
         $userId = isLoggedIn();
         $this->set('post', $info);
         $webSiteCtrler = new WebsiteController();
@@ -324,7 +324,7 @@ class SocialMediaController extends Controller{
                 
     }
 
-	function viewQuickChecker($info='') {
+	function viewQuickChecker($info=[]) {
 		$this->render('socialmedia/quick_checker');
 	}
 

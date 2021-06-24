@@ -73,7 +73,7 @@ class View extends Seopanel{
 	}
 
 	#func to fetch the ctp file content
-	function fetchViewFile($viewFile, $data=array()) {
+	public static function fetchViewFile($viewFile, $data=array()) {
 		
 		$spText = $_SESSION['text'];
 		if(count($data) > 0){
