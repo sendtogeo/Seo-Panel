@@ -93,7 +93,8 @@ class UserController extends Controller{
 						if ($referer = isValidReferer($_POST['red_referer'])) {
 							redirectUrl($referer);
 						} else {
-							redirectUrl(SP_WEBPATH."/");	
+						    $extArgs = !empty($_POST['source']) ? "?source=" . $_POST['source'] : "";
+							redirectUrl(SP_WEBPATH."/" . $extArgs);
 						}
 												
 					}else{

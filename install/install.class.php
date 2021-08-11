@@ -385,6 +385,7 @@ class Install {
 		<input type="hidden" name="sec" value="login">
 		<input type="hidden" name="userName" value="spadmin">
 		<input type="hidden" name="password" value="spadmin">
+		<input type="hidden" name="source" value="install">
 		<input type="submit" value="Proceed to admin login >>" name="submit" class="button">
 		</form>
 		<?php		
@@ -636,7 +637,8 @@ class Install {
 					</ul>
 				</td>
 			</tr>
-		</table>				
+		</table>
+		<input type="hidden" name="source" value="install">
 		<input type="submit" value="Proceed to admin login >>" name="submit" class="button">
 		</form>
 		<?php
