@@ -230,7 +230,8 @@ class SocialMediaController extends Controller{
     }
     
     function createSocialMediaLink($listInfo = '') {
-        
+        $listInfo['name'] = trim($listInfo['name']);
+        $listInfo['url'] = trim($listInfo['url']);        
         $errMsg = $this->validateSocialMediaLink($listInfo);
         
         // if no error occured
@@ -247,8 +248,7 @@ class SocialMediaController extends Controller{
         }
         
         $this->set('errMsg', $errMsg);
-        $this->newSocialMediaLink($listInfo);
-        
+        $this->newSocialMediaLink($listInfo);        
     }
     
     function editSocialMediaLink($linkId, $listInfo = '') {
@@ -271,6 +271,8 @@ class SocialMediaController extends Controller{
     }
     
     function updateSocialMediaLink($listInfo) {
+        $listInfo['name'] = trim($listInfo['name']);
+        $listInfo['url'] = trim($listInfo['url']);
         $this->set('post', $listInfo);
         $errMsg = $this->validateSocialMediaLink($listInfo);
         
