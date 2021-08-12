@@ -184,7 +184,8 @@ class ReviewManagerController extends ReviewBase{
     }
     
     function createReviewLink($listInfo = '') {
-        
+        $listInfo['name'] = trim($listInfo['name']);
+        $listInfo['url'] = trim($listInfo['url']);
         $errMsg = $this->validateReviewLink($listInfo);
         
         // if no error occured
@@ -202,7 +203,6 @@ class ReviewManagerController extends ReviewBase{
         
         $this->set('errMsg', $errMsg);
         $this->newReviewLink($listInfo);
-        
     }
     
     function editReviewLink($linkId, $listInfo = '') {
@@ -225,6 +225,8 @@ class ReviewManagerController extends ReviewBase{
     }
     
     function updateReviewLink($listInfo) {
+        $listInfo['name'] = trim($listInfo['name']);
+        $listInfo['url'] = trim($listInfo['url']);
         $this->set('post', $listInfo);
         $errMsg = $this->validateReviewLink($listInfo);
         
