@@ -1350,7 +1350,9 @@ class ReportController extends Controller {
 			if ($exportVersion) {
 				$exportContent .= $websiteSearchReport;
 				$exportContent .= $keywordSearchReport;
+				$exportContent .= $analyticsReport;
 				$exportContent .= $socialMediaReport;
+				$exportContent .= $reviewReport;
 			} else {
 				$this->set('websiteSearchReport', $websiteSearchReport);
 				$this->set('keywordSearchReport', $keywordSearchReport);

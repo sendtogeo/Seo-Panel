@@ -32,7 +32,7 @@ if(!$summaryPage && (!empty($printVersion) || !empty($pdfVersion))) {
 		<?php $submitLink = "scriptDoLoadPost('$scriptName', 'search_form', 'content', '&sec=reportSummary')";?>
 		<table width="100%" class="search">
 			<tr>
-				<th><?php echo $spText['common']['Url']?>: </th>
+				<th><?php echo $spText['common']['Name']?>: </th>
 				<td>
 					<input type="text" name="search_name" value="<?php echo htmlentities($searchInfo['search_name'], ENT_QUOTES)?>" onblur="<?php echo $submitLink?>">
 				</td>
@@ -89,14 +89,10 @@ if(!$summaryPage && (!empty($printVersion) || !empty($pdfVersion))) {
 	// if not summary page show the filters
 	if(!$summaryPage) {
 		$directLink = $mainLink . "&order_col=$orderCol&order_val=$orderVal&pageno=$pageNo";
-		?>
-		<br><br>
-		<div style="float:left;margin-right: 10px;">
-			<a href="<?php echo $directLink?>&doc_type=pdf" target="_blank"><img src="<?php echo SP_IMGPATH?>/icon_pdf.png"></a> &nbsp;
-			<a href="<?php echo $directLink?>&doc_type=export"><img src="<?php echo SP_IMGPATH?>/icoExport.gif"></a> &nbsp;
-			<a target="_blank" href="<?php echo $directLink?>&doc_type=print"><img src="<?php echo SP_IMGPATH?>/print_button.gif?1"></a>
-		</div>
-		<?php
+		$pdfLink = "$directLink&doc_type=pdf";
+		$csvLink = "$directLink&doc_type=export";
+		$printLink = "$directLink&doc_type=print";
+		showExportDiv($pdfLink, $csvLink, $printLink);
 	}
 	
 	if (empty($pdfVersion) && empty($cronUserId)) echo $pagingDiv;
@@ -109,7 +105,6 @@ $colCount = ($baseColCount * 3) + 2;
 
 <table id="cust_tab">
 	<tr>
-		<th id="head" rowspan="2"><?php echo $spText['common']['Website']?></th>
 		<?php
 		$hrefAttr = $pdfVersion ? "" : "href='javascript:void(0)'";
 		foreach (array_keys($colList) as $i => $colName){
@@ -123,11 +118,16 @@ $colCount = ($baseColCount * 3) + 2;
             }
             
             $linkName = "<a id='sortLink' class='$linkClass' $hrefAttr onclick=\"scriptDoLoad('$mainLink&order_col=$colName&order_val=$oVal', 'content')\">$colList[$colName]</a>";
-		    $rowSpan = ($colName == "url") ? 2 : 1;
+		    $rowSpan = ($colName == "name") ? 2 : 1;
+		    $colspan = ($colName == "name") ? 1 : 3;
 			?>
-			<th rowspan="<?php echo $rowSpan?>" colspan="3" id="head"><?php echo $linkName; ?></th>
-			<?php
-			
+			<th rowspan="<?php echo $rowSpan?>" colspan="<?php echo $colspan?>" id="head"><?php echo $linkName; ?></th>
+			<?php 
+			if ($colName == "name") {
+                ?>
+				<th id="head" rowspan="2"><?php echo $spText['common']['Website']?></th>	
+				<?php
+			}			
 		}
 		?>
 	</tr>	
@@ -136,7 +136,7 @@ $colCount = ($baseColCount * 3) + 2;
 		$pTxt = str_replace("-", "/", substr($fromTime, -5));
 		$cTxt = str_replace("-", "/", substr($toTime, -5));
 		foreach ($colList as $colName => $colVal) {
-			if ($colName == 'url') continue;
+			if ($colName == 'name') continue;
 			?>
 			<th><?php echo $pTxt; ?></th>
 			<th><?php echo $cTxt; ?></th>
@@ -154,14 +154,14 @@ $colCount = ($baseColCount * 3) + 2;
 				?>
 				<tr>
 					<td>
-						<a href="javascript:void(0)"><?php echo $websiteList[$listInfo['website_id']]['url']; ?></a>
+						<?php echo $listInfo['name']; ?>
 					</td>
-					<td colspan="3">
-						<?php echo $listInfo['url']; ?>
+					<td>
+						<a href="javascript:void(0)"><?php echo $websiteList[$listInfo['website_id']]['url']; ?></a>
 					</td>
 					<?php
 					foreach ($colList as $colName => $colVal){
-						if ($colName == 'url') continue;
+						if ($colName == 'name') continue;
 						
 						// if not facebook likes value will be null
 						if ($colName == 'likes' && $listInfo['type'] != 'facebook') {
