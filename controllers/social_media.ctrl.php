@@ -83,7 +83,7 @@ class SocialMediaController extends Controller{
     	$this->set( 'pageNo', $_REQUEST['pageno']);
 		
 		$this->colList = array(
-			'url' => $_SESSION['text']['common']['Url'],
+			'name' => $_SESSION['text']['common']['Name'],
 			'followers' => $_SESSION['text']['label']['Followers'],
 			'likes' => $_SESSION['text']['label']['Likes'],
 		);
@@ -478,8 +478,7 @@ class SocialMediaController extends Controller{
 	/*
 	 * func to show report summary
 	 */ 
-	function viewReportSummary($searchInfo = '', $summaryPage = false, $cronUserId=false) {
-	
+	function viewReportSummary($searchInfo = '', $summaryPage = false, $cronUserId=false) {	
 		$userId = !empty($cronUserId) ? $cronUserId : isLoggedIn();
 		$this->set('summaryPage', $summaryPage);
 		$this->set('searchInfo', $searchInfo);
@@ -552,7 +551,7 @@ class SocialMediaController extends Controller{
 			and sml.id not in (". str_replace("[cols]", "distinct(sml.id)", $subSql) ."))
 		order by " . addslashes($orderCol) . " " . addslashes($orderVal);
 	
-		if ($orderCol != 'url') $sql .= ", url";
+		if ($orderCol != 'name') $sql .= ", name";
 	
 		// pagination setup, if not from cron job email send function, pdf and export action
 		if (!in_array($searchInfo['doc_type'], array("pdf", "export"))) {

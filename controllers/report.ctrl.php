@@ -154,9 +154,9 @@ class ReportController extends Controller {
 		group by k.id";
 
 		$unionOrderCol = ($orderCol == "keyword") ? "name" : "`rank`";
-		$sql = "(". str_replace("[col]", "k.id,k.name,min(`rank`) `rank`,w.name website,w.url weburl", $subSql) .") 
+		$sql = "(". str_replace("[col]", "k.id,k.name,min(`rank`) `rank`,w.name website,w.url weburl,w.name webname", $subSql) .") 
 		UNION 
-		(select k.id,k.name,1000,w.name website,w.url weburl 
+		(select k.id,k.name,1000,w.name website,w.url weburl,w.name webname 
 		from keywords k, websites w  
 		where w.id=k.website_id $conditions and k.id not in
 		(". str_replace("[col]", "distinct(k.id)", $subSql) ."))

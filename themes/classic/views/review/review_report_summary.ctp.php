@@ -99,7 +99,7 @@ if(!$summaryPage && (!empty($printVersion) || !empty($pdfVersion))) {
 }
 
 $baseColCount = count($colList);
-$colCount = ($baseColCount * 3) + 2;
+$colCount = ($baseColCount * 3) -1 ;
 ?>
 <div id='subcontent' style="margin-top: 0px;">
 
@@ -157,7 +157,7 @@ $colCount = ($baseColCount * 3) + 2;
 						<?php echo $listInfo['name']; ?>
 					</td>
 					<td>
-						<a href="javascript:void(0)"><?php echo $websiteList[$listInfo['website_id']]['url']; ?></a>
+						<a href="javascript:void(0)"><?php echo $websiteList[$listInfo['website_id']]['name']; ?></a>
 					</td>
 					<?php
 					foreach ($colList as $colName => $colVal){
