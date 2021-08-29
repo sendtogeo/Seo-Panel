@@ -674,7 +674,7 @@ CREATE TABLE IF NOT EXISTS `featured_directories` (
 INSERT INTO `featured_directories` (`id`, `directory_name`, `directory_link`, `google_pagerank`, `coupon_code`, `coupon_offer`, `status`) VALUES
 (1, 'directory.seopanel.in', 'http://directory.seofreetools.net/submit.php?LINK_TYPE=featured', 4, '', 0, 1),
 (4, 'beta-i.org', 'http://beta-i.org/submit.php?LINK_TYPE=4', 6, '', 0, 0),
-(5, 'directorymaximizer.com', 'http://www.directorymaximizer.com/af.php?af=207564&ad=5&p=1', 6, '', 0, 1);
+(5, 'directorymaximizer.com', 'http://www.directorymaximizer.com/af.php?af=207564&ad=5&p=1', 6, '', 0, 0);
 
 CREATE TABLE IF NOT EXISTS `information_list` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
