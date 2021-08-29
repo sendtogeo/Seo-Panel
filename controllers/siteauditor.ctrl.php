@@ -436,8 +436,7 @@ class SiteAuditorController extends Controller{
 	}
 	
 	// function to view the reports
-	function viewReports($info=[]) {
-	    
+	function viewReports($info=[]) {	    
 	    $userId = isLoggedIn();
 	    $where = isAdmin() ? "" : " and w.user_id=$userId";
 	    $pList = $this->getAllProjects($where);
@@ -454,20 +453,19 @@ class SiteAuditorController extends Controller{
 	    } else {
 	        $projectId = intval($info['project_id']);
 	    }
+	    
 	    $this->set('projectId', $projectId);
 	    $this->set('projectList', $projectList);
-	    
-	    
-		$reportTypes = array(
+	    $reportTypes = array(
 			'rp_links' => $this->spTextSA["Link Reports"],
 			'rp_summary' => $this->spTextSA["Report Summary"],
 			'page_title' => $this->spTextSA["Duplicate Title"],
 			'page_description' => $this->spTextSA["Duplicate Description"],
 			'page_keywords' => $this->spTextSA["Duplicate Keywords"],
 		);
-		$this->set('reportTypes', $reportTypes);
-		$this->set('repType', empty($info['report_type']) ? "rp_links" : $info['report_type']);
 	    
+		$this->set('reportTypes', $reportTypes);
+		$this->set('repType', empty($info['report_type']) ? "rp_links" : $info['report_type']);	    
 	    $this->render('siteauditor/viewreports');
 	}
 	
