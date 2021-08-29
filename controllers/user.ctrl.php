@@ -484,6 +484,7 @@ class UserController extends Controller{
 	}
 	
 	function __checkUserName($username){
+	    $username = addslashes($username);
 		$sql = "select id from users where username='$username'";
 		$userInfo = $this->db->select($sql, true);
 		return empty($userInfo['id']) ? false :  $userInfo['id'];
