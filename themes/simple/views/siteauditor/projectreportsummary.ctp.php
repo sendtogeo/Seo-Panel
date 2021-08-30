@@ -17,9 +17,12 @@ if(!empty($pdfVersion) || !empty($printVersion)) {
 } else {  
 ?>
     <div style="float:right;margin-right: 10px;margin-top: -38px;">
-		<a href="<?php echo $mainLink?>&doc_type=pdf" target="_blank"><img src="<?php echo SP_IMGPATH?>/icon_pdf.png"></a> &nbsp;
-    	<a href="<?php echo $mainLink?>&doc_type=export"><img src="<?php echo SP_IMGPATH?>/icoExport.gif"></a> &nbsp;
-    	<a target="_blank" href="<?php echo $mainLink?>&doc_type=print"><img src="<?php echo SP_IMGPATH?>/print_button.gif"></a>
+		<?php
+		$pdfLink = "$mainLink&doc_type=pdf";
+		$csvLink = "$mainLink&doc_type=export";
+		$printLink = "$mainLink&doc_type=print";
+		showExportDiv($pdfLink, $csvLink, $printLink);    	
+    	?>
     </div>
 <?php
 }

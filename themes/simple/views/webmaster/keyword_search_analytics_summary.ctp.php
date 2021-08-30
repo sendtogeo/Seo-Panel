@@ -74,15 +74,11 @@ if(!$summaryPage && (!empty($printVersion) || !empty($pdfVersion))) {
 	
 	// if not summary page show the filters
 	if(!$summaryPage) {
-		$directLink = $mainLink . "&order_col=$orderCol&order_val=$orderVal&pageno=$pageNo";
-		?>
-		<br><br>
-		<div style="float:left;margin-right: 10px;">
-			<a href="<?php echo $directLink?>&doc_type=pdf" target="_blank"><img src="<?php echo SP_IMGPATH?>/icon_pdf.png"></a> &nbsp;
-			<a href="<?php echo $directLink?>&doc_type=export"><img src="<?php echo SP_IMGPATH?>/icoExport.gif"></a> &nbsp;
-			<a target="_blank" href="<?php echo $directLink?>&doc_type=print"><img src="<?php echo SP_IMGPATH?>/print_button.gif?1"></a>
-		</div>
-		<?php
+	    $directLink = $mainLink . "&order_col=$orderCol&order_val=$orderVal&pageno=$pageNo";
+	    $pdfLink = "$directLink&doc_type=pdf";
+	    $csvLink = "$directLink&doc_type=export";
+	    $printLink = "$directLink&doc_type=print";
+	    showExportDiv($pdfLink, $csvLink, $printLink);
 	}
 	
 	if (empty($pdfVersion) && empty($cronUserId)) echo $pagingDiv;
@@ -140,7 +136,7 @@ $colCount = ($baseColCount * 3) + 2;
 			?>
 			<tr>
 				<td>
-					<a href="javascript:void(0)"><?php echo $websiteList[$listInfo['website_id']]['url']; ?></a>
+					<a href="javascript:void(0)"><?php echo $websiteList[$listInfo['website_id']]['name']; ?></a>
 				</td>
 				<td colspan="3"><?php echo $listInfo['name']; ?></td>
 				<?php

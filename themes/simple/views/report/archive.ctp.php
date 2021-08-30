@@ -115,8 +115,8 @@ if (!empty($keywordPos) && !empty($seCount)) {
 			$linkName = "<a id='sortLink' class='$linkClass' $hrefAttr onclick=\"scriptDoLoad('$mainLink&order_col=keyword&order_val=$oVal', 'content')\">{$spText['common']['Keyword']}</a>"; 
 			?>		
 			<?php if (empty($websiteId)) {?>
-				<th id="head" rowspan="2"><?php echo $spText['common']['Website']?></th>
 				<th rowspan="2" id="head"><?php echo $linkName?></th>
+				<th id="head" rowspan="2"><?php echo $spText['common']['Website']?></th>
 			<?php } else { ?>
 				<th id="head" rowspan="2" style="border-right:1px solid #B0C2CC;"><?php echo $linkName?></th>
 			<?php }?>
@@ -160,8 +160,8 @@ if (!empty($keywordPos) && !empty($seCount)) {
 				?>
 				<tr>				
 					<?php if (empty($websiteId)) {?>
-						<td><a href="javascript:void(0)"><?php echo $listInfo['weburl']; ?></a></td>
 						<td><?php echo $listInfo['name'] ?></td>
+						<td><a href="javascript:void(0)"><?php echo $listInfo['website']; ?></a></td>
 					<?php } else { ?>
 						<td><?php echo $listInfo['name']; ?></td>
 					<?php }?>				
@@ -271,7 +271,7 @@ if (!empty($keywordPos) && !empty($seCount)) {
     				?>
     				<tr>
     					<td>
-    						<a href="javascript:void(0)"><?php echo $websiteInfo['url'];?></a>
+    						<a href="javascript:void(0)"><?php echo $websiteInfo['name'];?></a>
     					</td>
     					<td><?php echo $googleRankLink;?></td>
 						<td><?php echo $daLink; ?></td>

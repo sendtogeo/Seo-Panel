@@ -20,6 +20,21 @@ if(!empty($validationMsg)){
 	<tr class="form_head">
 		<th width='30%'><?php echo $headText?></th>
 		<th>&nbsp;</th>
+	</tr>
+	<tr class="form_data">
+		<td><?php echo $spText['common']['Website']?>:</td>
+		<td>
+			<select name="website_id">
+				<?php foreach($websiteList as $websiteInfo){?>
+					<?php if($websiteInfo['id'] == $post['website_id']){?>
+						<option value="<?php echo $websiteInfo['id']?>" selected><?php echo $websiteInfo['name']?></option>
+					<?php }else{?>
+						<option value="<?php echo $websiteInfo['id']?>"><?php echo $websiteInfo['name']?></option>
+					<?php }?>						
+				<?php }?>
+			</select>
+			<?php echo $errMsg['website_id']?>
+		</td>
 	</tr>	
 	<tr class="form_data">
 		<td><?php echo $spText['label']['Type']?>:</td>
@@ -35,25 +50,10 @@ if(!empty($validationMsg)){
 			</select>
 			<?php echo $errMsg['service_name']?>
 		</td>
-	</tr>	
-	<tr class="form_data">
-		<td><?php echo $spText['common']['Website']?>:</td>
-		<td>
-			<select name="website_id">
-				<?php foreach($websiteList as $websiteInfo){?>
-					<?php if($websiteInfo['id'] == $post['website_id']){?>
-						<option value="<?php echo $websiteInfo['id']?>" selected><?php echo $websiteInfo['name']?></option>
-					<?php }else{?>
-						<option value="<?php echo $websiteInfo['id']?>"><?php echo $websiteInfo['name']?></option>
-					<?php }?>						
-				<?php }?>
-			</select>
-			<?php echo $errMsg['website_id']?>
-		</td>
 	</tr>
 	<tr class="form_data">
 		<td><?php echo $spText['common']['Name']?>:</td>
-		<td><input type="text" name="name" value="<?php echo $post['name']?>"><?php echo $errMsg['name']?></td>
+		<td><input type="text" name="name" value="<?php echo $post['name']?>" class="form-control"><?php echo $errMsg['name']?></td>
 	</tr>
 	<tr class="form_data">
 		<td id='sm_url_label'><?php echo $spText['common']['Link']?>:</td>

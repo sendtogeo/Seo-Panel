@@ -30,3 +30,10 @@
         </div>
     <?php }?>
 </div>
+<?php if (!empty($_GET['source']) && $_GET['source'] == 'install') {?>
+    <script type="text/javascript">
+        $(document).ready(function() {
+        	scriptDoLoad("<?php echo SP_WEBPATH?>/?sec=sync_all_se", "tmp");
+        });
+    </script>
+<?php }?>
