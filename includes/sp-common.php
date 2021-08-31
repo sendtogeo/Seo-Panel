@@ -598,7 +598,9 @@ function exportToPdf($content, $fileName = "reports.pdf") {
             'defaultCssFile' => SP_THEME_ABSPATH ."/css/screen.css",
         ]
     );
-	
+    
+    $mpdf->autoScriptToLang = true;
+    $mpdf->autoLangToFont = true;
 	$mpdf->useAdobeCJK = true;
 	$mpdf->SetDisplayMode('fullpage');
 	$mpdf->WriteHTML($content, \Mpdf\HTMLParserMode::HTML_BODY);
