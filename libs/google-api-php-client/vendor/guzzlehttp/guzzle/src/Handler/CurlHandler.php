@@ -56,7 +56,7 @@ class CurlHandler
         $crawlInfo['crawl_link'] = $effectiveUrl;
         $crawlInfo['ref_id'] = $crawlInfo['crawl_link'];
         $crawlInfo['crawl_referer'] = $crawlInfo['crawl_link'];
-        $crawlInfo['proxy_id'] = intval($proxyInfo['id']);
+        $crawlInfo['proxy_id'] = isset($proxyInfo['id']) ? intval($proxyInfo['id']) : 0;
         $crawlInfo['log_message'] = addslashes($ret['errmsg']);
         $ret['log_id'] = $crawlLogCtrl->createCrawlLog($crawlInfo);
         
