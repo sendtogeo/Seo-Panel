@@ -1457,6 +1457,7 @@ INSERT INTO `crawl_engines` (`engine_name`, `engine_category`, `regex1`, `regex2
 --
 
 UPDATE `seoplugins` SET `version` = '2.1.0' WHERE name='QuickWebProxy';
+INSERT INTO `qwp_settings` (`set_label`, `set_name`, `set_val`, `set_type`) VALUES ('Blocked Urls In Proxy', 'QWP_PROXY_BLOCK_URLS', '', 'text');
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
