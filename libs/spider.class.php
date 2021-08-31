@@ -338,6 +338,7 @@ class Spider{
 		}
 		
 		// to use proxy if proxy enabled
+		$proxyInfo = [];
 		if ($enableProxy && SP_ENABLE_PROXY) {
 			$proxyCtrler = New ProxyController();
 			if ($proxyInfo = $proxyCtrler->getRandomProxy()) {
@@ -373,7 +374,7 @@ class Spider{
 			$crawlInfo['crawl_cookie'] = addslashes($this -> _CURLOPT_COOKIE);
 			$crawlInfo['crawl_post_fields'] = addslashes($this -> _CURLOPT_POSTFIELDS);
 			$crawlInfo['crawl_useragent'] = addslashes($this->_CURLOPT_USERAGENT);
-			$crawlInfo['proxy_id'] = intval($proxyInfo['id']);
+			$crawlInfo['proxy_id'] = isset($proxyInfo['id']) ? intval($proxyInfo['id']) : 0;
 			$crawlInfo['log_message'] = addslashes($ret['errmsg']);
 			$ret['log_id'] = $crawlLogCtrl->createCrawlLog($crawlInfo);
 		}

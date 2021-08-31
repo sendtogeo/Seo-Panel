@@ -212,6 +212,7 @@ class SearchEngineController extends Controller{
 	            
 	            $queryList = explode(';', $ret['page']);
 	            foreach ($queryList as $query) {
+	                $query = trim($query);
 	                if (!empty($query)) {
 	                   $this->db->query(trim($query));
 	                }
