@@ -61,7 +61,7 @@ class SearchEngineController extends Controller{
 	}
 	
 	# func to show search engines
-	function listSE($info=''){
+	function listSE($info=[]){
 		$info = sanitizeData($info);
 		$info['stscheck'] = isset($info['stscheck']) ? intval($info['stscheck']) : 1;
 		$pageScriptPath = 'searchengine.php?stscheck=' . $info['stscheck'];
@@ -212,6 +212,7 @@ class SearchEngineController extends Controller{
 	            
 	            $queryList = explode(';', $ret['page']);
 	            foreach ($queryList as $query) {
+	                $query = trim($query);
 	                if (!empty($query)) {
 	                   $this->db->query(trim($query));
 	                }

@@ -590,18 +590,20 @@ function getRoundTabBot(){
 }
 
 # function to convert to pdf  from view file
-function exportToPdf($content, $fileName = "reports.pdf") {
-	
-	include_once(SP_LIBPATH . "/mpdf/mpdf.php");
-	$mpdf = new mPDF();
+function exportToPdf($content, $fileName = "reports.pdf") {	
+    include_once(SP_LIBPATH . "/mpdf_lib/vendor/autoload.php");
+    $mpdf = new \Mpdf\Mpdf(
+        [
+            'tempDir' => SP_TMPPATH,
+            'defaultCssFile' => SP_THEME_ABSPATH ."/css/screen.css",
+        ]
+    );
+    
+    $mpdf->autoScriptToLang = true;
+    $mpdf->autoLangToFont = true;
 	$mpdf->useAdobeCJK = true;
-	$mpdf->SetAutoFont(AUTOFONT_ALL);
-	$spider = new Spider();
-	$ret = $spider->getContent(SP_CSSPATH . "/screen.css");
-	$stylesheet = str_replace("../../../images", SP_IMGPATH, $ret['page']);
-	$mpdf->WriteHTML($stylesheet,1);
 	$mpdf->SetDisplayMode('fullpage');
-	$mpdf->WriteHTML($content, 2);
+	$mpdf->WriteHTML($content, \Mpdf\HTMLParserMode::HTML_BODY);
 	$mpdf->Output($fileName, "I");
 	exit;
 }

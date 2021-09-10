@@ -73,7 +73,7 @@ class View extends Seopanel{
 	}
 
 	#func to fetch the ctp file content
-	function fetchViewFile($viewFile, $data=array()) {
+	public static function fetchViewFile($viewFile, $data=array()) {
 		
 		$spText = $_SESSION['text'];
 		if(count($data) > 0){
@@ -125,9 +125,8 @@ class View extends Seopanel{
 		return $viewContent;
 	}
 	
-	#func to fetch the ctp file 
-	function fetchFile($viewFile, $data=array()) {
-		
+	// func to fetch the ctp file 
+	public static function fetchFile($viewFile, $data=array()) {		
 		$spText = $_SESSION['text'];
 		if(count($data) > 0){
 			foreach ($data as $varName => $varValue){

@@ -22,7 +22,7 @@ $(document).ready(function() {
 		    foreach($pageResultList as $i => $listInfo){
     			?>
     			<tr>
-    				<td><?php echo $i + 1;?></td>
+    				<td><?php echo intval($i) + 1;?></td>
     				<td><?php echo $listInfo['url'];?></td>
     				<td><?php echo $listInfo['rank'];?></td>
     				<td><?php echo $listInfo['keyword'];?></td>

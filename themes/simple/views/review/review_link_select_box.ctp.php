@@ -4,9 +4,9 @@
 	<?php } ?>
 	<?php foreach($linkList as $linkInfo){?>
 		<?php if($linkInfo['id'] == $linkId){?>
-			<option value="<?php echo $linkInfo['id']?>" selected><?php echo $linkInfo['url']?></option>
+			<option value="<?php echo $linkInfo['id']?>" selected><?php echo $linkInfo['name']?></option>
 		<?php }else{?>
-			<option value="<?php echo $linkInfo['id']?>"><?php echo $linkInfo['url']?></option>
+			<option value="<?php echo $linkInfo['id']?>"><?php echo $linkInfo['name']?></option>
 		<?php }?>
 	<?php }?>
 </select>

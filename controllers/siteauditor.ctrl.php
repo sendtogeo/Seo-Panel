@@ -26,7 +26,7 @@ class SiteAuditorController extends Controller{
     var $cron = false;                    // to identify whether it is executed through cron
     var $seArr = array('google', 'bing'); // the array contains search engines 
     
-	function showAuditorProjects($info="") {
+	function showAuditorProjects($info=[]) {
 		$info['userid'] = intval($info['userid']);
 	    $userId = isLoggedIn();
 		if(isAdmin()){
@@ -64,7 +64,7 @@ class SiteAuditorController extends Controller{
 	}
 
 	// func to create new project
-	function newProject($info=''){
+	function newProject($info=[]){
 						
 		$userId = isLoggedIn();		
 		$websiteController = New WebsiteController();
@@ -328,12 +328,12 @@ class SiteAuditorController extends Controller{
 	}
 	
 	// fucntion to load reports page after teh actions
-	function loadReportsPage($info='') {
+	function loadReportsPage($info=[]) {
 	    print "<script>scriptDoLoadPost('siteauditor.php', 'search_form', 'subcontent', '&sec=showreport&pageno={$info['pageno']}&order_col={$info['order_col']}&order_val={$info['order_val']}')</script>";
 	}
 	
 	// function to check page score
-	function checkPageScore($info='') {
+	function checkPageScore($info=[]) {
 	    if (!empty($info['report_id'])) {
 	        $reportId = intval($info['report_id']);
 	        $auditorComp = $this->createComponent('AuditorComponent');
@@ -436,8 +436,7 @@ class SiteAuditorController extends Controller{
 	}
 	
 	// function to view the reports
-	function viewReports($info='') {
-	    
+	function viewReports($info=[]) {	    
 	    $userId = isLoggedIn();
 	    $where = isAdmin() ? "" : " and w.user_id=$userId";
 	    $pList = $this->getAllProjects($where);
@@ -454,20 +453,19 @@ class SiteAuditorController extends Controller{
 	    } else {
 	        $projectId = intval($info['project_id']);
 	    }
+	    
 	    $this->set('projectId', $projectId);
 	    $this->set('projectList', $projectList);
-	    
-	    
-		$reportTypes = array(
+	    $reportTypes = array(
 			'rp_links' => $this->spTextSA["Link Reports"],
 			'rp_summary' => $this->spTextSA["Report Summary"],
 			'page_title' => $this->spTextSA["Duplicate Title"],
 			'page_description' => $this->spTextSA["Duplicate Description"],
 			'page_keywords' => $this->spTextSA["Duplicate Keywords"],
 		);
-		$this->set('reportTypes', $reportTypes);
-		$this->set('repType', empty($info['report_type']) ? "rp_links" : $info['report_type']);
 	    
+		$this->set('reportTypes', $reportTypes);
+		$this->set('repType', empty($info['report_type']) ? "rp_links" : $info['report_type']);	    
 	    $this->render('siteauditor/viewreports');
 	}
 	
@@ -632,7 +630,7 @@ class SiteAuditorController extends Controller{
 	}
 	
 	# function show the details of a page
-	function viewPageDetails($info='') {
+	function viewPageDetails($info=[]) {
 	    $reportId = intval($info['report_id']);
 	    if (!empty($reportId)) {
 	        $auditorComp = $this->createComponent('AuditorComponent');
@@ -852,7 +850,7 @@ class SiteAuditorController extends Controller{
     }
     
     // function to show import links to a project
-    function showImportProjectLinks($info='') {
+    function showImportProjectLinks($info=[]) {
         $userId = isLoggedIn();
         $where = isAdmin() ? "" : " and w.user_id=$userId";
 	    $projectList = $this->getAllProjects($where);

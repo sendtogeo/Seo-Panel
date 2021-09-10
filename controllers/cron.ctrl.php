@@ -72,9 +72,8 @@ class CronController extends Controller {
 	}
 	
 	# common report generation function
-	function executeReportGenerationScript($info='') {
-		
-		if(count($info['repTools']) <= 0){
+	function executeReportGenerationScript($info=[]) {	    
+	    if(empty($info['repTools']) || count($info['repTools']) <= 0){
 			showErrorMsg($this->spTextKeyword['pleaseselecttool']."!");
 		}
 		

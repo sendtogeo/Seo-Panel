@@ -41,7 +41,7 @@ class ReviewManagerController extends ReviewBase{
     	$this->set( 'pageNo', $_REQUEST['pageno']);
 		
 		$this->colList = array(
-			'url' => $_SESSION['text']['common']['Url'],
+			'name' => $_SESSION['text']['common']['Name'],
 			'reviews' => $_SESSION['text']['label']['Reviews'],
 			'rating' => $_SESSION['text']['label']['Rating'],
 		);
@@ -173,7 +173,7 @@ class ReviewManagerController extends ReviewBase{
         
     }
     
-    function newReviewLink($info = '') {
+    function newReviewLink($info=[]) {
         $userId = isLoggedIn();
         $this->set('post', $info);
         $webSiteCtrler = new WebsiteController();
@@ -184,7 +184,8 @@ class ReviewManagerController extends ReviewBase{
     }
     
     function createReviewLink($listInfo = '') {
-        
+        $listInfo['name'] = trim($listInfo['name']);
+        $listInfo['url'] = trim($listInfo['url']);
         $errMsg = $this->validateReviewLink($listInfo);
         
         // if no error occured
@@ -202,7 +203,6 @@ class ReviewManagerController extends ReviewBase{
         
         $this->set('errMsg', $errMsg);
         $this->newReviewLink($listInfo);
-        
     }
     
     function editReviewLink($linkId, $listInfo = '') {
@@ -225,6 +225,8 @@ class ReviewManagerController extends ReviewBase{
     }
     
     function updateReviewLink($listInfo) {
+        $listInfo['name'] = trim($listInfo['name']);
+        $listInfo['url'] = trim($listInfo['url']);
         $this->set('post', $listInfo);
         $errMsg = $this->validateReviewLink($listInfo);
         
@@ -278,7 +280,7 @@ class ReviewManagerController extends ReviewBase{
                 
     }
 
-	function viewQuickChecker($info='') {
+	function viewQuickChecker($info=[]) {
 		$this->render('review/quick_checker');
 	}
 
@@ -459,20 +461,20 @@ class ReviewManagerController extends ReviewBase{
 			$conditions = " and sml.website_id in (".implode(',', array_keys($websiteList)).")";
 		}
 	
-		$conditions .= !empty($searchInfo['search_name']) ? " and sml.url like '%".addslashes($searchInfo['search_name'])."%'" : "";
+		$conditions .= !empty($searchInfo['search_name']) ? " and sml.name like '%".addslashes($searchInfo['search_name'])."%'" : "";
 		$conditions .= !empty($searchInfo['type']) ? " and sml.type='".addslashes($searchInfo['type'])."'" : "";
 	
 		$subSql = "select [cols] from $this->linkTable sml, $this->linkReportTable r where sml.id=r.review_link_id
 		and sml.status=1 $conditions and r.report_date='$toTime'";
 	
 		$sql = "
-		(" . str_replace("[cols]", "sml.id,sml.url,sml.website_id,sml.type,r.reviews,r.rating", $subSql) . ")
+		(" . str_replace("[cols]", "sml.id,sml.url,sml.name,sml.website_id,sml.type,r.reviews,r.rating", $subSql) . ")
 			UNION
-			(select sml.id,sml.url,sml.website_id,sml.type,0,0 from $this->linkTable sml where sml.status=1 $conditions
+			(select sml.id,sml.url,sml.name,sml.website_id,sml.type,0,0 from $this->linkTable sml where sml.status=1 $conditions
 			and sml.id not in (". str_replace("[cols]", "distinct(sml.id)", $subSql) ."))
 		order by " . addslashes($orderCol) . " " . addslashes($orderVal);
 	
-		if ($orderCol != 'url') $sql .= ", url";
+		if ($orderCol != 'name') $sql .= ", name";
 	
 		// pagination setup, if not from cron job email send function, pdf and export action
 		if (!in_array($searchInfo['doc_type'], array("pdf", "export"))) {
@@ -523,7 +525,7 @@ class ReviewManagerController extends ReviewBase{
 			$pTxt = str_replace("-", "/", substr($fromTime, -5));
 			$cTxt = str_replace("-", "/", substr($toTime, -5));
 			foreach ($this->colList as $colKey => $colLabel) {
-				if ($colKey == 'url') continue;
+				if ($colKey == 'name') continue;
 				$headList[] = $colLabel . "($pTxt)";
 				$headList[] = $colLabel . "($cTxt)";
 				$headList[] = $colLabel . "(+/-)";
@@ -534,7 +536,7 @@ class ReviewManagerController extends ReviewBase{
 	
 				$valueList = array($websiteList[$listInfo['website_id']]['url'], $listInfo['url']);
 				foreach ($this->colList as $colName => $colVal) {
-					if ($colName == 'url') continue;
+					if ($colName == 'name') continue;
 						
 					$currRank = isset($listInfo[$colName]) ? $listInfo[$colName] : 0;
 					$prevRank = isset($compareReportList[$listInfo['id']][$colName]) ? $compareReportList[$listInfo['id']][$colName] : 0;

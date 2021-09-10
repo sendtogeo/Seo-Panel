@@ -35,6 +35,7 @@ class SeoPluginsController extends Controller{
 	var $pluginCssPath;
 	var $pluginJsPath;
 	var $pluginScriptUrl;
+	var $pluginDirName;
 	
 	# function to manage seo plugins
 	function manageSeoPlugins($info, $method='get', $cronJob = false) {
@@ -62,7 +63,7 @@ class SeoPluginsController extends Controller{
 		$pluginControler = New $pluginDirName();
 		
 		// set plugin specific variabled
-		$pluginControlerpluginDirName = $pluginDirName;
+		$pluginControler->pluginDirName = $pluginDirName;
 		$pluginControler->pluginPath = $pluginPath;
 		$pluginControler->pluginId = $info['pid'];
 		$pluginControler->pluginViewPath = $this->getPluginViewPath($pluginControler->pluginPath);
@@ -170,7 +171,7 @@ class SeoPluginsController extends Controller{
 	}
 	
 	// index function
-	function showSeoPlugins($info=''){
+	function showSeoPlugins($info=[]){
 		$this->layout = "default";
 		
 		$menuList = array();
@@ -487,7 +488,7 @@ class SeoPluginsController extends Controller{
 		$pluginInfo = array();
 		$pluginInfoFile = SP_PLUGINPATH."/".$file."/".SP_PLUGININFOFILE;
 		if(file_exists($pluginInfoFile)){
-			$xml = new XMLParser;
+		    $xml = new XML_Parser;
     		$pInfo = $xml->parse($pluginInfoFile);
     		if(!empty($pInfo[0]['child'])){
     			foreach($pInfo[0]['child'] as $info){

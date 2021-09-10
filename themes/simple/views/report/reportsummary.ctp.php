@@ -103,8 +103,8 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 		$linkName = "<a id='sortLink' class='$linkClass' $hrefAttr onclick=\"scriptDoLoad('$mainLink&order_col=keyword&order_val=$oVal', 'content')\">{$spText['common']['Keyword']}</a>"; 
 		?>		
 		<?php if (empty($websiteId)) {?>
-			<th id="head" rowspan="2"><?php echo $spText['common']['Website']?></th>
 			<th id="head" rowspan="2"><?php echo $linkName?></th>
+			<th id="head" rowspan="2"><?php echo $spText['common']['Website']?></th>
 		<?php } else { ?>
 			<th id="head" rowspan="2"><?php echo $linkName?></th>
 		<?php }?>
@@ -149,8 +149,8 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 			?>
 			<tr>				
 				<?php if (empty($websiteId)) {?>
-					<td><?php echo $listInfo['weburl']; ?></td>
 					<td><?php echo $listInfo['name'] ?></td>
+					<td><?php echo $listInfo['webname']; ?></td>
 				<?php } else { ?>
 					<td><?php echo $listInfo['name']; ?></td>
 				<?php }?>				

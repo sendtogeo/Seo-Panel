@@ -70,7 +70,7 @@ class UserTypeController extends Controller {
 	 * @params : Array of values to be passed
 	 * @return : Display the list
 	 */
-	function listUserTypes($info = '') {
+	function listUserTypes($info=[]) {
 		$info['pageno'] = intval($info['pageno']);
 		$sql = "SELECT * FROM usertypes where id!=1";				
 		
@@ -319,7 +319,7 @@ class UserTypeController extends Controller {
 	 * @params : $info - data values array
 	 * @return : returns the data
 	 */
-	function newUserType($info='') {
+	function newUserType($info=[]) {
 		
 		// if subscription plugin active
 		if ($this->isPluginSubsActive) {

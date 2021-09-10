@@ -154,9 +154,9 @@ class ReportController extends Controller {
 		group by k.id";
 
 		$unionOrderCol = ($orderCol == "keyword") ? "name" : "`rank`";
-		$sql = "(". str_replace("[col]", "k.id,k.name,min(`rank`) `rank`,w.name website,w.url weburl", $subSql) .") 
+		$sql = "(". str_replace("[col]", "k.id,k.name,min(`rank`) `rank`,w.name website,w.url weburl,w.name webname", $subSql) .") 
 		UNION 
-		(select k.id,k.name,1000,w.name website,w.url weburl 
+		(select k.id,k.name,1000,w.name website,w.url weburl,w.name webname 
 		from keywords k, websites w  
 		where w.id=k.website_id $conditions and k.id not in
 		(". str_replace("[col]", "distinct(k.id)", $subSql) ."))
@@ -262,12 +262,12 @@ class ReportController extends Controller {
 		if (!empty ($searchInfo['from_time'])) {
 			$fromTime = strtotime($searchInfo['from_time'] . ' 00:00:00');
 		} else {
-			$fromTime = @mktime(0, 0, 0, date('m'), date('d') - 30, date('Y'));
+			$fromTime = mktime(0, 0, 0, date('m'), date('d') - 30, date('Y'));
 		}
 		if (!empty ($searchInfo['to_time'])) {
 			$toTime = strtotime($searchInfo['to_time'] . ' 23:59:59');
 		} else {
-			$toTime = @mktime();
+			$toTime = time();
 		}
 		
 		$fromTimeDate = date('Y-m-d', $fromTime);
@@ -1350,7 +1350,9 @@ class ReportController extends Controller {
 			if ($exportVersion) {
 				$exportContent .= $websiteSearchReport;
 				$exportContent .= $keywordSearchReport;
+				$exportContent .= $analyticsReport;
 				$exportContent .= $socialMediaReport;
+				$exportContent .= $reviewReport;
 			} else {
 				$this->set('websiteSearchReport', $websiteSearchReport);
 				$this->set('keywordSearchReport', $keywordSearchReport);
@@ -1484,7 +1486,7 @@ class ReportController extends Controller {
     		        $genReport = (date('d') == 1) ? true : false;
     		    } else {		    
         			$nextGenTime = $lastGeneratedTime + ( $repSetInfo['report_interval'] * 86400);
-        			$genReport = (mktime() > $nextGenTime) ? true : false;
+        			$genReport = (time() > $nextGenTime) ? true : false;
     		    }    
 		    }		    
 		}

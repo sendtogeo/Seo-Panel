@@ -33,7 +33,7 @@ class ConnectionController extends Controller {
 	/**
 	 * Function to display connections
 	 */
-	function listConnections($info = ''){
+	function listConnections($info=[]){
 		
 		$userId = isLoggedIn();
 		$sourceList = array();

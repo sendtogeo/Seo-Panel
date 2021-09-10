@@ -137,7 +137,7 @@ $colCount = ($baseColCount * 3) + 2;
 			?>
 			<tr class="<?php echo $trClass?>">
 				<td>
-					<a href="javascript:void(0)"><?php echo $websiteList[$listInfo['website_id']]['url']; ?></a>
+					<a href="javascript:void(0)"><?php echo $websiteList[$listInfo['website_id']]['name']; ?></a>
 				</td>
 				<td><?php echo $sourceName; ?></td>
 				<?php

@@ -26,7 +26,7 @@
 		</td>
 	</tr>
 	<tr>
-		<th><?php echo $spText['common']['Url']?>: </th>
+		<th><?php echo $spText['common']['Name']?>: </th>
 		<td id="link_area">
 			<?php echo $this->render('review/review_link_select_box', 'ajax'); ?>
 		</td>

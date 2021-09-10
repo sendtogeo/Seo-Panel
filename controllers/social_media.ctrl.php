@@ -83,7 +83,7 @@ class SocialMediaController extends Controller{
     	$this->set( 'pageNo', $_REQUEST['pageno']);
 		
 		$this->colList = array(
-			'url' => $_SESSION['text']['common']['Url'],
+			'name' => $_SESSION['text']['common']['Name'],
 			'followers' => $_SESSION['text']['label']['Followers'],
 			'likes' => $_SESSION['text']['label']['Likes'],
 		);
@@ -219,7 +219,7 @@ class SocialMediaController extends Controller{
         
     }
     
-    function newSocialMediaLink($info = '') {
+    function newSocialMediaLink($info=[]) {
         $userId = isLoggedIn();
         $this->set('post', $info);
         $webSiteCtrler = new WebsiteController();
@@ -230,7 +230,8 @@ class SocialMediaController extends Controller{
     }
     
     function createSocialMediaLink($listInfo = '') {
-        
+        $listInfo['name'] = trim($listInfo['name']);
+        $listInfo['url'] = trim($listInfo['url']);        
         $errMsg = $this->validateSocialMediaLink($listInfo);
         
         // if no error occured
@@ -247,8 +248,7 @@ class SocialMediaController extends Controller{
         }
         
         $this->set('errMsg', $errMsg);
-        $this->newSocialMediaLink($listInfo);
-        
+        $this->newSocialMediaLink($listInfo);        
     }
     
     function editSocialMediaLink($linkId, $listInfo = '') {
@@ -271,6 +271,8 @@ class SocialMediaController extends Controller{
     }
     
     function updateSocialMediaLink($listInfo) {
+        $listInfo['name'] = trim($listInfo['name']);
+        $listInfo['url'] = trim($listInfo['url']);
         $this->set('post', $listInfo);
         $errMsg = $this->validateSocialMediaLink($listInfo);
         
@@ -324,7 +326,7 @@ class SocialMediaController extends Controller{
                 
     }
 
-	function viewQuickChecker($info='') {
+	function viewQuickChecker($info=[]) {
 		$this->render('socialmedia/quick_checker');
 	}
 
@@ -476,8 +478,7 @@ class SocialMediaController extends Controller{
 	/*
 	 * func to show report summary
 	 */ 
-	function viewReportSummary($searchInfo = '', $summaryPage = false, $cronUserId=false) {
-	
+	function viewReportSummary($searchInfo = '', $summaryPage = false, $cronUserId=false) {	
 		$userId = !empty($cronUserId) ? $cronUserId : isLoggedIn();
 		$this->set('summaryPage', $summaryPage);
 		$this->set('searchInfo', $searchInfo);
@@ -550,7 +551,7 @@ class SocialMediaController extends Controller{
 			and sml.id not in (". str_replace("[cols]", "distinct(sml.id)", $subSql) ."))
 		order by " . addslashes($orderCol) . " " . addslashes($orderVal);
 	
-		if ($orderCol != 'url') $sql .= ", url";
+		if ($orderCol != 'name') $sql .= ", name";
 	
 		// pagination setup, if not from cron job email send function, pdf and export action
 		if (!in_array($searchInfo['doc_type'], array("pdf", "export"))) {

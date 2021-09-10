@@ -46,7 +46,6 @@ class DBI{
 		
 		if (empty($res)){
 			return $this->getError();
-			@mysqli_free_result($res);
 		}
 		
 		return $res;

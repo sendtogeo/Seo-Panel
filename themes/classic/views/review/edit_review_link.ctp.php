@@ -22,21 +22,6 @@ if(!empty($validationMsg)){
 		<th>&nbsp;</th>
 	</tr>	
 	<tr class="form_data">
-		<td><?php echo $spText['label']['Type']?>:</td>
-		<td>
-			<select name="type">
-				<?php foreach($serviceList as $serviceName => $serviceInfo){?>
-					<?php if($serviceName == $post['type']){?>
-						<option value="<?php echo $serviceName?>" selected><?php echo $serviceInfo['label']?></option>
-					<?php }else{?>
-						<option value="<?php echo $serviceName?>"><?php echo $serviceInfo['label']?></option>
-					<?php }?>
-				<?php }?>
-			</select>
-			<?php echo $errMsg['service_name']?>
-		</td>
-	</tr>	
-	<tr class="form_data">
 		<td><?php echo $spText['common']['Website']?>:</td>
 		<td>
 			<select name="website_id">
@@ -52,8 +37,23 @@ if(!empty($validationMsg)){
 		</td>
 	</tr>
 	<tr class="form_data">
+		<td><?php echo $spText['label']['Type']?>:</td>
+		<td>
+			<select name="type">
+				<?php foreach($serviceList as $serviceName => $serviceInfo){?>
+					<?php if($serviceName == $post['type']){?>
+						<option value="<?php echo $serviceName?>" selected><?php echo $serviceInfo['label']?></option>
+					<?php }else{?>
+						<option value="<?php echo $serviceName?>"><?php echo $serviceInfo['label']?></option>
+					<?php }?>
+				<?php }?>
+			</select>
+			<?php echo $errMsg['service_name']?>
+		</td>
+	</tr>
+	<tr class="form_data">
 		<td><?php echo $spText['common']['Name']?>:</td>
-		<td><input type="text" name="name" value="<?php echo $post['name']?>"><?php echo $errMsg['name']?></td>
+		<td><input type="text" name="name" value="<?php echo $post['name']?>" class="form-control"><?php echo $errMsg['name']?></td>
 	</tr>
 	<tr class="form_data">
 		<td><?php echo $spText['common']['Link']?>:</td>

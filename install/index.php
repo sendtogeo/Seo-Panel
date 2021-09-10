@@ -32,9 +32,11 @@ $install = New Install();
 # installation configiration
 define("SP_INSTALL_DIR", getcwd());
 define("SP_CONFIG_FILE", "config/sp-config.php");
+define("SP_CONFIG_FILE_EXTRA", "config/sp-config-extra.php");
 define("SP_INSTALL_DB_FILE", SP_INSTALL_DIR."/data/seopanel.sql");
 define("SP_INSTALL_DB_LANG_FILE", SP_INSTALL_DIR."/data/textlang.sql");
 define("SP_INSTALL_CONFIG_FILE", SP_INSTALL_DIR."/../".SP_CONFIG_FILE);
+define("SP_INSTALL_CONFIG_FILE_EXTRA", SP_INSTALL_DIR."/../".SP_CONFIG_FILE_EXTRA);
 define("SP_INSTALL_CONFIG_SAMPLE", SP_INSTALL_DIR."/sp-config-sample.php");
 define("SP_ADMIN_USER", "spadmin");
 define("SP_ADMIN_PASS", "spadmin");
