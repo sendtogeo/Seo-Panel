@@ -615,7 +615,7 @@ class ReportController extends Controller {
 	# function to format pagecontent
 	function formatPageContent($seInfoId, $pageContent) {
 	    if (!empty($this->seList[$seInfoId]['from_pattern']) && $this->seList[$seInfoId]['to_pattern']) {
-	        $pattern = $this->seList[$seInfoId]['from_pattern']."(.*)".$this->seList[$seInfoId]['to_pattern'];
+	        $pattern = $this->seList[$seInfoId]['from_pattern']."(.*?)".$this->seList[$seInfoId]['to_pattern'];
 	        if (preg_match("/$pattern/is", $pageContent, $matches)) {
 	            if (!empty($matches[1])) {
 	                $pageContent = $matches[1];
