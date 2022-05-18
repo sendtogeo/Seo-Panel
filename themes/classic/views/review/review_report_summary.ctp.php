@@ -4,7 +4,7 @@ $borderCollapseVal = $pdfVersion ? "border-collapse: collapse;" : "";
 if(!$summaryPage && (!empty($printVersion) || !empty($pdfVersion))) {
     $pdfVersion ? showPdfHeader($spTextTools['Review Report Summary']) : showPrintHeader($spTextTools['Review Report Summary']);
     ?>
-    <table width="80%" class="search">
+    <table class="search">
     	<?php if (!empty($websiteId)) {?>
     		<tr>
     			<th><?php echo $spText['common']['Website']?>:</th>
