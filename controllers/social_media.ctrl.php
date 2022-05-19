@@ -40,6 +40,7 @@ class SocialMediaController extends Controller{
     			    "follower" => $engineList['facebook']['regex2'],
     			],
     		    "url_part" => $engineList['facebook']['url_part'],
+    		    "example" => "https://www.facebook.com/seopanel",
     		],
     		"twitter" => [
     		    "label" => "Twitter",
@@ -47,6 +48,7 @@ class SocialMediaController extends Controller{
     			"regex" => [
     			    "follower" => $engineList['twitter']['regex1'],
     			],
+    		    "example" => "https://twitter.com/seopanel",
     		],
     		"instagram" => [
     			"label" => "Instagram",
@@ -54,6 +56,7 @@ class SocialMediaController extends Controller{
     			    "follower" => $engineList['instagram']['regex1'],
     			],
     		    "url_part" => $engineList['instagram']['url_part'],
+    		    "example" => "https://www.instagram.com/seopanelorg/",
     		],
     		"linkedin" => [
     			"label" => "LinkedIn",
@@ -62,12 +65,14 @@ class SocialMediaController extends Controller{
     		        "follower" => $engineList['linkedin']['regex1'],
     		    ],
     		    "show_url" => "https://www.linkedin.com/company",
+    		    "example" => "14576538",
     		],
     		"pinterest" => [
     			"label" => "Pinterest",
     			"regex" => [
     			    "follower" => $engineList['pinterest']['regex1'],
     			],
+    		    "example" => "https://www.pinterest.com/seopanel/",
     		],
     		"youtube" => [
     			"label" => "Youtube",
@@ -75,6 +80,7 @@ class SocialMediaController extends Controller{
     			    "follower" => $engineList['youtube']['regex1'],
     			],
     		    "url_part" => $engineList['youtube']['url_part'],
+    		    "example" => "https://www.youtube.com/c/seopanel",
     		],
     	];
     	
@@ -420,6 +426,18 @@ class SocialMediaController extends Controller{
 		if (!empty($smInfo) && !empty($smLink)) {
 			$smLink = $this->formatMediaLink($smType, $smLink);
 			$smContentInfo = $this->spider->getContent($smLink);
+			
+			// testing val
+            /*$myfile = fopen(SP_TMPPATH . "/smcpage.html", "w") or die("Unable to open file!");
+            fwrite($myfile, $smContentInfo['page']);
+            fclose($myfile);
+            exit;
+            
+            $smContentInfo = [];
+            $myfile = fopen(SP_TMPPATH . "/smcpage.html", "r") or die("Unable to open file!");
+            $smContentInfo['page'] = fread($myfile,filesize(SP_TMPPATH . "/smcpage.html"));
+            fclose($myfile);*/			
+			
 			if (!empty($smContentInfo['page'])) {
 			    $matches = [];
 

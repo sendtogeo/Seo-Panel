@@ -30,3 +30,5 @@ VALUES (NULL, 'trustpilot', 'review', '/\"reviewCount\":\"(\\d+)\"/is', '/\"rati
 
 INSERT INTO `crawl_engines` (`id`, `engine_name`, `engine_category`, `regex1`, `regex2`, `regex3`, `regex4`, `url`, `url_part`, `status`) 
 VALUES (NULL, 'tripadvisor', 'review', '/\"reviewCount\":\"(\\d+)\"/is', '/\"ratingValue\":\"(\\d+\\.\\d+)\"/is', NULL, NULL, '', NULL, '1');
+
+UPDATE `crawl_engines` SET `regex1` = '/\"follower_count\":(\\d+)/is' WHERE engine_name='pinterest' and engine_category='social_media';
