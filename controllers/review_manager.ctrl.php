@@ -520,7 +520,7 @@ class ReviewManagerController extends ReviewBase{
 			$reportHeading =  $this->spTextTools['Review Report Summary']."($fromTime - $toTime)";
 			$exportContent .= createExportContent( array('', $reportHeading, ''));
 			$exportContent .= createExportContent( array());
-			$headList = array($spText['common']['Website'], $spText['common']['Url']);
+			$headList = array($spText['common']['Website'], $spText['common']['Url'], $spText['label']['Type']);
 	
 			$pTxt = str_replace("-", "/", substr($fromTime, -5));
 			$cTxt = str_replace("-", "/", substr($toTime, -5));
@@ -534,7 +534,7 @@ class ReviewManagerController extends ReviewBase{
 			$exportContent .= createExportContent($headList);
 			foreach($baseReportList as $listInfo){
 	
-				$valueList = array($websiteList[$listInfo['website_id']]['url'], $listInfo['url']);
+			    $valueList = array($websiteList[$listInfo['website_id']]['url'], $listInfo['url'], $this->serviceList[$listInfo['type']]['label']);
 				foreach ($this->colList as $colName => $colVal) {
 					if ($colName == 'name') continue;
 						

@@ -38,7 +38,7 @@ if(!$summaryPage && (!empty($printVersion) || !empty($pdfVersion))) {
 				</td>
 				<th width="100px"><?php echo $spText['common']['Website']?>: </th>
 				<td width="160px">
-					<select name="website_id" id="website_id" style='width:100px;' onchange="<?php echo $submitLink?>">
+					<select name="website_id" id="website_id" onchange="<?php echo $submitLink?>">
 						<option value="">-- <?php echo $spText['common']['Select']?> --</option>
 						<?php foreach($websiteList as $websiteInfo){?>
 							<?php if($websiteInfo['id'] == $websiteId){?>
