@@ -32,3 +32,6 @@ INSERT INTO `crawl_engines` (`id`, `engine_name`, `engine_category`, `regex1`, `
 VALUES (NULL, 'tripadvisor', 'review', '/\"reviewCount\":\"(\\d+)\"/is', '/\"ratingValue\":\"(\\d+\\.\\d+)\"/is', NULL, NULL, '', NULL, '1');
 
 UPDATE `crawl_engines` SET `regex1` = '/\"follower_count\":(\\d+)/is' WHERE engine_name='pinterest' and engine_category='social_media';
+
+UPDATE `searchengines` SET `regex` = '<div.*?class=\"?g.*?>.*?href=\"(.*?)\".*?>.*?<h3.*?>(.*?)<\\/h3>',
+`from_pattern` = 'id=\"search\"', `to_pattern` = 'id=\"bottomads\"' where  url LIKE '%google%';
