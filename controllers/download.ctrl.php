@@ -55,7 +55,12 @@ class DownloadController extends Controller{
 	function isValidFile($fileName) {
 		$fileName = urldecode($fileName);
 		$fileName = str_replace(array('../', './', '..'), '', $fileName);
-		
+
+		// return false if empty after sanitation
+		if ($fileName === '') {
+			return false;
+		}
+
 		// check its any system file
 		if ($fileName[0] == '/') {
 			return false;
