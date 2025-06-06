@@ -84,7 +84,7 @@ class AuditorComponent extends Controller{
             }
         
             if ($projectInfo['check_brocken']) {
-                $reportInfo['brocken'] = Spider::isLInkBrocken($linkInfo['link_url']);    
+                $reportInfo['brocken'] = Spider::isLInkBrocken($reportUrl);
             }
             
             $this->saveReportInfo($reportInfo, 'update');
