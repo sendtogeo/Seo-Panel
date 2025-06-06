@@ -86,7 +86,15 @@
       var $bUseColour;
       var $sFileType;
       var $sCode = '';
-      
+
+      function __construct(
+         $aFonts, // array of TrueType fonts to use - specify full path
+         $iWidth = CAPTCHA_WIDTH, // width of image
+         $iHeight = CAPTCHA_HEIGHT // height of image
+      ) {
+         $this->PhpCaptcha($aFonts, $iWidth, $iHeight);
+      }
+
       function PhpCaptcha(
          $aFonts, // array of TrueType fonts to use - specify full path
          $iWidth = CAPTCHA_WIDTH, // width of image
@@ -479,6 +487,10 @@
    
    // example sub class
    class PhpCaptchaColour extends PhpCaptcha {
+      function __construct($aFonts, $iWidth = CAPTCHA_WIDTH, $iHeight = CAPTCHA_HEIGHT) {
+         $this->PhpCaptchaColour($aFonts, $iWidth, $iHeight);
+      }
+
       function PhpCaptchaColour($aFonts, $iWidth = CAPTCHA_WIDTH, $iHeight = CAPTCHA_HEIGHT) {
          // call parent constructor
          parent::PhpCaptcha($aFonts, $iWidth, $iHeight);

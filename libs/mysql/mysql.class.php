@@ -33,52 +33,50 @@ class Mysql extends Database{
 	function Mysql($dbServer, $dbUser, $dbPassword, $dbName, $debug){
 		$this->setDebugMode($debug);
 		
-		// check connection id existing and it is a resource
-		if (defined('SP_DB_CONN_ID') && is_resource(SP_DB_CONN_ID) ) {
-		    $this->connectionId =  SP_DB_CONN_ID;
-		} else {
-		    
-    		// if mysql persistent connection enabled
-    		if (SP_DB_PERSISTENT_CONNECTION) {
-    		    $this->connectionId = @mysql_pconnect($dbServer, $dbUser, $dbPassword, true);
-    		} else {
-    		    $this->connectionId = @mysql_connect($dbServer, $dbUser, $dbPassword, true);
-    		}
+               // check connection id existing and it is already a mysqli instance
+               if (defined('SP_DB_CONN_ID') && SP_DB_CONN_ID instanceof mysqli ) {
+                   $this->connectionId =  SP_DB_CONN_ID;
+               } else {
+
+               // if mysql persistent connection enabled
+               if (SP_DB_PERSISTENT_CONNECTION) {
+                    $dbServer = 'p:'.$dbServer;
+               }
+               $this->connectionId = @mysqli_connect($dbServer, $dbUser, $dbPassword, $dbName);
     		
-    		if (!$this->connectionId){
-    			$this->showError();			
-    			showErrorMsg("<p style='color:red'>Database connection failed!<br>Please check your database settings!</p>");
-    		} else {
-    		    $this->selectDatabase($dbName);				
-    		    $this->query( "SET NAMES utf8");
-    		    define('SP_DB_CONN_ID', $this->connectionId);
-    		}
+               if (!$this->connectionId){
+                        $this->showError();
+                        showErrorMsg("<p style='color:red'>Database connection failed!<br>Please check your database settings!</p>");
+               } else {
+                    $this->query( "SET NAMES utf8" );
+                    define('SP_DB_CONN_ID', $this->connectionId);
+               }
 		}		
 		
 	}
 
-	# func to select database
-	function selectDatabase($dbName){
-		$res = @mysql_select_db($dbName, $this->connectionId);
-		$this->showError();
-		if(mysql_errno() != 0){
-			showErrorMsg("<p style='color:red'>Database connection failed!<br>Please check your database settings!</p>");
-		}
-		return $res;
-	}
+       # func to select database
+       function selectDatabase($dbName){
+               $res = @mysqli_select_db($this->connectionId, $dbName);
+               $this->showError();
+               if(mysqli_errno($this->connectionId) != 0){
+                       showErrorMsg("<p style='color:red'>Database connection failed!<br>Please check your database settings!</p>");
+               }
+               return $res;
+       }
 
 	#func to execute a select query
 	function select($query, $fetchFirst = false){
-		$res = mysql_query($query, $this->connectionId);
+               $res = mysqli_query($this->connectionId, $query);
 		$this->showError();
 		if (!$res){
 			return false;
 		}
 		$returnArr = array();
-		while ($row = mysql_fetch_assoc($res)){
+               while ($row = mysqli_fetch_assoc($res)){
 			$returnArr[] = $row;
 		}
-		mysql_free_result($res);
+               mysqli_free_result($res);
 		if ($fetchFirst){
 			return $returnArr[0];
 		}
@@ -87,17 +85,17 @@ class Mysql extends Database{
 
 	# func to Execute a general mysql query
 	function query($query, $noRows=false){
-		$res = @mysql_query($query, $this->connectionId);
-		if ($res){
-			$this->rowsAffected = @mysql_affected_rows($this->connectionId);
-			$this->lastInsertId = @mysql_insert_id($this->connectionId);
-		}else{
-			$this->showError();
-			@mysql_free_result($res);
-		}
-		if($noRows) $this->noRows = mysql_num_rows($res);
-		return $res;
-	}
+               $res = @mysqli_query($this->connectionId, $query);
+               if ($res){
+                       $this->rowsAffected = @mysqli_affected_rows($this->connectionId);
+                       $this->lastInsertId = @mysqli_insert_id($this->connectionId);
+               }else{
+                       $this->showError();
+                       @mysqli_free_result($res);
+               }
+               if($noRows) $this->noRows = mysqli_num_rows($res);
+               return $res;
+       }
 
 	# func to get max id of a table
 	function getMaxId($table, $col='id') {
@@ -114,24 +112,24 @@ class Mysql extends Database{
 
 	# func to Display the Mysql error
 	function showError(){
-		if ($this->debugMode && @mysql_errno() != 0) {
-			echo "Script Halted. \n Mysql Error Number: " . @mysql_errno() . "\n" . @mysql_error();
-			$this->close();
-			exit();
-		}
-		return;
-	}
+               if ($this->debugMode && @mysqli_errno($this->connectionId) != 0) {
+                       echo "Script Halted. \n Mysql Error Number: " . @mysqli_errno($this->connectionId) . "\n" . @mysqli_error($this->connectionId);
+                       $this->close();
+                       exit();
+               }
+               return;
+       }
 
 	# func to escape mysql string
-	function escapeMysqlString($str){
-		return mysql_escape_string($str);
-	}
+       function escapeMysqlString($str){
+               return mysqli_real_escape_string($this->connectionId, $str);
+       }
 
 	# func to Close Mysql Connection
-	function close(){
-		$res = @mysql_close($this->connectionId);
-		return $res;
-	}
+       function close(){
+               $res = @mysqli_close($this->connectionId);
+               return $res;
+       }
 	
 	function importDatabaseFile($filename){
 		
