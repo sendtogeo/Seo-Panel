@@ -1,32 +1,40 @@
 # .github/workflows/sync-upstream.yml
-name: Sync upstream -> fork
+name: Sync upstream → fork
 
 on:
-  workflow_dispatch:         # manual trigger button in Actions tab
+  workflow_dispatch:          # manual “Run workflow” button
   schedule:
-    - cron: '0 3 * * 1-5'    # every weekday at 03:00 UTC
+    - cron: '0 3 * * 1-5'     # every weekday at 03:00 UTC (adjust as needed)
 
 jobs:
   rebase:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      # 1 — Check out your fork with *full* history so rebase works
+      - name: Checkout fork
+        uses: actions/checkout@v4
         with:
-          repository: votlon/Seo-Panel
-          ref: develop          # or master/main
+          repository: votlon/Seo-Panel      # your fork
+          ref: develop                     # change if your main branch is master/main
+          fetch-depth: 0                   # ← important: pull complete history
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      # 2 — Add (or update) the upstream remote and fetch latest commits
       - name: Add upstream remote
         run: |
-          git remote add upstream https://github.com/seopanel/Seo-Panel.git
+          git remote add upstream https://github.com/seopanel/Seo-Panel.git || \
+          git remote set-url upstream https://github.com/seopanel/Seo-Panel.git
           git fetch upstream
 
+      # 3 — Re-base your branch onto upstream’s branch
       - name: Rebase fork on upstream
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git rebase upstream/develop
 
-      - name: Push back to fork
+      # 4 — Force-push the updated history back to your fork
+      - name: Push result back to fork
         run: |
           git push --force-with-lease origin develop
