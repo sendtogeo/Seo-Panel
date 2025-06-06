@@ -1,0 +1,32 @@
+# .github/workflows/sync-upstream.yml
+name: Sync upstream -> fork
+
+on:
+  workflow_dispatch:         # manual trigger button in Actions tab
+  schedule:
+    - cron: '0 3 * * 1-5'    # every weekday at 03:00 UTC
+
+jobs:
+  rebase:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: votlon/Seo-Panel
+          ref: develop          # or master/main
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Add upstream remote
+        run: |
+          git remote add upstream https://github.com/seopanel/Seo-Panel.git
+          git fetch upstream
+
+      - name: Rebase fork on upstream
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rebase upstream/develop
+
+      - name: Push back to fork
+        run: |
+          git push --force-with-lease origin develop
