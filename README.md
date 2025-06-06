@@ -57,9 +57,9 @@ a) Seo Panel Help Guide: http://help.seopanel.in/
 
 b) Seo Panel Forum: http://forum.seopanel.in/
 
-b) Seo Panel Support: http://www.seopanel.in/support/
+c) Seo Panel Support: http://www.seopanel.in/support/
 
-e) Seo Panel Contact: http://www.seopanel.in/contact/
+d) Seo Panel Contact: http://www.seopanel.in/contact/
 
 
 ##The major features of Seo Panel:
