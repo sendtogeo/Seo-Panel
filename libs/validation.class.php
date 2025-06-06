@@ -88,7 +88,7 @@ class Validation{
 			$msg = $_SESSION['text']['common']['Invalid characters'];
 			$this->flagErr = true;
 		}
-		if(!preg_match($this->Filters['startName'],$entry{0})){
+               if(!preg_match($this->Filters['startName'],$entry[0])){
 			$msg = $_SESSION['text']['common']['Invalid value'];
 			$this->flagErr = true;
 		}
@@ -105,7 +105,7 @@ class Validation{
 			$msg = $_SESSION['text']['common']['Invalid characters'];
 			$this->flagErr = true;
 		}
-		if(!preg_match($this->Filters['startName'],$entry{0})){
+               if(!preg_match($this->Filters['startName'],$entry[0])){
 			exit;
 			$msg = $_SESSION['text']['common']['Invalid value'];
 			$this->flagErr = true;
@@ -151,7 +151,7 @@ class Validation{
 			$msg = $_SESSION['text']['common']['Invalid characters'];
 			$this->flagErr = true;
 		}
-		if(!preg_match($this->Filters['startGenName'],$entry{0})){
+               if(!preg_match($this->Filters['startGenName'],$entry[0])){
 			$msg = $_SESSION['text']['common']['Invalid value'];
 			$this->flagErr = true;
 		}
@@ -179,7 +179,7 @@ class Validation{
 			$msg = $_SESSION['text']['common']['Invalid characters'];
 			$this->flagErr = true;
 		}
-		if(!preg_match($this->Filters['startPhone'],$entry{0})){
+               if(!preg_match($this->Filters['startPhone'],$entry[0])){
 			$msg = $_SESSION['text']['common']['Invalid value'];
 			$this->flagErr = true;
 		}
