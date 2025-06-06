@@ -26,55 +26,55 @@ class DB{
 	var $connectionId = false; 	# db connectio id
 	var $error = false;   		# error while databse operations
 	
-	function connectDatabase($dbServer, $dbUser, $dbPassword, $dbName){
-		$this->connectionId = @mysql_connect($dbServer, $dbUser, $dbPassword, true);
-		if (!$this->connectionId){
-			return $this->getError();
-		}
-		return $this->selectDatabase($dbName);
-	}
+       function connectDatabase($dbServer, $dbUser, $dbPassword, $dbName){
+               $this->connectionId = @mysqli_connect($dbServer, $dbUser, $dbPassword, $dbName);
+               if (!$this->connectionId){
+                       return $this->getError();
+               }
+               return $this->selectDatabase($dbName);
+       }
 
 	# func to select database
 	function selectDatabase($dbName){
-		$res = @mysql_select_db($dbName, $this->connectionId);
-		if(@mysql_errno() != 0){			
-			return $this->getError();
-		}
+               $res = @mysqli_select_db($this->connectionId, $dbName);
+               if(@mysqli_errno($this->connectionId) != 0){
+                       return $this->getError();
+               }
 	}
 
 	# func to Execute a general mysql query
 	function query($query, $noRows=false){
-		$res = @mysql_query($query, $this->connectionId);
-		if (empty($res)){
-			return $this->getError();
-			@mysql_free_result($res);
-		}
-		return $res;
-	}
+               $res = @mysqli_query($this->connectionId, $query);
+               if (empty($res)){
+                       return $this->getError();
+                       @mysqli_free_result($res);
+               }
+               return $res;
+       }
 	
     #func to execute a select query
 	function select($query, $fetchFirst = false){
-		$res = @mysql_query($query, $this->connectionId);
-		if (!$res){
-			return false;
-		}
-		$returnArr = array();
-		while ($row = mysql_fetch_assoc($res)){
-			$returnArr[] = $row;
-		}
-		mysql_free_result($res);
-		if ($fetchFirst){
-			return $returnArr[0];
-		}
-		return $returnArr;
-	}
+               $res = @mysqli_query($this->connectionId, $query);
+               if (!$res){
+                       return false;
+               }
+               $returnArr = array();
+               while ($row = mysqli_fetch_assoc($res)){
+                       $returnArr[] = $row;
+               }
+               mysqli_free_result($res);
+               if ($fetchFirst){
+                       return $returnArr[0];
+               }
+               return $returnArr;
+       }
 
 	# func to Display the Mysql error
 	function getError(){
-		if (@mysql_errno() != 0) {			
-			$this->error = true;
-			$error =  "Mysql Error: " . @mysql_error();
-		}
+               if (@mysqli_errno($this->connectionId) != 0) {
+                       $this->error = true;
+                       $error =  "Mysql Error: " . @mysqli_error($this->connectionId);
+               }
 		return $error;
 	}
 	

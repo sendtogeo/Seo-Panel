@@ -44,6 +44,9 @@ class Spider{
 	var $userAgentList = array();
 
 	# spider constructor
+        function __construct()       {
+                $this->Spider();
+        }
 	function Spider()	{			
 		$this -> _CURLOPT_COOKIEJAR = SP_TMPPATH.'/'.$this -> _CURLOPT_COOKIEJAR;
 		$this -> _CURLOPT_COOKIEFILE = SP_TMPPATH.'/'.$this -> _CURLOPT_COOKIEFILE;		

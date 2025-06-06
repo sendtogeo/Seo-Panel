@@ -25,7 +25,11 @@ class Validation{
 
 	var $flagErr;
 
-	function Validation(){
+       function __construct(){
+               $this->Validation();
+       }
+
+       function Validation(){
 		$this->Filters['email'] = "/^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i" ;
 		$this->Filters['number'] = "/^[0-9]+$/";
 		$this->Filters['floatnumber'] = "/^\d+$|^\d+\.\d+$|^\.\d+$/";

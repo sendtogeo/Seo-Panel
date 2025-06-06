@@ -27,19 +27,19 @@ class Install {
 		
 		$phpClass = "red";
 		$phpSupport = "No";
-		$phpVersion = phpversion();
-		if (intval($phpVersion) >= 4 and intval($phpVersion) < 7) {			
-			$phpClass = "green";
-			$phpSupport = "Yes";
-		}
+               $phpVersion = phpversion();
+               if (version_compare($phpVersion, '8.0.0', '>=') && version_compare($phpVersion, '9.0.0', '<')) {
+                       $phpClass = "green";
+                       $phpSupport = "Yes";
+               }
 		$phpSupport .= " ( PHP $phpVersion )";
 		
-		$mysqlClass = "red";
-		$mysqlSupport = "No";
-		if(function_exists('mysql_query')){
-			$mysqlSupport = "Yes";
-			$mysqlClass = "green";
-		}
+               $mysqlClass = "red";
+               $mysqlSupport = "No";
+               if(function_exists('mysqli_query')){
+                       $mysqlSupport = "Yes";
+                       $mysqlClass = "green";
+               }
 		
 		$curlClass = "red";
 		$curlSupport = "No";
@@ -107,7 +107,7 @@ class Install {
 			<tr><th colspan="2" class="header">Installation compatibility</th></tr>
 			<tr><td colspan="2" class="error"><?php echo $errMsg;?></td></tr>
 			<tr>
-				<th>PHP version >= 4.0.0 and &lt; 7.0.0</th>
+                               <th>PHP version >= 8.0.0 and &lt; 9.0.0</th>
 				<td class="<?php echo $phpClass;?>"><?php echo $phpSupport;?></td>
 			</tr>
 			<tr>
@@ -385,19 +385,19 @@ class Install {
 
 		$phpClass = "red";
 		$phpSupport = "No";
-		$phpVersion = phpversion();
-		if (intval($phpVersion) >= 4 and intval($phpVersion) < 7) {			
-			$phpClass = "green";
-			$phpSupport = "Yes";
-		}
+               $phpVersion = phpversion();
+               if (version_compare($phpVersion, '8.0.0', '>=') && version_compare($phpVersion, '9.0.0', '<')) {
+                       $phpClass = "green";
+                       $phpSupport = "Yes";
+               }
 		$phpSupport .= " ( PHP $phpVersion )";
 		
-		$mysqlClass = "red";
-		$mysqlSupport = "No";
-		if(function_exists('mysql_query')){
-			$mysqlSupport = "Yes";
-			$mysqlClass = "green";
-		}
+               $mysqlClass = "red";
+               $mysqlSupport = "No";
+               if(function_exists('mysqli_query')){
+                       $mysqlSupport = "Yes";
+                       $mysqlClass = "green";
+               }
 		
 		$curlClass = "red";
 		$curlSupport = "No";
@@ -476,7 +476,7 @@ class Install {
 			<tr><th colspan="2" class="header">Upgrade compatibility</th></tr>
 			<tr><td colspan="2" class="error"><?php echo $errMsg;?></td></tr>
 			<tr>
-				<th>PHP version >= 4.0.0 and &lt; 7.0.0</th>
+                               <th>PHP version >= 8.0.0 and &lt; 9.0.0</th>
 				<td class="<?php echo $phpClass;?>"><?php echo $phpSupport;?></td>
 			</tr>
 			<tr>
