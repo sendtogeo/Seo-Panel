@@ -4,7 +4,7 @@ An Award Winning open source seo control panel for managing search engine optimi
 
 ##Requirements
 
-   1. PHP 8.3 or later with composer installed
+   1. PHP 8.4.6 or later with composer installed
 
    2. MYSQL, Web Server(e.g APACHE)
 
