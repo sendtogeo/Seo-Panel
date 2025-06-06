@@ -105,7 +105,7 @@ class UserController extends Controller{
 		$utypeCtrler = new UserTypeController();
 		$this->set('post', $info);
 		
-		// check whetehr plugin installed or not
+               // check whether plugin installed or not
 		if ($seopluginCtrler->isPluginActive("Subscription")) {
 			$subscriptionActive = true;
 			$userTypeList = $utypeCtrler->getAllUserTypes();
@@ -136,7 +136,7 @@ class UserController extends Controller{
 		$seopluginCtrler =  new SeoPluginsController();
 		$utypeCtrler = new UserTypeController();
 		
-		// check whetehr plugin installed or not
+               // check whether plugin installed or not
 		if ($seopluginCtrler->isPluginActive("Subscription")) {
 			$userTypeList = $utypeCtrler->getAllUserTypes();
 			$this->set('list', $userTypeList);
