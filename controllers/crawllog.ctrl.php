@@ -181,8 +181,8 @@ class CrawlLogController extends Controller {
 		$this->render('log/crawlloglist');
 	}
 	
-	/**
-	 * fucntion to delete log id
+        /**
+         * function to delete log id
 	 * @param int $logId	The id of the log needs to be deleted
 	 */
 	function deleteCrawlLog($logId) {
@@ -190,8 +190,8 @@ class CrawlLogController extends Controller {
 		$this->db->query($sql);
 	}
 	
-	/**
-	 * function to clear all logs saved in teh system
+        /**
+         * function to clear all logs saved in the system
 	 */
 	function clearAllLog() {
 		$sql = "truncate crawl_log";
@@ -208,8 +208,8 @@ class CrawlLogController extends Controller {
 		return $logInfo;
 	}
 	
-	/**
-	 * fucntion to show crawl log details
+        /**
+         * function to show crawl log details
 	 * @param int $logId	The id of the log needs to be dispalyed
 	 */
 	function showCrawlLogDetails($logId) {
