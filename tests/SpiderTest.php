@@ -19,4 +19,14 @@ class SpiderTest extends TestCase {
         $url = 'http://example.com//foo//bar/';
         $this->assertSame('http://example.com/foo/bar', Spider::formatUrl($url));
     }
+
+    public function testAddTrailingSlashAppendsSlash() {
+        $url = 'http://example.com/foo';
+        $this->assertSame('http://example.com/foo/', Spider::addTrailingSlash($url));
+    }
+
+    public function testRemoveTrailingSlashStripsSlash() {
+        $url = 'http://example.com/foo/';
+        $this->assertSame('http://example.com/foo', Spider::removeTrailingSlash($url));
+    }
 }

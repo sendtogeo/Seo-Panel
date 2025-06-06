@@ -202,8 +202,8 @@ class Spider{
 		return $url;
 	}
 	
-    # function to remove last trailing slash
-	public static function addTrailingSlash($url) {
+    # function to add trailing slash if missing
+        public static function addTrailingSlash($url) {
 	    if (!stristr($url, '?') && !stristr($url, '#')) {
 	        if (!preg_match("/\.([^\/]+)$/", $url)) {		
         		if (!preg_match('/\/$/', $url)) {
@@ -226,8 +226,8 @@ class Spider{
 					
 			$pattern = "/<a (.*)>(.*\n*.*|.*\n*)<\/a>/U";	
 			preg_match_all($pattern,$string,$matches, PREG_PATTERN_ORDER);
-			for($i=0;$i<count($matches[1]);$i++){
-				$href = $this->getTagParam("href",$matches[1][$i]);
+                        for($i=0;$i<count($matches[1]);$i++){
+                                $href = $this->__getTagParam("href",$matches[1][$i]);
 				$href = preg_replace('/\/{3}/', '/', $href);
 				if(!empty($href)){
 					if( !preg_match( '/mailto:/', $href ) && ($href!="#") && !preg_match( '/javascript:|;/', $href ) ){

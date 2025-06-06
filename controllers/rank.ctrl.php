@@ -137,7 +137,7 @@ class RankController extends Controller{
 		$ret = $this->spider->getContent($url);
 		$rank = 0;
 		
-		// parse rank from teh page
+                // parse rank from the page
 		if(!empty($ret['page'])){
 			if (preg_match('/\<popularity url\="(.*?)" TEXT\="([0-9]+)"/si', $ret['page'], $matches) ) {
 				$rank = empty($matches[2]) ? 0 : $matches[2];	
