@@ -262,9 +262,9 @@ class SiteAuditorController extends Controller{
 		$this->db->query($sql);
 	}
 
-	// func to delete project
-	function __deleteProject($projectId){
-	    // delete teh project
+        // func to delete project
+        function __deleteProject($projectId){
+            // delete the project
 		$projectId = intval($projectId);
 		$sql = "delete from auditorprojects where id=$projectId";
 		$this->db->query($sql);
@@ -312,8 +312,8 @@ class SiteAuditorController extends Controller{
 	    $this->render('siteauditor/showrunproject');
 	}
 	
-	// fucntion to load reports page after teh actions
-	function loadReportsPage($info='') {
+        // function to load reports page after the actions
+        function loadReportsPage($info='') {
 	    print "<script>scriptDoLoadPost('siteauditor.php', 'search_form', 'subcontent', '&sec=showreport&pageno={$info['pageno']}&order_col={$info['order_col']}&order_val={$info['order_val']}')</script>";
 	}
 	
