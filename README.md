@@ -4,9 +4,11 @@ An Award Winning open source seo control panel for managing search engine optimi
 
 ##Requirements
 
-   1. PHP, MYSQL, Web Server(e.g APACHE)
+   1. PHP 8.3 or later with composer installed
 
-   2. CURL enabled with PHP, Refer following link to install curl with php if it is not installed.
+   2. MYSQL, Web Server(e.g APACHE)
+
+   3. CURL enabled with PHP, Refer following link to install curl with php if it is not installed.
 
         http://php.net/manual/en/curl.setup.php
 
@@ -19,11 +21,13 @@ Simply use Softaculous / Installatron / Webuzo / AMPPS to install SEO Panel or F
 
 2. Upload all the files contained in this folder (retaining the directory structure) to a web accessible directory on your server or hosting account.
 
-3. Change the permissions on config/sp-config.php to be writable by all (666 or -rw-rw-rw- within your FTP Client)
+3. From the project root run `composer install` to fetch PHP dependencies.
 
-4. Change the permissions on the tmp directory to be writable by all (777 or -rwxrwxrwx within your FTP Client)
+4. Change the permissions on config/sp-config.php to be writable by all (666 or -rw-rw-rw- within your FTP Client)
 
-5. Using your web browser visit the location you placed Seo Panel with the addition of install/index.php or pointing directly to install/
+5. Change the permissions on the tmp directory to be writable by all (777 or -rwxrwxrwx within your FTP Client)
+
+6. Using your web browser visit the location you placed Seo Panel with the addition of install/index.php or pointing directly to install/
 
     Eg: http://www.yourdomain.com/seopanel/install/
 
