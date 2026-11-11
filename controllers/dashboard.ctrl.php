@@ -1,0 +1,1850 @@
+<?php
+
+/***************************************************************************
+ *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.org)  	           *
+ *   sendtogeo@gmail.com   												   *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ ***************************************************************************/
+
+# class defines all dashboard controller functions
+class DashboardController extends Controller {    
+    var $pageScriptPath = 'dashboard.php';
+        
+    function __construct() {
+        parent::__construct();
+    	$this->set('pageScriptPath', $this->pageScriptPath);
+    	$this->set( 'pageNo', $_REQUEST['pageno'] ?? '');
+    }
+
+    /**
+     * Computes a period's [fromTime, toTime] and an equal-length
+     * "previous period" [prevFromTime, prevToTime] for trend comparison.
+     * Every show*Dashboard() tab used to duplicate this switch/date-math
+     * independently (7 copies), and all 7 had the same bug: toTime=today,
+     * fromTime=today-N gives an (N+1)-day inclusive window, but
+     * prevFromTime was computed directly as today-2N - only an N-day
+     * window, one day SHORTER than the current one. Any SUM-based metric
+     * (clicks, sessions, follower counts, keyword checks, ...) then
+     * almost always showed a spurious "up" trend purely from summing one
+     * extra day of data, not real growth - worst case on period=day,
+     * where the "current" window (2 days) was literally double the
+     * "previous" one (1 day). Fixed by deriving prevFromTime from
+     * prevToTime using the SAME offset used for fromTime, so both
+     * windows are always exactly the same length.
+     *
+     * $asTimestamp=true returns raw Unix timestamps (for
+     * showDirectorySubmissionDashboard(), whose dirsubmitinfo.submit_time
+     * column is an unquoted UNIX_TIMESTAMP comparison) instead of the
+     * 'Y-m-d' date strings every other caller uses.
+     */
+    function __getPeriodDateRange($period, $asTimestamp = false) {
+        switch ($period) {
+            case 'day':
+                $offset = '-1 day';
+                break;
+            case 'week':
+                $offset = '-7 days';
+                break;
+            case 'year':
+                $offset = '-1 year';
+                break;
+            case 'month':
+            default:
+                $offset = '-30 days';
+                break;
+        }
+
+        if ($asTimestamp) {
+            $toTime = time();
+            $fromTime = strtotime($offset);
+            $prevToTime = $fromTime - 1;
+            $prevFromTime = strtotime($offset, $prevToTime);
+        } else {
+            $toTime = date('Y-m-d');
+            $fromTime = date('Y-m-d', strtotime($offset));
+            $prevToTime = date('Y-m-d', strtotime($fromTime . ' -1 day'));
+            $prevFromTime = date('Y-m-d', strtotime($prevToTime . ' ' . $offset));
+        }
+
+        return [$fromTime, $toTime, $prevFromTime, $prevToTime];
+    }
+
+    function showMainDashboard($info=[]) {
+        $userId = isLoggedIn();
+
+        // Load dashboard language texts
+        $this->set('spTextDashboard', $this->getLanguageTexts('dashboard', $_SESSION['lang_code']));
+        $this->set('spTextBack', $this->getLanguageTexts('backlink', $_SESSION['lang_code']));
+
+        // Get user websites
+        $websiteCtrler = New WebsiteController();
+        $websiteList = $websiteCtrler->__getAllWebsites($userId, true);
+
+        if (empty($websiteList)) {
+            $this->set('spTextWebsite', $this->getLanguageTexts('website', $_SESSION['lang_code']));
+            $this->render('dashboard/no_websites');
+            return;
+        }
+
+        $this->set('siteList', $websiteList);
+        $websiteId = isset($info['website_id']) ? intval($info['website_id']) : $websiteList[0]['id'];
+        // a caller-supplied website_id must belong to one of the caller's
+        // own (already-scoped) websites for a non-admin - otherwise fall
+        // back to their own first website. Previously unchecked here,
+        // across every dashboard tab - any non-admin could view ANY other
+        // user's dashboard data for an arbitrary website_id.
+        if (!isAdmin() && !in_array($websiteId, array_column($websiteList, 'id'))) {
+            $websiteId = $websiteList[0]['id'];
+        }
+        $this->set('websiteId', $websiteId);
+
+        // Handle period selection (default: month)
+        $period = !empty($info['period']) ? $info['period'] : 'month';
+        $this->set('period', $period);
+
+        // Calculate date range based on period
+        list($fromTime, $toTime, $prevFromTime, $prevToTime) = $this->__getPeriodDateRange($period);
+
+        $this->set('fromTime', $fromTime);
+        $this->set('toTime', $toTime);
+        $this->set('prevFromTime', $prevFromTime);
+        $this->set('prevToTime', $prevToTime);
+        
+        // get keyword last generated report date in between $fromTime and $toTime
+        $kwResultLastDateRaw = $this->__getKeywordLastReportGeneratedDate($websiteId, $fromTime, $toTime);
+        $kwResultLastDate = !empty($kwResultLastDateRaw) ? $kwResultLastDateRaw : $toTime;
+        $kwResultPreLastDate = $this->__getKeywordLastReportGeneratedDate($websiteId, $prevFromTime, $prevToTime);
+        $kwResultPreLastDate = !empty($kwResultPreLastDate) ? $kwResultPreLastDate : $prevToTime;
+        // Top Keywords and Keyword Distribution below both actually show
+        // data as of $kwResultLastDate (the latest real cron-checked
+        // date in range, which can be well before $toTime if the cron
+        // job hasn't run recently) - surfaced to the view so it can show
+        // an "as of" indicator instead of silently implying the numbers
+        // are current as of today. Null (not the $toTime fallback above)
+        // when there's genuinely no checked date in range at all.
+        $this->set('kwResultLastDate', $kwResultLastDateRaw);
+        
+        // Get detailed keyword distribution by rank ranges        
+        $keywordDistribution = $this->getKeywordDistributionDetails($websiteId, $kwResultLastDate);        
+        $this->set('keywordDistribution', $keywordDistribution);
+
+        // Get keyword statistics
+        $keywordStats = $this->getKeywordStats($websiteId, $fromTime, $kwResultLastDate);
+        $this->set('keywordStats', $keywordStats);
+
+        // Get previous period keyword statistics for comparison
+        $prevKeywordStats = $this->getKeywordStats($websiteId, $prevFromTime, $kwResultPreLastDate);
+        $this->set('prevKeywordStats', $prevKeywordStats);
+
+        // Calculate keyword stats comparison
+        $keywordComparison = $this->calculateComparison($keywordStats, $prevKeywordStats);
+        $this->set('keywordComparison', $keywordComparison);
+
+        // Get website overview stats
+        $websiteStats = $this->getWebsiteOverviewStats($websiteId, $fromTime, $toTime);
+        $this->set('websiteStats', $websiteStats);
+
+        // Get previous period website stats for comparison
+        $prevWebsiteStats = $this->getWebsiteOverviewStats($websiteId, $prevFromTime, $prevToTime);
+        $this->set('prevWebsiteStats', $prevWebsiteStats);
+
+        // Calculate website stats comparison
+        $websiteComparison = $this->calculateComparison($websiteStats, $prevWebsiteStats);
+        $this->set('websiteComparison', $websiteComparison);
+                
+        // Get ranking volatility stats
+        $rankingVolatility = $this->getRankingVolatility($websiteId, $fromTime, $toTime);
+        $this->set('rankingVolatility', $rankingVolatility);
+        
+        // Get ranking trends data for graph
+        $rankingTrends = $this->getRankingTrends($websiteId, $fromTime, $toTime);
+        $this->set('rankingTrends', $rankingTrends);
+
+        // Get top keywords
+        $topKeywords = $this->getTopKeywords($websiteId, $kwResultLastDate, 10);
+        $this->set('topKeywords', $topKeywords);
+
+        // Get recent activity
+        $recentActivity = $this->getRecentActivity($websiteId, 10);
+        $this->set('recentActivity', $recentActivity);
+
+        // Get search engine distribution stats
+        $searchEngineStats = $this->getSearchEngineStats($websiteId, $fromTime, $toTime);
+        $this->set('searchEngineStats', $searchEngineStats);
+
+        // Get AI Visibility stats (AI Overview presence/citation + AI
+        // crawler referral traffic) for the overview card
+        $aiVisibilityStats = $this->getAIVisibilityStats($websiteId, $fromTime, $toTime);
+        $this->set('aiVisibilityStats', $aiVisibilityStats);
+
+        // "Add to SEO Diary" quick action for the AI Visibility card's
+        // headline finding - same deny-by-default access check as
+        // RecommendationsController::showRecommendationsDashboard()
+        // (see that method's own comment for why isPluginActive() alone
+        // isn't enough for a non-admin)
+        include_once(SP_CTRLPATH . "/seoplugins.ctrl.php");
+        $seoDiaryInfo = (new SeoPluginsController())->isPluginActive("SeoDiary");
+        $seoDiaryPluginId = 0;
+        if (!empty($seoDiaryInfo['id'])) {
+            if (isAdmin()) {
+                $seoDiaryPluginId = $seoDiaryInfo['id'];
+            } else {
+                include_once(SP_CTRLPATH . "/user-type.ctrl.php");
+                $userSessInfo = Session::readSession('userInfo');
+                $pluginAccessList = (new UserTypeController())->getPluginAccessSettings($userSessInfo['userTypeId']);
+                $hasAccess = !isset($pluginAccessList[$seoDiaryInfo['id']]['value']) || !empty($pluginAccessList[$seoDiaryInfo['id']]['value']);
+                if ($hasAccess) {
+                    $seoDiaryPluginId = $seoDiaryInfo['id'];
+                }
+            }
+        }
+        $this->set('seoDiaryPluginId', $seoDiaryPluginId);
+
+        $this->render('dashboard/main');
+    }
+
+    // Get AI Visibility summary for the main dashboard's overview card:
+    // AI Overview (Google's AI-generated answer box) presence/citation,
+    // reusing AIVisibilityController's own summary helper so the numbers
+    // always match the dedicated AI Visibility report, plus AI crawler
+    // referral traffic (ChatGPT/Perplexity/Gemini/Claude, etc. fetching
+    // pages directly) over the selected period.
+    private function getAIVisibilityStats($websiteId, $fromTime, $toTime) {
+        include_once(SP_CTRLPATH . '/aivisibility.ctrl.php');
+        $aioSummary = (new AIVisibilityController())->__getAioSummaryForWebsite($websiteId);
+
+        $sql = "SELECT platform, SUM(hits) as hits
+                FROM ai_referrals
+                WHERE website_id=" . intval($websiteId) . "
+                    AND hit_date BETWEEN '$fromTime' AND '$toTime'
+                GROUP BY platform
+                ORDER BY hits DESC";
+        $platformRows = $this->db->select($sql);
+
+        $referralHits = 0;
+        $topPlatform = null;
+        foreach ($platformRows as $row) {
+            $referralHits += intval($row['hits']);
+            if ($topPlatform === null) $topPlatform = $row['platform'];
+        }
+
+        return [
+            'aioMeasured' => $aioSummary['measured'],
+            'aioPresent' => $aioSummary['present'],
+            'aioCited' => $aioSummary['cited'],
+            'referralHits' => $referralHits,
+            'topPlatform' => $topPlatform,
+            'platformBreakdown' => $platformRows,
+        ];
+    }
+
+    function showSocialMediaDashboard($info=[]) {
+        $userId = isLoggedIn();
+
+        // Load dashboard language texts
+        $this->set('spTextDashboard', $this->getLanguageTexts('dashboard', $_SESSION['lang_code']));
+
+        // Get user websites
+        $websiteCtrler = New WebsiteController();
+        $websiteList = $websiteCtrler->__getAllWebsites($userId, true);
+
+        if (empty($websiteList)) {
+            $this->set('noWebsites', true);
+            $this->set('spTextWebsite', $this->getLanguageTexts('website', $_SESSION['lang_code']));
+            $this->render('dashboard/social_media_main');
+            return;
+        }
+
+        $this->set('siteList', $websiteList);
+        $websiteId = isset($info['website_id']) ? intval($info['website_id']) : $websiteList[0]['id'];
+        // a caller-supplied website_id must belong to one of the caller's
+        // own (already-scoped) websites for a non-admin - otherwise fall
+        // back to their own first website. Previously unchecked here,
+        // across every dashboard tab - any non-admin could view ANY other
+        // user's dashboard data for an arbitrary website_id.
+        if (!isAdmin() && !in_array($websiteId, array_column($websiteList, 'id'))) {
+            $websiteId = $websiteList[0]['id'];
+        }
+        $this->set('websiteId', $websiteId);
+
+        // Handle period selection (default: month)
+        $period = !empty($info['period']) ? $info['period'] : 'month';
+        $this->set('period', $period);
+
+        // Calculate date range based on period
+        list($fromTime, $toTime, $prevFromTime, $prevToTime) = $this->__getPeriodDateRange($period);
+
+        $this->set('fromTime', $fromTime);
+        $this->set('toTime', $toTime);
+        $this->set('prevFromTime', $prevFromTime);
+        $this->set('prevToTime', $prevToTime);
+
+        // Get social media statistics
+        $socialMediaStats = $this->getSocialMediaStats($websiteId, $fromTime, $toTime);
+        $socialMediaDistribution = $this->getSocialMediaDistribution($websiteId, $toTime);
+        $socialMediaTrends = $this->getSocialMediaTrends($websiteId, $fromTime, $toTime);
+        $topSocialMediaLinks = $this->getTopSocialMediaLinks($websiteId, $toTime);
+
+        // Get previous period social media stats for comparison
+        $prevSocialMediaStats = $this->getSocialMediaStats($websiteId, $prevFromTime, $prevToTime);
+
+        // Calculate social media stats comparison
+        $socialMediaComparison = $this->calculateComparison($socialMediaStats, $prevSocialMediaStats);
+        // total_links is a live count of currently-active links, not
+        // bounded by $fromTime/$toTime (see getSocialMediaStats()'s own
+        // comment on why) - it's identical in the current and previous
+        // period calls above, so comparing it always produces a dead
+        // "0%, no change" badge, not a real trend.
+        unset($socialMediaComparison['total_links']);
+
+        // Pass social media data to view
+        $this->set('socialMediaStats', $socialMediaStats);
+        $this->set('socialMediaDistribution', $socialMediaDistribution);
+        $this->set('socialMediaTrends', $socialMediaTrends);
+        $this->set('topSocialMediaLinks', $topSocialMediaLinks);
+        $this->set('prevSocialMediaStats', $prevSocialMediaStats);
+        $this->set('socialMediaComparison', $socialMediaComparison);
+
+        $this->render('dashboard/social_media_main');
+    }
+
+    function showReviewDashboard($info=[]) {
+        $userId = isLoggedIn();
+
+        // Load dashboard language texts
+        $this->set('spTextDashboard', $this->getLanguageTexts('dashboard', $_SESSION['lang_code']));
+
+        // Get user websites
+        $websiteCtrler = New WebsiteController();
+        $websiteList = $websiteCtrler->__getAllWebsites($userId, true);
+
+        if (empty($websiteList)) {
+            $this->set('noWebsites', true);
+            $this->set('spTextWebsite', $this->getLanguageTexts('website', $_SESSION['lang_code']));
+            $this->render('dashboard/review_main');
+            return;
+        }
+
+        $this->set('siteList', $websiteList);
+        $websiteId = isset($info['website_id']) ? intval($info['website_id']) : $websiteList[0]['id'];
+        // a caller-supplied website_id must belong to one of the caller's
+        // own (already-scoped) websites for a non-admin - otherwise fall
+        // back to their own first website. Previously unchecked here,
+        // across every dashboard tab - any non-admin could view ANY other
+        // user's dashboard data for an arbitrary website_id.
+        if (!isAdmin() && !in_array($websiteId, array_column($websiteList, 'id'))) {
+            $websiteId = $websiteList[0]['id'];
+        }
+        $this->set('websiteId', $websiteId);
+
+        // Handle period selection (default: month)
+        $period = !empty($info['period']) ? $info['period'] : 'month';
+        $this->set('period', $period);
+
+        // Calculate date range based on period
+        list($fromTime, $toTime, $prevFromTime, $prevToTime) = $this->__getPeriodDateRange($period);
+
+        $this->set('fromTime', $fromTime);
+        $this->set('toTime', $toTime);
+        $this->set('prevFromTime', $prevFromTime);
+        $this->set('prevToTime', $prevToTime);
+
+        // Get review statistics
+        $reviewStats = $this->getReviewStats($websiteId, $fromTime, $toTime);
+        $reviewDistribution = $this->getReviewDistribution($websiteId, $toTime);
+        $reviewTrends = $this->getReviewTrends($websiteId, $fromTime, $toTime);
+        $topReviewLinks = $this->getTopReviewLinks($websiteId, $toTime);
+
+        // Get previous period review stats for comparison
+        $prevReviewStats = $this->getReviewStats($websiteId, $prevFromTime, $prevToTime);
+
+        // Calculate review stats comparison
+        $reviewComparison = $this->calculateComparison($reviewStats, $prevReviewStats);
+        // total_links is a live count of currently-active links, not
+        // bounded by $fromTime/$toTime (see getReviewStats()'s own
+        // comment on why) - it's identical in the current and previous
+        // period calls above, so comparing it always produces a dead
+        // "0%, no change" badge, not a real trend.
+        unset($reviewComparison['total_links']);
+
+        // Pass review data to view
+        $this->set('reviewStats', $reviewStats);
+        $this->set('reviewDistribution', $reviewDistribution);
+        $this->set('reviewTrends', $reviewTrends);
+        $this->set('topReviewLinks', $topReviewLinks);
+        $this->set('prevReviewStats', $prevReviewStats);
+        $this->set('reviewComparison', $reviewComparison);
+
+        $this->render('dashboard/review_main');
+    }
+
+    function __getKeywordLastReportGeneratedDate($websiteId, $fromTime, $toTime) {
+        // Find the latest date within the date range where keywords have results with rank > 0
+        $sql = "SELECT MAX(sr.result_date) as last_report_date
+                FROM keywords k
+                    INNER JOIN searchresults sr ON k.id = sr.keyword_id
+                WHERE k.website_id=" . intval($websiteId) . "
+                    AND sr.result_date BETWEEN '$fromTime' AND '$toTime'
+                    AND sr.rank > 0";
+
+        $result = $this->db->select($sql, true);
+        if ($result && !empty($result['last_report_date'])) {
+            return $result['last_report_date'];
+        }
+
+        return null;
+    }
+
+    // Get keyword statistics
+    private function getKeywordStats($websiteId, $fromTime, $toTime) {
+        $stats = [];
+
+        // Total keywords
+        $sql = "SELECT COUNT(*) as total FROM keywords WHERE website_id=" . intval($websiteId);
+        $result = $this->db->select($sql, true);
+        $stats['total'] = $result['total'];
+
+        // Keywords with results in period
+        $sql = "SELECT COUNT(DISTINCT k.id) as tracked
+                FROM keywords k
+                    INNER JOIN searchresults sr ON k.id = sr.keyword_id
+                WHERE k.website_id=" . intval($websiteId) . "
+                    AND sr.result_date BETWEEN '$fromTime' AND '$toTime'";
+        $result = $this->db->select($sql, true);
+        $stats['tracked'] = $result['tracked'];
+
+        // Keywords with NO result ever, any date - was wrongly computed
+        // as total - tracked (period-scoped), which counted a keyword
+        // last checked before the selected period as "never checked"
+        // even though it has real history, just not in this window.
+        $sql = "SELECT COUNT(*) as never_checked
+                FROM keywords k
+                WHERE k.website_id=" . intval($websiteId) . "
+                    AND NOT EXISTS (SELECT 1 FROM searchresults sr WHERE sr.keyword_id = k.id)";
+        $result = $this->db->select($sql, true);
+        $stats['never_checked'] = $result['never_checked'];
+
+        // Rank-bucket counts for $toTime - previously 5 separate COUNT
+        // queries hitting the identical FROM/JOIN/date condition, just
+        // with a different rank range each time; collapsed into one
+        // pass since COUNT(DISTINCT CASE WHEN...) can bucket all 5
+        // independently (top3 is a subset of top10, so both still need
+        // their own CASE WHEN, not a shared running total).
+        $sql = "SELECT
+                    COUNT(DISTINCT CASE WHEN sr.rank <= 10 AND sr.rank > 0 THEN k.id END) as top10,
+                    COUNT(DISTINCT CASE WHEN sr.rank <= 3 AND sr.rank > 0 THEN k.id END) as top3,
+                    COUNT(DISTINCT CASE WHEN sr.rank BETWEEN 11 AND 20 THEN k.id END) as top20,
+                    COUNT(DISTINCT CASE WHEN sr.rank BETWEEN 21 AND 50 THEN k.id END) as top50,
+                    COUNT(DISTINCT CASE WHEN sr.rank BETWEEN 51 AND 100 THEN k.id END) as top100
+                FROM keywords k
+                    INNER JOIN searchresults sr ON k.id = sr.keyword_id
+                WHERE k.website_id=" . intval($websiteId) . "
+                    AND sr.result_date='$toTime'";
+        $result = $this->db->select($sql, true);
+        $stats['top10'] = $result['top10'];
+        $stats['top3'] = $result['top3'];
+        $stats['top20'] = $result['top20'];
+        $stats['top50'] = $result['top50'];
+        $stats['top100'] = $result['top100'];
+
+        return $stats;
+    }
+
+    // Get ranking trends for graph
+    private function getRankingTrends($websiteId, $fromTime, $toTime) {
+        $sql = "SELECT DATE(sr.result_date) as date,
+                    ROUND(AVG(CASE WHEN sr.rank > 0 THEN sr.rank ELSE NULL END), 2) as avg_rank,
+                    COUNT(DISTINCT CASE WHEN sr.rank <= 10 AND sr.rank > 0 THEN k.id END) as top10_count,
+                    COUNT(DISTINCT CASE WHEN sr.rank <= 3 AND sr.rank > 0 THEN k.id END) as top3_count
+                FROM keywords k
+                    INNER JOIN searchresults sr ON k.id = sr.keyword_id
+                WHERE k.website_id=" . intval($websiteId) . "
+                    AND sr.result_date BETWEEN '$fromTime' AND '$toTime'
+                GROUP BY DATE(sr.result_date)
+                ORDER BY date ASC";
+
+        $results = $this->db->select($sql);
+        return $results ? $results : [];
+    }
+
+    // Get website overview statistics
+    private function getWebsiteOverviewStats($websiteId, $fromTime, $toTime) {
+        $stats = [];
+
+        // Get backlinks count (latest within time range - external_pages_to_page)
+        $sql = "SELECT external_pages_to_page, external_pages_to_root_domain,result_date
+                FROM backlinkresults
+                WHERE website_id=" . intval($websiteId) . "
+                AND result_date >= '$fromTime' AND result_date <= '$toTime'
+                ORDER BY result_date DESC
+                LIMIT 1";
+        $result = $this->db->select($sql, true);
+        // tracked separately per metric group (each comes from its own
+        // table/tool, so each can independently have never been checked
+        // yet) - a brand-new website with zero rows anywhere defaulted
+        // every one of these to a real 0 via ?? 0 below, which the view
+        // then colored as a genuine (bad) measurement - "0 backlinks",
+        // red "Weak" authority - rather than "not yet checked". Callers
+        // use *_measured to tell the two apart.
+        $stats['backlinks_measured'] = !empty($result);
+        $stats['backlinks'] = $result['external_pages_to_page'] ?? 0;
+        $stats['external_pages_to_page'] = $result['external_pages_to_page'] ?? 0;
+        $stats['external_pages_to_root_domain'] = $result['external_pages_to_root_domain'] ?? 0;
+
+        // Get indexed pages (latest within time range - sum of google and msn)
+        $sql = "SELECT google, msn, result_date
+                FROM saturationresults
+                WHERE website_id=" . intval($websiteId) . "
+                AND result_date >= '$fromTime' AND result_date <= '$toTime'
+                ORDER BY result_date DESC
+                LIMIT 1";
+        $result = $this->db->select($sql, true);
+        $stats['indexed_measured'] = !empty($result);
+        $stats['indexed_pages'] = ($result['google'] ?? 0) + ($result['msn'] ?? 0);
+        $stats['google_indexed'] = $result['google'] ?? 0;
+        $stats['msn_indexed'] = $result['msn'] ?? 0;
+
+        // Get Moz rank (latest within time range)
+        $sql = "SELECT spam_score, domain_authority, page_authority, result_date
+                FROM rankresults
+                WHERE website_id=" . intval($websiteId) . "
+                AND result_date >= '$fromTime' AND result_date <= '$toTime'
+                ORDER BY result_date DESC
+                LIMIT 1";
+        $result = $this->db->select($sql, true);
+        $stats['rank_measured'] = !empty($result);
+        $stats['spam_score'] = $result['spam_score'] ?? 0;
+        $stats['domain_authority'] = $result['domain_authority'] ?? 0;
+        $stats['page_authority'] = $result['page_authority'] ?? 0;
+
+        return $stats;
+    }
+
+    // Get top performing keywords
+    private function getTopKeywords($websiteId, $date, $limit = 10) {
+        $sql = "SELECT k.name, k.id, sr.rank, se.domain as search_engine
+                FROM keywords k
+                    INNER JOIN searchresults sr ON k.id = sr.keyword_id
+                    INNER JOIN searchengines se ON sr.searchengine_id = se.id
+                WHERE k.website_id=" . intval($websiteId) . "
+                    AND sr.result_date='$date'
+                    AND sr.rank > 0
+                ORDER BY sr.rank ASC
+                LIMIT " . intval($limit);
+
+        $results = $this->db->select($sql);
+        return $results ? $results : [];
+    }
+
+    // Get recent ranking check activity
+    private function getRecentActivity($websiteId, $limit = 10) {
+        $sql = "SELECT k.name as keyword, sr.rank, sr.result_date, se.domain as search_engine
+                FROM searchresults sr
+                    INNER JOIN keywords k ON sr.keyword_id = k.id
+                    INNER JOIN searchengines se ON sr.searchengine_id = se.id
+                WHERE k.website_id=" . intval($websiteId) . "
+                ORDER BY sr.result_date DESC, sr.id DESC
+                LIMIT " . intval($limit);
+
+        $results = $this->db->select($sql);
+        return $results ? $results : [];
+    }
+
+    // Get search engine distribution statistics
+    private function getSearchEngineStats($websiteId, $fromTime, $toTime) {
+        $sql = "SELECT se.domain as search_engine, COUNT(DISTINCT k.id) as keyword_count
+                FROM keywords k
+                    INNER JOIN searchresults sr ON k.id = sr.keyword_id
+                    INNER JOIN searchengines se ON sr.searchengine_id = se.id
+                WHERE k.website_id=" . intval($websiteId) . "
+                    AND sr.result_date BETWEEN '$fromTime' AND '$toTime'
+                GROUP BY se.id, se.domain
+                ORDER BY keyword_count DESC";
+
+        $results = $this->db->select($sql);
+
+        $stats = [];
+        if ($results) {
+            foreach ($results as $row) {
+                $stats[$row['search_engine']] = intval($row['keyword_count']);
+            }
+        }
+
+        return $stats;
+    }
+
+    // Calculate comparison between current and previous period
+    private function calculateComparison($current, $previous) {
+        $comparison = [];
+
+        foreach ($current as $key => $currentValue) {
+            $prevValue = isset($previous[$key]) ? $previous[$key] : 0;
+            $diff = $currentValue - $prevValue;
+
+            // Calculate percentage change
+            if ($prevValue > 0) {
+                $percentChange = round(($diff / $prevValue) * 100, 1);
+            } else {
+                $percentChange = ($currentValue > 0) ? 100 : 0;
+            }
+
+            // For spam_score, lower is better, so invert the direction
+            if ($key === 'spam_score') {
+                $direction = $diff > 0 ? 'down' : ($diff < 0 ? 'up' : 'neutral');
+            } else {
+                $direction = $diff > 0 ? 'up' : ($diff < 0 ? 'down' : 'neutral');
+            }
+
+            $comparison[$key] = [
+                'diff' => $diff,
+                'percent' => $percentChange,
+                'direction' => $direction
+            ];
+        }
+
+        return $comparison;
+    }
+
+    // Get ranking volatility - keywords with most rank changes
+    // Group by both keyword and search engine to track volatility per search engine
+    private function getRankingVolatility($websiteId, $fromTime, $toTime) {
+        // Get rank changes for each keyword per search engine within the period
+        // Also get first and last rank to determine trend direction
+        $sql = "SELECT k.id as keyword_id, k.name as keyword_name,
+                    se.id as searchengine_id, se.domain as search_engine,
+                    MAX(sr.rank) as max_rank,
+                    MIN(CASE WHEN sr.rank > 0 THEN sr.rank END) as min_rank,
+                    COUNT(DISTINCT sr.result_date) as check_count,
+                    AVG(CASE WHEN sr.rank > 0 THEN sr.rank END) as avg_rank,
+                    STDDEV(CASE WHEN sr.rank > 0 THEN sr.rank END) as rank_stddev,
+                    (SELECT sr2.rank
+                     FROM searchresults sr2
+                     WHERE sr2.keyword_id = k.id
+                        AND sr2.searchengine_id = se.id
+                        AND sr2.result_date BETWEEN '$fromTime' AND '$toTime'
+                        AND sr2.rank > 0
+                     ORDER BY sr2.result_date ASC
+                     LIMIT 1) as first_rank,
+                    (SELECT sr3.rank
+                     FROM searchresults sr3
+                     WHERE sr3.keyword_id = k.id
+                        AND sr3.searchengine_id = se.id
+                        AND sr3.result_date BETWEEN '$fromTime' AND '$toTime'
+                        AND sr3.rank > 0
+                     ORDER BY sr3.result_date DESC
+                     LIMIT 1) as last_rank
+                FROM keywords k
+                    INNER JOIN searchresults sr ON k.id = sr.keyword_id
+                    INNER JOIN searchengines se ON sr.searchengine_id = se.id
+                WHERE k.website_id=" . intval($websiteId) . "
+                    AND sr.result_date BETWEEN '$fromTime' AND '$toTime'
+                    AND sr.rank > 0
+                GROUP BY k.id, k.name, se.id, se.domain
+                HAVING check_count >= 2 AND min_rank > 0
+                ORDER BY rank_stddev DESC, max_rank DESC
+                LIMIT 10";
+
+        $results = $this->db->select($sql);
+
+        $volatilityData = [];
+        if ($results) {
+            foreach ($results as $row) {
+                // Calculate rank change: negative means improvement (rank went down in number)
+                // positive means decline (rank went up in number)
+                $rankChange = intval($row['last_rank']) - intval($row['first_rank']);
+
+                // Determine if overall trend is improving or declining
+                // Improvement = rank number decreased (e.g., 14 -> 4)
+                // Decline = rank number increased (e.g., 4 -> 14)
+                $trendDirection = 'neutral';
+                if ($rankChange < 0) {
+                    $trendDirection = 'improving'; // Rank number decreased = better position
+                } elseif ($rankChange > 0) {
+                    $trendDirection = 'declining'; // Rank number increased = worse position
+                }
+
+                $volatilityData[] = [
+                    'keyword' => $row['keyword_name'],
+                    'search_engine' => formatUrl($row['search_engine']),
+                    'rank_change' => $rankChange,
+                    'rank_change_abs' => abs($rankChange),
+                    'max_rank' => intval($row['max_rank']),
+                    'min_rank' => intval($row['min_rank']),
+                    'first_rank' => intval($row['first_rank']),
+                    'last_rank' => intval($row['last_rank']),
+                    'avg_rank' => round($row['avg_rank'], 1),
+                    'volatility_score' => round($row['rank_stddev'], 2),
+                    'trend_direction' => $trendDirection
+                ];
+            }
+        }
+
+        return $volatilityData;
+    }
+    
+    function __generateKeywordDistributionResult($websiteId, $date, $dstType="top10", $limit=10) {
+        $dstResults = [
+            "count" => 0,
+            "rows" => [],
+        ];
+        switch ($dstType) {            
+            case "top10":
+            default:
+                $rankCond = "sr.rank BETWEEN 1 AND 10";
+                break;
+                
+            case "top20":
+                $rankCond = "sr.rank BETWEEN 11 AND 20";
+                break;
+                
+            case "top50":
+                $rankCond = "sr.rank BETWEEN 21 AND 50";
+                break;
+            
+            case "top100":
+                $rankCond = "sr.rank BETWEEN 51 AND 100";
+                break;
+                
+            case "not_ranked":
+                $rankCond = "(sr.rank IS NULL OR sr.rank <= 0 OR sr.rank > 100)";
+                break;
+        }
+        
+        // Get Top 10 keywords
+        $countSel = "count(*) as count";
+        $rowSel = "k.name, sr.rank, se.domain as search_engine";
+        $sql = "SELECT [SELECT_COLS]
+                FROM keywords k
+                    INNER JOIN searchresults sr ON k.id = sr.keyword_id
+                    INNER JOIN searchengines se ON sr.searchengine_id = se.id
+                WHERE k.website_id=" . intval($websiteId) . "
+                    AND sr.result_date='$date'
+                    AND $rankCond
+                ORDER BY sr.rank ASC
+                LIMIT $limit";
+        
+        $countRes = $this->db->select(str_replace("[SELECT_COLS]", $countSel, $sql), true);
+        if ($countRes['count'] > 0) {
+            $dstResults['count'] = $countRes['count'];
+            $results = $this->db->select(str_replace("[SELECT_COLS]", $rowSel, $sql));
+            $dstResults['rows'] = $results;
+        }        
+        
+        return $dstResults;
+    }
+
+    // Get detailed keyword distribution by rank ranges
+    private function getKeywordDistributionDetails($websiteId, $date) {
+        $distribution = [
+            'top10' => [],
+            'top20' => [],
+            'top50' => [],
+            'top100' => [],
+            'not_ranked' => []
+        ];
+        
+        foreach (array_keys($distribution) as $distCol) {
+            $distribution[$distCol] = $this->__generateKeywordDistributionResult($websiteId, $date, $distCol, 5);
+        }
+
+        return $distribution;
+    }
+
+    // Get social media statistics with comparison
+    private function getSocialMediaStats($websiteId, $fromTime, $toTime) {
+        $stats = [];
+
+        // Get total active social media links
+        $sql = "SELECT COUNT(*) as total_links
+                FROM social_media_links
+                WHERE website_id=" . intval($websiteId) . "
+                    AND status=1";
+        $result = $this->db->select($sql, true);
+        $stats['total_links'] = $result['total_links'] ?? 0;
+
+        // Get latest social media results as of the period end - deliberately
+        // NOT bounded by $fromTime (contrast getSocialMediaDistribution()'s
+        // own, correctly-unbounded "<= $date" below): if a link's last
+        // crawl falls outside the selected window (e.g. period=week but
+        // cron only runs monthly), bounding this by $fromTime excludes it
+        // from the MAX(report_date) lookup entirely, so COALESCE(SUM(...),0)
+        // silently reports 0 total followers/likes here while the
+        // distribution/top-links widgets below (same page, same data) keep
+        // showing the real, just-stale numbers - a direct on-page
+        // contradiction. Using <= $toTime matches getSocialMediaDistribution()'s
+        // own "latest value as of the period end" semantics.
+        // Using derived table for better performance instead of correlated subquery
+        $sql = "SELECT
+                    COALESCE(SUM(smlr.followers), 0) as total_followers,
+                    COALESCE(SUM(smlr.likes), 0) as total_likes
+                FROM social_media_links sml
+                LEFT JOIN (
+                    SELECT sm_link_id, MAX(report_date) as max_date
+                    FROM social_media_link_results
+                    WHERE report_date <= '$toTime'
+                    GROUP BY sm_link_id
+                ) latest ON sml.id = latest.sm_link_id
+                LEFT JOIN social_media_link_results smlr
+                    ON sml.id = smlr.sm_link_id AND smlr.report_date = latest.max_date
+                WHERE sml.website_id=" . intval($websiteId) . "
+                    AND sml.status=1";
+        $result = $this->db->select($sql, true);
+        $stats['total_followers'] = $result['total_followers'] ?? 0;
+        $stats['total_likes'] = $result['total_likes'] ?? 0;
+
+        return $stats;
+    }
+
+    // Get social media distribution by platform
+    private function getSocialMediaDistribution($websiteId, $date) {
+        // Using derived table for better performance instead of correlated subquery
+        $sql = "SELECT
+                    sml.type,
+                    COUNT(sml.id) as link_count,
+                    COALESCE(SUM(smlr.followers), 0) as total_followers,
+                    COALESCE(SUM(smlr.likes), 0) as total_likes
+                FROM social_media_links sml
+                LEFT JOIN (
+                    SELECT sm_link_id, MAX(report_date) as max_date
+                    FROM social_media_link_results
+                    WHERE report_date <= '$date'
+                    GROUP BY sm_link_id
+                ) latest ON sml.id = latest.sm_link_id
+                LEFT JOIN social_media_link_results smlr
+                    ON sml.id = smlr.sm_link_id AND smlr.report_date = latest.max_date
+                WHERE sml.website_id=" . intval($websiteId) . "
+                    AND sml.status = 1
+                GROUP BY sml.type
+                ORDER BY total_followers DESC";
+
+        $results = $this->db->select($sql);
+        return $results ? $results : [];
+    }
+
+    // Get social media trends over time
+    private function getSocialMediaTrends($websiteId, $fromTime, $toTime) {
+        $sql = "SELECT
+                    smlr.report_date as date,
+                    SUM(smlr.followers) as total_followers,
+                    SUM(smlr.likes) as total_likes
+                FROM social_media_link_results smlr
+                INNER JOIN social_media_links sml ON smlr.sm_link_id = sml.id
+                WHERE sml.website_id=" . intval($websiteId) . "
+                    AND sml.status = 1
+                    AND smlr.report_date BETWEEN '$fromTime' AND '$toTime'
+                GROUP BY smlr.report_date
+                ORDER BY smlr.report_date ASC";
+
+        $results = $this->db->select($sql);
+        return $results ? $results : [];
+    }
+
+    // Get top performing social media links
+    private function getTopSocialMediaLinks($websiteId, $date, $limit=10) {
+        // Using derived table for better performance instead of correlated subquery
+        $sql = "SELECT
+                    sml.name,
+                    sml.type,
+                    sml.url,
+                    smlr.followers,
+                    smlr.likes,
+                    smlr.report_date
+                FROM social_media_links sml
+                LEFT JOIN (
+                    SELECT sm_link_id, MAX(report_date) as max_date
+                    FROM social_media_link_results
+                    WHERE report_date <= '$date'
+                    GROUP BY sm_link_id
+                ) latest ON sml.id = latest.sm_link_id
+                LEFT JOIN social_media_link_results smlr
+                    ON sml.id = smlr.sm_link_id AND smlr.report_date = latest.max_date
+                WHERE sml.website_id=" . intval($websiteId) . "
+                    AND sml.status = 1
+                ORDER BY smlr.followers DESC, smlr.likes DESC
+                LIMIT " . intval($limit);
+
+        $results = $this->db->select($sql);
+        return $results ? $results : [];
+    }
+
+    // Get review statistics with comparison
+    private function getReviewStats($websiteId, $fromTime, $toTime) {
+        $stats = [];
+
+        // Get total active review links
+        $sql = "SELECT COUNT(*) as total_links
+                FROM review_links
+                WHERE website_id=" . intval($websiteId) . "
+                    AND status=1";
+        $result = $this->db->select($sql, true);
+        $stats['total_links'] = $result['total_links'] ?? 0;
+
+        // Get latest review results as of the period end - same fix as
+        // getSocialMediaStats() above: bounding this by $fromTime excluded
+        // a link's last crawl whenever it fell outside the selected
+        // window, silently reporting 0 total reviews here while the
+        // distribution/top-links widgets below (which already use the
+        // correct, unbounded "<= $date") kept showing the real, just-stale
+        // numbers - a direct on-page contradiction.
+        // Using derived table for better performance instead of correlated subquery
+        $sql = "SELECT
+                    COALESCE(SUM(rlr.reviews), 0) as total_reviews,
+                    COALESCE(AVG(rlr.rating), 0) as avg_rating
+                FROM review_links rl
+                LEFT JOIN (
+                    SELECT review_link_id, MAX(report_date) as max_date
+                    FROM review_link_results
+                    WHERE report_date <= '$toTime'
+                    GROUP BY review_link_id
+                ) latest ON rl.id = latest.review_link_id
+                LEFT JOIN review_link_results rlr
+                    ON rl.id = rlr.review_link_id AND rlr.report_date = latest.max_date
+                WHERE rl.website_id=" . intval($websiteId) . "
+                    AND rl.status=1";
+        $result = $this->db->select($sql, true);
+        $stats['total_reviews'] = $result['total_reviews'] ?? 0;
+        $stats['avg_rating'] = round($result['avg_rating'], 2);
+
+        return $stats;
+    }
+
+    // Get review distribution by platform
+    private function getReviewDistribution($websiteId, $date) {
+        // Using derived table for better performance instead of correlated subquery
+        $sql = "SELECT
+                    rl.type,
+                    COUNT(rl.id) as link_count,
+                    COALESCE(SUM(rlr.reviews), 0) as total_reviews,
+                    COALESCE(AVG(rlr.rating), 0) as avg_rating
+                FROM review_links rl
+                LEFT JOIN (
+                    SELECT review_link_id, MAX(report_date) as max_date
+                    FROM review_link_results
+                    WHERE report_date <= '$date'
+                    GROUP BY review_link_id
+                ) latest ON rl.id = latest.review_link_id
+                LEFT JOIN review_link_results rlr
+                    ON rl.id = rlr.review_link_id AND rlr.report_date = latest.max_date
+                WHERE rl.website_id=" . intval($websiteId) . "
+                    AND rl.status = 1
+                GROUP BY rl.type
+                ORDER BY total_reviews DESC";
+
+        $results = $this->db->select($sql);
+        return $results ? $results : [];
+    }
+
+    // Get review trends over time
+    private function getReviewTrends($websiteId, $fromTime, $toTime) {
+        $sql = "SELECT
+                    rlr.report_date as date,
+                    SUM(rlr.reviews) as total_reviews,
+                    AVG(rlr.rating) as avg_rating
+                FROM review_link_results rlr
+                INNER JOIN review_links rl ON rlr.review_link_id = rl.id
+                WHERE rl.website_id=" . intval($websiteId) . "
+                    AND rl.status = 1
+                    AND rlr.report_date BETWEEN '$fromTime' AND '$toTime'
+                GROUP BY rlr.report_date
+                ORDER BY rlr.report_date ASC";
+
+        $results = $this->db->select($sql);
+        return $results ? $results : [];
+    }
+
+    // Get top performing review links
+    private function getTopReviewLinks($websiteId, $date, $limit=10) {
+        // Using derived table for better performance instead of correlated subquery
+        $sql = "SELECT
+                    rl.name,
+                    rl.type,
+                    rl.url,
+                    rlr.reviews,
+                    rlr.rating,
+                    rlr.report_date
+                FROM review_links rl
+                LEFT JOIN (
+                    SELECT review_link_id, MAX(report_date) as max_date
+                    FROM review_link_results
+                    WHERE report_date <= '$date'
+                    GROUP BY review_link_id
+                ) latest ON rl.id = latest.review_link_id
+                LEFT JOIN review_link_results rlr
+                    ON rl.id = rlr.review_link_id AND rlr.report_date = latest.max_date
+                WHERE rl.website_id=" . intval($websiteId) . "
+                    AND rl.status = 1
+                ORDER BY rlr.reviews DESC, rlr.rating DESC
+                LIMIT " . intval($limit);
+
+        $results = $this->db->select($sql);
+        return $results ? $results : [];
+    }
+
+    function showSiteAuditorDashboard($info=[]) {
+        $userId = isLoggedIn();
+
+        // Load language texts
+        $this->set('spTextDashboard', $this->getLanguageTexts('dashboard', $_SESSION['lang_code']));
+        $spTextSA = $this->getLanguageTexts('siteauditor', $_SESSION['lang_code']);
+        $this->set('spTextSA', $spTextSA);
+        $spTextHome = $this->getLanguageTexts('home', $_SESSION['lang_code']);
+        $this->set('spTextHome', $spTextHome);
+
+        // Get user websites (same as other dashboard tabs)
+        $websiteCtrler = New WebsiteController();
+        $websiteList = $websiteCtrler->__getAllWebsites($userId, true);
+
+        if (empty($websiteList)) {
+            $this->set('noProjects', true);
+            $this->set('spTextWebsite', $this->getLanguageTexts('website', $_SESSION['lang_code']));
+            $this->render('dashboard/siteauditor_main');
+            return;
+        }
+
+        $this->set('siteList', $websiteList);
+        $websiteId = isset($info['website_id']) ? intval($info['website_id']) : $websiteList[0]['id'];
+        // a caller-supplied website_id must belong to one of the caller's
+        // own (already-scoped) websites for a non-admin - otherwise fall
+        // back to their own first website. Previously unchecked here,
+        // across every dashboard tab - any non-admin could view ANY other
+        // user's dashboard data for an arbitrary website_id.
+        if (!isAdmin() && !in_array($websiteId, array_column($websiteList, 'id'))) {
+            $websiteId = $websiteList[0]['id'];
+        }
+        $this->set('websiteId', $websiteId);
+
+        // Get Site Auditor project for selected website
+        $siteAuditorCtrl = New SiteauditorController();
+        $sql = "SELECT ap.*, w.url, w.name FROM auditorprojects ap, websites w
+                WHERE w.id = ap.website_id AND ap.website_id = $websiteId AND ap.status = 1 LIMIT 1";
+        $projectInfo = $this->db->select($sql, true);
+
+        if (empty($projectInfo)) {
+            $this->set('noProjectForWebsite', true);
+            $this->set('selectedWebsiteId', $websiteId);
+            $this->render('dashboard/siteauditor_main');
+            return;
+        }
+
+        $projectId = $projectInfo['id'];
+        $this->set('projectId', $projectId);
+
+        // Status check for crawled filter - default to crawled=1 on first load
+        $statusCheck = false;
+        $statusVal = 0;
+        $crawledVal = isset($info['crawled']) ? $info['crawled'] : 1;
+        // Apply filter if crawled is set OR on first load (default to 1)
+        if($crawledVal != -1) {
+            $statusCheck = true;
+            $statusVal = intval($crawledVal);
+        }
+        $this->set('crawled', $crawledVal);
+
+        // Page Authority metrics
+        $paLevelFirst = defined('SA_PA_CHECK_LEVEL_FIRST') ? SA_PA_CHECK_LEVEL_FIRST : 40;
+        $paLevelSecond = defined('SA_PA_CHECK_LEVEL_SECOND') ? SA_PA_CHECK_LEVEL_SECOND : 75;
+
+        // Get project statistics - was ~20 separate getCountcrawledLinks()
+        // round trips (one SELECT COUNT(*) per metric) against the same
+        // table/project_id on every single dashboard load. Each metric
+        // still needs its own crawl-filter condition (either the UI's
+        // $statusCheck/$statusVal, always crawled=1 for the "modern SEO
+        // features" group - see that group's own comment below for why -
+        // or no crawl filter at all for total_links), so this folds them
+        // all into one query: one conditional SUM(CASE WHEN ...) per
+        // metric, each embedding whatever crawl condition THAT metric
+        // needs, over a single pass through auditorreports.
+        $filterCrawled = $statusCheck ? "crawled=$statusVal and " : "";
+        $seArr = ['google'];
+        $statsSelect = [
+            "count(*) as total_links",
+            "sum(case when crawled=1 then 1 else 0 end) as crawled_links",
+            "max(updated) as last_updated",
+            "sum(case when {$filterCrawled}brocken=1 then 1 else 0 end) as brocken",
+            "sum(case when {$filterCrawled}google_backlinks=0 then 1 else 0 end) as no_backlinks",
+            "sum(case when mobile_friendly=1 and crawled=1 then 1 else 0 end) as mobile_friendly",
+            "sum(case when https_secure=1 and crawled=1 then 1 else 0 end) as https_secure",
+            "sum(case when ai_robot_allowed=1 and crawled=1 then 1 else 0 end) as ai_robot_allowed",
+            "sum(case when has_og_tags=1 and crawled=1 then 1 else 0 end) as has_og_tags",
+            "sum(case when has_twitter_cards=1 and crawled=1 then 1 else 0 end) as has_twitter_cards",
+            "sum(case when blocked_by_robots=0 and crawled=1 then 1 else 0 end) as allowed_by_robots",
+            "sum(case when {$filterCrawled}page_authority >= $paLevelSecond then 1 else 0 end) as pa_excellent",
+            "sum(case when {$filterCrawled}page_authority >= $paLevelFirst and page_authority < $paLevelSecond then 1 else 0 end) as pa_good",
+            "sum(case when {$filterCrawled}page_authority > 0 and page_authority < $paLevelFirst then 1 else 0 end) as pa_low",
+            "sum(case when {$filterCrawled}page_authority = 0 then 1 else 0 end) as pa_none",
+        ];
+        foreach ($seArr as $se) {
+            $statsSelect[] = "sum(case when {$filterCrawled}{$se}_backlinks>0 then 1 else 0 end) as {$se}_backlinks";
+            $statsSelect[] = "sum(case when {$filterCrawled}{$se}_indexed>0 then 1 else 0 end) as {$se}_indexed";
+            $statsSelect[] = "sum(case when {$filterCrawled}{$se}_indexed=0 then 1 else 0 end) as {$se}_not_indexed";
+        }
+        $statsSql = "select " . implode(", ", $statsSelect) . " from auditorreports where project_id=" . intval($projectInfo['id']);
+        $stats = $this->db->select($statsSql, true);
+        foreach ($stats as $key => $val) {
+            $projectInfo[$key] = ($key === 'last_updated') ? (empty($val) ? "Not Started" : $val) : intval($val);
+        }
+
+        // auditorprojects.score defaults to 0, same as a genuinely awful
+        // real score would be - a project that was just created and has
+        // never actually been crawled (crawled_links==0) rendered as
+        // "Critical 0%" with every metric showing "Not found", completely
+        // indistinguishable from a site that WAS audited and is really
+        // broken. The view uses this to show a "run your first crawl"
+        // state instead, same treatment the no-project-at-all case above
+        // already gets.
+        $this->set('noCrawlResultsYet', $projectInfo['crawled_links'] == 0);
+
+        // Duplicate meta info - a GROUP BY ... HAVING count>1 query per
+        // column, not a flat per-row condition, so it doesn't fold into
+        // the combined SUM(CASE...) query above.
+        $metaArr = array('page_title' => $spTextSA["Duplicate Title"], 'page_description' => $spTextSA['Duplicate Description'], 'page_keywords' => $spTextSA['Duplicate Keywords']);
+        $auditorComp = $siteAuditorCtrl->createComponent('AuditorComponent');
+        foreach ($metaArr as $meta => $val) {
+            $projectInfo["duplicate_".$meta] = $auditorComp->getDuplicateMetaInfoCount($projectInfo['id'], $meta, $statusCheck, $statusVal);
+        }
+
+        // Modern SEO features - a not-yet-crawled auditorreports row
+        // defaults ai_robot_allowed=1/mobile_friendly=1 (optimistic -
+        // counted as passing) but https_secure=0/has_og_tags=0/
+        // has_twitter_cards=0/blocked_by_robots=0 (counted as failing,
+        // except blocked_by_robots=0 which counts as ALLOWED here) - so
+        // selecting "Crawled: --Select--" (crawledVal=-1, $statusCheck
+        // false, no crawled filter applied at all) mixed uncrawled rows
+        // into every one of these counts, for reasons that have nothing
+        // to do with the site's actual SEO state. These 6 feature checks
+        // only have a real answer for pages that were actually crawled,
+        // so they always require crawled=1 regardless of the selected
+        // filter (the filter still applies normally to every OTHER
+        // metric above/below, which don't have this inconsistent-default
+        // problem). (Computed above, in $statsSelect.)
+
+        $this->set('projectInfo', $projectInfo);
+        $this->set('metaArr', $metaArr);
+        $this->set('seArr', $seArr);
+
+        $this->render('dashboard/siteauditor_main');
+    }
+
+    function showWebsiteAnalyticsDashboard($info=[]) {
+        $userId = isLoggedIn();
+
+        // Load dashboard language texts
+        $this->set('spTextDashboard', $this->getLanguageTexts('dashboard', $_SESSION['lang_code']));
+        $spTextBack = $this->getLanguageTexts('backlink', $_SESSION['lang_code']);
+        $this->set('spTextBack', $spTextBack);
+        $spTextHome = $this->getLanguageTexts('home', $_SESSION['lang_code']);
+        $this->set('spTextHome', $spTextHome);
+
+        // Get user websites
+        $websiteCtrler = New WebsiteController();
+        $websiteList = $websiteCtrler->__getAllWebsites($userId, true);
+
+        if (empty($websiteList)) {
+            $this->set('noWebsites', true);
+            $this->set('spTextWebsite', $this->getLanguageTexts('website', $_SESSION['lang_code']));
+            $this->render('dashboard/website_analytics_main');
+            return;
+        }
+
+        $this->set('siteList', $websiteList);
+        $websiteId = isset($info['website_id']) ? intval($info['website_id']) : $websiteList[0]['id'];
+        // a caller-supplied website_id must belong to one of the caller's
+        // own (already-scoped) websites for a non-admin - otherwise fall
+        // back to their own first website. Previously unchecked here,
+        // across every dashboard tab - any non-admin could view ANY other
+        // user's dashboard data for an arbitrary website_id.
+        if (!isAdmin() && !in_array($websiteId, array_column($websiteList, 'id'))) {
+            $websiteId = $websiteList[0]['id'];
+        }
+        $this->set('websiteId', $websiteId);
+
+        // Handle period selection (default: month)
+        $period = !empty($info['period']) ? $info['period'] : 'month';
+        $this->set('period', $period);
+
+        // Calculate date range based on period
+        list($fromTime, $toTime, $prevFromTime, $prevToTime) = $this->__getPeriodDateRange($period);
+
+        $this->set('fromTime', $fromTime);
+        $this->set('toTime', $toTime);
+        $this->set('prevFromTime', $prevFromTime);
+        $this->set('prevToTime', $prevToTime);
+
+        // Get website analytics data
+        $analyticsStats = $this->getWebsiteAnalyticsStats($websiteId, $fromTime, $toTime);
+        $analyticsTrends = $this->getWebsiteAnalyticsTrends($websiteId, $fromTime, $toTime);
+        $backlinkTrends = $this->getBacklinkTrends($websiteId, $fromTime, $toTime);
+        $saturationTrends = $this->getSaturationTrends($websiteId, $fromTime, $toTime);
+
+        // Get previous period stats for comparison
+        $prevAnalyticsStats = $this->getWebsiteAnalyticsStats($websiteId, $prevFromTime, $prevToTime);
+
+        // Calculate analytics stats comparison
+        $analyticsComparison = $this->calculateComparison($analyticsStats, $prevAnalyticsStats);
+
+        // Pass analytics data to view
+        $this->set('analyticsStats', $analyticsStats);
+        $this->set('analyticsTrends', $analyticsTrends);
+        $this->set('backlinkTrends', $backlinkTrends);
+        $this->set('saturationTrends', $saturationTrends);
+        $this->set('prevAnalyticsStats', $prevAnalyticsStats);
+        $this->set('analyticsComparison', $analyticsComparison);
+
+        $this->render('dashboard/website_analytics_main');
+    }
+
+    // Get website analytics statistics
+    private function getWebsiteAnalyticsStats($websiteId, $fromTime, $toTime) {
+        $stats = [];
+
+        // Get latest rank results (DA, PA, Spam Score)
+        $sql = "SELECT domain_authority, page_authority, spam_score, result_date
+                FROM rankresults
+                WHERE website_id=" . intval($websiteId) . "
+                AND result_date BETWEEN '$fromTime' AND '$toTime'
+                ORDER BY result_date DESC
+                LIMIT 1";
+        $result = $this->db->select($sql, true);
+        $stats['domain_authority'] = $result['domain_authority'] ?? 0;
+        $stats['page_authority'] = $result['page_authority'] ?? 0;
+        $stats['spam_score'] = $result['spam_score'] ?? 0;
+
+        // Get latest backlink results
+        $sql = "SELECT external_pages_to_page, external_pages_to_root_domain, result_date
+                FROM backlinkresults
+                WHERE website_id=" . intval($websiteId) . "
+                AND result_date BETWEEN '$fromTime' AND '$toTime'
+                ORDER BY result_date DESC
+                LIMIT 1";
+        $result = $this->db->select($sql, true);
+        $stats['backlinks'] = $result['external_pages_to_page'] ?? 0;
+        $stats['domain_backlinks'] = $result['external_pages_to_root_domain'] ?? 0;
+
+        // Get latest saturation results
+        $sql = "SELECT google, msn, result_date
+                FROM saturationresults
+                WHERE website_id=" . intval($websiteId) . "
+                AND result_date BETWEEN '$fromTime' AND '$toTime'
+                ORDER BY result_date DESC
+                LIMIT 1";
+        $result = $this->db->select($sql, true);
+        $stats['google_indexed'] = $result['google'] ?? 0;
+        $stats['bing_indexed'] = $result['msn'] ?? 0;
+
+        return $stats;
+    }
+
+    // Get website analytics trends over time
+    private function getWebsiteAnalyticsTrends($websiteId, $fromTime, $toTime) {
+        $sql = "SELECT result_date as date, domain_authority, page_authority, spam_score
+                FROM rankresults
+                WHERE website_id=" . intval($websiteId) . "
+                AND result_date BETWEEN '$fromTime' AND '$toTime'
+                ORDER BY result_date ASC";
+
+        $results = $this->db->select($sql);
+        return $results ? $results : [];
+    }
+
+    // Get backlink trends over time
+    private function getBacklinkTrends($websiteId, $fromTime, $toTime) {
+        $sql = "SELECT result_date as date, external_pages_to_page as backlinks, external_pages_to_root_domain as domain_backlinks
+                FROM backlinkresults
+                WHERE website_id=" . intval($websiteId) . "
+                AND result_date BETWEEN '$fromTime' AND '$toTime'
+                ORDER BY result_date ASC";
+
+        $results = $this->db->select($sql);
+        return $results ? $results : [];
+    }
+
+    // Get saturation/indexed pages trends over time
+    private function getSaturationTrends($websiteId, $fromTime, $toTime) {
+        $sql = "SELECT result_date as date, google as google_indexed, msn as bing_indexed
+                FROM saturationresults
+                WHERE website_id=" . intval($websiteId) . "
+                AND result_date BETWEEN '$fromTime' AND '$toTime'
+                ORDER BY result_date ASC";
+
+        $results = $this->db->select($sql);
+        return $results ? $results : [];
+    }
+
+    function showAnalyticsDashboard($info=[]) {
+        $userId = isLoggedIn();
+
+        // Load dashboard language texts
+        $this->set('spTextDashboard', $this->getLanguageTexts('dashboard', $_SESSION['lang_code']));
+        $spTextHome = $this->getLanguageTexts('home', $_SESSION['lang_code']);
+        $this->set('spTextHome', $spTextHome);
+
+        // Get user websites
+        $websiteCtrler = New WebsiteController();
+        $websiteList = $websiteCtrler->__getAllWebsites($userId, true);
+
+        if (empty($websiteList)) {
+            $this->set('noWebsites', true);
+            $this->set('spTextWebsite', $this->getLanguageTexts('website', $_SESSION['lang_code']));
+            $this->render('dashboard/analytics_main');
+            return;
+        }
+
+        $this->set('siteList', $websiteList);
+        $websiteId = isset($info['website_id']) ? intval($info['website_id']) : $websiteList[0]['id'];
+        // a caller-supplied website_id must belong to one of the caller's
+        // own (already-scoped) websites for a non-admin - otherwise fall
+        // back to their own first website. Previously unchecked here,
+        // across every dashboard tab - any non-admin could view ANY other
+        // user's dashboard data for an arbitrary website_id.
+        if (!isAdmin() && !in_array($websiteId, array_column($websiteList, 'id'))) {
+            $websiteId = $websiteList[0]['id'];
+        }
+        $this->set('websiteId', $websiteId);
+
+        // Handle period selection (default: week)
+        $period = !empty($info['period']) ? $info['period'] : 'week';
+        $this->set('period', $period);
+
+        // Calculate date range based on period
+        list($fromTime, $toTime, $prevFromTime, $prevToTime) = $this->__getPeriodDateRange($period);
+
+        $this->set('fromTime', $fromTime);
+        $this->set('toTime', $toTime);
+        $this->set('prevFromTime', $prevFromTime);
+        $this->set('prevToTime', $prevToTime);
+
+        // Get website analytics data
+        $waStats = $this->getWAStats($websiteId, $fromTime, $toTime);
+        $waTrends = $this->getWATrends($websiteId, $fromTime, $toTime);
+        $waSourceDistribution = $this->getWASourceDistribution($websiteId, $fromTime, $toTime);
+
+        // Get previous period stats for comparison
+        $prevWAStats = $this->getWAStats($websiteId, $prevFromTime, $prevToTime);
+
+        // Calculate analytics stats comparison
+        $waComparison = $this->calculateWAComparison($waStats, $prevWAStats);
+
+        // Pass analytics data to view
+        $this->set('waStats', $waStats);
+        $this->set('waTrends', $waTrends);
+        $this->set('waSourceDistribution', $waSourceDistribution);
+        $this->set('prevWAStats', $prevWAStats);
+        $this->set('waComparison', $waComparison);
+
+        // AI Overview impressions + AI crawler referral clicks - same
+        // helper/shape as the main dashboard's AI Visibility card, reused
+        // here so this tab shows "clicks and impressions from AI sources"
+        // alongside its own Google Analytics traffic numbers
+        $this->set('aiVisibilityStats', $this->getAIVisibilityStats($websiteId, $fromTime, $toTime));
+
+        include_once(SP_CTRLPATH . '/settings.ctrl.php');
+        $this->set('localAiAvailable', SettingsController::isLocalAIEnabled());
+
+        $this->render('dashboard/analytics_main');
+    }
+
+    // Get website analytics statistics
+    private function getWAStats($websiteId, $fromTime, $toTime) {
+        $stats = [];
+
+        // Get aggregated analytics data for the period
+        $sql = "SELECT
+                    SUM(users) as total_users,
+                    SUM(newUsers) as total_new_users,
+                    SUM(sessions) as total_sessions,
+                    AVG(bounceRate) as avg_bounce_rate,
+                    AVG(avgSessionDuration) as avg_session_duration,
+                    SUM(goalCompletionsAll) as total_goal_completions
+                FROM website_analytics
+                WHERE website_id=" . intval($websiteId) . "
+                AND report_date BETWEEN '$fromTime' AND '$toTime'";
+
+        $result = $this->db->select($sql, true);
+        // same "bare aggregate always returns one row, even with zero
+        // matches" subtlety as getSCStats() - "measured" must check the
+        // raw NULL-ness of an aggregate, not !empty($result). Without
+        // this, a website never connected to Google Analytics (or
+        // connected but not yet synced) got avg_bounce_rate=0 colored
+        // green ("great engagement!"), a confident verdict it hadn't
+        // earned.
+        $stats['measured'] = isset($result['total_users']) && $result['total_users'] !== null;
+        $stats['total_users'] = intval($result['total_users'] ?? 0);
+        $stats['total_new_users'] = intval($result['total_new_users'] ?? 0);
+        $stats['total_sessions'] = intval($result['total_sessions'] ?? 0);
+        $stats['avg_bounce_rate'] = floatval($result['avg_bounce_rate'] ?? 0);
+        $stats['avg_session_duration'] = floatval($result['avg_session_duration'] ?? 0);
+        $stats['total_goal_completions'] = intval($result['total_goal_completions'] ?? 0);
+
+        return $stats;
+    }
+
+    // Get website analytics trends over time
+    private function getWATrends($websiteId, $fromTime, $toTime) {
+        $sql = "SELECT
+                    report_date as date,
+                    SUM(users) as users,
+                    SUM(newUsers) as new_users,
+                    SUM(sessions) as sessions,
+                    AVG(bounceRate) as bounce_rate,
+                    AVG(avgSessionDuration) as session_duration
+                FROM website_analytics
+                WHERE website_id=" . intval($websiteId) . "
+                AND report_date BETWEEN '$fromTime' AND '$toTime'
+                GROUP BY report_date
+                ORDER BY report_date ASC";
+
+        $results = $this->db->select($sql);
+        return $results ? $results : [];
+    }
+
+    // Get website analytics source distribution
+    private function getWASourceDistribution($websiteId, $fromTime, $toTime) {
+        $sql = "SELECT
+                    wa.source_id,
+                    ans.source_name,
+                    SUM(wa.users) as users,
+                    SUM(wa.sessions) as sessions,
+                    AVG(wa.bounceRate) as bounce_rate
+                FROM website_analytics wa
+                LEFT JOIN analytic_sources ans ON wa.source_id = ans.id
+                WHERE wa.website_id=" . intval($websiteId) . "
+                AND wa.report_date BETWEEN '$fromTime' AND '$toTime'
+                GROUP BY wa.source_id, ans.source_name
+                ORDER BY users DESC
+                LIMIT 10";
+
+        $results = $this->db->select($sql);
+        return $results ? $results : [];
+    }
+
+    // Calculate comparison for website analytics (bounce rate lower is better)
+    private function calculateWAComparison($current, $previous) {
+        $comparison = [];
+
+        foreach ($current as $key => $currentValue) {
+            $prevValue = isset($previous[$key]) ? $previous[$key] : 0;
+            $diff = $currentValue - $prevValue;
+
+            // Calculate percentage change
+            if ($prevValue > 0) {
+                $percentChange = round(($diff / $prevValue) * 100, 1);
+            } else {
+                $percentChange = ($currentValue > 0) ? 100 : 0;
+            }
+
+            // For bounce_rate, lower is better, so invert the direction
+            if ($key === 'avg_bounce_rate') {
+                $direction = $diff > 0 ? 'down' : ($diff < 0 ? 'up' : 'neutral');
+            } else {
+                $direction = $diff > 0 ? 'up' : ($diff < 0 ? 'down' : 'neutral');
+            }
+
+            $comparison[$key] = [
+                'diff' => $diff,
+                'percent' => $percentChange,
+                'direction' => $direction
+            ];
+        }
+
+        return $comparison;
+    }
+
+    function showSearchConsoleDashboard($info=[]) {
+        $userId = isLoggedIn();
+
+        // Load dashboard language texts
+        $this->set('spTextDashboard', $this->getLanguageTexts('dashboard', $_SESSION['lang_code']));
+        $spTextHome = $this->getLanguageTexts('home', $_SESSION['lang_code']);
+        $this->set('spTextHome', $spTextHome);
+
+        // Get user websites
+        $websiteCtrler = New WebsiteController();
+        $websiteList = $websiteCtrler->__getAllWebsites($userId, true);
+
+        if (empty($websiteList)) {
+            $this->set('noWebsites', true);
+            $this->set('spTextWebsite', $this->getLanguageTexts('website', $_SESSION['lang_code']));
+            $this->render('dashboard/search_console_main');
+            return;
+        }
+
+        $this->set('siteList', $websiteList);
+        $websiteId = isset($info['website_id']) ? intval($info['website_id']) : $websiteList[0]['id'];
+        // a caller-supplied website_id must belong to one of the caller's
+        // own (already-scoped) websites for a non-admin - otherwise fall
+        // back to their own first website. Previously unchecked here,
+        // across every dashboard tab - any non-admin could view ANY other
+        // user's dashboard data for an arbitrary website_id.
+        if (!isAdmin() && !in_array($websiteId, array_column($websiteList, 'id'))) {
+            $websiteId = $websiteList[0]['id'];
+        }
+        $this->set('websiteId', $websiteId);
+
+        // Handle period selection (default: week)
+        $period = !empty($info['period']) ? $info['period'] : 'week';
+        $this->set('period', $period);
+
+        // Calculate date range based on period
+        list($fromTime, $toTime, $prevFromTime, $prevToTime) = $this->__getPeriodDateRange($period);
+
+        $this->set('fromTime', $fromTime);
+        $this->set('toTime', $toTime);
+        $this->set('prevFromTime', $prevFromTime);
+        $this->set('prevToTime', $prevToTime);
+
+        // Get search console data
+        $scStats = $this->getSCStats($websiteId, $fromTime, $toTime);
+        $scTrends = $this->getSCTrends($websiteId, $fromTime, $toTime);
+        $scSourceDistribution = $this->getSCSourceDistribution($websiteId, $fromTime, $toTime);
+
+        // Get previous period stats for comparison
+        $prevSCStats = $this->getSCStats($websiteId, $prevFromTime, $prevToTime);
+
+        // Calculate search console stats comparison
+        $scComparison = $this->calculateSCComparison($scStats, $prevSCStats);
+
+        // Pass search console data to view
+        $this->set('scStats', $scStats);
+        $this->set('scTrends', $scTrends);
+        $this->set('scSourceDistribution', $scSourceDistribution);
+        $this->set('prevSCStats', $prevSCStats);
+        $this->set('scComparison', $scComparison);
+
+        // AI Overview impressions + AI crawler referral clicks - same
+        // helper/shape as the main dashboard's AI Visibility card, reused
+        // here so this tab shows "clicks and impressions from AI sources"
+        // alongside its own Search Console numbers
+        $this->set('aiVisibilityStats', $this->getAIVisibilityStats($websiteId, $fromTime, $toTime));
+
+        include_once(SP_CTRLPATH . '/settings.ctrl.php');
+        $this->set('localAiAvailable', SettingsController::isLocalAIEnabled());
+
+        $this->render('dashboard/search_console_main');
+    }
+
+    /*
+     * AJAX action: on-demand Local AI (Ollama) summary combining Google
+     * Analytics and Search Console data for the same website+date range -
+     * see LocalAIController::summarizeTrafficSearchTrend(). Reachable from
+     * both the Website Analytics and Search Console dashboard tabs (both
+     * point at the same action) since it draws on both tools' data.
+     * Never auto-fired; ownership is enforced by
+     * summarizeTrafficSearchTrend() itself, not re-checked here.
+     */
+    function summarizeTrafficSearchTrend($info) {
+        $userId = isLoggedIn();
+        $fromTime = !empty($info['from_time']) ? $info['from_time'] : date('Y-m-d', strtotime('-30 days'));
+        $toTime = !empty($info['to_time']) ? $info['to_time'] : date('Y-m-d');
+        include_once(SP_CTRLPATH . '/localai.ctrl.php');
+        $result = (new LocalAIController())->summarizeTrafficSearchTrend($info['website_id'], $userId, $fromTime, $toTime);
+        header('Content-Type: application/json');
+        print json_encode($result);
+    }
+
+    // Get search console statistics
+    private function getSCStats($websiteId, $fromTime, $toTime) {
+        $stats = [];
+
+        // Get aggregated search console data for the period
+        $sql = "SELECT
+                    SUM(clicks) as total_clicks,
+                    SUM(impressions) as total_impressions,
+                    AVG(ctr) as avg_ctr,
+                    AVG(average_position) as avg_position
+                FROM website_search_analytics
+                WHERE website_id=" . intval($websiteId) . "
+                AND report_date BETWEEN '$fromTime' AND '$toTime'";
+
+        $result = $this->db->select($sql, true);
+        // a bare aggregate query with no GROUP BY always returns exactly
+        // one row, even when zero rows matched (SUM/AVG of nothing is
+        // SQL NULL, not absence of a row) - so "measured" has to check
+        // the raw NULL-ness of one of the aggregates, not !empty($result).
+        // Without this, a website never connected to Search Console (or
+        // connected but not yet synced by cron) got avg_position=0
+        // colored green ("#1 ranking!") and avg_ctr=0 colored red
+        // ("terrible CTR!") - both read as real, confident verdicts.
+        $stats['measured'] = isset($result['total_clicks']) && $result['total_clicks'] !== null;
+        $stats['total_clicks'] = intval($result['total_clicks'] ?? 0);
+        $stats['total_impressions'] = intval($result['total_impressions'] ?? 0);
+        $stats['avg_ctr'] = floatval($result['avg_ctr'] ?? 0);
+        $stats['avg_position'] = floatval($result['avg_position'] ?? 0);
+
+        return $stats;
+    }
+
+    // Get search console trends over time
+    private function getSCTrends($websiteId, $fromTime, $toTime) {
+        $sql = "SELECT
+                    report_date as date,
+                    SUM(clicks) as clicks,
+                    SUM(impressions) as impressions,
+                    AVG(ctr) as ctr,
+                    AVG(average_position) as position
+                FROM website_search_analytics
+                WHERE website_id=" . intval($websiteId) . "
+                AND report_date BETWEEN '$fromTime' AND '$toTime'
+                GROUP BY report_date
+                ORDER BY report_date ASC";
+
+        $results = $this->db->select($sql);
+        return $results ? $results : [];
+    }
+
+    // Get search console source distribution
+    private function getSCSourceDistribution($websiteId, $fromTime, $toTime) {
+        $sql = "SELECT
+                    source,
+                    SUM(clicks) as clicks,
+                    SUM(impressions) as impressions,
+                    AVG(ctr) as ctr,
+                    AVG(average_position) as position
+                FROM website_search_analytics
+                WHERE website_id=" . intval($websiteId) . "
+                AND report_date BETWEEN '$fromTime' AND '$toTime'
+                GROUP BY source
+                ORDER BY clicks DESC";
+
+        $results = $this->db->select($sql);
+        return $results ? $results : [];
+    }
+
+    // Calculate comparison for search console (position lower is better)
+    private function calculateSCComparison($current, $previous) {
+        $comparison = [];
+
+        foreach ($current as $key => $currentValue) {
+            $prevValue = isset($previous[$key]) ? $previous[$key] : 0;
+            $diff = $currentValue - $prevValue;
+
+            // Calculate percentage change
+            if ($prevValue > 0) {
+                $percentChange = round(($diff / $prevValue) * 100, 1);
+            } else {
+                $percentChange = ($currentValue > 0) ? 100 : 0;
+            }
+
+            // For avg_position, lower is better, so invert the direction
+            if ($key === 'avg_position') {
+                $direction = $diff > 0 ? 'down' : ($diff < 0 ? 'up' : 'neutral');
+            } else {
+                $direction = $diff > 0 ? 'up' : ($diff < 0 ? 'down' : 'neutral');
+            }
+
+            $comparison[$key] = [
+                'diff' => $diff,
+                'percent' => $percentChange,
+                'direction' => $direction
+            ];
+        }
+
+        return $comparison;
+    }
+
+    // Directory Submission Dashboard
+    function showDirectorySubmissionDashboard($info=[]) {
+        $userId = isLoggedIn();
+
+        // Load dashboard language texts
+        $this->set('spTextDashboard', $this->getLanguageTexts('dashboard', $_SESSION['lang_code']));
+        $spTextHome = $this->getLanguageTexts('home', $_SESSION['lang_code']);
+        $this->set('spTextHome', $spTextHome);
+        $spTextDir = $this->getLanguageTexts('directory', $_SESSION['lang_code']);
+        $this->set('spTextDir', $spTextDir);
+
+        // Get user websites
+        $websiteCtrler = New WebsiteController();
+        $websiteList = $websiteCtrler->__getAllWebsites($userId, true);
+
+        if (empty($websiteList)) {
+            $this->set('noWebsites', true);
+            $this->set('spTextWebsite', $this->getLanguageTexts('website', $_SESSION['lang_code']));
+            $this->render('dashboard/directory_submission_main');
+            return;
+        }
+
+        $this->set('siteList', $websiteList);
+        $websiteId = isset($info['website_id']) ? intval($info['website_id']) : $websiteList[0]['id'];
+        // a caller-supplied website_id must belong to one of the caller's
+        // own (already-scoped) websites for a non-admin - otherwise fall
+        // back to their own first website. Previously unchecked here,
+        // across every dashboard tab - any non-admin could view ANY other
+        // user's dashboard data for an arbitrary website_id.
+        if (!isAdmin() && !in_array($websiteId, array_column($websiteList, 'id'))) {
+            $websiteId = $websiteList[0]['id'];
+        }
+        $this->set('websiteId', $websiteId);
+
+        // Handle period selection (default: week)
+        $period = !empty($info['period']) ? $info['period'] : 'week';
+        $this->set('period', $period);
+
+        // Calculate date range based on period
+        list($fromTime, $toTime, $prevFromTime, $prevToTime) = $this->__getPeriodDateRange($period, true);
+
+        $this->set('fromTime', $fromTime);
+        $this->set('toTime', $toTime);
+        $this->set('prevFromTime', $prevFromTime);
+        $this->set('prevToTime', $prevToTime);
+
+        // Get directory submission data
+        $dsStats = $this->getDSStats($websiteId, $fromTime, $toTime);
+        $dsTrends = $this->getDSTrends($websiteId, $fromTime, $toTime);
+        $dsDirectoryDistribution = $this->getDSDirectoryDistribution($websiteId, $fromTime, $toTime);
+        $dsAllTimeStats = $this->getDSAllTimeStats($websiteId);
+
+        // Get previous period stats for comparison
+        $prevDSStats = $this->getDSStats($websiteId, $prevFromTime, $prevToTime);
+
+        // Calculate directory submission stats comparison
+        $dsComparison = $this->calculateDSComparison($dsStats, $prevDSStats);
+
+        // Pass directory submission data to view
+        $this->set('dsStats', $dsStats);
+        $this->set('dsTrends', $dsTrends);
+        $this->set('dsDirectoryDistribution', $dsDirectoryDistribution);
+        $this->set('dsAllTimeStats', $dsAllTimeStats);
+        $this->set('prevDSStats', $prevDSStats);
+        $this->set('dsComparison', $dsComparison);
+        // all-time, not period-scoped - distinguishes "nothing submitted
+        // to any directory yet" from "nothing submitted in this period"
+        $this->set('noSubmissionsYet', $dsAllTimeStats['total_submissions'] == 0);
+
+        $this->render('dashboard/directory_submission_main');
+    }
+
+    // Get directory submission statistics for a period
+    private function getDSStats($websiteId, $fromTime, $toTime) {
+        $stats = [];
+
+        // Get aggregated directory submission data for the period
+        $sql = "SELECT
+                    COUNT(*) as total_submissions,
+                    SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) as confirmed,
+                    SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) as not_confirmed,
+                    SUM(CASE WHEN active = 1 THEN 1 ELSE 0 END) as approved,
+                    SUM(CASE WHEN active = 0 THEN 1 ELSE 0 END) as pending
+                FROM dirsubmitinfo
+                WHERE website_id=" . intval($websiteId) . "
+                AND submit_time BETWEEN $fromTime AND $toTime";
+
+        $result = $this->db->select($sql, true);
+        $stats['total_submissions'] = intval($result['total_submissions'] ?? 0);
+        $stats['confirmed'] = intval($result['confirmed'] ?? 0);
+        $stats['not_confirmed'] = intval($result['not_confirmed'] ?? 0);
+        $stats['approved'] = intval($result['approved'] ?? 0);
+        $stats['pending'] = intval($result['pending'] ?? 0);
+
+        // Calculate success rate
+        if ($stats['total_submissions'] > 0) {
+            $stats['success_rate'] = round(($stats['approved'] / $stats['total_submissions']) * 100, 1);
+        } else {
+            $stats['success_rate'] = 0;
+        }
+
+        return $stats;
+    }
+
+    // Get all-time directory submission statistics
+    private function getDSAllTimeStats($websiteId) {
+        $stats = [];
+
+        $sql = "SELECT
+                    COUNT(*) as total_submissions,
+                    SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) as confirmed,
+                    SUM(CASE WHEN active = 1 THEN 1 ELSE 0 END) as approved,
+                    SUM(CASE WHEN active = 0 THEN 1 ELSE 0 END) as pending
+                FROM dirsubmitinfo
+                WHERE website_id=" . intval($websiteId);
+
+        $result = $this->db->select($sql, true);
+        $stats['total_submissions'] = intval($result['total_submissions'] ?? 0);
+        $stats['confirmed'] = intval($result['confirmed'] ?? 0);
+        $stats['approved'] = intval($result['approved'] ?? 0);
+        $stats['pending'] = intval($result['pending'] ?? 0);
+
+        return $stats;
+    }
+
+    // Get directory submission trends over time
+    private function getDSTrends($websiteId, $fromTime, $toTime) {
+        $sql = "SELECT
+                    DATE(FROM_UNIXTIME(submit_time)) as date,
+                    COUNT(*) as submissions,
+                    SUM(CASE WHEN active = 1 THEN 1 ELSE 0 END) as approved,
+                    SUM(CASE WHEN active = 0 THEN 1 ELSE 0 END) as pending
+                FROM dirsubmitinfo
+                WHERE website_id=" . intval($websiteId) . "
+                AND submit_time BETWEEN $fromTime AND $toTime
+                GROUP BY DATE(FROM_UNIXTIME(submit_time))
+                ORDER BY date ASC";
+
+        $results = $this->db->select($sql);
+        return $results ? $results : [];
+    }
+
+    // Get directory distribution for submissions
+    private function getDSDirectoryDistribution($websiteId, $fromTime, $toTime) {
+        $sql = "SELECT
+                    d.domain,
+                    d.pagerank,
+                    d.domain_authority,
+                    d.page_authority,
+                    COUNT(ds.id) as submission_count,
+                    SUM(CASE WHEN ds.active = 1 THEN 1 ELSE 0 END) as approved_count,
+                    SUM(CASE WHEN ds.active = 0 THEN 1 ELSE 0 END) as pending_count
+                FROM dirsubmitinfo ds
+                JOIN directories d ON ds.directory_id = d.id
+                WHERE ds.website_id=" . intval($websiteId) . "
+                AND ds.submit_time BETWEEN $fromTime AND $toTime
+                GROUP BY ds.directory_id
+                ORDER BY submission_count DESC
+                LIMIT 10";
+
+        $results = $this->db->select($sql);
+        return $results ? $results : [];
+    }
+
+    // Calculate comparison for directory submission stats
+    private function calculateDSComparison($current, $previous) {
+        $comparison = [];
+
+        foreach ($current as $key => $currentValue) {
+            $prevValue = isset($previous[$key]) ? $previous[$key] : 0;
+            $diff = $currentValue - $prevValue;
+
+            // Calculate percentage change
+            if ($prevValue > 0) {
+                $percentChange = round(($diff / $prevValue) * 100, 1);
+            } else {
+                $percentChange = ($currentValue > 0) ? 100 : 0;
+            }
+
+            $direction = $diff > 0 ? 'up' : ($diff < 0 ? 'down' : 'neutral');
+
+            $comparison[$key] = [
+                'diff' => $diff,
+                'percent' => $percentChange,
+                'direction' => $direction
+            ];
+        }
+
+        return $comparison;
+    }
+
+}
+?>

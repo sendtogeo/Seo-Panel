@@ -1,53 +1,66 @@
-<table width="100%" border="0" cellspacing="0" cellpadding="2px;" class="list">
-	<tr>
-	<td width='33%'>
-	<table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
+<?php if (!empty($aio)): ?>
+<div class="alert <?php echo $aio['supported'] ? ($aio['present'] ? 'alert-warning' : 'alert-secondary') : 'alert-info' ?>">
+	<strong><?php echo $spTextKeyword['AI Overview']?>:</strong>
+	<?php if (empty($aio['supported'])): ?>
+		<?php echo $spTextKeyword['AI Overview is not available on your current data source'] ?? "AI Overview is only available for Google." ?>
+	<?php else: ?>
+		<?php echo !empty($aio['present']) ? $spTextKeyword['Present'] : $spTextKeyword['Absent'] ?>
+		<?php if (!empty($aio['present'])): ?>
+			&nbsp;|&nbsp;
+			<strong><?php echo $spTextKeyword['Cited']?>:</strong>
+			<?php if (!is_null($aio['citedPosition'])): ?>
+				<?php echo $spTextKeyword['Yes']?> (#<?php echo intval($aio['citedPosition'])?>)
+			<?php else: ?>
+				<?php echo $spTextKeyword['No']?>
+			<?php endif; ?>
+			&nbsp;|&nbsp;
+			<strong><?php echo $spTextKeyword['Sources']?>:</strong> <?php echo count($aio['refs'])?>
+		<?php endif; ?>
+	<?php endif; ?>
+</div>
+<?php if (!empty($aio['present']) && !empty($aio['refs'])): ?>
+<table class="list">
 	<tr class="listHead">
-		<td class="left"><?php echo $spText['common']['Rank']?></td>
-		<td class="right" colspan="2"><?php echo $spText['common']['Details']?></td>
+		<th><?php echo $spTextKeyword['AI Overview Cited Sources']?></th>
+	</tr>
+	<?php foreach ($aio['refs'] as $refInfo): ?>
+	<tr <?php echo ($aio['citedPosition'] == $refInfo['position']) ? "style='background:#fffbe6;'" : "" ?>>
+		<td>
+			<a href='<?php echo $refInfo['url']?>' target='_blank' style="font-size: 14px;"><?php echo stripslashes($refInfo['title'] ?: $refInfo['url'])?></a>
+			<label style="font-size: 13px; display:block;"><?php echo $refInfo['domain']?></label>
+		</td>
+	</tr>
+	<?php endforeach; ?>
+</table>
+<?php endif; ?>
+<?php endif; ?>
+<table class="list">
+	<tr class="listHead">
+		<th><?php echo $spText['common']['Rank']?></th>
+		<th><?php echo $spText['common']['Details']?></th>
 	</tr>
 	<?php
 	$colCount = 2; 
-	if(count($list) > 0){
-		$catCount = count($list);
-		$i = 0;
-		foreach($list as $listInfo){
-			
-			$class = ($i % 2) ? "blue_row" : "white_row";
-            if($catCount == ($i + 1)){
-                $leftBotClass = "tab_left_bot";
-                $rightBotClass = "tab_right_bot";
-            }else{
-                $leftBotClass = "td_left_border td_br_right";
-                $rightBotClass = "td_br_right";
-            }
-            $foundStyle = empty($listInfo['found']) ? "" : "background-color: #ffff00;";            
+	if(count($list) > 0) {
+		foreach($list as $listInfo) {
+            $foundClass = !empty($listInfo['found']) ? "bg-warning" : "";            
 			?>
-			<tr class="<?php echo $class?>" style="<?php echo $foundStyle?>">
-				<td class="<?php echo $leftBotClass?>" width='100px;'><b><?php echo $listInfo['rank']; ?></b></td>
-				<td class='td_br_right' id='seresult' colspan="2">
-					<a href='<?php echo $listInfo['url']?>' target='_blank'><?php echo stripslashes($listInfo['title']);?></a>
-					<p><?php echo stripslashes($listInfo['description']);?><p>
-					<label><?php echo $listInfo['url']?></label>
+			<tr class="<?php echo $foundClass?>">
+				<td class="fw-bold"><?php echo $listInfo['rank']; ?></td>
+				<td id='seresult'>
+					<a href='<?php echo $listInfo['url']?>' target='_blank' style="font-size: 14px;"><?php echo stripslashes($listInfo['title']);?></a>
+					<p style="font-size: 13px;"><?php echo stripslashes($listInfo['description']);?><p>
+					<label style="font-size: 13px;"><?php echo $listInfo['url']?></label>
 				</td>
 			</tr>
 			<?php
-			$i++;
 		}
-	}else{
-		?>				
-		<tr class="blue_row">
-			<td class="tab_left_bot_noborder"></td>
-			<td class="tab_right_bot" colspan="2" style="text-align: left;"><?php echo $spText['common']['No Records Found']?>!</td>
-		</tr>
-		<?php		
-	} 
+	} else {
+	    if (!empty($pending)) {
+	        echo showNoRecordsList($colCount - 2, $spTextKeyword['SEO Panel API is still processing this keyword']);
+	    } else {
+	        echo showNoRecordsList($colCount - 2);
+	    }
+	}
 	?>
-	<tr class="listBot">
-		<td class="left" colspan="<?php echo ($colCount-1)?>"></td>
-		<td class="right"></td>
-	</tr>
-	</table>
-	</td>
-	</tr>
 </table>

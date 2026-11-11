@@ -1,6 +1,6 @@
 <?php
 /**************************************************************************
-*   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	          *
+*   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.org)  	          *
 *   sendtogeo@gmail.com   											      *
 *                                                                         *
 *   This program is free software; you can redistribute it and/or modify  *
@@ -70,7 +70,7 @@ class UserTypeController extends Controller {
 	 * @params : Array of values to be passed
 	 * @return : Display the list
 	 */
-	function listUserTypes($info = '') {
+	function listUserTypes($info=[]) {
 		$info['pageno'] = intval($info['pageno']);
 		$sql = "SELECT * FROM usertypes where id!=1";				
 		
@@ -319,7 +319,7 @@ class UserTypeController extends Controller {
 	 * @params : $info - data values array
 	 * @return : returns the data
 	 */
-	function newUserType($info='') {
+	function newUserType($info=[]) {
 		
 		// if subscription plugin active
 		if ($this->isPluginSubsActive) {
@@ -594,7 +594,7 @@ class UserTypeController extends Controller {
 			if (!empty($specColInfo['custom_validation'])) {
 				$errMsg[$specCol] = formatErrorMsg($specColInfo['custom_validation']->$specColInfo['validation']($settingsInfo[$specCol]));
 			} else if (!empty($specColInfo['validation'])) {
-				$errMsg[$specCol] = formatErrorMsg($this->validate->$specColInfo['validation']($settingsInfo[$specCol]));
+				$errMsg[$specCol] = formatErrorMsg($this->validate->{$specColInfo['validation']}($settingsInfo[$specCol]));
 			}	
 			
 			// if error occured

@@ -1,7 +1,7 @@
 <?php
 
 /***************************************************************************
- *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	           *
+ *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.org)  	           *
  *   sendtogeo@gmail.com   												   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -31,56 +31,74 @@ class SocialMediaController extends Controller{
     var $colList;
     
     function __construct() {
-    	 
+        $engineList = Spider::getCrawlEngineCategoryList("social_media");
     	$this->serviceList = [
     		"facebook" => [
     			"label" => "Facebook",
     			"regex" => [
-    				"like" => '/id="PagesLikesCountDOMID.*?<span.*?>(.*?)<span/is',
-    				"follower" => '/people like this.*?<div>(\d.*?)people follow this/is',
+    			    "like" => $engineList['facebook']['regex1'],
+    			    "follower" => $engineList['facebook']['regex2'],
     			],
-    			"url_part" => '?locale=en_US'
+    		    "url_part" => $engineList['facebook']['url_part'],
+    		    "example" => "https://www.facebook.com/seopanel",
     		],
     		"twitter" => [
-    			"label" => "Twitter",
+    		    "label" => "Twitter",
+    		    "url" => $engineList['twitter']['url'],
     			"regex" => [
-    				"follower" => '/\/followers".*?<div.*?>(.*?)<\/div>/is'
+    			    "follower" => $engineList['twitter']['regex1'],
     			],
+    		    "example" => "https://twitter.com/seopanel",
     		],
     		"instagram" => [
     			"label" => "Instagram",
     			"regex" => [
-    				"follower" => '/edge_followed_by.*?"count":(.*?)\}/is'
+    			    "follower" => $engineList['instagram']['regex1'],
     			],
+    		    "url_part" => $engineList['instagram']['url_part'],
+    		    "example" => "https://www.instagram.com/seopanelorg",
     		],
     		"linkedin" => [
     			"label" => "LinkedIn",
-    		    "url" => "https://www.linkedin.com/pages-extensions/FollowCompany?id={CID}&counter=bottom",
+    		    "url" => $engineList['linkedin']['url'],
     		    "regex" => [
-    		        "follower" => '/<div.*?follower-count.*?>(.*?)<\/div>/is'
+    		        "follower" => $engineList['linkedin']['regex1'],
     		    ],
     		    "show_url" => "https://www.linkedin.com/company",
+    		    "example" => "14576538",
     		],
     		"pinterest" => [
     			"label" => "Pinterest",
     			"regex" => [
-    				"follower" => '/pinterestapp:followers.*?content="(.*?)"/is'
+    			    "follower" => $engineList['pinterest']['regex1'],
     			],
+    		    "example" => "https://www.pinterest.com/seopanel",
     		],
     		"youtube" => [
     			"label" => "Youtube",
     			"regex" => [
-    				"follower" => '/subscriberCountText":\{"runs.*?text":"(.*?) /is'
+    			    "follower" => $engineList['youtube']['regex1'],
     			],
+    		    "url_part" => $engineList['youtube']['url_part'],
+    		    "example" => "https://www.youtube.com/c/seopanel",
     		],
+    	    "reddit" => [
+    	        "label" => "reddit",
+    	        "data_from" => "crawl",
+    	        "regex" => [
+    	            "follower" => $engineList['reddit']['regex1'],
+    	        ],
+    	        "url_part" => $engineList['reddit']['url_part'],
+    	        'example' => 'https://www.reddit.com/r/Twitter',
+    	    ],
     	];
-    
+    	
     	$this->set('pageScriptPath', $this->pageScriptPath);
     	$this->set( 'serviceList', $this->serviceList );
     	$this->set( 'pageNo', $_REQUEST['pageno']);
 		
 		$this->colList = array(
-			'url' => $_SESSION['text']['common']['Url'],
+			'name' => $_SESSION['text']['common']['Name'],
 			'followers' => $_SESSION['text']['label']['Followers'],
 			'likes' => $_SESSION['text']['label']['Likes'],
 		);
@@ -88,26 +106,30 @@ class SocialMediaController extends Controller{
     	parent::__construct();
     }
     
-    function showSocialMediaLinks($searchInfo = '') {
+    function showSocialMediaLinks($searchInfo=[]) {
     	$userId = isLoggedIn();
+
+    	$webSiteCtrler = new WebsiteController();
+    	$websiteList = $webSiteCtrler->__getAllWebsites($userId, true);
+    	if (!isset($searchInfo['website_id']) && !empty($websiteList)) {
+    	    $searchInfo['website_id'] = $websiteList[0]['id'];
+    	}
     	$this->set('searchInfo', $searchInfo);
     	$sql = "select l.*, w.name as website_name from $this->linkTable l, websites w where l.website_id=w.id";
-    	
+
     	if (!isAdmin()) {
     	    $sql .= " and w.user_id=$userId";
     	}
-    	
+
     	// search conditions
     	$sql .= !empty($searchInfo['name']) ? " and l.name like '%".addslashes($searchInfo['name'])."%'" : "";
     	$sql .= !empty($searchInfo['website_id']) ? " and l.website_id=".intval($searchInfo['website_id']) : "";
     	$sql .= !empty($searchInfo['type']) ? " and `type`='".addslashes($searchInfo['type'])."'" : "";
-    	
+
     	if (!empty($searchInfo['status'])) {
-    	    $sql .= ($searchInfo['status'] == 'active') ? " and l.status=1" : " and l.status=0"; 
+    	    $sql .= ($searchInfo['status'] == 'active') ? " and l.status=1" : " and l.status=0";
     	}
-    	
-    	$webSiteCtrler = new WebsiteController();
-    	$websiteList = $webSiteCtrler->__getAllWebsites($userId, true);
+
     	$this->set( 'websiteList', $websiteList );
     	 
     	// pagination setup
@@ -216,7 +238,7 @@ class SocialMediaController extends Controller{
         
     }
     
-    function newSocialMediaLink($info = '') {
+    function newSocialMediaLink($info=[]) {
         $userId = isLoggedIn();
         $this->set('post', $info);
         $webSiteCtrler = new WebsiteController();
@@ -226,10 +248,25 @@ class SocialMediaController extends Controller{
         $this->render( 'socialmedia/edit_social_media_link');   
     }
     
-    function createSocialMediaLink($listInfo = '') {
-        
+    function createSocialMediaLink($listInfo=[], $apiCall=false) {
+        $listInfo['name'] = trim($listInfo['name']);
+        $listInfo['url'] = trim($listInfo['url']);
+
+        // a non-admin's website_id must be one of their own - previously
+        // unchecked, letting any logged-in non-admin attach a bogus link
+        // to another user's website (consuming THEIR link-count quota
+        // and getting crawled on their behalf by cron). $apiCall=true
+        // (e.g. FeatureTourController::createWebsiteSetup()) is trusted
+        // to have already verified ownership of the website_id it passes
+        // in, same convention WebsiteController::createWebsite()/
+        // KeywordController::createKeyword() already use.
+        if (!$apiCall && !isAdmin() && !empty($listInfo['website_id']) && !(new WebsiteController())->__verifyWebsiteOwnership($listInfo['website_id'])) {
+            showErrorMsg($_SESSION['text']['label']['Access denied']);
+            return;
+        }
+
         $errMsg = $this->validateSocialMediaLink($listInfo);
-        
+
         // if no error occured
         if (!$this->validate->flagErr) {
             $dataList = [
@@ -239,17 +276,21 @@ class SocialMediaController extends Controller{
                 'website_id|int' => $listInfo['website_id'],
             ];
             $this->dbHelper->insertRow($this->linkTable, $dataList);
+            if ($apiCall) {
+                return array('success', 'Successfully created social media link');
+            }
             $this->showSocialMediaLinks(['name' => $listInfo['name']]);
             exit;
         }
-        
+
+        if ($apiCall) {
+            return array('error', $errMsg);
+        }
         $this->set('errMsg', $errMsg);
         $this->newSocialMediaLink($listInfo);
-        
     }
     
-    function editSocialMediaLink($linkId, $listInfo = '') {
-        
+    function editSocialMediaLink($linkId, $listInfo=[]) {        
         if (!empty($linkId)) {
             $userId = isLoggedIn();
             $webSiteCtrler = new WebsiteController();
@@ -268,6 +309,18 @@ class SocialMediaController extends Controller{
     }
     
     function updateSocialMediaLink($listInfo) {
+        $listInfo['name'] = trim($listInfo['name']);
+        $listInfo['url'] = trim($listInfo['url']);
+
+        // the entry point's own verifyActionAllowed($listInfo['id']) only
+        // checks the link's CURRENT website_id, not the NEW one being
+        // written here - without this, a non-admin could re-point their
+        // own existing link onto another user's website_id.
+        if (!isAdmin() && !empty($listInfo['website_id']) && !(new WebsiteController())->__verifyWebsiteOwnership($listInfo['website_id'])) {
+            showErrorMsg($_SESSION['text']['label']['Access denied']);
+            return;
+        }
+
         $this->set('post', $listInfo);
         $errMsg = $this->validateSocialMediaLink($listInfo);
         
@@ -321,12 +374,11 @@ class SocialMediaController extends Controller{
                 
     }
 
-	function viewQuickChecker($info='') {
+	function viewQuickChecker($info=[]) {
 		$this->render('socialmedia/quick_checker');
 	}
 
-	function doQuickChecker($listInfo = '') {
-		
+	function doQuickChecker($listInfo=[]) {		
 	    if ($listInfo['type'] == 'linkedin') {
 	        $errorMsg = formatErrorMsg($this->validate->checkNumber($listInfo['url']));
 	        $smLink = $listInfo['url'];
@@ -358,25 +410,74 @@ class SocialMediaController extends Controller{
 		$errorMsg = !empty($errorMsg) ? $errorMsg : $_SESSION['text']['common']['Internal error occured'];
 		showErrorMsg($errorMsg);
 		
-	}	
+	}
+	
+	function formatMediaLink($smType, $smLink) {
+	    $smInfo = $this->serviceList[$smType];
+	    $smLink = str_ireplace("http://", "https://", $smLink);
+	    
+	    // switch through the social media types
+	    switch ($smType) {
+	        case "facebook":
+	            $smLink = strtok($smLink, '?');	            
+	            $smLink = str_ireplace(["//facebook.com", "//www.facebook.com"], "//m.facebook.com", $smLink);
+	            $smLink = preg_replace('/\/$/', '', $smLink);
+	            $smLink .= "/community/";
+	            break;
+	            
+	        case "linkedin":
+	            $smLink = str_replace("{CID}", $smLink, $smInfo['url']);
+	            break;
+	            
+	        case "twitter":
+	            $smLink = strtok($smLink, '?');
+	            $smLink = preg_replace('/\/$/', '', $smLink);
+	            $linkList = explode('/', $smLink);
+	            $acountName = array_pop($linkList);
+	            if (!empty($acountName)) {
+	               $smLink = str_replace("{ACC_NAME}", $acountName, $smInfo['url']);
+	            } else {
+	                $smLink = "";
+	            }
+	            break;
+	            
+	        case "youtube":
+	            $smLink = strtok($smLink, '?');
+	            $smLink = preg_replace('/\/$/', '', $smLink);
+	            break;
+	            
+	        case "instagram":
+	            $smLink = strtok($smLink, '?');
+	            $smLink = preg_replace('/\/$/', '', $smLink);
+	            break;
+	    }
+	    
+	    // if params needs to be added with url
+	    if (!empty($smInfo['url_part'])) {
+	        $smLink .= stristr($smLink, '?') ? str_replace("?", "&", $smInfo['url_part']) : $smInfo['url_part'];
+	    }
+	    
+	    return $smLink;
+	}
 	
 	function getSocialMediaDetails($smType, $smLink) {
 		$result = ['status' => 0, 'likes' => 0, 'followers' => 0, 'msg' => $_SESSION['text']['common']['Internal error occured']];
-		$smInfo = $this->serviceList[$smType];
 		
+		$smInfo = $this->serviceList[$smType];
 		if (!empty($smInfo) && !empty($smLink)) {
-			
-			// if params needs to be added with url
-			if (!empty($smInfo['url_part'])) {
-				$smLink .= stristr($smLink, '?') ? str_replace("?", "&", $smInfo['url_part']) : $smInfo['url_part'];
-			}
-			
-			// if linkedin
-			if ($smType == 'linkedin') {
-			    $smLink = str_replace("{CID}", $smLink, $smInfo['url']);
-			}
-			
+			$smLink = $this->formatMediaLink($smType, $smLink);
 			$smContentInfo = $this->spider->getContent($smLink);
+			
+			// testing val
+            /*$myfile = fopen(SP_TMPPATH . "/smcpage.html", "w") or die("Unable to open file!");
+            fwrite($myfile, $smContentInfo['page']);
+            fclose($myfile);
+            exit;
+            
+            $smContentInfo = [];
+            $myfile = fopen(SP_TMPPATH . "/smcpage.html", "r") or die("Unable to open file!");
+            $smContentInfo['page'] = fread($myfile,filesize(SP_TMPPATH . "/smcpage.html"));
+            fclose($myfile);*/			
 			
 			if (!empty($smContentInfo['page'])) {
 			    $matches = [];
@@ -384,33 +485,33 @@ class SocialMediaController extends Controller{
 				// find likes
 				if (!empty($smInfo['regex']['like'])) {
 					preg_match($smInfo['regex']['like'], $smContentInfo['page'], $matches);
-					
 					if (!empty($matches[1])) {
 						$result['status'] = 1;
 						$result['likes'] = formatNumber($matches[1]);
 					}
-					
 				}
 				
 				// find followers
 				if (!empty($smInfo['regex']['follower'])) {
 					preg_match($smInfo['regex']['follower'], $smContentInfo['page'], $matches);
-						
 					if (!empty($matches[1])) {
 						$result['status'] = 1;
 						$result['followers'] = formatNumber($matches[1]);
-					}
-						
+					}	
 				}
 				
+				// if not found any details
+				if (!$result['status']) {
+				    $result['msg'] = "Social media channel details not found.";
+				} else {
+				    $result['msg'] = "Social media channel details fetched successfully.";
+				}
 			} else {
 				$result['msg'] = $smContentInfo['errmsg'];
 			}
-			
 		}
 		
 		return $result;
-		
 	}
 	
 	/*
@@ -442,69 +543,113 @@ class SocialMediaController extends Controller{
 	/*
 	 * func to show report summary
 	 */ 
-	function viewReportSummary($searchInfo = '', $summaryPage = false, $cronUserId=false) {
-	
+	function __getSocialMediaDateAvailability($conditions) {
+		$sql = "select min(r.report_date) as min_date, max(r.report_date) as max_date
+				from $this->linkTable sml, $this->linkReportTable r
+				where sml.id=r.sm_link_id and sml.status=1 $conditions";
+		return $this->__getMinMaxDate($sql);
+	}
+
+	function viewReportSummary($searchInfo=[], $summaryPage = false, $cronUserId=false) {
 		$userId = !empty($cronUserId) ? $cronUserId : isLoggedIn();
 		$this->set('summaryPage', $summaryPage);
 		$this->set('searchInfo', $searchInfo);
 		$this->set('cronUserId', $cronUserId);
-	
+
 		$exportVersion = false;
 		switch($searchInfo['doc_type']){
-	
+
 			case "export":
 				$exportVersion = true;
 				$exportContent = "";
 				break;
-					
+
 			case "pdf":
 				$this->set('pdfVersion', true);
 				break;
-					
+
 			case "print":
 				$this->set('printVersion', true);
 				break;
 		}
-	
-		$fromTime = !empty($searchInfo['from_time']) ? addslashes($searchInfo['from_time']) : date('Y-m-d', strtotime('-1 days'));
-		$toTime = !empty($searchInfo['to_time']) ? addslashes($searchInfo['to_time']) : date('Y-m-d');
-		$this->set('fromTime', $fromTime);
-		$this->set('toTime', $toTime);
-	
+
 		$websiteController = New WebsiteController();
 		$wList = $websiteController->__getAllWebsites($userId, true);
 		$websiteList = [];
 		foreach ($wList as $wInfo) $websiteList[$wInfo['id']] = $wInfo;
 		$websiteList = count($websiteList) ? $websiteList : array(0);
 		$this->set('websiteList', $websiteList);
-		$websiteId = intval($searchInfo['website_id']);
+		$websiteId = isset($searchInfo['website_id']) ? intval($searchInfo['website_id']) : null;
+		// a non-admin's website_id must be one of their own (already-scoped)
+		// websites - previously unchecked, letting any non-admin view ANY
+		// other user's social media report summary for an arbitrary
+		// website_id.
+		if (!empty($websiteId) && !isAdmin() && !isset($websiteList[$websiteId])) {
+			$websiteId = 0;
+		}
+		// resolve to a real website (first one, same default the select
+		// box itself now always pre-selects) only when nothing was
+		// submitted at all - the search form's own select never submits
+		// an empty value any more. An explicit 0 is left alone:
+		// ReportController::sentEmailNotificationForReportGen()'s "Overall
+		// Report Summary" email deliberately passes website_id=0 to mean
+		// every one of this user's websites combined, which still needs
+		// the WEBSITE column below to tell rows apart.
+		if ($websiteId === null) {
+			$websiteId = !empty($websiteList) ? array_key_first($websiteList) : 0;
+		}
 		$this->set('websiteId', $websiteId);
-	
-		// to find order col
-		if (!empty($searchInfo['order_col'])) {
+
+		$websiteIds = array_keys($websiteList);
+		if (!empty($websiteId)) {
+			$conditions = " and sml.website_id=" . intval($websiteId);
+		} elseif (!empty($websiteIds)) {
+			$conditions = " and sml.website_id in (" . implode(',', $websiteIds) . ")";
+		} else {
+			// no websites at all - "in ()" with no values is a SQL syntax
+			// error, so match nothing instead
+			$conditions = " and 1=0";
+		}
+		$conditions .= !empty($searchInfo['search_name']) ? " and (sml.url like '%".addslashes($searchInfo['search_name'])."%' or sml.name like '%".addslashes($searchInfo['search_name'])."%')" : "";
+		$conditions .= !empty($searchInfo['type']) ? " and sml.type='".addslashes($searchInfo['type'])."'" : "";
+
+		$period = $this->__resolvePeriodValue($searchInfo);
+
+		if (!empty($period)) {
+			list($minAvailDate, $maxAvailDate) = $this->__getSocialMediaDateAvailability($conditions);
+			list($fromTimeStamp, $toTimeStamp) = $this->__resolvePeriodPreset($period, $minAvailDate, $maxAvailDate, 'today');
+			$fromTime = date('Y-m-d', $fromTimeStamp);
+			$toTime = date('Y-m-d', $toTimeStamp);
+		} else {
+			$fromTime = !empty($searchInfo['from_time']) ? addslashes($searchInfo['from_time']) : date('Y-m-d', strtotime('-1 days'));
+			$toTime = !empty($searchInfo['to_time']) ? addslashes($searchInfo['to_time']) : date('Y-m-d');
+		}
+		$this->set('fromTime', $fromTime);
+		$this->set('toTime', $toTime);
+		$this->set('period', $period);
+
+		// to find order col - order_col is caller-supplied and lands
+		// directly in an ORDER BY clause with no way to parameterize an
+		// identifier position, so it must be checked against a fixed
+		// whitelist (not just addslashes()'d, which does nothing for an
+		// unquoted SQL identifier) - previously unchecked, letting any
+		// logged-in non-admin run a blind SQL injection via ORDER BY
+		// (e.g. a CASE/SLEEP() expression), same fix shape Site Auditor
+		// already uses for its own order_col.
+		if (!empty($searchInfo['order_col']) && array_key_exists($searchInfo['order_col'], $this->colList)) {
 			$orderCol = $searchInfo['order_col'];
 			$orderVal = getOrderByVal($searchInfo['order_val']);
 		} else {
 			$orderCol = "followers";
 			$orderVal = 'DESC';
 		}
-	
+
 		$this->set('orderCol', $orderCol);
 		$this->set('orderVal', $orderVal);
 		$scriptName = $summaryPage ? "archive.php" : $this->pageScriptPath;
 		$scriptPath = SP_WEBPATH . "/$scriptName?sec=reportSummary&website_id=$websiteId";
 		$scriptPath .= "&from_time=$fromTime&to_time=$toTime&search_name=" . $searchInfo['search_name'] . "&type=" . $searchInfo['type'];
 		$scriptPath .= "&order_col=$orderCol&order_val=$orderVal&report_type=social-media-reports";
-	
-		// set website id to get exact keywords of a user
-		if (!empty($websiteId)) {
-			$conditions = " and sml.website_id=$websiteId";
-		} else {
-			$conditions = " and sml.website_id in (".implode(',', array_keys($websiteList)).")";
-		}
-	
-		$conditions .= !empty($searchInfo['search_name']) ? " and (sml.url like '%".addslashes($searchInfo['search_name'])."%' or sml.name like '%".addslashes($searchInfo['search_name'])."%')" : "";
-		$conditions .= !empty($searchInfo['type']) ? " and sml.type='".addslashes($searchInfo['type'])."'" : "";
 	
 		$subSql = "select [cols] from $this->linkTable sml, $this->linkReportTable r where sml.id=r.sm_link_id
 		and sml.status=1 $conditions and r.report_date='$toTime'";
@@ -516,7 +661,7 @@ class SocialMediaController extends Controller{
 			and sml.id not in (". str_replace("[cols]", "distinct(sml.id)", $subSql) ."))
 		order by " . addslashes($orderCol) . " " . addslashes($orderVal);
 	
-		if ($orderCol != 'url') $sql .= ", url";
+		if ($orderCol != 'name') $sql .= ", name";
 	
 		// pagination setup, if not from cron job email send function, pdf and export action
 		if (!in_array($searchInfo['doc_type'], array("pdf", "export"))) {
@@ -562,12 +707,12 @@ class SocialMediaController extends Controller{
 			$reportHeading =  $this->spTextTools['Social Media Report Summary']."($fromTime - $toTime)";
 			$exportContent .= createExportContent( array('', $reportHeading, ''));
 			$exportContent .= createExportContent( array());
-			$headList = array($spText['common']['Website'], $spText['common']['Url']);
+			$headList = empty($websiteId) ? array($spText['common']['Website'], $spText['common']['Url']) : array($spText['common']['Url']);
 	
 			$pTxt = str_replace("-", "/", substr($fromTime, -5));
 			$cTxt = str_replace("-", "/", substr($toTime, -5));
 			foreach ($this->colList as $colKey => $colLabel) {
-				if ($colKey == 'url') continue;
+				if ($colKey == 'name') continue;
 				$headList[] = $colLabel . "($pTxt)";
 				$headList[] = $colLabel . "($cTxt)";
 				$headList[] = $colLabel . "(+/-)";
@@ -576,9 +721,9 @@ class SocialMediaController extends Controller{
 			$exportContent .= createExportContent($headList);
 			foreach($baseReportList as $listInfo){
 			    $listUrl = ($listInfo['type'] == 'linkedin') ? $listInfo['name'] : $listInfo['url'];
-				$valueList = array($websiteList[$listInfo['website_id']]['url'], $listUrl);
+				$valueList = empty($websiteId) ? array($websiteList[$listInfo['website_id']]['url'] ?? '', $listUrl) : array($listUrl);
 				foreach ($this->colList as $colName => $colVal) {
-					if ($colName == 'url') continue;
+					if ($colName == 'name') continue;
 						
 					$currRank = isset($listInfo[$colName]) ? $listInfo[$colName] : 0;
 					$prevRank = isset($compareReportList[$listInfo['id']][$colName]) ? $compareReportList[$listInfo['id']][$colName] : 0;
@@ -627,8 +772,7 @@ class SocialMediaController extends Controller{
 	}
 	
 	// func to show detailed reports
-	function viewDetailedReports($searchInfo = '') {
-	
+	function viewDetailedReports($searchInfo=[]) {	
 		$userId = isLoggedIn();
 
 		if (!empty ($searchInfo['from_time'])) {
@@ -655,17 +799,32 @@ class SocialMediaController extends Controller{
 		$websiteController = New WebsiteController();
 		$websiteList = $websiteController->__getAllWebsites($userId, true);
 		$this->set('websiteList', $websiteList);
-		$websiteId = empty ($searchInfo['website_id']) ? $websiteList[0]['id'] : intval($searchInfo['website_id']);
+		$websiteId = empty ($searchInfo['website_id']) ? '' : intval($searchInfo['website_id']);
+		// a non-admin's website_id must be one of their own (already-scoped)
+		// websites - previously unchecked. Same fallback as the other
+		// dashboard/tool fixes this session: their own first website.
+		if (!empty($websiteId) && !isAdmin() && !in_array($websiteId, array_column($websiteList, 'id'))) {
+			$websiteId = '';
+		}
+		if (empty($websiteId)) $websiteId = $websiteList[0]['id'] ?? '';
 		$this->set('websiteId', $websiteId);
-	
+
 		$linkList = $this->__getSocialMediaLinks("website_id=$websiteId and status=1 order by name");
 		$this->set('linkList', $linkList);
 		$linkId = empty($searchInfo['link_id']) ? $linkList[0]['id'] : intval($searchInfo['link_id']);
+		// same check one level down: a non-admin's link_id must belong to
+		// the just-resolved (already-scoped) linkList - previously
+		// unchecked, so a foreign link_id bypassed the website_id scoping
+		// entirely (this table has no direct website ownership column of
+		// its own to filter on in the query below).
+		if (!empty($linkId) && !isAdmin() && !in_array($linkId, array_column($linkList, 'id'))) {
+			$linkId = $linkList[0]['id'] ?? '';
+		}
 		$this->set('linkId', $linkId);
-	
+
 		$list = [];
 		if (!empty($linkId)) {
-		
+
     		$sql = "select s.* from $this->linkReportTable s
     		where report_date>='$fromTimeDate' and report_date<='$toTimeDate' and s.sm_link_id=$linkId
     		order by s.report_date";
@@ -703,22 +862,47 @@ class SocialMediaController extends Controller{
     		$list = array_reverse($reportList, true);
 		}
 		
-		$this->set('list', $list);				
+		$this->set('list', $list);
+		$this->set('localAiAvailable', SettingsController::isLocalAIEnabled());
 		$this->render('socialmedia/social_media_reports');
-		
+
 	}
-	
+
+	/*
+	 * AJAX action: plain-language AI summary of this social media link's
+	 * follower/like trend over the selected date range - see
+	 * LocalAIController::summarizeSocialMediaTrend(). Never auto-fired;
+	 * returns JSON for the "Summarize with AI" button in
+	 * social_media_reports.ctp.php. Ownership is enforced by
+	 * summarizeSocialMediaTrend() itself, not re-checked here.
+	 */
+	function summarizeTrend($info) {
+		$userId = isLoggedIn();
+		$fromTime = !empty($info['from_time']) ? $info['from_time'] : date('Y-m-d', strtotime('-30 days'));
+		$toTime = !empty($info['to_time']) ? $info['to_time'] : date('Y-m-d');
+		include_once(SP_CTRLPATH . '/localai.ctrl.php');
+		$result = (new LocalAIController())->summarizeSocialMediaTrend($info['link_id'], $userId, $fromTime, $toTime);
+		header('Content-Type: application/json');
+		print json_encode($result);
+	}
+
 	// func to show social media link select box
 	function showSocialMediaLinkSelectBox($websiteId, $linkId = ""){
 	    $websiteId = intval($websiteId);
+	    // previously unchecked - any logged-in non-admin could enumerate
+	    // another user's social media link names/ids via an arbitrary
+	    // website_id, unlike every other single-target action in
+	    // social_media.php
+	    if (!isAdmin() && !(new WebsiteController())->__verifyWebsiteOwnership($websiteId)) {
+	        return;
+	    }
 	    $this->set('linkList', $this->__getSocialMediaLinks("website_id=$websiteId and status=1 order by name"));
 	    $this->set('linkId', $linkId);
 	    $this->render('socialmedia/social_media_link_select_box');
 	}
 	
 	// func to show link search reports in graph
-	function viewGraphReports($searchInfo = '') {
-	    
+	function viewGraphReports($searchInfo=[]) {	    
 	    $userId = isLoggedIn();
 	    
 	    if (!empty ($searchInfo['from_time'])) {
@@ -745,12 +929,20 @@ class SocialMediaController extends Controller{
 	    $websiteController = New WebsiteController();
 	    $websiteList = $websiteController->__getAllWebsites($userId, true);
 	    $this->set('websiteList', $websiteList);
-	    $websiteId = empty ($searchInfo['website_id']) ? $websiteList[0]['id'] : intval($searchInfo['website_id']);
+	    $websiteId = empty ($searchInfo['website_id']) ? '' : intval($searchInfo['website_id']);
+	    // same fix as viewDetailedReports() - see that method's comment
+	    if (!empty($websiteId) && !isAdmin() && !in_array($websiteId, array_column($websiteList, 'id'))) {
+	        $websiteId = '';
+	    }
+	    if (empty($websiteId)) $websiteId = $websiteList[0]['id'] ?? '';
 	    $this->set('websiteId', $websiteId);
-	    
+
 	    $linkList = $this->__getSocialMediaLinks("website_id=$websiteId and status=1 order by name");
 	    $this->set('linkList', $linkList);
 	    $linkId = empty($searchInfo['link_id']) ? $linkList[0]['id'] : intval($searchInfo['link_id']);
+	    if (!empty($linkId) && !isAdmin() && !in_array($linkId, array_column($linkList, 'id'))) {
+	        $linkId = $linkList[0]['id'] ?? '';
+	    }
 	    $this->set('linkId', $linkId);
 	    
 	    // if reports not empty
@@ -802,9 +994,7 @@ class SocialMediaController extends Controller{
 		
 		// get graph content
 		$this->set('graphContent', $graphContent);
-		$this->render('socialmedia/graphicalreport');
-		
-	}
-	
+		$this->render('socialmedia/graphicalreport');		
+	}	
 }
 ?>

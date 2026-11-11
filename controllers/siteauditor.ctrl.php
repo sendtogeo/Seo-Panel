@@ -1,7 +1,7 @@
 <?php
 
 /***************************************************************************
- *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	   		   *
+ *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.org)  	   		   *
  *   sendtogeo@gmail.com   												   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -24,9 +24,70 @@
 class SiteAuditorController extends Controller{
     
     var $cron = false;                    // to identify whether it is executed through cron
-    var $seArr = array('google', 'bing'); // the array contains search engines 
-    
-	function showAuditorProjects($info="") {
+    var $seArr = array('google', 'bing'); // the array contains search engines
+
+	/*
+	 * Ownership gate for every project_id-scoped action reachable from
+	 * siteauditor.php - none of them previously verified the caller
+	 * actually owned the project's website before viewing/modifying it
+	 * (or, for __deleteProject()/updateProject(), before DELETING it or
+	 * reassigning it to a different website_id). Any non-admin could act
+	 * on ANY other user's site auditor project just by passing an
+	 * arbitrary project_id - the widest-blast-radius IDOR found this
+	 * session, since it's both read AND write (including destructive
+	 * delete). Exits via showErrorMsg() when not allowed, same convention
+	 * as SocialMediaController::verifyActionAllowed()/
+	 * ReviewManagerController::verifyActionAllowed(). Returns the
+	 * project's row (already fetched) so callers that need it aren't
+	 * forced to look it up a second time.
+	 */
+	function __verifyProjectOwnership($projectId) {
+		$projectId = intval($projectId);
+		$projectInfo = empty($projectId) ? [] : $this->dbHelper->getRow('auditorprojects', "id=$projectId");
+		$allowed = !empty($projectInfo['website_id']);
+
+		if ($allowed && !isAdmin()) {
+			$userId = isLoggedIn();
+			$websiteList = (new WebsiteController())->__getAllWebsites($userId, true);
+			$allowed = in_array(intval($projectInfo['website_id']), array_column($websiteList, 'id'));
+		}
+
+		if (!$allowed) {
+			showErrorMsg($_SESSION['text']['label']['Access denied']);
+		}
+
+		return $projectInfo;
+	}
+
+	/*
+	 * Same gate, for the report_id-scoped actions (a crawled page belongs
+	 * to a project, which belongs to a website) - resolves report_id ->
+	 * project_id, then defers to __verifyProjectOwnership() above.
+	 */
+	function __verifyReportOwnership($reportId) {
+		$reportId = intval($reportId);
+		$reportInfo = empty($reportId) ? [] : $this->dbHelper->getRow('auditorreports', "id=$reportId");
+		if (empty($reportInfo['project_id'])) {
+			showErrorMsg($_SESSION['text']['label']['Access denied']);
+		}
+		$this->__verifyProjectOwnership($reportInfo['project_id']);
+		return $reportInfo;
+	}
+
+	/*
+	 * For createProject()/updateProject(): the website_id being assigned
+	 * (a NEW project has no project-level ownership to check yet, and
+	 * updateProject() can also reassign an existing project to a
+	 * different website_id) must belong to the caller.
+	 */
+	function __verifyWebsiteOwnership($websiteId) {
+		if (isAdmin()) return !empty($websiteId);
+		$userId = isLoggedIn();
+		$websiteList = (new WebsiteController())->__getAllWebsites($userId, true);
+		return in_array(intval($websiteId), array_column($websiteList, 'id'));
+	}
+
+	function showAuditorProjects($info=[]) {
 		$info['userid'] = intval($info['userid']);
 	    $userId = isLoggedIn();
 		if(isAdmin()){
@@ -64,7 +125,7 @@ class SiteAuditorController extends Controller{
 	}
 
 	// func to create new project
-	function newProject($info=''){
+	function newProject($info=[]){
 						
 		$userId = isLoggedIn();		
 		$websiteController = New WebsiteController();
@@ -84,12 +145,23 @@ class SiteAuditorController extends Controller{
 	
 	// func to create project
 	function createProject($listInfo){
-	    
-		$userId = isLoggedIn();		
+
+		$userId = isLoggedIn();
 		$this->set('post', $listInfo);
 		$listInfo['website_id'] = intval($listInfo['website_id']);
 		$listInfo['max_links'] = intval($listInfo['max_links']);
-		
+
+		// a caller-supplied website_id was never verified to belong to the
+		// caller before creating a Site Auditor project against it - any
+		// non-admin could start crawling (and consuming crawl/API budget
+		// against) ANY other user's website by passing an arbitrary
+		// website_id.
+		if (!empty($listInfo['website_id']) && !$this->__verifyWebsiteOwnership($listInfo['website_id'])) {
+			$this->set('errMsg', ['website_id' => formatErrorMsg($_SESSION['text']['label']['Access denied'])]);
+			$this->newProject($listInfo);
+			return;
+		}
+
 		$errMsg['website_id'] = formatErrorMsg($this->validate->checkBlank($listInfo['website_id']));
 		$errMsg['max_links'] = formatErrorMsg($this->validate->checkNumber($listInfo['max_links']));
 		if(!$this->validate->flagErr){
@@ -121,11 +193,20 @@ class SiteAuditorController extends Controller{
 		        $errorFlag = 1;
 		        $errMsg['max_links'] = $maxValidInfo['msg'];
 		    }
-		    
+
+		    // Validate sitemap URL if provided
+		    if (!empty($listInfo['sitemap_url'])) {
+		        $sitemapUrl = trim($listInfo['sitemap_url']);
+		        if (!filter_var($sitemapUrl, FILTER_VALIDATE_URL)) {
+		            $errorFlag = 1;
+		            $errMsg['sitemap_url'] = formatErrorMsg("Invalid sitemap URL format");
+		        }
+		    }
+
 		    if (!$errorFlag) {
     			if (!$this->isProjectExists($listInfo['website_id'])) {
-    				$sql = "insert into auditorprojects(website_id,max_links,exclude_links,check_pr,check_backlinks,check_indexed,store_links_in_page,check_brocken,cron)
-							values({$listInfo['website_id']},{$listInfo['max_links']},'".addslashes($listInfo['exclude_links'])."',
+    				$sql = "insert into auditorprojects(website_id,max_links,exclude_links,exclude_extensions,sitemap_url,check_pr,check_backlinks,check_indexed,store_links_in_page,check_brocken,cron)
+							values({$listInfo['website_id']},{$listInfo['max_links']},'".addslashes($listInfo['exclude_links'])."','".addslashes($listInfo['exclude_extensions'])."','".addslashes(trim($listInfo['sitemap_url']))."',
 							".intval($listInfo['check_pr']).",".intval($listInfo['check_backlinks']).",".intval($listInfo['check_indexed']).",
 							".intval($listInfo['store_links_in_page']).",".intval($listInfo['check_brocken']).",".intval($listInfo['cron']).")";
     				$this->db->query($sql);
@@ -182,10 +263,11 @@ class SiteAuditorController extends Controller{
 	}
 	
 	// func to edit project
-	function editProject($projectId, $listInfo=''){		
+	function editProject($projectId, $listInfo=''){
 	    $userId = isLoggedIn();
 	    $projectId = intval($projectId);
-		if(!empty($projectId)){			
+		if(!empty($projectId)){
+			$this->__verifyProjectOwnership($projectId);
 			if(empty($listInfo)){
 				$listInfo = $this->__getProjectInfo($projectId);
 				$listInfo['oldName'] = $listInfo['keyword'];
@@ -210,8 +292,21 @@ class SiteAuditorController extends Controller{
 		$listInfo['id'] = intval($listInfo['id']);
 		$userId = isLoggedIn();
 		$listInfo['website_id'] = intval($listInfo['website_id']);
-		$listInfo['max_links'] = intval($listInfo['max_links']);		
+		$listInfo['max_links'] = intval($listInfo['max_links']);
 		$this->set('post', $listInfo);
+
+		// must own the EXISTING project, and (since website_id can be
+		// changed here) must also own the NEW website_id being assigned -
+		// without this a non-admin could both modify another user's
+		// project and/or reassign their own project onto someone else's
+		// website.
+		$this->__verifyProjectOwnership($listInfo['id']);
+		if (!$this->__verifyWebsiteOwnership($listInfo['website_id'])) {
+			$this->set('errMsg', ['website_id' => formatErrorMsg($_SESSION['text']['label']['Access denied'])]);
+			$this->editProject($listInfo['id'], $listInfo);
+			return;
+		}
+
 		$errMsg['website_id'] = formatErrorMsg($this->validate->checkBlank($listInfo['website_id']));
 		$errMsg['max_links'] = formatErrorMsg($this->validate->checkNumber($listInfo['max_links']));
 		if(!$this->validate->flagErr){
@@ -243,6 +338,15 @@ class SiteAuditorController extends Controller{
 		        $errorFlag = 1;
 		        $errMsg['max_links'] = $maxValidInfo['msg'];
 		    }
+
+		    // Validate sitemap URL if provided
+		    if (!empty($listInfo['sitemap_url'])) {
+		        $sitemapUrl = trim($listInfo['sitemap_url']);
+		        if (!filter_var($sitemapUrl, FILTER_VALIDATE_URL)) {
+		            $errorFlag = 1;
+		            $errMsg['sitemap_url'] = formatErrorMsg("Invalid sitemap URL format");
+		        }
+		    }
 		    
 		    // if error occured
 		    if (!$errorFlag) {
@@ -256,7 +360,9 @@ class SiteAuditorController extends Controller{
     						store_links_in_page=".intval($listInfo['store_links_in_page']).",
     						check_brocken='".intval($listInfo['check_brocken'])."',
     						cron='".intval($listInfo['cron'])."',
-    						exclude_links='".addslashes($listInfo['exclude_links'])."'
+    						exclude_links='".addslashes($listInfo['exclude_links'])."',
+    						exclude_extensions='".addslashes($listInfo['exclude_extensions'])."',
+    						sitemap_url='".addslashes(trim($listInfo['sitemap_url']))."'
     						where id=".$listInfo['id'];
     				$this->db->query($sql);
     				$this->showAuditorProjects();
@@ -271,7 +377,8 @@ class SiteAuditorController extends Controller{
 	}
 
 	// func to change status
-	function __changeStatus($projectId, $status){		
+	function __changeStatus($projectId, $status){
+		$this->__verifyProjectOwnership($projectId);
 		$projectId = intval($projectId);
 		$sql = "update auditorprojects set status=$status where id=$projectId";
 		$this->db->query($sql);
@@ -279,17 +386,23 @@ class SiteAuditorController extends Controller{
 
 	// func to delete project
 	function __deleteProject($projectId){
-	    // delete teh project
+		$this->__verifyProjectOwnership($projectId);
 		$projectId = intval($projectId);
-		$sql = "delete from auditorprojects where id=$projectId";
-		$this->db->query($sql);
-		
-		// delete all pages found in reports
+
+		// delete all pages found in reports FIRST, while the project row
+		// still exists - __deleteReportPage() now re-verifies ownership of
+		// its report's parent project (see __verifyReportOwnership()), so
+		// deleting the project row before this loop would make every one
+		// of these calls fail that check against an already-gone project.
 		$sql = "select id from auditorreports where project_id=$projectId";
-		$repList = $this->db->select($sql);		
+		$repList = $this->db->select($sql);
 		foreach ($repList as $repInfo) {
 		    $this->__deleteReportPage($repInfo['id']);
 		}
+
+	    // delete the project itself
+		$sql = "delete from auditorprojects where id=$projectId";
+		$this->db->query($sql);
 	}
 
 	// function to get number of links of a project
@@ -317,6 +430,7 @@ class SiteAuditorController extends Controller{
 
 	// function to show interface to run a project
 	function showRunProject($projectId) {
+	    $this->__verifyProjectOwnership($projectId);
 	    $projectId = intval($projectId);
 	    $projectInfo = $this->__getProjectInfo($projectId);
 	    $projectInfo['total_links'] = $this->getCountcrawledLinks($projectInfo['id']);
@@ -328,13 +442,28 @@ class SiteAuditorController extends Controller{
 	}
 	
 	// fucntion to load reports page after teh actions
-	function loadReportsPage($info='') {
-	    print "<script>scriptDoLoadPost('siteauditor.php', 'search_form', 'subcontent', '&sec=showreport&pageno={$info['pageno']}&order_col={$info['order_col']}&order_val={$info['order_val']}')</script>";
+	function loadReportsPage($info=[]) {
+	    // pageno/order_col/order_val previously went straight into this
+	    // inline <script> body with no escaping - reachable via GET
+	    // sec=checkscore (checkPageScore() passes $_GET straight through)
+	    // and the deletepage case, so e.g.
+	    // ?sec=checkscore&report_id=<id>&order_col=x');alert(document.domain)//
+	    // ran arbitrary JS for whoever loaded that response. pageno is
+	    // forced numeric; order_col/order_val are checked against the
+	    // same fixed whitelist showLinksReport() itself validates against
+	    // before using them in SQL, so an invalid value can't reach here
+	    // either.
+	    $validLinkOrderCols = array('page_url', 'page_authority', 'score', 'brocken', 'external_links', 'total_links', 'google_backlinks', 'indexed', 'crawled', 'page_title', 'page_description', 'page_keywords', 'comments');
+	    $pageno = intval($info['pageno'] ?? 0);
+	    $orderCol = (!empty($info['order_col']) && in_array($info['order_col'], $validLinkOrderCols)) ? $info['order_col'] : 'page_url';
+	    $orderVal = (strtoupper($info['order_val'] ?? '') === 'ASC') ? 'ASC' : 'DESC';
+	    print "<script>scriptDoLoadPost('siteauditor.php', 'search_form', 'subcontent', '&sec=showreport&pageno=$pageno&order_col=$orderCol&order_val=$orderVal')</script>";
 	}
 	
 	// function to check page score
-	function checkPageScore($info='') {
+	function checkPageScore($info=[]) {
 	    if (!empty($info['report_id'])) {
+	        $this->__verifyReportOwnership($info['report_id']);
 	        $reportId = intval($info['report_id']);
 	        $auditorComp = $this->createComponent('AuditorComponent');
 	        $reportInfo = $auditorComp->getReportInfo(" and id=$reportId");
@@ -347,8 +476,9 @@ class SiteAuditorController extends Controller{
 	// func to delete page of report
 	function __deleteReportPage($reportId){
 	    if (!empty($reportId)) {
+	        $this->__verifyReportOwnership($reportId);
 	        $reportId = intval($reportId);
-	        
+
 	        // delete report page
 	        $sql = "delete from auditorreports where id=$reportId";
 	        $this->db->query($sql);
@@ -363,18 +493,19 @@ class SiteAuditorController extends Controller{
 	function recheckReportPages($projectId) {
 	    $projectId = intval($projectId);
 	    if (!empty($projectId)) {
+	        $this->__verifyProjectOwnership($projectId);
 	        $sql = "update auditorreports set crawled=0 where project_id=$projectId";
 	        $this->db->query($sql);
 	        
 	        
-    	    // delete all pages found in reports
-    		$sql = "select id from auditorreports where project_id=$projectId";
-    		$repList = $this->db->select($sql);		
-    		foreach ($repList as $repInfo) {
-    		    // delete all links under this page
-	            $sql = "delete from auditorpagelinks where report_id=".$repInfo['id'];
-	            $this->db->query($sql);    
-    		}
+    	    // delete all links under every page found in this project's
+    	    // reports - bug fix: this was previously one DELETE round trip
+    	    // per report row (a project with hundreds/thousands of crawled
+    	    // pages issued that many separate queries on every recheck);
+    	    // a single DELETE...WHERE IN(subquery) does the same thing in
+    	    // one query
+    		$sql = "delete from auditorpagelinks where report_id in (select id from auditorreports where project_id=$projectId)";
+    		$this->db->query($sql);
 	        
 	        
 	    }    
@@ -382,6 +513,11 @@ class SiteAuditorController extends Controller{
 	
 	// function to run project, save blog links to database
 	function runProject($projectId) {
+	    // only enforce for the web route - executeCron() (siteauditorcron.php,
+	    // CLI-only, no HTTP session) calls this directly for every due
+	    // project across every user, which is the trusted, legitimate case
+	    // isLoggedIn()/isAdmin() have no meaning for.
+	    if (!$this->cron) $this->__verifyProjectOwnership($projectId);
 	    $projectId = intval($projectId);
         $projectInfo = $this->__getProjectInfo($projectId);
 	    $completed = 0;
@@ -393,8 +529,17 @@ class SiteAuditorController extends Controller{
 	        if (!$crawlUrl = $this->getProjectRandomUrl($projectId)) {
 	            $completed = 1;
 	        } else {
-	            if (!$this->cron) updateJsLocation('crawling_url', $crawledUrl);
-	        }	        
+	            // updateJsLocation() embeds this raw into a single-quoted JS
+	            // string with no escaping of its own (document.getElementById
+	            // ('crawling_url').innerHTML = '$text';) - $crawledUrl is a
+	            // crawled page URL, which can carry attacker-influenced
+	            // content (e.g. via importLinks()), so a bare single quote in
+	            // it would break out of the JS string. addslashes() here (the
+	            // same idiom already used elsewhere in this codebase for
+	            // embedding data into a single-quoted JS argument string)
+	            // closes that off.
+	            if (!$this->cron) updateJsLocation('crawling_url', addslashes($crawledUrl));
+	        }
 	    } else {
 	        $completed = 1;
 	    }
@@ -415,29 +560,45 @@ class SiteAuditorController extends Controller{
 	}
     
 	// function to get random url of a project
-	function getProjectRandomUrl($projectId) {	    
-	    $sql = "SELECT page_url FROM auditorreports where project_id=$projectId and crawled=0 ORDER BY RAND() LIMIT 1";
+	function getProjectRandomUrl($projectId) {
+	    // A URL that has already failed to fetch SA_MAX_FETCH_RETRIES
+	    // times in a row (a real 404, a DNS failure, anything that
+	    // never succeeds) is excluded here - without this, a single
+	    // permanently-dead page keeps coming back up via ORDER BY
+	    // RAND() forever, and the project never reaches "completed"
+	    // even once every other page has genuinely finished. It's
+	    // still never counted as crawled=1 (that column is untouched),
+	    // so crawl stats stay honest about what was actually fetched.
+	    $maxFetchRetries = defined('SA_MAX_FETCH_RETRIES') ? SA_MAX_FETCH_RETRIES : 3;
+	    $sql = "SELECT page_url FROM auditorreports where project_id=$projectId and crawled=0 and fetch_fail_count<$maxFetchRetries ORDER BY RAND() LIMIT 1";
 		$listInfo = $this->db->select($sql, true);
 		if (empty($listInfo['page_url'])) {
 		    $totalLinks = $this->getCountcrawledLinks($projectId);
 		    if ($totalLinks == 0) {
+		        // First run - discover and parse sitemaps
 		        $auditorComp = $this->createComponent('AuditorComponent');
 		        $projectInfo = $this->__getProjectInfo($projectId);
+
+		        // Add initial project URL
 		        $reportInfo['page_url'] = Spider::formatUrl($projectInfo['url']);
 		        $reportInfo['project_id'] = $projectId;
+		        $reportInfo['discovered_via'] = 'crawl';
 		        $auditorComp->saveReportInfo($reportInfo);
+
+		        // Discover and parse sitemaps
+		        $this->discoverAndParseSitemaps($projectInfo);
+
 		        return $reportInfo['page_url'];
 		    } else {
 		        return false;
-		    }    
+		    }
 		} else {
 		    return $listInfo['page_url'];
 		}
 	}
 	
 	// function to view the reports
-	function viewReports($info='') {
-	    
+	function viewReports($info=[]) {	    
 	    $userId = isLoggedIn();
 	    $where = isAdmin() ? "" : " and w.user_id=$userId";
 	    $pList = $this->getAllProjects($where);
@@ -450,30 +611,43 @@ class SiteAuditorController extends Controller{
 	    }	    
 	    
 	    if (empty($info['project_id'])) {
-            $projectId = $projectList[0]['id']; 
+            $projectId = $projectList[0]['id'];
 	    } else {
 	        $projectId = intval($info['project_id']);
+	        // a foreign project_id must be one of the caller's own
+	        // (already-scoped) projects - previously unchecked. The actual
+	        // report data fetch is separately protected in
+	        // showProjectReport(), but this tab-list view sets projectId
+	        // too, so it gets the same fallback for consistency.
+	        if (!in_array($projectId, array_column($projectList, 'id'))) {
+	            $projectId = $projectList[0]['id'] ?? 0;
+	        }
 	    }
+
 	    $this->set('projectId', $projectId);
 	    $this->set('projectList', $projectList);
-	    
-	    
-		$reportTypes = array(
-			'rp_links' => $this->spTextSA["Link Reports"],
+	    $reportTypes = array(
 			'rp_summary' => $this->spTextSA["Report Summary"],
+			'rp_links' => $this->spTextSA["Link Reports"],
 			'page_title' => $this->spTextSA["Duplicate Title"],
 			'page_description' => $this->spTextSA["Duplicate Description"],
 			'page_keywords' => $this->spTextSA["Duplicate Keywords"],
 		);
+
 		$this->set('reportTypes', $reportTypes);
-		$this->set('repType', empty($info['report_type']) ? "rp_links" : $info['report_type']);
-	    
+		$this->set('repType', empty($info['report_type']) ? "rp_summary" : $info['report_type']);	    
 	    $this->render('siteauditor/viewreports');
 	}
 	
 	//function to show the reports by using view reportss filters
-	function showProjectReport($data='') {	    
+	function showProjectReport($data='') {
 	    $data['project_id'] = intval($data['project_id']);
+	    // single ownership check point for every report_type this
+	    // dispatches to below (rp_summary/rp_links/page_title/
+	    // page_description/page_keywords) - a foreign project_id
+	    // previously exposed another user's full crawl report (page URLs,
+	    // meta tags, backlink/indexation/broken-link data).
+	    $this->__verifyProjectOwnership($data['project_id']);
 	    $projectInfo = $this->__getProjectInfo($data['project_id']);
 	    $projectInfo['last_updated'] = $this->getProjectLastUpdate($data['project_id']);
 	    $this->set('projectId', $data['project_id']);
@@ -541,48 +715,265 @@ class SiteAuditorController extends Controller{
 		if(isset($data['crawled']) && ($data['crawled'] != -1) ) {
 		    $data['crawled'] = intval($data['crawled']);
 			$filter .= "&crawled=".$data['crawled'];
-			$sql .= " and crawled=".$data['crawled']; 
+			$sql .= " and crawled=".$data['crawled'];
 		}
-		
+
+		// check for blocked_by_robots
+		if(isset($data['blocked_by_robots']) && ($data['blocked_by_robots'] != -1) ) {
+		    $data['blocked_by_robots'] = intval($data['blocked_by_robots']);
+			$filter .= "&blocked_by_robots=".$data['blocked_by_robots'];
+			$sql .= " and blocked_by_robots=".$data['blocked_by_robots'];
+		}
+
+		// check for ai_robot_allowed
+		if(isset($data['ai_robot_allowed']) && ($data['ai_robot_allowed'] != -1) ) {
+		    $data['ai_robot_allowed'] = intval($data['ai_robot_allowed']);
+			$filter .= "&ai_robot_allowed=".$data['ai_robot_allowed'];
+			$sql .= " and ai_robot_allowed=".$data['ai_robot_allowed'];
+		}
+
+		// check for mobile_friendly
+		if(isset($data['mobile_friendly']) && ($data['mobile_friendly'] != -1) ) {
+		    $data['mobile_friendly'] = intval($data['mobile_friendly']);
+			$filter .= "&mobile_friendly=".$data['mobile_friendly'];
+			$sql .= " and mobile_friendly=".$data['mobile_friendly'];
+		}
+
+		// check for https_secure
+		if(isset($data['https_secure']) && ($data['https_secure'] != -1) ) {
+		    $data['https_secure'] = intval($data['https_secure']);
+			$filter .= "&https_secure=".$data['https_secure'];
+			$sql .= " and https_secure=".$data['https_secure'];
+		}
+
+		// check for has_og_tags
+		if(isset($data['has_og_tags']) && ($data['has_og_tags'] != -1) ) {
+		    $data['has_og_tags'] = intval($data['has_og_tags']);
+			$filter .= "&has_og_tags=".$data['has_og_tags'];
+			$sql .= " and has_og_tags=".$data['has_og_tags'];
+		}
+
+		// check for has_twitter_cards
+		if(isset($data['has_twitter_cards']) && ($data['has_twitter_cards'] != -1) ) {
+		    $data['has_twitter_cards'] = intval($data['has_twitter_cards']);
+			$filter .= "&has_twitter_cards=".$data['has_twitter_cards'];
+			$sql .= " and has_twitter_cards=".$data['has_twitter_cards'];
+		}
+
+		// check for discovered_via
+		if(!empty($data['discovered_via'])) {
+			$discoveredVia = addslashes($data['discovered_via']);
+			$filter .= "&discovered_via=".$data['discovered_via'];
+			$sql .= " and discovered_via='$discoveredVia'";
+		}
+
+		// check for google_indexed
+		if(isset($data['google_indexed']) && ($data['google_indexed'] != -1) ) {
+		    $data['google_indexed'] = intval($data['google_indexed']);
+			$filter .= "&google_indexed=".$data['google_indexed'];
+			$sql .= " and google_indexed=".$data['google_indexed'];
+		}
+
+		// check for bing_indexed
+		if(isset($data['bing_indexed']) && ($data['bing_indexed'] != -1) ) {
+		    $data['bing_indexed'] = intval($data['bing_indexed']);
+			$filter .= "&bing_indexed=".$data['bing_indexed'];
+			$sql .= " and bing_indexed=".$data['bing_indexed'];
+		}
+
+		// check for brocken
+		if(isset($data['brocken']) && ($data['brocken'] != -1) ) {
+		    $data['brocken'] = intval($data['brocken']);
+			$filter .= "&brocken=".$data['brocken'];
+			$sql .= " and brocken=".$data['brocken'];
+		}
+
+		// check for no backlinks
+		if(isset($data['no_backlinks']) && ($data['no_backlinks'] != -1) ) {
+		    $data['no_backlinks'] = intval($data['no_backlinks']);
+			$filter .= "&no_backlinks=".$data['no_backlinks'];
+			$sql .= " and google_backlinks=0";
+		}
+
+		// check for has backlinks
+		if(isset($data['has_backlinks']) && ($data['has_backlinks'] != -1) ) {
+		    $data['has_backlinks'] = intval($data['has_backlinks']);
+			$filter .= "&has_backlinks=".$data['has_backlinks'];
+			$sql .= " and google_backlinks>0";
+		}
+
+		// check for backlinks filter (from dropdown)
+		if(!empty($data['backlinks_filter'])) {
+			$blFilter = addslashes($data['backlinks_filter']);
+			$filter .= "&backlinks_filter=$blFilter";
+			if($blFilter == 'has') {
+				$sql .= " and google_backlinks > 0";
+			} else if($blFilter == 'no') {
+				$sql .= " and google_backlinks = 0";
+			}
+		}
+
+		// check for indexed filter (from dropdown)
+		if(!empty($data['indexed_filter'])) {
+			$idxFilter = addslashes($data['indexed_filter']);
+			$filter .= "&indexed_filter=$idxFilter";
+			switch($idxFilter) {
+				case 'google_yes':
+					$sql .= " and google_indexed > 0";
+					break;
+				case 'google_no':
+					$sql .= " and google_indexed = 0";
+					break;
+				case 'bing_yes':
+					$sql .= " and bing_indexed > 0";
+					break;
+				case 'bing_no':
+					$sql .= " and bing_indexed = 0";
+					break;
+			}
+		}
+
+		// Page Authority filters
+		$paLevelFirst = defined('SA_PA_CHECK_LEVEL_FIRST') ? SA_PA_CHECK_LEVEL_FIRST : 40;
+		$paLevelSecond = defined('SA_PA_CHECK_LEVEL_SECOND') ? SA_PA_CHECK_LEVEL_SECOND : 75;
+
+		// check for PA type filter (from dropdown)
+		if(!empty($data['pa_type'])) {
+			$paType = addslashes($data['pa_type']);
+			$filter .= "&pa_type=$paType";
+			switch($paType) {
+				case 'excellent':
+					$sql .= " and page_authority >= $paLevelSecond";
+					break;
+				case 'good':
+					$sql .= " and page_authority >= $paLevelFirst and page_authority < $paLevelSecond";
+					break;
+				case 'low':
+					$sql .= " and page_authority > 0 and page_authority < $paLevelFirst";
+					break;
+				case 'none':
+					$sql .= " and page_authority = 0";
+					break;
+			}
+		}
+
+		// check for excellent PA (>=75) - for card links
+		if(isset($data['pa_excellent']) && ($data['pa_excellent'] != -1) ) {
+			$filter .= "&pa_excellent=1";
+			$sql .= " and page_authority >= $paLevelSecond";
+		}
+
+		// check for good PA (>=40 and <75) - for card links
+		if(isset($data['pa_good']) && ($data['pa_good'] != -1) ) {
+			$filter .= "&pa_good=1";
+			$sql .= " and page_authority >= $paLevelFirst and page_authority < $paLevelSecond";
+		}
+
+		// check for low PA (>0 and <40) - for card links
+		if(isset($data['pa_low']) && ($data['pa_low'] != -1) ) {
+			$filter .= "&pa_low=1";
+			$sql .= " and page_authority > 0 and page_authority < $paLevelFirst";
+		}
+
+		// check for no PA (=0) - for card links
+		if(isset($data['pa_none']) && ($data['pa_none'] != -1) ) {
+			$filter .= "&pa_none=1";
+			$sql .= " and page_authority = 0";
+		}
+
+		// check for mobile friendly
+		if(isset($data['mobile_friendly']) && ($data['mobile_friendly'] != -1) ) {
+		    $data['mobile_friendly'] = intval($data['mobile_friendly']);
+			$filter .= "&mobile_friendly=".$data['mobile_friendly'];
+			$sql .= " and mobile_friendly=".$data['mobile_friendly'];
+		}
+
+		// check for https secure
+		if(isset($data['https_secure']) && ($data['https_secure'] != -1) ) {
+		    $data['https_secure'] = intval($data['https_secure']);
+			$filter .= "&https_secure=".$data['https_secure'];
+			$sql .= " and https_secure=".$data['https_secure'];
+		}
+
+		// check for ai robot allowed
+		if(isset($data['ai_robot_allowed']) && ($data['ai_robot_allowed'] != -1) ) {
+		    $data['ai_robot_allowed'] = intval($data['ai_robot_allowed']);
+			$filter .= "&ai_robot_allowed=".$data['ai_robot_allowed'];
+			$sql .= " and ai_robot_allowed=".$data['ai_robot_allowed'];
+		}
+
+		// check for open graph tags
+		if(isset($data['has_og_tags']) && ($data['has_og_tags'] != -1) ) {
+		    $data['has_og_tags'] = intval($data['has_og_tags']);
+			$filter .= "&has_og_tags=".$data['has_og_tags'];
+			$sql .= " and has_og_tags=".$data['has_og_tags'];
+		}
+
+		// check for twitter cards
+		if(isset($data['has_twitter_cards']) && ($data['has_twitter_cards'] != -1) ) {
+		    $data['has_twitter_cards'] = intval($data['has_twitter_cards']);
+			$filter .= "&has_twitter_cards=".$data['has_twitter_cards'];
+			$sql .= " and has_twitter_cards=".$data['has_twitter_cards'];
+		}
+
+		// check for robots.txt allowed
+		if(isset($data['allowed_by_robots']) && ($data['allowed_by_robots'] != -1) ) {
+		    $data['allowed_by_robots'] = intval($data['allowed_by_robots']);
+			$filter .= "&allowed_by_robots=".$data['allowed_by_robots'];
+			$sql .= " and allowed_by_robots=".$data['allowed_by_robots'];
+		}
+
 		// to find order col
-        if (!empty($data['order_col'])) {
+		$validLinkOrderCols = array('page_url', 'page_authority', 'score', 'brocken', 'external_links', 'total_links', 'google_backlinks', 'indexed', 'crawled', 'page_title', 'page_description', 'page_keywords', 'comments');
+        if (!empty($data['order_col']) && in_array($data['order_col'], $validLinkOrderCols)) {
 		    $orderCol = $data['order_col'];
-		    $orderVal = $data['order_val'];
+		    $orderVal = (strtoupper($data['order_val']) === 'ASC') ? 'ASC' : 'DESC';
 		} else {
 		    $orderCol = 'score';
-		    $orderVal = 'DESC';    
+		    $orderVal = 'DESC';
 		}
 		$filter .= "&order_col=$orderCol&order_val=$orderVal";
 		$this->set('orderCol', $orderCol);
 		$this->set('orderVal', $orderVal);
-		
+
 		$pgScriptPath = "siteauditor.php?sec=showreport&report_type=rp_links&project_id=$projectId".$filter;
 		$this->set('filter', $filter);
-				
-		// pagination setup		
+
+		// pagination setup
 		$this->db->query($sql, true);
 		$this->paging->setDivClass('pagingdiv');
 		$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
-		$pagingDiv = $this->paging->printPages($pgScriptPath, '', 'scriptDoLoad', 'subcontent', 'layout=ajax');		
-		$this->set('pagingDiv', $pagingDiv);		
-		$sql .= " order by ".addslashes($orderCol)." ".addslashes($orderVal);		
-		
-		$sql .= in_array($data['doc_type'], array('pdf', 'print', 'export')) ? "" : " limit ".$this->paging->start .",". $this->paging->per_page; 
-		
+		$pagingDiv = $this->paging->printPages($pgScriptPath, '', 'scriptDoLoad', 'subcontent', 'layout=ajax');
+		$this->set('pagingDiv', $pagingDiv);
+		// $orderCol passes $validLinkOrderCols' whitelist above, but two
+		// of those values aren't real auditorreports columns: the
+		// "Indexed" header actually displays google_indexed (confirmed
+		// in the view - no bare "indexed" column exists), and "Comments"
+		// is a derived, per-row PHP value computed further down this
+		// same function (AuditorComponent's own per-check messages), not
+		// a column at all. Sorting by either threw a raw
+		// "Unknown column" SQL error and broke the whole report list.
+		$sqlOrderCol = $orderCol;
+		if ($orderCol === 'indexed') {
+			$sqlOrderCol = 'google_indexed';
+		} elseif ($orderCol === 'comments') {
+			$sqlOrderCol = 'score';
+		}
+		$sql .= " order by $sqlOrderCol $orderVal";
+
+		$sql .= in_array($data['doc_type'], array('pdf', 'print', 'export')) ? "" : " limit ".$this->paging->start .",". $this->paging->per_page;
+
 		$reportList = $this->db->select($sql);
 		$spTextHome = $this->getLanguageTexts('home', $_SESSION['lang_code']);
 		$headArr =  array(
         	'page_url' => $this->spTextSA["Page Link"],
-        	'pagerank' => $_SESSION['text']['common']['MOZ Rank'],
         	'page_authority' => $_SESSION['text']['common']['Page Authority'],
         	'score' => $_SESSION['text']['label']["Score"],
         	'brocken' => $_SESSION['text']['label']["Brocken"],
             'external_links' => $this->spTextSA["External Links"],
         	'total_links' => $this->spTextSA["Total Links"],
-            'google_backlinks' => "Google {$spTextHome['Backlinks']}",
-            'bing_backlinks' => "Bing {$spTextHome['Backlinks']}",
-            'google_indexed' => "Google {$spTextHome['Indexed']}",
-            'bing_indexed' => "Bing {$spTextHome['Indexed']}",
+            'google_backlinks' => $spTextHome['Backlinks'],
+            'indexed' => $spTextHome['Indexed'],
 		    'crawled' => $this->spTextSA['Crawled'],
 		    'brocken' => $_SESSION['text']['label']['Brocken'],
 		    'page_title' => $_SESSION['text']['label']['Title'],
@@ -591,7 +982,7 @@ class SiteAuditorController extends Controller{
 		    'comments' => $_SESSION['text']['label']['Comments'],
         );
 		
-		if ($exportVersion) {			
+		if ($exportVersion) {
 			$spText = $_SESSION['text'];
 			$exportContent = createExportContent(array('', $this->spTextSA["Link Reports"], ''));
 			$exportContent .= createExportContent(array());
@@ -600,19 +991,76 @@ class SiteAuditorController extends Controller{
 			$exportContent .= createExportContent(array($_SESSION['text']['label']['Updated'], $projectInfo['last_updated']));
 			$exportContent .= createExportContent(array($_SESSION['text']['label']['Total Results'], $this->db->noRows));
 			$exportContent .= createExportContent(array());
-			$exportContent .= createExportContent(array($spText['common']['No'],$headArr['page_url'],$headArr['pagerank'],$headArr['page_authority'],$headArr['google_backlinks'],$headArr['bing_backlinks'],$headArr['google_indexed'],$headArr['bing_indexed'],$headArr['external_links'],$headArr['total_links'],$headArr['score'],$headArr['brocken'],$headArr['crawled'],$headArr['page_title'],$headArr['page_description'],$headArr['page_keywords'],$headArr['comments']));
+			$exportContent .= createExportContent(array(
+				$spText['common']['No'],
+				$headArr['page_url'],
+				$headArr['page_authority'],
+				$headArr['google_backlinks'],
+				$headArr['indexed'],
+				'Robots Allowed',
+				'AI Bot Allowed',
+				'Mobile Friendly',
+				'HTTPS Secure',
+				'OG Tags',
+				'Twitter Cards',
+				$headArr['external_links'],
+				$headArr['total_links'],
+				$headArr['score'],
+				$headArr['brocken'],
+				$headArr['crawled'],
+				$headArr['page_title'],
+				$headArr['page_description'],
+				$headArr['page_keywords'],
+				$headArr['comments']
+			));
 			$auditorComp = $this->createComponent('AuditorComponent');
-			foreach($reportList as $i => $listInfo) {			    
-			    if ($listInfo['crawled']) {			        
+			foreach($reportList as $i => $listInfo) {
+			    if ($listInfo['crawled']) {
 			        $auditorComp->countReportPageScore($listInfo);
 			        $comments = strip_tags(implode("\n", $auditorComp->commentInfo));
 			    } else {
 			        $comments = "";
-			    }			    
+			    }
 			    $listInfo['crawled'] = $listInfo['crawled'] ? $spText['common']['Yes'] : $spText['common']['No'];
 			    $listInfo['brocken'] = $listInfo['brocken'] ? $spText['common']['Yes'] : $spText['common']['No'];
-				$exportContent .= createExportContent(array($i+1, $listInfo['page_url'],$listInfo['pagerank'],$listInfo['page_authority'],$listInfo['google_backlinks'],$listInfo['bing_backlinks'],$listInfo['google_indexed'],$listInfo['bing_indexed'],$listInfo['external_links'],$listInfo['total_links'],$listInfo['score'],$listInfo['brocken'],$listInfo['crawled'],$listInfo['page_title'],$listInfo['page_description'],$listInfo['page_keywords'],$comments));
-			}			
+			    $listInfo['robots_allowed'] = !$listInfo['blocked_by_robots'] ? $spText['common']['Yes'] : $spText['common']['No'];
+			    $listInfo['google_indexed'] = $listInfo['google_indexed'] ? $spText['common']['Yes'] : $spText['common']['No'];
+			    $listInfo['ai_robot_allowed'] = $listInfo['ai_robot_allowed'] ? $spText['common']['Yes'] : $spText['common']['No'];
+			    $listInfo['mobile_friendly'] = $listInfo['mobile_friendly'] ? $spText['common']['Yes'] : $spText['common']['No'];
+			    $listInfo['https_secure'] = $listInfo['https_secure'] ? $spText['common']['Yes'] : $spText['common']['No'];
+			    $listInfo['has_og_tags'] = $listInfo['has_og_tags'] ? $spText['common']['Yes'] : $spText['common']['No'];
+			    $listInfo['has_twitter_cards'] = $listInfo['has_twitter_cards'] ? $spText['common']['Yes'] : $spText['common']['No'];
+				// page_url/title/description/keywords and comments are
+				// crawled, third-party-controlled content - neutralized
+				// against CSV formula/DDE injection (a value starting
+				// with =/+/-/@ can execute as a formula when the
+				// exported CSV is opened in Excel/LibreOffice) before
+				// writing them into this row; every other value here is
+				// app-internal (counts, Yes/No labels), not attacker
+				// reachable.
+				$exportContent .= createExportContent(array(
+					$i+1,
+					neutralizeCsvFormula($listInfo['page_url']),
+					$listInfo['page_authority'],
+					$listInfo['google_backlinks'],
+					$listInfo['google_indexed'],
+					$listInfo['robots_allowed'],
+					$listInfo['ai_robot_allowed'],
+					$listInfo['mobile_friendly'],
+					$listInfo['https_secure'],
+					$listInfo['has_og_tags'],
+					$listInfo['has_twitter_cards'],
+					$listInfo['external_links'],
+					$listInfo['total_links'],
+					$listInfo['score'],
+					$listInfo['brocken'],
+					$listInfo['crawled'],
+					neutralizeCsvFormula($listInfo['page_title']),
+					neutralizeCsvFormula($listInfo['page_description']),
+					neutralizeCsvFormula($listInfo['page_keywords']),
+					neutralizeCsvFormula($comments)
+				));
+			}
 			exportToCsv('siteauditor_report', $exportContent);
 		} else {					
 			$this->set('totalResults', $this->db->noRows);					
@@ -632,9 +1080,10 @@ class SiteAuditorController extends Controller{
 	}
 	
 	# function show the details of a page
-	function viewPageDetails($info='') {
+	function viewPageDetails($info=[]) {
 	    $reportId = intval($info['report_id']);
 	    if (!empty($reportId)) {
+	        $this->__verifyReportOwnership($reportId);
 	        $auditorComp = $this->createComponent('AuditorComponent');
 	        $reportInfo = $auditorComp->getReportInfo(" and id=$reportId");
 	        $reportInfo['score'] = array_sum($auditorComp->countReportPageScore($reportInfo));
@@ -643,17 +1092,18 @@ class SiteAuditorController extends Controller{
 	        $this->set('reportInfo', $reportInfo);
 	        $this->set('linkList', $auditorComp->getAllLinksPage($reportId));
 	        $this->set('post', $info);
+	        include_once(SP_CTRLPATH . "/settings.ctrl.php");
+	        $this->set('localAiAvailable', SettingsController::isLocalAIEnabled());
+	        $this->set('spTextSiteAuditor', $this->getLanguageTexts('siteauditor', $_SESSION['lang_code']));
 	        $this->render('siteauditor/pagedetails');
 	    }    
 	}
 	
 	// function to show reports summary of a project
-    function showReportSummary($data, $exportVersion, $projectInfo) {        
-        
-	    $projectInfo['total_links'] = $this->getCountcrawledLinks($projectInfo['id']);
-	    $projectInfo['crawled_links'] = $this->getCountcrawledLinks($projectInfo['id'], true);
+    function showReportSummary($data, $exportVersion, $projectInfo) {
+
 	    $mainLink = SP_WEBPATH."/siteauditor.php?project_id=".$projectInfo['id']."&sec=showreport&report_type=rp_summary";
-	    
+
 	    // check for page url
         $statusCheck = false;
         $statusVal = 0;
@@ -662,42 +1112,72 @@ class SiteAuditorController extends Controller{
 		    $statusVal = intval($data['crawled']);
 		    $mainLink .= "&crawled=$statusVal";
 		}
-	    
-		// check for brocken
-		$conditions = " and brocken=1";
-	    $projectInfo['brocken'] = $this->getCountcrawledLinks($projectInfo['id'], $statusCheck, $statusVal, $conditions);
-		
-		// check for pagerank
-		for ($i=0; $i<=10; $i++) {
-		    $prMax = $i + 0.5;
-		    $prMin = $i - 0.5;
-		    $conditions = " and pagerank<$prMax and pagerank>=$prMin";
-		    $projectInfo['PR'.$i] = $this->getCountcrawledLinks($projectInfo['id'], $statusCheck, $statusVal, $conditions);    
-		}
-		
-		// check for backlinks
-	    foreach ($this->seArr as $se) {
-		    $conditions = " and $se"."_backlinks>0";
-		    $projectInfo[$se."_backlinks"] = $this->getCountcrawledLinks($projectInfo['id'], $statusCheck, $statusVal, $conditions);	        
+
+	    // Was ~23 separate getCountcrawledLinks() queries (one SELECT
+	    // COUNT(*) per metric) against the same table/project_id on
+	    // every page view/export - same anti-pattern already folded
+	    // into one query on the dashboard tab's equivalent summary,
+	    // applied here too. Also fixes a correctness bug these shared
+	    // the same root cause as: the 6 "modern SEO feature" checks
+	    // below used WHATEVER crawled filter the viewreports.ctp.php
+	    // filter bar was set to (including "-- Select --", i.e. no
+	    // filter at all) - a not-yet-crawled row defaults
+	    // ai_robot_allowed=1/mobile_friendly=1 (counted as passing) but
+	    // https_secure=0/has_og_tags=0/has_twitter_cards=0/
+	    // blocked_by_robots=0 (counted as failing, except
+	    // blocked_by_robots=0 which counts as ALLOWED) - so "-- Select
+	    // --" mixed uncrawled rows into these 6 counts for reasons that
+	    // have nothing to do with the site's actual SEO state. These 6
+	    // now always require crawled=1 regardless of the selected
+	    // filter, matching the same fix already made to the dashboard
+	    // tab's identical metrics.
+	    $filterCrawled = $statusCheck ? "crawled=$statusVal and " : "";
+	    $paLevelFirst = defined('SA_PA_CHECK_LEVEL_FIRST') ? SA_PA_CHECK_LEVEL_FIRST : 40;
+	    $paLevelSecond = defined('SA_PA_CHECK_LEVEL_SECOND') ? SA_PA_CHECK_LEVEL_SECOND : 75;
+	    $statsSelect = [
+	        "count(*) as total_links",
+	        "sum(case when crawled=1 then 1 else 0 end) as crawled_links",
+	        "sum(case when {$filterCrawled}brocken=1 then 1 else 0 end) as brocken",
+	        "sum(case when {$filterCrawled}google_backlinks=0 then 1 else 0 end) as no_backlinks",
+	        "sum(case when mobile_friendly=1 and crawled=1 then 1 else 0 end) as mobile_friendly",
+	        "sum(case when https_secure=1 and crawled=1 then 1 else 0 end) as https_secure",
+	        "sum(case when ai_robot_allowed=1 and crawled=1 then 1 else 0 end) as ai_robot_allowed",
+	        "sum(case when has_og_tags=1 and crawled=1 then 1 else 0 end) as has_og_tags",
+	        "sum(case when has_twitter_cards=1 and crawled=1 then 1 else 0 end) as has_twitter_cards",
+	        "sum(case when blocked_by_robots=0 and crawled=1 then 1 else 0 end) as allowed_by_robots",
+	        "sum(case when {$filterCrawled}page_authority >= $paLevelSecond then 1 else 0 end) as pa_excellent",
+	        "sum(case when {$filterCrawled}page_authority >= $paLevelFirst and page_authority < $paLevelSecond then 1 else 0 end) as pa_good",
+	        "sum(case when {$filterCrawled}page_authority > 0 and page_authority < $paLevelFirst then 1 else 0 end) as pa_low",
+	        "sum(case when {$filterCrawled}page_authority = 0 then 1 else 0 end) as pa_none",
+	    ];
+	    // Only google_* is ever written by the crawler or displayed by
+	    // any view - $this->seArr also lists 'bing' for other methods
+	    // (e.g. showLinksReport()) that do use it, so this loops over a
+	    // local list instead of touching that shared property.
+	    foreach (['google'] as $se) {
+	        $statsSelect[] = "sum(case when {$filterCrawled}{$se}_backlinks>0 then 1 else 0 end) as {$se}_backlinks";
+	        $statsSelect[] = "sum(case when {$filterCrawled}{$se}_indexed>0 then 1 else 0 end) as {$se}_indexed";
+	        $statsSelect[] = "sum(case when {$filterCrawled}{$se}_indexed=0 then 1 else 0 end) as {$se}_not_indexed";
 	    }
-	    
-        // check for indexed
-	    foreach ($this->seArr as $se) {
-		    $conditions = " and $se"."_indexed>0";
-		    $projectInfo[$se."_indexed"] = $this->getCountcrawledLinks($projectInfo['id'], $statusCheck, $statusVal, $conditions);	        
+	    $statsSql = "select " . implode(", ", $statsSelect) . " from auditorreports where project_id=" . intval($projectInfo['id']);
+	    $stats = $this->db->select($statsSql, true);
+	    foreach ($stats as $key => $val) {
+	        $projectInfo[$key] = intval($val);
 	    }
-	    
-	    // duplicate titles,descriptions and keywords
+
+	    // duplicate titles,descriptions and keywords - a GROUP BY ...
+	    // HAVING count>1 query per column, not a flat per-row condition,
+	    // so it doesn't fold into the combined query above.
 	    $metaArr = array('page_title' => $this->spTextSA["Duplicate Title"], 'page_description' => $this->spTextSA['Duplicate Description'], 'page_keywords' => $this->spTextSA['Duplicate Keywords']);
 	    foreach ($metaArr as $meta => $val) {
 	        $auditorComp = $this->createComponent('AuditorComponent');
 	        $projectInfo["duplicate_".$meta] = $auditorComp->getDuplicateMetaInfoCount($projectInfo['id'], $meta, $statusCheck, $statusVal);
 	    }
+
 	    $spTextHome = $this->getLanguageTexts('home', $_SESSION['lang_code']);
 	    $this->set('spTextHome', $spTextHome);	    
 	    
-	    if ($exportVersion) {			
-			$spText = $_SESSION['text'];
+	    if ($exportVersion) {
 			$exportContent = createExportContent(array('', $this->spTextSA['Project Summary'], ''));
 			$exportContent .= createExportContent(array());
 			$exportContent .= createExportContent(array());
@@ -707,23 +1187,33 @@ class SiteAuditorController extends Controller{
 			$exportContent .= createExportContent(array($this->spTextSA['Maximum Pages'], $projectInfo['max_links']));		
 			$exportContent .= createExportContent(array($this->spTextSA['Pages Found'], $projectInfo['total_links']));		
 			$exportContent .= createExportContent(array($this->spTextSA['Crawled Pages'], $projectInfo['crawled_links']));
+
+			$exportContent .= createExportContent(array('Has Backlinks', $projectInfo['google_backlinks']));
+
+			$exportContent .= createExportContent(array($spTextHome['Indexed'], $projectInfo['google_indexed']));
+			$exportContent .= createExportContent(array('Not Indexed', $projectInfo['google_not_indexed']));
 			
-			foreach ($this->seArr as $se) {
-		        $exportContent .= createExportContent(array(ucfirst($se). " {$spTextHome['Backlinks']}", $projectInfo[$se."_backlinks"])); 
-			}
-			
-			foreach ($this->seArr as $se) {
-		        $exportContent .= createExportContent(array(ucfirst($se). " {$spTextHome['Indexed']}", $projectInfo[$se."_indexed"])); 
-			}
-			
-			foreach ($metaArr as $meta => $val) {			    		
+			foreach ($metaArr as $meta => $val) {
 			    $exportContent .= createExportContent(array($val, $projectInfo["duplicate_".$meta]));
 	        }
-	        
-    	    for ($i=0; $i<=10; $i++) {
-    	        $exportContent .= createExportContent(array("PR$i", $projectInfo["PR$i"]));     
-    		}
+
     		$exportContent .= createExportContent(array($_SESSION['text']['label']['Brocken'], $projectInfo['brocken']));
+    		$exportContent .= createExportContent(array('No Backlinks', $projectInfo['no_backlinks']));
+
+			// Export modern SEO features
+			$exportContent .= createExportContent(array($this->spTextSA['Mobile Friendly'], $projectInfo['mobile_friendly']));
+			$exportContent .= createExportContent(array($this->spTextSA['HTTPS Secure'], $projectInfo['https_secure']));
+			$exportContent .= createExportContent(array($this->spTextSA['AI Robot Compatibility'], $projectInfo['ai_robot_allowed']));
+			$exportContent .= createExportContent(array($this->spTextSA['Open Graph Tags'], $projectInfo['has_og_tags']));
+			$exportContent .= createExportContent(array($this->spTextSA['Twitter Cards'], $projectInfo['has_twitter_cards']));
+			$exportContent .= createExportContent(array($this->spTextSA['Robots.txt Allowed'], $projectInfo['allowed_by_robots']));
+
+			// Export Page Authority metrics
+			$exportContent .= createExportContent(array('Excellent Page Authority (>=75)', $projectInfo['pa_excellent']));
+			$exportContent .= createExportContent(array('Good Page Authority (40-74)', $projectInfo['pa_good']));
+			$exportContent .= createExportContent(array('Low Page Authority (1-39)', $projectInfo['pa_low']));
+			$exportContent .= createExportContent(array('No Page Authority (0)', $projectInfo['pa_none']));
+
 			exportToCsv('siteauditor_report_summary', $exportContent);
 		} else {
     		$this->set('projectInfo', $projectInfo);
@@ -755,24 +1245,25 @@ class SiteAuditorController extends Controller{
 		}
 	    
 	    // to find order col
-        if (!empty($data['order_col'])) {
+		$validDupMetaOrderCols = array('page_title', 'page_description', 'page_keywords', 'count');
+        if (!empty($data['order_col']) && in_array($data['order_col'], $validDupMetaOrderCols)) {
 		    $orderCol = $data['order_col'];
-		    $orderVal = $data['order_val'];
+		    $orderVal = (strtoupper($data['order_val']) === 'ASC') ? 'ASC' : 'DESC';
 		} else {
 		    $orderCol = 'count';
 		    $orderVal = 'DESC';
 		}
-		$filter .= "&order_col=$orderCol&order_val=$orderVal";		
-		$pgScriptPath = SP_WEBPATH."/siteauditor.php?sec=showreport&report_type=$repType&project_id=".$projectId.$filter;		
+		$filter .= "&order_col=$orderCol&order_val=$orderVal";
+		$pgScriptPath = SP_WEBPATH."/siteauditor.php?sec=showreport&report_type=$repType&project_id=".$projectId.$filter;
 
-		// pagination setup		
-		$sql .= " group by $repType having count>1"; 
+		// pagination setup
+		$sql .= " group by $repType having count>1";
 		$this->db->query($sql, true);
 		$this->paging->setDivClass('pagingdiv');
 		$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
-		$pagingDiv = $this->paging->printPages($pgScriptPath, '', 'scriptDoLoad', 'subcontent', 'layout=ajax');		
-		$this->set('pagingDiv', $pagingDiv);		
-		$sql .= " order by ".addslashes($orderCol)." ".addslashes($orderVal);		
+		$pagingDiv = $this->paging->printPages($pgScriptPath, '', 'scriptDoLoad', 'subcontent', 'layout=ajax');
+		$this->set('pagingDiv', $pagingDiv);
+		$sql .= " order by $orderCol $orderVal";		
 		$sql .= in_array($data['doc_type'], array('pdf', 'print', 'export')) ? "" : " limit ".$this->paging->start .",". $this->paging->per_page;
 		
 	    $totalResults = $this->db->noRows;
@@ -803,8 +1294,12 @@ class SiteAuditorController extends Controller{
 			$exportContent .= createExportContent(array($spText['common']['No'], $headArr[$repType], $headArr["page_urls"], $headArr["count"]));
 			foreach($dupInfo[$repType] as $i => $listInfo) {
 			    $pageUrls = "";
-			    foreach($listInfo['page_urls'] as $urlInfo) $pageUrls .= $urlInfo['page_url'] . "\n";   
-				$exportContent .= createExportContent(array($i+1, $listInfo[$repType], $pageUrls, $listInfo['count']));
+			    foreach($listInfo['page_urls'] as $urlInfo) $pageUrls .= $urlInfo['page_url'] . "\n";
+			    // $listInfo[$repType] (the duplicated title/description/
+			    // keywords value) and $pageUrls are both crawled,
+			    // third-party-controlled content - same CSV formula
+			    // injection guard as showLinksReport()'s export above
+				$exportContent .= createExportContent(array($i+1, neutralizeCsvFormula($listInfo[$repType]), neutralizeCsvFormula($pageUrls), $listInfo['count']));
 			}
 			exportToCsv('siteauditor_duplicate_'.$repType, $exportContent);
 		} else {
@@ -831,6 +1326,31 @@ class SiteAuditorController extends Controller{
 		$this->render('siteauditor/croncommand');
 	}
     
+    /*
+     * Named separately from CronController::acquireSchedulerLock()'s
+     * 'seopanel_scheduler' lock (a different MySQL GET_LOCK() name,
+     * deliberately - the two cron scripts are meant to run independently
+     * on their own schedules, typically cron.php hourly-ish and
+     * siteauditorcron.php every 15 minutes per the recommended command
+     * shown in Settings; sharing one lock would block whichever one runs
+     * longer out of its own schedule entirely). executeCron() normally
+     * processes a single link per invocation and returns quickly, but a
+     * project's very first run (sitemap discovery - see
+     * discoverAndParseSitemaps()) can run long on a large site, risking
+     * overlap with the next scheduled invocation 15 minutes later - both
+     * could pick the same "uncrawled" row and crawl it twice. Not data
+     * corruption (last write wins), just wasted duplicate work, but cheap
+     * to prevent.
+     */
+    function acquireCronLock($timeoutSec = 0) {
+        $result = $this->db->select("SELECT GET_LOCK('seopanel_siteauditor_cron', $timeoutSec) as locked", true);
+        return !empty($result['locked']);
+    }
+
+    function releaseCronLock() {
+        $this->db->query("SELECT RELEASE_LOCK('seopanel_siteauditor_cron')");
+    }
+
     // function toexecute cron job
     function executeCron() {
         $sql = "select id from auditorprojects where cron=1 and status=1";
@@ -852,7 +1372,7 @@ class SiteAuditorController extends Controller{
     }
     
     // function to show import links to a project
-    function showImportProjectLinks($info='') {
+    function showImportProjectLinks($info=[]) {
         $userId = isLoggedIn();
         $where = isAdmin() ? "" : " and w.user_id=$userId";
 	    $projectList = $this->getAllProjects($where);
@@ -872,7 +1392,8 @@ class SiteAuditorController extends Controller{
     function importLinks($listInfo) {
         $userId = isLoggedIn();
         $listInfo['project_id'] = intval($listInfo['project_id']);
-		$this->set('post', $listInfo);		
+        $this->__verifyProjectOwnership($listInfo['project_id']);
+		$this->set('post', $listInfo);
 		$errMsg['links'] = formatErrorMsg($this->validate->checkBlank($listInfo['links']));
 				
 		if (!$this->validate->flagErr) {
@@ -959,6 +1480,99 @@ class SiteAuditorController extends Controller{
     
     	return $validation;
     }
-    
+
+    /**
+     * Discover and parse sitemaps for a project
+     *
+     * @param array $projectInfo Project information
+     * @return void
+     */
+    function discoverAndParseSitemaps($projectInfo) {
+        $sitemapParser = $this->createComponent('SitemapParser');
+        $sitemapUrls = array();
+
+        // PRIORITY 1: Check for manual sitemap URL in project settings
+        if (!empty($projectInfo['sitemap_url'])) {
+            $manualSitemap = trim($projectInfo['sitemap_url']);
+            $sitemapUrls[] = $manualSitemap;
+        }
+
+        // PRIORITY 2: Check robots.txt for sitemaps
+        $robotsSitemaps = $sitemapParser->discoverSitemapsFromRobots($projectInfo['url']);
+        $sitemapUrls = array_merge($sitemapUrls, $robotsSitemaps);
+
+        // PRIORITY 3: Try common sitemap locations if no sitemaps found yet
+        if (count($sitemapUrls) <= 1) { // Only manual sitemap or none at all
+            $commonSitemaps = $sitemapParser->discoverCommonSitemaps($projectInfo['url']);
+            $sitemapUrls = array_merge($sitemapUrls, $commonSitemaps);
+        }
+
+        // Parse all discovered sitemaps in priority order
+        $auditorComp = $this->createComponent('AuditorComponent');
+        $addedCount = 0;
+        // was a fresh COUNT(*) query on every single url in every
+        // sitemap, just to re-derive a number $addedCount already
+        // tracks incrementally - a 5,000-url sitemap issued up to 5,000
+        // extra queries just for this one max_links gate. Fetched once
+        // up front and incremented locally instead.
+        $totalLinksSoFar = $this->getCountcrawledLinks($projectInfo['id']);
+
+        foreach ($sitemapUrls as $sitemapUrl) {
+            // Save sitemap info
+            $sitemapParser->saveSitemapInfo($projectInfo['id'], $sitemapUrl, 'xml');
+
+            // Parse sitemap
+            $urls = $sitemapParser->parseSitemap($sitemapUrl, $projectInfo['id']);
+
+            // Add URLs to crawl queue
+            foreach ($urls as $url) {
+                $url = Spider::formatUrl($url);
+
+                // Check whether valid html serving link - was missing
+                // here (unlike runReport()'s own on-page-link path,
+                // which checks this first), so a sitemap listing PDFs/
+                // images got them queued and scored as if they were
+                // real HTML pages, skewing word-count/title/heading
+                // checks and the project average.
+                if ($auditorComp->isExcludedFileExtension($url, $projectInfo)) {
+                    continue;
+                }
+
+                // Check if excluded
+                if ($auditorComp->isExcludeLink($url, $projectInfo['exclude_links'])) {
+                    continue;
+                }
+
+                // Check if already exists
+                if ($auditorComp->getReportInfo(" and project_id={$projectInfo['id']} and page_url='".addslashes($url)."'")) {
+                    continue;
+                }
+
+                // Check max links limit
+                if ($totalLinksSoFar >= $projectInfo['max_links']) {
+                    break 2; // Break out of both loops
+                }
+
+                // Add to queue
+                $reportInfo = array(
+                    'page_url' => $url,
+                    'project_id' => $projectInfo['id'],
+                    'discovered_via' => 'sitemap'
+                );
+                $auditorComp->saveReportInfo($reportInfo);
+                $addedCount++;
+                $totalLinksSoFar++;
+            }
+
+            // Update sitemap URL count
+            $sitemapParser->updateSitemapUrlCount($projectInfo['id'], $sitemapUrl, count($urls));
+        }
+    }
+
+    // Show score information page
+    function showScoreInfo() {
+        $this->render('siteauditor/scoreinfo');
+    }
+
 }
 ?>

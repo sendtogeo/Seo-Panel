@@ -1,28 +1,53 @@
-<?php 
-echo showSectionHead($spTextTools['Quick Checker']);
-$actFun = SP_DEMO ? "alertDemoMsg()" : "scriptDoLoadPost('webmaster-tools.php', 'search_form', 'subcontent', '&sec=doQuickChecker')";
-?>
-<form id='search_form' onsubmit="<?php echo $actFun; ?>;return false;">
-<table width="60%" class="search">
+<?php include(SP_VIEWPATH.'/aivisibility/_styles.ctp.php'); ?>
+<div class="aiv-page-head">
+	<?php echo showSectionHead($spTextTools['Quick Checker']); ?>
+	<a href="javascript:void(0);" data-toggle="modal" data-target="#wmQuickHelpModal" class="aiv-help-btn"><i class="fas fa-question-circle"></i> What does this do?</a>
+</div>
+
+<!-- static help modal, not routed through #ajaxModalSP since there's no AJAX fetch involved -->
+<div class="modal fade aiv-help-modal" id="wmQuickHelpModal" tabindex="-1" role="dialog" aria-labelledby="wmQuickHelpModalLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="aiv-help-modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<div class="aiv-help-modal-icon"><i class="fas fa-bolt"></i></div>
+				<h5 class="modal-title" id="wmQuickHelpModalLabel">About Webmaster Tools Quick Checker</h5>
+			</div>
+			<div class="modal-body aiv-help-modal-body">
+				<p>Pick a website and a date range to query Google Search Console live and see overall clicks/impressions/CTR/average position, plus a per-keyword breakdown, right now.</p>
+				<div class="aiv-note">
+					<i class="fas fa-info-circle"></i>
+					<span>Nothing is saved - this is a live check, unlike the other reports in this section which show previously-saved data. Needs Google Search Console connected under Settings &gt; Connections.</span>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" data-dismiss="modal">Got it</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<form id='search_form'>
+<table class="search" style="width: 60%">
 	<tr>
-		<th><?php echo $spText['common']['Website']?>: </th>
+		<th width="30%"><?php echo $spText['common']['Website']?>: </th>
 		<td>
-			<select name="website_id" style='width:190px;'>
+			<select name="website_id" class="custom-select">
 				<?php foreach($websiteList as $websiteInfo){?>
 					<?php if($websiteInfo['id'] == $websiteId){?>
-						<option value="<?php echo $websiteInfo['id']?>" selected><?php echo $websiteInfo['name']?></option>
+						<option value="<?php echo $websiteInfo['id']?>" selected><?php echo htmlspecialchars($websiteInfo['name'])?></option>
 					<?php }else{?>
-						<option value="<?php echo $websiteInfo['id']?>"><?php echo $websiteInfo['name']?></option>
+						<option value="<?php echo $websiteInfo['id']?>"><?php echo htmlspecialchars($websiteInfo['name'])?></option>
 					<?php }?>
 				<?php }?>
 			</select>
 		</td>
 	</tr>
 	<tr>
-		<th width="100px;"><?php echo $spText['common']['Period']?>:</th>
-    	<td width="236px">
-    		<input type="text" value="<?php echo $fromTime?>" name="from_time"/> 
-    		<input type="text" value="<?php echo $toTime?>" name="to_time"/>
+		<th><?php echo $spText['common']['Period']?>:</th>
+    	<td>
+    		<input type="text" value="<?php echo $fromTime?>" name="from_time" class="form-control" style="display: inline-block; width: 45%;"/>
+    		<input type="text" value="<?php echo $toTime?>" name="to_time" class="form-control" style="display: inline-block; width: 45%;"/>
 			<script type="text/javascript">
 			$(function() {
 				$( "input[name='from_time'], input[name='to_time']").datepicker({dateFormat: "yy-mm-dd"});
@@ -31,19 +56,22 @@ $actFun = SP_DEMO ? "alertDemoMsg()" : "scriptDoLoadPost('webmaster-tools.php', 
     	</td>
     </tr>
 	<tr>
-		<th><?php echo $spText['common']['Keyword']?>: </th>		
+		<th><?php echo $spText['common']['Keyword']?>: </th>
 		<td>
-			<input type="text" style="width: 200px;" value="" name="name"/>
+			<input type="text" value="" name="name" class="form-control"/>
 		</td>
 	</tr>
 	<tr>
 		<th>&nbsp;</th>
-		<td style="padding-left: 9px;">
-			<a href="javascript:void(0);" onclick="<?php echo $actFun?>" class="actionbut"><?php echo $spText['button']['Proceed']?></a>
+		<td>
+			<?php $actFun = SP_DEMO ? "alertDemoMsg()" : "scriptDoLoadPost('webmaster-tools.php', 'search_form', 'subcontent', '&sec=doQuickChecker')"; ?>
+			<a href="javascript:void(0);" onclick="<?php echo $actFun?>" class="btn btn-secondary"><?php echo $spText['button']['Proceed']?></a>
 		</td>
 	</tr>
 </table>
 </form>
 <div id='subcontent'>
-	<p class='note'><?php echo $spTextTools['clickgeneratereports']?></p>
+	<div class="alert alert-info">
+		<i class="fas fa-info-circle me-2"></i><?php echo $spTextTools['clickgeneratereports']?>
+	</div>
 </div>

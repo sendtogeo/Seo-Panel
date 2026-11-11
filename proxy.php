@@ -1,7 +1,7 @@
 <?php
 
 /***************************************************************************
- *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	   *
+ *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.org)  	   *
  *   sendtogeo@gmail.com   												   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -92,32 +92,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		case "perfomance":
 			$controller->showProxyPerfomance($_POST);
 			break;
-			
+
+		// state-changing single-item actions - moved off GET, see
+		// js/common.js's doAction() / websites.php's own comment on this
+		case "Activate":
+			$controller->__changeStatus($_POST['proxyId'], 1);
+			$controller->listProxy($_POST);
+			break;
+
+		case "Inactivate":
+			$controller->__changeStatus($_POST['proxyId'], 0);
+			$controller->listProxy($_POST);
+			break;
+
+		case "delete":
+			$controller->__deleteProxy($_POST['proxyId']);
+			$controller->listProxy($_POST);
+			break;
+
 		default:
 			$controller->listProxy($_POST);
 			break;
-		    
+
 	}
 
 } else {
-	
+
 	switch ($_GET['sec']) {
-		
-		case "Activate":
-			$controller->__changeStatus($_GET['proxyId'], 1);			
-			$controller->listProxy($_GET);
-			break;
-		
-		case "Inactivate":
-			$controller->__changeStatus($_GET['proxyId'], 0);
-			$controller->listProxy($_GET);
-			break;
-		
-		case "delete":
-			$controller->__deleteProxy($_GET['proxyId']);
-			$controller->listProxy($_GET);
-			break;
-		
+
 		case "edit":
 			$controller->editProxy($_GET['proxyId']);
 			break;		

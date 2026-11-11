@@ -1,8 +1,8 @@
-#Seo Panel - World's first SEO Control Panel for Multiple Websites
+# Seo Panel - World's first SEO Control Panel for Multiple Websites
 
 An Award Winning open source seo control panel for managing search engine optimization of your websites
 
-##Requirements
+## Requirements
 
    1. PHP, MYSQL, Web Server(e.g APACHE)
 
@@ -11,7 +11,7 @@ An Award Winning open source seo control panel for managing search engine optimi
         http://php.net/manual/en/curl.setup.php
 
 
-##Seo Panel Installation: Simple 5 minute installation
+## Seo Panel Installation: Simple 5 minute installation
 
 Simply use Softaculous / Installatron / Webuzo / AMPPS to install SEO Panel or Follow the below steps
 
@@ -31,38 +31,53 @@ Simply use Softaculous / Installatron / Webuzo / AMPPS to install SEO Panel or F
 
 7. Change the permissions on config/sp-config.php to be writable only by yourself (644 or -rw-r--r-- within your FTP Client)
 
-8. Please use following login details to access Admin Interface.
+8. Please use the following login details to access Admin Interface.
 
-####Admin Section:
+#### Admin Section:
 
 Username: spadmin
 
 Password: spadmin
 
 9. Go to Admin Panel => System Settings => MOZ Settings
-   	
+    
    Add moz api key using the link shown in the page
 
-####Note:
+#### Note:
 
-a. Please change password of administrator by visiting Profile link on right top of the seo panel to prevent from security threats.
+a. Please change the password of administrator by visiting Profile link on right top of the seo panel to prevent from security threats.
 
 b. Remove install directory of seo panel
 
 
-##Online Seo Panel Resources:
+## Docker Installation
+
+Follow below steps to install seo panel as docker container.
+
+- Copy sample_env file to .env file and edit required details in it
+
+	`cp sample_env .env`
+
+- Execute following command to start docker containers 
+
+	`docker compose up`
+
+- Take following link in browser and follow the installation instructions
+
+	http://localhost/
 
 
-a) Seo Panel Help Guide: http://docs.seopanel.in/
-
-b) Seo Panel Forum: http://forum.seopanel.in/
-
-b) Seo Panel Support: http://www.seopanel.in/support/
-
-e) Seo Panel Contact: http://www.seopanel.in/contact/
+## Online Seo Panel Resources:
 
 
-##The major features of Seo Panel:
+a) Seo Panel Help Guide: https://www.seopanel.org/docs/
+
+b) Seo Panel Support: https://www.seopanel.org/support/
+
+e) Seo Panel Contact: https://www.seopanel.org/contact/
+
+
+## The major features of Seo Panel:
 
 a) Automatic Directory Submission Tool
 
@@ -70,7 +85,7 @@ b) Keyword Position Checker
 
 c) Site Auditor
 
-d) Google and Alexa Rank Checker
+d) Moz Rank Checker
 
 e) Backlinks Checker
 

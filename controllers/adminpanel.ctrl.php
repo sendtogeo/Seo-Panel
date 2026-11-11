@@ -1,7 +1,7 @@
 <?php
 
 /***************************************************************************
- *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	   *
+ *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.org)  	   *
  *   sendtogeo@gmail.com   												   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -24,8 +24,15 @@
 class AdminPanelController extends Controller{	
 	
 	# index function
-	function index($info = ""){
-		
+	function index($info=[]){
+
+		if (isAdmin()) {
+		    include_once(SP_CTRLPATH . "/alerts.ctrl.php");
+		    include_once(SP_CTRLPATH . "/information.ctrl.php");
+		    $alertCtrler = new AlertController();
+		    $alertCtrler->updateSpApiAlerts();
+		}
+
 		if (isAdmin() || !SP_CUSTOM_DEV) {
 			$menuList[] = array(
 						'id' => 1,
@@ -140,7 +147,16 @@ class AdminPanelController extends Controller{
 		
 		$arguments = "";
 		foreach ($info as $key => $value) {
-		    if (!in_array($key, array('menu_selected', 'start_script'))) {
+		    // 'sec' here is admin-panel.php's OWN routing key (which
+		    // shortcut case to take, e.g. "newweb"/"proxysettings") -
+		    // it must never be echoed into the inner script's own
+		    // arguments. Passing it through duplicates the 'sec' the
+		    // inner $startScript URL may already carry in its own
+		    // query string, and since PHP's $_GET keeps only the LAST
+		    // occurrence of a repeated key, this silently overrides
+		    // the inner script's real routing (e.g. the Proxy tour
+		    // link ended up on System Settings instead of Proxy).
+		    if (!in_array($key, array('menu_selected', 'start_script', 'sec'))) {
 		    	$key = htmlentities($key, ENT_QUOTES);
 		    	$value = htmlentities(urldecode($value), ENT_QUOTES);		    	
 		        $arguments .= "&$key=$value";

@@ -1,5 +1,28 @@
+<?php include(SP_VIEWPATH.'/aivisibility/_styles.ctp.php'); ?>
+<div class="aiv-page-head">
+	<?php echo showSectionHead($spTextPanel['User Type Settings']); ?>
+	<a href="javascript:void(0);" data-toggle="modal" data-target="#userTypePluginSettingsHelpModal" class="aiv-help-btn"><i class="fas fa-question-circle"></i> What does this do?</a>
+</div>
+
+<!-- static help modal, not routed through #ajaxModalSP since there's no AJAX fetch involved -->
+<div class="modal fade aiv-help-modal" id="userTypePluginSettingsHelpModal" tabindex="-1" role="dialog" aria-labelledby="userTypePluginSettingsHelpModalLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="aiv-help-modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<div class="aiv-help-modal-icon"><i class="fas fa-sliders-h"></i></div>
+				<h5 class="modal-title" id="userTypePluginSettingsHelpModalLabel">About User Type Settings</h5>
+			</div>
+			<div class="modal-body aiv-help-modal-body">
+				<p>This is per-user-type configuration for one specific plugin. The fields shown depend on which plugin you arrived from (e.g. Subscription), and they apply only to users of the role selected above.</p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" data-dismiss="modal">Got it</button>
+			</div>
+		</div>
+	</div>
+</div>
 <?php
-echo showSectionHead($spTextPanel['User Type Settings']);
 $actionLink = "user-types-manager.php?plugin_id=$pluginId&class_name=$className&sec=edit_plugin_user_type_settings";
 $changeUserTypeAction = "doLoad('user_type_id', '$actionLink', 'content')";
 $actionLink .= "&user_type_id=$userTypeId";
@@ -24,10 +47,10 @@ if (!empty($errorMsg)) {
 		<td class="right">&nbsp;</td>
 	</tr>
 		
-	<tr class="white_row">
+	<tr>
 		<td class="td_left_col"><?php echo $spText['login']['User Type']?>:</td>
 		<td class="td_right_col">
-			<select name="user_type_id" id="user_type_id" onchange="<?php echo $changeUserTypeAction?>">
+			<select name="user_type_id" id="user_type_id" class="custom-select" onchange="<?php echo $changeUserTypeAction?>">
 				<?php foreach ($userTypeList as $key => $val) {?>
 					<?php if ($userTypeId == $val['id']) {?>
 						<option value="<?php echo $val['id']?>" selected><?php echo $val['user_type']?></option>
@@ -39,16 +62,15 @@ if (!empty($errorMsg)) {
 		</td>
 	</tr>
 	
-	<?php 
+	<?php
 	foreach ($specColList as $specCol => $specColInfo) {
-	
-		$styleClass = ($i++ % 2) ? "blue_row" : "white_row";
+
 		switch($specColInfo['field_type']){
-				
+
 			case "small":
-				$width = 40;
+				$width = 100;
 				break;
-		
+
 			case "bool":
 				if(empty($specColInfo['spec_value'])){
 					$selectYes = "";
@@ -58,28 +80,28 @@ if (!empty($errorMsg)) {
 					$selectNo = "";
 				}
 				break;
-		
+
 			case "medium":
-				$width = 200;
+				$width = 300;
 				break;
-		
+
 			case "large":
 			case "text":
-				$width = 500;
+				$width = 600;
 				break;
 		}
 		?>
-		<tr class="<?php echo $styleClass?>">
+		<tr>
 			<td class="td_left_col"><?php echo $specText[$specCol]; ?>:</td>
 			<td class="td_right_col">
 				<?php if ($specColInfo['field_type'] == 'bool') {?>
-					<select  name="<?php echo $specCol?>">
+					<select name="<?php echo $specCol?>" class="custom-select" style="width:150px;">
 						<option value="1" <?php echo $selectYes?>><?php echo $spText['common']['Yes']?></option>
 						<option value="0" <?php echo $selectNo?>><?php echo $spText['common']['No']?></option>
 					</select>
 				<?php } else if ($specColInfo['field_type'] == 'select') {?>
-					<select name="<?php echo $specCol?>">
-						<?php 
+					<select name="<?php echo $specCol?>" class="custom-select" style="width:250px;">
+						<?php
 						foreach ($specColInfo['options'] as $optVal => $optLabel) {
 							$selected = ($optVal == $specColInfo['spec_value']) ? " selected" : "";
 							?>
@@ -88,34 +110,31 @@ if (!empty($errorMsg)) {
 						}?>
 					</select>
 				<?php } else if ($specColInfo['field_type'] == 'text') {?>
-					<textarea name="<?php echo $specCol?>" style='width:<?php echo $width?>px'><?php echo stripslashes($specColInfo['spec_value'])?></textarea>
+					<textarea name="<?php echo $specCol?>" class="form-control" style='width:<?php echo $width?>px'><?php echo stripslashes($specColInfo['spec_value'])?></textarea>
 				<?php } else {?>
-					<input type="text" name="<?php echo $specCol?>" value="<?php echo stripslashes($specColInfo['spec_value'])?>" style='width:<?php echo $width?>px'>
+					<input type="text" name="<?php echo $specCol?>" value="<?php echo stripslashes($specColInfo['spec_value'])?>" class="form-control" style='width:<?php echo $width?>px'>
 				<?php }?>
 				<?php echo $errMsg[$specCol]?>
+				<?php if (!empty($specColInfo['help_text'])) { ?>
+					<small class="form-text text-muted" style="display: block; margin-top: 10px;">
+						<i class="fa fa-info-circle"></i> <?php echo $specColInfo['help_text']?>
+					</small>
+				<?php } ?>
 			</td>
-		</tr>	
+		</tr>
 	<?php }?>
 	
-	<tr class="white_row">
-		<td class="tab_left_bot_noborder"></td>
-		<td class="tab_right_bot"></td>
-	</tr>
-	<tr class="listBot">
-		<td class="left" colspan="1"></td>
-		<td class="right"></td>
-	</tr>
-	
+
 </table>
 
-<table width="100%" cellspacing="0" cellpadding="0" border="0" class="actionSec">
+<table class="actionSec float-right mt-2">
 	<tr>
     	<td style="padding-top: 6px;text-align:right;">
-    		<a onclick="scriptDoLoad('<?php echo $actionLink?>', 'content')" href="javascript:void(0);" class="actionbut">
+    		<a onclick="scriptDoLoad('<?php echo $actionLink?>', 'content')" href="javascript:void(0);" class="btn btn-warning">
          		<?php echo $spText['button']['Cancel']?>
          	</a> &nbsp;
-         	<?php $actFun = SP_DEMO ? "alertDemoMsg()" : "confirmSubmit('user-types-manager.php', 'editPluginUserType', 'content')"; ?>         		
-         	<a onclick="<?php echo $actFun?>" href="javascript:void(0);" class="actionbut">
+         	<?php $actFun = SP_DEMO ? "alertDemoMsg()" : "confirmSubmit('user-types-manager.php', 'editPluginUserType', 'content')"; ?>
+         	<a onclick="<?php echo $actFun?>" href="javascript:void(0);" class="btn btn-primary">
          		<?php echo $spText['button']['Proceed']?>
          	</a>
     	</td>

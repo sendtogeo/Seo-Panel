@@ -9,7 +9,7 @@ if(!$summaryPage && (!empty($printVersion) || !empty($pdfVersion))) {
     		<tr>
     			<th><?php echo $spText['common']['Website']?>:</th>
         		<td>
-        			<?php echo $websiteInfo['url']; ?>
+        			<?php echo htmlspecialchars($websiteInfo['url'] ?? ''); ?>
     			</td>
     		</tr>
 		<?php }?>
@@ -22,45 +22,72 @@ if(!$summaryPage && (!empty($printVersion) || !empty($pdfVersion))) {
 	</table>
     <?php
 } else {
-	
-	echo showSectionHead($spTextTools['Website Search Summary']);
-    
+	include(SP_VIEWPATH.'/aivisibility/_styles.ctp.php');
+	?>
+	<div class="aiv-page-head">
+		<?php echo showSectionHead($spTextTools['Website Search Summary']); ?>
+		<a href="javascript:void(0);" data-toggle="modal" data-target="#wmWebSummaryHelpModal" class="aiv-help-btn"><i class="fas fa-question-circle"></i> What does this do?</a>
+	</div>
+
+	<!-- static help modal, not routed through #ajaxModalSP since there's no AJAX fetch involved -->
+	<div class="modal fade aiv-help-modal" id="wmWebSummaryHelpModal" tabindex="-1" role="dialog" aria-labelledby="wmWebSummaryHelpModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="aiv-help-modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<div class="aiv-help-modal-icon"><i class="fas fa-list-alt"></i></div>
+					<h5 class="modal-title" id="wmWebSummaryHelpModalLabel">About Website Search Summary</h5>
+				</div>
+				<div class="modal-body aiv-help-modal-body">
+					<p>Compares a website's overall Search Console metrics - clicks, impressions, CTR, average position - between two saved dates, with the change highlighted.</p>
+					<div class="aiv-note">
+						<i class="fas fa-info-circle"></i>
+						<span>Reads already-saved Search Console data - it needs Google Search Console connected under Settings &gt; Connections, and data saved by the daily sync, before this shows anything.</span>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-dismiss="modal">Got it</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<?php
     // if not summary page show the filters
     if(!$summaryPage) {
     	$scriptName = "webmaster-tools.php";    	
     	?>
 		<form id='search_form'>
 		<?php $submitLink = "scriptDoLoadPost('webmaster-tools.php', 'search_form', 'content', '&sec=viewWebsiteSearchSummary')";?>
-		<table width="100%" class="search">
+		<table class="search">
 			<tr>
 				<th><?php echo $spText['common']['Name']?>: </th>
 				<td>
-					<input type="text" name="search_name" value="<?php echo htmlentities($searchInfo['search_name'], ENT_QUOTES)?>" onblur="<?php echo $submitLink?>">
+					<input type="text" name="search_name" value="<?php echo htmlentities($searchInfo['search_name'], ENT_QUOTES)?>" onblur="<?php echo $submitLink?>" class="form-control">
 				</td>
-				<th width="100px"><?php echo $spText['common']['Website']?>: </th>
-				<td width="160px">
-					<select name="website_id" id="website_id" style='width:100px;' onchange="<?php echo $submitLink?>">
+				<th class="pl-4"><?php echo $spText['common']['Website']?>: </th>
+				<td>
+					<select name="website_id" id="website_id" onchange="<?php echo $submitLink?>" class="custom-select">
 						<option value="">-- <?php echo $spText['common']['Select']?> --</option>
 						<?php foreach($websiteList as $websiteInfo){?>
 							<?php if($websiteInfo['id'] == $websiteId){?>
-								<option value="<?php echo $websiteInfo['id']?>" selected><?php echo $websiteInfo['name']?></option>
+								<option value="<?php echo $websiteInfo['id']?>" selected><?php echo htmlspecialchars($websiteInfo['name'])?></option>
 							<?php }else{?>
-								<option value="<?php echo $websiteInfo['id']?>"><?php echo $websiteInfo['name']?></option>
+								<option value="<?php echo $websiteInfo['id']?>"><?php echo htmlspecialchars($websiteInfo['name'])?></option>
 							<?php }?>
 						<?php }?>
 					</select>
 				</td>
-				<th width="100px;"><?php echo $spText['common']['Period']?>:</th>
-	    		<td width="236px">
-	    			<input type="text" value="<?php echo $fromTime?>" name="from_time"/> 
-	    			<input type="text" value="<?php echo $toTime?>" name="to_time"/>
+				<th class="pl-4"><?php echo $spText['common']['Period']?>:</th>
+	    		<td>
+	    			<input type="text" value="<?php echo $fromTime?>" name="from_time" class="form-control" style="display: inline-block; width: 45%;"/>
+	    			<input type="text" value="<?php echo $toTime?>" name="to_time" class="form-control" style="display: inline-block; width: 45%;"/>
         			<script type="text/javascript">
         			$(function() {
         				$( "input[name='from_time'], input[name='to_time']").datepicker({dateFormat: "yy-mm-dd"});
         			});
         		  	</script>
 	    		</td>
-				<td><a href="javascript:void(0);" onclick="<?php echo $submitLink?>" class="actionbut"><?php echo $spText['button']['Search']?></a></td>
+				<td style="text-align: center;"><a href="javascript:void(0);" onclick="<?php echo $submitLink?>" class="btn btn-secondary"><?php echo $spText['button']['Search']?></a></td>
 			</tr>
 		</table>
 		</form>
@@ -75,15 +102,11 @@ if(!$summaryPage && (!empty($printVersion) || !empty($pdfVersion))) {
 	
 	// if not summary page show the filters
 	if(!$summaryPage) {
-		$directLink = $mainLink . "&order_col=$orderCol&order_val=$orderVal&pageno=$pageNo";
-		?>
-		<br><br>
-		<div style="float:left;margin-right: 10px;">
-			<a href="<?php echo $directLink?>&doc_type=pdf" target="_blank"><img src="<?php echo SP_IMGPATH?>/icon_pdf.png"></a> &nbsp;
-			<a href="<?php echo $directLink?>&doc_type=export"><img src="<?php echo SP_IMGPATH?>/icoExport.gif"></a> &nbsp;
-			<a target="_blank" href="<?php echo $directLink?>&doc_type=print"><img src="<?php echo SP_IMGPATH?>/print_button.gif?1"></a>
-		</div>
-		<?php
+	    $directLink = $mainLink . "&order_col=$orderCol&order_val=$orderVal&pageno=$pageNo";
+	    $pdfLink = "$directLink&doc_type=pdf";
+	    $csvLink = "$directLink&doc_type=export";
+	    $printLink = "$directLink&doc_type=print";
+	    showExportDiv($pdfLink, $csvLink, $printLink);
 	}
 	
 	if (empty($pdfVersion)) echo $pagingDiv;
@@ -139,7 +162,7 @@ $colCount = ($baseColCount * 3) + 1;
             $scriptLink = "website_id={$listInfo['id']}&rep=1&from_time=$rangeFromTime&to_time=$toTime";          
 			?>
 			<tr>
-				<td colspan="3"><a href="javascript:void(0)"><?php echo $listInfo['url']; ?></a></td>
+				<td colspan="3"><a href="javascript:void(0)"><?php echo htmlspecialchars($listInfo['name'])?></a></td>
 				<?php
 				foreach ($colList as $colName => $colVal){
 					if ($colName == 'name') continue;
@@ -161,8 +184,8 @@ $colCount = ($baseColCount * 3) + 1;
 						$rankDiffTxt = "";
 					}
 
-					$prevRankLink = scriptAJAXLinkHrefDialog('webmaster-tools.php', 'content', $scriptLink . "&sec=viewWebsiteSearchReports", $prevRank);
-					$currRankLink = scriptAJAXLinkHrefDialog('webmaster-tools.php', 'content', $scriptLink . "&sec=viewWebsiteSearchReports", $currRank);
+					$prevRankLink = scriptAJAXLinkHrefDialog('webmaster-tools.php', 'content', $scriptLink . "&sec=viewWebsiteSearchReports", round($prevRank, 2));
+					$currRankLink = scriptAJAXLinkHrefDialog('webmaster-tools.php', 'content', $scriptLink . "&sec=viewWebsiteSearchReports", round($currRank, 2));
 					$graphLink = scriptAJAXLinkHrefDialog('webmaster-tools.php', 'content', $scriptLink . "&sec=viewWebsiteSearchGraphReports&attr_type=$colName", '&nbsp;', 'graphicon');
 					
 					// if pdf report remove links
@@ -174,7 +197,7 @@ $colCount = ($baseColCount * 3) + 1;
 				    ?>
 					<td><?php echo $prevRankLink; ?></td>
 					<td><?php echo $currRankLink; ?></td>
-					<td><?php echo $graphLink . " " . $rankDiffTxt; ?></td>
+					<td class="text-nowrap"><?php echo $graphLink . " " . $rankDiffTxt; ?></td>
 					<?php					
 				}
 				?>				

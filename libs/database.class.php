@@ -1,7 +1,7 @@
 <?php
 
 /***************************************************************************
- *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	   *
+ *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.org)  	   *
  *   sendtogeo@gmail.com   												   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -99,14 +99,19 @@ class Database{
 
     	$dataList = self::escapeValue($dataList);
     	$colList = array_keys($dataList);
-    	$valueList = array_values($dataList);
-    	$sql = "INSERT into $table(" . implode(',', $colList) . ") values('" . implode("', '", $valueList) . "')";
-    	
+
+    	$valueList = array();
+    	foreach ($dataList as $value) {
+    	    $valueList[] = self::isDBConstantValue($value) ? $value : "'$value'";
+    	}
+
+    	$sql = "INSERT into $table(" . implode(',', $colList) . ") values(" . implode(', ', $valueList) . ")";
+
     	// if no error occured
     	if ($this->dbConObj->query($sql)) {
     		return TRUE;
     	}
-    
+
     	return FALSE;
     }
     

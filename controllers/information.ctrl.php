@@ -1,7 +1,7 @@
 <?php
 
 /***************************************************************************
- *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	           *
+ *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.org)  	           *
  *   sendtogeo@gmail.com   												   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -33,7 +33,7 @@ class InformationController extends Controller {
 	function showNews($secInfo='') {
 		
 		// switch trhough sections
-		switch($secInfo['sec_name']){
+		switch($secInfo['sec_name'] ?? ''){
 				
 			default:
 				

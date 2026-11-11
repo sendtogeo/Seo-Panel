@@ -1,7 +1,7 @@
 <?php
 
 /***************************************************************************
- *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	   *
+ *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.org)  	   *
  *   sendtogeo@gmail.com   												   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -27,6 +27,8 @@ checkLoggedIn();
 isUserHaveAccessToSeoTool("backlink-checker");
 
 include_once(SP_CTRLPATH."/backlink.ctrl.php");
+include_once(SP_CTRLPATH."/rank.ctrl.php");
+include_once(SP_CTRLPATH."/moz.ctrl.php");
 $controller = New BacklinkController();
 $controller->view->menu = 'seotools';
 $controller->layout = 'ajax';
@@ -53,11 +55,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		case "graphical-reports":
 			$controller->showGraphicalReports($_POST);
 			break;
-		
-		case "backlink":
-			$controller->printBacklink($_POST);
-			break;
-			
+
 		default:
 			if (isQuickCheckerEnabled()) {
 				$controller->findBacklink($_POST);
@@ -70,10 +68,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 }else{
 	switch($_GET['sec']){
 		
-		case "backlink":
-			$controller->printBacklink($_GET);
-			break;		
-			
 		case "generate":
 			$controller->showGenerateReports($_GET);
 			break;
@@ -85,7 +79,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		case "graphical-reports":
 			$controller->showGraphicalReports($_GET);
 			break;
-		
+
+		case "summarizetrend":
+			$controller->summarizeTrend($_GET);
+			break;
+
 		default:
 			$controller->showBacklink();
 			break;

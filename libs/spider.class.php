@@ -1,7 +1,7 @@
 <?php
 
 /***************************************************************************
- *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	           *
+ *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.org)  	           *
  *   sendtogeo@gmail.com   												   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -19,10 +19,11 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
+if (defined('SP_CTRLPATH')) {
+    include_once(SP_CTRLPATH."/proxy.ctrl.php");
+}
 
-include_once(SP_CTRLPATH."/proxy.ctrl.php");
-
-class Spider{
+class Spider {
 
 	# settings of the spider
 	var $_CURL_RESOURCE = null;	
@@ -33,7 +34,7 @@ class Spider{
 	var $_CURLOPT_TIMEOUT = 15;	
 	var $_CURLOPT_POST = true;
 	var $_CURLOPT_POSTFIELDS = null;
-	var $_CURLOPT_USERAGENT = "Mozilla/5.0 (Windows; U; MSIE 9.0; WIndows NT 9.0; en-US))";
+	var $_CURLOPT_USERAGENT = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:143.0) Gecko/20100101 Firefox/143.0";
 	var $_CURLOPT_USERPWD = null;
 	var $_CURLOPT_COOKIEJAR = '';
 	var $_CURLOPT_COOKIEFILE = '';
@@ -44,28 +45,41 @@ class Spider{
 	var $_CURL_HTTPHEADER = array();
 	var $userAgentList = array();
 	var $effectiveUrl = null;
+	var $proxyInfo = [];
 	
 	# spider constructor
-	function __construct()	{			
-		$this -> _CURLOPT_COOKIEJAR = SP_TMPPATH.'/'.$this -> _CURLOPT_COOKIEJAR;
-		$this -> _CURLOPT_COOKIEFILE = SP_TMPPATH.'/'.$this -> _CURLOPT_COOKIEFILE;		
+	function __construct()	{	    
+	    // if _CURLOPT_COOKIEJAR path defined
+	    if (!empty($this -> _CURLOPT_COOKIEJAR)) {
+	        $this -> _CURLOPT_COOKIEJAR = SP_TMPPATH.'/'.$this -> _CURLOPT_COOKIEJAR;
+	    }
+	    
+	    // if _CURLOPT_COOKIEFILE path defined
+	    if (!empty($this -> _CURLOPT_COOKIEFILE)) {
+	        $this -> _CURLOPT_COOKIEFILE = SP_TMPPATH.'/'.$this -> _CURLOPT_COOKIEFILE;
+	    }
+	    
 		$this -> _CURL_RESOURCE = curl_init( );
-		if(!empty($_SERVER['HTTP_USER_AGENT'])) $this->_CURLOPT_USERAGENT = $_SERVER['HTTP_USER_AGENT'];
+		if(!empty($_SERVER['HTTP_USER_AGENT'])) {
+		    $this->_CURLOPT_USERAGENT = $_SERVER['HTTP_USER_AGENT'];
+		}
 
 		// user agents
-		$this->userAgentList['google'] = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:69.0) Gecko/20100101 Firefox/69.0";
+		$this->userAgentList['google'] = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:143.0) Gecko/20100101 Firefox/143.0";
 		$this->userAgentList['bing'] = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:69.0) Gecko/20100101 Firefox/69.0";
+		$this->userAgentList['pinterest'] = "Mozilla/5.0 (X11; Linux x86_64; rv:100.0) Gecko/20100101 Firefox/100.0";
 		$this->userAgentList['default'] = defined('SP_USER_AGENT') ? SP_USER_AGENT : $this->_CURLOPT_USERAGENT;
 	}	
 	
 	# func to format urls
-	public static function formatUrl($url){	    
+	public static function formatUrl($url) {
 	    $scheme = "";
-		if(stristr($url,'http://')){
+		if(stristr($url,'http://')) {
 			$scheme = "http://";
-		}elseif(stristr($url,'https://')){
+		} elseif(stristr($url,'https://')) {
 			$scheme = "https://";			
 		}
+		
 		$url = str_replace(array('http://','https://', '"', '"'), '',$url);
 		$url = preg_replace('/\/{2,}/', '/', $url);
 		$url = preg_replace('/&{2,}/', '&', $url);
@@ -76,10 +90,10 @@ class Spider{
 	
 	# func to get relative url to append with relative links found in the page 
 	function getRelativeUrl($relativeUrl) {
-	    
 	    $relativeUrl = parse_url($relativeUrl, PHP_URL_PATH);
         
 	    // if link contains script names
+	    $matches = [];
         if(preg_match('/.htm$|.html$|.php$|.pl$|.jsp$|.asp$|.aspx$|.do$|.cgi$|.cfm$/i', $relativeUrl)) {
             if (preg_match('/(.*)\//', $relativeUrl, $matches) ) {
                 return $matches[1];
@@ -92,13 +106,24 @@ class Spider{
 	}
 	
     # func to get backlink page info
-	function getPageInfo($url, $domainUrl, $returnUrls=false){
-	    
+	function getPageInfo($url, $domainUrl, $returnUrls=false) {	    
 	    $urlWithTrailingSlash = Spider::addTrailingSlash($url);
 		$ret = $this->getContent($urlWithTrailingSlash);
 		$pageInfo = array(
 			'external' => 0,
 			'total_links' => 0,
+		    'site_links' => [],
+		    // AuditorComponent::runReport() (the one caller of this method)
+		    // used to mark a page "crawled" and save it unconditionally,
+		    // with every metric silently defaulting to 0/false on a failed
+		    // fetch - permanently recording e.g. "not mobile friendly",
+		    // "not HTTPS", "0 words" for a page that was simply
+		    // unreachable, indistinguishable from a genuinely-checked
+		    // empty page. Same root-cause class as the crawler-results
+		    // fix elsewhere this session, just missed here. Mirrors the
+		    // same success gate this method already uses below to decide
+		    // whether to parse $ret['page'] at all.
+		    'crawl_status' => 0,
 		);
 		
 		$checkUrl = formatUrl($domainUrl);
@@ -112,10 +137,15 @@ class Spider{
 		$domainHostInfo = parse_url($domainUrl);
 		$domainHostLink = $domainHostInfo['scheme'] . "://" . $domainHostInfo['host'] . "/";
 		
+		$matches = [];
+		$match = [];
 		if( !empty($ret['page'])){
-			$string = str_replace(array("\n",'\n\r','\r\n','\r'), "", $ret['page']);			
+			$string = str_replace(array("\n",'\n\r','\r\n','\r'), "", $ret['page']);
 			$pageInfo = WebsiteController::crawlMetaData($url, '', $string, true);
-			
+			// crawlMetaData() replaces $pageInfo wholesale - re-set this
+			// after, not before
+			$pageInfo['crawl_status'] = 1;
+
 			// check whether base url tag is there
 			$baseTagUrl = "";
 			if (preg_match("/<base (.*?)>/is", $string, $match)) {
@@ -133,20 +163,41 @@ class Spider{
 				$href = $this->__getTagParam("href",$matches[1][$i]);
 				if ( !empty($href) || !empty($matches[2][$i])) {
 					
-    				if( !preg_match( '/mailto:/', $href ) && !preg_match( '/javascript:|;/', $href ) ){
-    				    
+    				if( !preg_match( '/mailto:|tel:/', $href ) && !preg_match( '/javascript:|;/', $href ) ){
+
+    				    // Skip JavaScript template literals and invalid URL patterns
+    				    if (preg_match('/\$\{|\}|typeof\s|===|function\s*\(/', $href)) {
+    				        continue;
+    				    }
+
     					// find external links
     				    $pageInfo['total_links'] += 1;
     				    $external = 0;
-    				    if (stristr($href, 'http://') ||  stristr($href, 'https://')) {
-    				    	
+
+    				    // Handle protocol-relative URLs (//cdn.example.com)
+    				    if (preg_match('#^//#', $href)) {
+    				        $href = 'https:' . $href;
+    				    }
+    				    // Handle query-string-only relative URLs (?page=2)
+    				    elseif (preg_match('#^\?#', $href)) {
+    				        $baseUrl = parse_url($url, PHP_URL_SCHEME) . '://' .
+    				                   parse_url($url, PHP_URL_HOST) .
+    				                   parse_url($url, PHP_URL_PATH);
+    				        $href = $baseUrl . $href;
+    				    }
+    				    // Handle fragment-only relative URLs (#section)
+    				    elseif (preg_match('#^#$', $href)) {
+    				        // Skip anchor-only links
+    				        $pageInfo['total_links'] -= 1;
+    				        continue;
+    				    }
+
+    				    if (stristr($href, 'http://') ||  stristr($href, 'https://')) {    				    	
     					    if (!preg_match("/^".preg_quote($checkUrl, '/')."/", formatUrl($href))) {
     					        $external = 1;
     					        $pageInfo['external'] += 1;
-    					    }
-    					    					        
-    				    } else {
-    				        
+    					    }    					    					        
+    				    } else {    				        
     				        // if url starts with / then append with base url of site
     				    	if (preg_match('/^\//', $href)) {
     				    		$href = $domainHostLink . $href;
@@ -160,23 +211,20 @@ class Spider{
     				            $pageInfo['total_links'] -= 1;
     				            continue;
     				        }
-    				        
-    				        // if contains back directory operator
-    				        if (stristr($href, '/../')) {
-                            	$hrefParts = explode('/../', $href);
-                            	preg_match('/.*\//', $hrefParts[0], $matchpart);	
-                            	$href = $matchpart[0]. $hrefParts[1];
-                            }
+
+    				        // Normalize URL to resolve parent directory operators and other issues
+    				        $href = Spider::normalizeUrl($href);
     				    }
     				    
     				    // if details of urls to be checked
-    				    if($returnUrls){
+    				    if($returnUrls) {
     				        $linkInfo['link_url'] = $href;
     						if(stristr($matches[2][$i], '<img')) {
     							$linkInfo['link_anchor'] = $this->__getTagParam("alt", $matches[2][$i]);
     						} else {
     							$linkInfo['link_anchor'] = strip_tags($matches[2][$i]);
-    						}										
+    						}
+    						
     						$linkInfo['nofollow'] = stristr($matches[1][$i], 'nofollow') ? 1 : 0;
     						$linkInfo['link_title'] = $this->__getTagParam("title", $matches[1][$i]);
     						if ($external) {
@@ -191,6 +239,10 @@ class Spider{
 			}			
 		}
 		
+		// Ensure site_links key exists as an array
+		if (!isset($pageInfo['site_links'])) {
+		    $pageInfo['site_links'] = [];
+		}
 		return $pageInfo;
 	}
 	
@@ -203,7 +255,7 @@ class Spider{
     # function to remove last trailing slash
 	public static function addTrailingSlash($url) {
 	    if (!stristr($url, '?') && !stristr($url, '#')) {
-	        if (!preg_match("/\.([^\/]+)$/", $url)) {		
+	        if (!preg_match("/\.([^\/]+)$/", $url)) {
         		if (!preg_match('/\/$/', $url)) {
         		    $url .= "/";
         		}
@@ -211,13 +263,118 @@ class Spider{
 	    }
 		return $url;
 	}
-	
+
+	/**
+	 * Normalize URL by resolving relative paths, protocol-relative URLs, etc.
+	 * Handles:
+	 * - Multiple parent directory references (../../..)
+	 * - Protocol-relative URLs (//cdn.example.com)
+	 * - Query-string-only URLs (?page=2)
+	 * - Fragment-only URLs (#section)
+	 *
+	 * @param string $url The URL to normalize
+	 * @return string Normalized URL
+	 */
+	public static function normalizeUrl($url) {
+	    if (empty($url)) {
+	        return $url;
+	    }
+
+	    // Parse URL components
+	    $parts = parse_url($url);
+
+	    // Handle protocol-relative URLs (//cdn.example.com/path)
+	    if (empty($parts['scheme']) && isset($parts['host'])) {
+	        // If URL starts with //, add https:
+	        if (preg_match('#^//#', $url)) {
+	            $url = 'https:' . $url;
+	            $parts = parse_url($url);
+	        }
+	    }
+
+	    // If no path, return as-is
+	    if (!isset($parts['path'])) {
+	        return $url;
+	    }
+
+	    $path = $parts['path'];
+
+	    // Normalize path by resolving .. and .
+	    $path = self::normalizePath($path);
+
+	    // Rebuild URL
+	    $normalized = '';
+	    if (isset($parts['scheme'])) {
+	        $normalized .= $parts['scheme'] . '://';
+	    }
+	    if (isset($parts['host'])) {
+	        if (isset($parts['user'])) {
+	            $normalized .= $parts['user'];
+	            if (isset($parts['pass'])) {
+	                $normalized .= ':' . $parts['pass'];
+	            }
+	            $normalized .= '@';
+	        }
+	        $normalized .= $parts['host'];
+	        if (isset($parts['port'])) {
+	            $normalized .= ':' . $parts['port'];
+	        }
+	    }
+
+	    $normalized .= $path;
+
+	    if (isset($parts['query'])) {
+	        $normalized .= '?' . $parts['query'];
+	    }
+	    if (isset($parts['fragment'])) {
+	        $normalized .= '#' . $parts['fragment'];
+	    }
+
+	    return $normalized;
+	}
+
+	/**
+	 * Normalize path by resolving . and .. segments
+	 *
+	 * @param string $path The path to normalize
+	 * @return string Normalized path
+	 */
+	private static function normalizePath($path) {
+	    // Split path into segments
+	    $segments = explode('/', $path);
+	    $normalized = array();
+
+	    foreach ($segments as $segment) {
+	        if ($segment === '' || $segment === '.') {
+	            // Skip empty and current directory segments
+	            continue;
+	        } elseif ($segment === '..') {
+	            // Parent directory - pop last segment if possible
+	            if (count($normalized) > 0 && end($normalized) !== '..') {
+	                array_pop($normalized);
+	            }
+	        } else {
+	            // Regular segment
+	            $normalized[] = $segment;
+	        }
+	    }
+
+	    // Rebuild path
+	    $result = '/' . implode('/', $normalized);
+
+	    // Preserve trailing slash if original had one
+	    if (substr($path, -1) === '/' && $result !== '/') {
+	        $result .= '/';
+	    }
+
+	    return $result;
+	}
+
 	# func to get unique urls of a page
-	function getUniqueUrls($url){
-				
+	function getUniqueUrls($url) {				
 		$ret = $this->getContent($url);
 		$urlList = array();
-		
+		$matches = [];		
 		if( !empty($ret['page'])){
 			$string = strtolower($ret['page']);
 			$string = str_replace("\n","",$string);
@@ -240,7 +397,8 @@ class Spider{
 	}
 
 	# function to get value of a parameter in a tag
-    function __getTagParam($param, $tag){
+    function __getTagParam($param, $tag) {
+        $matches = [];
 		preg_match('/'.$param.'="(.*?)"/is', $tag, $matches);
 		if(empty($matches[1])){
 			preg_match("/$param='(.*?)'/is", $tag, $matches);
@@ -258,8 +416,7 @@ class Spider{
 	}
 	
 	# function to create custome headers
-	function setCustomHeaders() {
-		
+	function setCustomHeaders() {		
 		// if sending custom header with curl is enabled
 		if (SP_SEND_CUSTOM_HEADER_IN_CURL) {
 			$sessionId = session_id();
@@ -269,21 +426,125 @@ class Spider{
 			array_push($this ->_CURL_HTTPHEADER, "Cache-Control: max-age=0");
 			array_push($this ->_CURL_HTTPHEADER, "Cookie: PHPSESSID=" . $sessionId);
 			array_push($this ->_CURL_HTTPHEADER, "User-Agent: " . $this -> _CURLOPT_USERAGENT);
-		}
-		
+		}		
 	}
 	
-	# get contents of a web page	
-	function getContent( $url, $enableProxy=true, $logCrawl = true)	{
-		
+	/**
+	 * SSRF guard - Spider::getContent() is the app's single shared
+	 * crawl chokepoint (website meta-crawl, backlink/saturation/rank
+	 * checkers, Site Auditor, MetaTagGenerator, robots.txt fetching,
+	 * etc.), and until now had zero restriction on WHAT it could be
+	 * pointed at. Two independent ways that was exploitable: directly,
+	 * via any "crawl this URL" feature that takes an admin/user-supplied
+	 * URL (e.g. websites.php?sec=crawlmeta&url=...) with no ownership
+	 * check even required; and persistently, by registering a website
+	 * whose url IS an internal/private target - every unattended
+	 * scheduled crawl of "my websites" then fetches it forever. Blocks
+	 * loopback/private (RFC1918)/link-local (which covers the
+	 * 169.254.169.254 cloud metadata endpoint)/other reserved ranges,
+	 * both IPv4 and IPv6, via a resolve-time check - same approach and
+	 * same known limitation (DNS-rebinding TOCTOU: not re-checked on
+	 * each hop of a redirect, and the name could resolve differently a
+	 * moment later) as QuickWebProxy's own isPrivateOrRestrictedTarget()
+	 * guard for its "Web Server" proxy source.
+	 *
+	 * Not applied when this call is actually going out through an
+	 * admin-configured outbound proxy (SP_ENABLE_PROXY + $enableProxy) -
+	 * that request originates from the proxy's network, not this
+	 * server's own, which is a boundary the admin explicitly opted into
+	 * (mirrors QuickWebProxy's own proxied-vs-direct distinction). Also
+	 * not applied when the caller explicitly opts out via
+	 * $allowPrivateTarget on getContent() - reserved for the rare,
+	 * already high-trust caller where reaching an internal/loopback
+	 * target is the deliberately intended behavior, e.g.
+	 * AIVisibilityController::__selfTestWebsite() verifying a site whose
+	 * docroot is admin-configured directly on this filesystem (a
+	 * self-hosted single-server setup legitimately has "my own website"
+	 * resolve to localhost/an internal address from this server's own
+	 * point of view) - that feature already requires filesystem write
+	 * access to reach this code path at all, a higher trust bar than
+	 * anything this guard is meant to stop.
+	 */
+	public static function isPrivateOrRestrictedTarget($url) {
+	    $host = parse_url($url, PHP_URL_HOST);
+	    if (empty($host)) {
+	        // no scheme in the raw input (e.g. "example.com", no "://") -
+	        // parse_url() can't find a host without one
+	        $host = parse_url('http://' . ltrim($url, '/'), PHP_URL_HOST);
+	    }
+	    if (empty($host)) {
+	        return true;
+	    }
+
+	    $ip = filter_var($host, FILTER_VALIDATE_IP) ? $host : gethostbyname($host);
+	    if (!filter_var($ip, FILTER_VALIDATE_IP)) {
+	        // didn't resolve to an IP at all - fail closed
+	        return true;
+	    }
+
+	    return !filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE);
+	}
+
+	# get contents of a web page
+	function getContent( $url, $enableProxy=true, $logCrawl = true, $allowPrivateTarget = false)	{
+		// Resolved once, upfront - both the SSRF guard right below and
+		// the curl proxy setup further down must agree on whether a
+		// proxy is GENUINELY going to carry this request, not just
+		// whether the setting is turned on. SP_ENABLE_PROXY can be on
+		// with zero active proxy rows configured (confirmed live) - in
+		// that case the request still goes out directly from this
+		// server, so the SSRF guard still needs to apply. It used to
+		// accidentally still apply in that case too, but only because
+		// a missing proxy crashed the entire page via showErrorMsg()'s
+		// exit=true before ever reaching curl_exec() - once that crash
+		// was fixed to gracefully proceed without a proxy instead
+		// (see below), this SSRF check needed to be based on the same
+		// resolved reality, or it would start silently sending
+		// SSRF-guard-bypassed requests directly from this server
+		// whenever a proxy was enabled-but-unavailable.
+		$proxyInfo = ($enableProxy && SP_ENABLE_PROXY) ? $this->getSpiderProxy() : [];
+		$willUseProxy = !empty($proxyInfo);
+		if (!$willUseProxy && !$allowPrivateTarget && Spider::isPrivateOrRestrictedTarget($url)) {
+			$ret = [
+				'page' => '',
+				'error' => 1,
+				'errmsg' => 'Blocked: target resolves to a private, loopback, link-local, or otherwise restricted address.',
+				'http_code' => 0,
+			];
+			$this->effectiveUrl = $url;
+
+			if ($logCrawl) {
+				$crawlLogCtrl = new CrawlLogController();
+				$crawlInfo = [];
+				$crawlInfo['crawl_status'] = 0;
+				$crawlInfo['ref_id'] = $crawlInfo['crawl_link'] = addslashes($url);
+				$crawlInfo['crawl_referer'] = addslashes($this-> _CURLOPT_REFERER);
+				$crawlInfo['crawl_cookie'] = addslashes($this -> _CURLOPT_COOKIE);
+				$crawlInfo['crawl_post_fields'] = addslashes($this -> _CURLOPT_POSTFIELDS);
+				$crawlInfo['crawl_useragent'] = addslashes($this->_CURLOPT_USERAGENT);
+				$crawlInfo['proxy_id'] = 0;
+				$crawlInfo['log_message'] = addslashes($ret['errmsg']);
+				$ret['log_id'] = $crawlLogCtrl->createCrawlLog($crawlInfo);
+			}
+
+			return $ret;
+		}
+
 		curl_setopt( $this -> _CURL_RESOURCE , CURLOPT_URL , $url );
 		curl_setopt( $this -> _CURL_RESOURCE , CURLOPT_FAILONERROR , $this -> _CURLOPT_FAILONERROR );
 		curl_setopt( $this -> _CURL_RESOURCE , CURLOPT_MAXREDIRS , $this -> _CURLOPT_MAXREDIRS );
 		@curl_setopt( $this -> _CURL_RESOURCE , CURLOPT_FOLLOWLOCATION , $this -> _CURLOPT_FOLLOWLOCATION );
 		curl_setopt( $this -> _CURL_RESOURCE , CURLOPT_RETURNTRANSFER , $this -> _CURLOPT_RETURNTRANSFER );
 		curl_setopt( $this -> _CURL_RESOURCE , CURLOPT_TIMEOUT , $this -> _CURLOPT_TIMEOUT );
-		curl_setopt( $this -> _CURL_RESOURCE , CURLOPT_COOKIEJAR , $this -> _CURLOPT_COOKIEJAR );
-		curl_setopt( $this -> _CURL_RESOURCE , CURLOPT_COOKIEFILE , $this -> _CURLOPT_COOKIEFILE );
+		
+		if (!empty($this -> _CURLOPT_COOKIEJAR)) {
+		    curl_setopt( $this -> _CURL_RESOURCE , CURLOPT_COOKIEJAR, $this -> _CURLOPT_COOKIEJAR );
+		}
+		
+		if (!empty($this -> _CURLOPT_COOKIEFILE)) {
+		    curl_setopt( $this -> _CURL_RESOURCE , CURLOPT_COOKIEFILE, $this -> _CURLOPT_COOKIEFILE );
+		}
+		
 		curl_setopt( $this -> _CURL_RESOURCE , CURLOPT_HEADER , $this -> _CURLOPT_HEADER);
 		
 		// to fix the ssl related issues
@@ -299,6 +560,8 @@ class Spider{
 		        $ugKey = 'google';
 		    } else if (stristr($url, 'bing.')) {
 		        $ugKey = 'bing';
+		    } else if (stristr($url, 'pinterest.')) {
+		        $ugKey = 'pinterest';
 		    }
 		    
     		$this->_CURLOPT_USERAGENT = $this->getUserAgent($ugKey);
@@ -308,16 +571,19 @@ class Spider{
 		}
 		
 		// set custom headers for google domains
-		if (stristr($url, 'google.')) {
+		/*if (stristr($url, 'google.')) {
 			$this->setCustomHeaders();
-		}
+		}*/
 
 		// to add the curl http headers
 		if (!empty($this ->_CURL_HTTPHEADER)) {
 			curl_setopt($this->_CURL_RESOURCE, CURLOPT_HTTPHEADER, $this ->_CURL_HTTPHEADER);
 		}
 		
-		if(!empty($this -> _CURLOPT_COOKIE)) curl_setopt( $this -> _CURL_RESOURCE, CURLOPT_COOKIE , $this -> _CURLOPT_COOKIE );
+		if(!empty($this -> _CURLOPT_COOKIE)) {
+		    curl_setopt( $this -> _CURL_RESOURCE, CURLOPT_COOKIE , $this -> _CURLOPT_COOKIE );
+		}
+		
 		if(!empty($this-> _CURLOPT_REFERER)){
 			curl_setopt($this -> _CURL_RESOURCE, CURLOPT_REFERER, $this-> _CURLOPT_REFERER); 
 		}		
@@ -327,33 +593,36 @@ class Spider{
 			curl_setopt( $this -> _CURL_RESOURCE , CURLOPT_POSTFIELDS , $this -> _CURLOPT_POSTFIELDS );
 		}
 
-		if( strlen( $this -> _CURLOPT_USERPWD ) > 2 ) {
+		if( strlen( $this -> _CURLOPT_USERPWD ?? '' ) > 2 ) {
 			curl_setopt( $this -> _CURL_RESOURCE , CURLOPT_USERPWD, $this -> _CURLOPT_USERPWD );
 		}
 		
-		// to use proxy if proxy enabled
-		if (SP_ENABLE_PROXY && $enableProxy) {
-			$proxyCtrler = New ProxyController();
-			if ($proxyInfo = $proxyCtrler->getRandomProxy()) {
-				curl_setopt($this -> _CURL_RESOURCE, CURLOPT_PROXY, $proxyInfo['proxy'].":".$proxyInfo['port']);
-				
-				if (CURLOPT_HTTPPROXYTUNNEL_VAL) {
-					curl_setopt($this -> _CURL_RESOURCE, CURLOPT_HTTPPROXYTUNNEL, CURLOPT_HTTPPROXYTUNNEL_VAL);
-				}		
-				
-				if (!empty($proxyInfo['proxy_auth'])) {
-					curl_setopt ($this -> _CURL_RESOURCE, CURLOPT_PROXYUSERPWD, $proxyInfo['proxy_username'].":".$proxyInfo['proxy_password']);
-				}
-				
-			} else {
-			    showErrorMsg("No active proxies found!! Please check your proxy settings from Admin Panel.");
+		// $proxyInfo/$willUseProxy already resolved once, upfront (see
+		// the SSRF guard above) - reused here rather than looked up
+		// again, so this and the SSRF check can never disagree about
+		// whether a proxy is actually carrying the request.
+		if ($willUseProxy) {
+			curl_setopt($this -> _CURL_RESOURCE, CURLOPT_PROXY, $proxyInfo['proxy'].":".$proxyInfo['port']);
+
+			if (CURLOPT_HTTPPROXYTUNNEL_VAL) {
+				curl_setopt($this -> _CURL_RESOURCE, CURLOPT_HTTPPROXYTUNNEL, CURLOPT_HTTPPROXYTUNNEL_VAL);
+			}
+
+			if (!empty($proxyInfo['proxy_auth'])) {
+				curl_setopt ($this -> _CURL_RESOURCE, CURLOPT_PROXYUSERPWD, $proxyInfo['proxy_username'].":".$proxyInfo['proxy_password']);
 			}
 		}
+		// SP_ENABLE_PROXY on with no active proxy row configured no
+		// longer crashes the whole page (showErrorMsg() used to exit
+		// here) - the request just proceeds without a proxy, matching
+		// $willUseProxy=false, which is also why the SSRF guard above
+		// still correctly applies to it.
 		
 		$ret = [];
 		$ret['page'] = curl_exec( $this -> _CURL_RESOURCE );
 		$ret['error'] = curl_errno( $this -> _CURL_RESOURCE );
 		$ret['errmsg'] = curl_error( $this -> _CURL_RESOURCE );
+		$ret['http_code'] = curl_getinfo($this -> _CURL_RESOURCE, CURLINFO_HTTP_CODE);
 		
 		$this->effectiveUrl = curl_getinfo($this -> _CURL_RESOURCE, CURLINFO_EFFECTIVE_URL);
 		
@@ -367,14 +636,13 @@ class Spider{
 			$crawlInfo['crawl_cookie'] = addslashes($this -> _CURLOPT_COOKIE);
 			$crawlInfo['crawl_post_fields'] = addslashes($this -> _CURLOPT_POSTFIELDS);
 			$crawlInfo['crawl_useragent'] = addslashes($this->_CURLOPT_USERAGENT);
-			$crawlInfo['proxy_id'] = intval($proxyInfo['id']);
+			$crawlInfo['proxy_id'] = isset($proxyInfo['id']) ? intval($proxyInfo['id']) : 0;
 			$crawlInfo['log_message'] = addslashes($ret['errmsg']);
 			$ret['log_id'] = $crawlLogCtrl->createCrawlLog($crawlInfo);
 		}
 		
 		// disable proxy if not working
-		if (SP_ENABLE_PROXY && $enableProxy && !empty($ret['error']) && !empty($proxyInfo['id'])) {
-			
+		if ($enableProxy && SP_ENABLE_PROXY && !empty($ret['error']) && !empty($proxyInfo['id'])) {
 			// deactivate proxy
 			if (PROXY_DEACTIVATE_CRAWL) {
 				$proxyCtrler->__changeStatus($proxyInfo['id'], 0);
@@ -393,8 +661,7 @@ class Spider{
 	}
 	
 	# function to debug runtime
-	function debugRunTime($ret) {
-		
+	function debugRunTime($ret) {		
 		// check debug request is enabled
 		if (!empty($_GET['debug']) || !empty($_POST['debug'])) {
 			?>
@@ -408,12 +675,17 @@ class Spider{
 				?>
 			</div>
 			<?php
-		}
-		
+		}		
+	}
+	
+	function resetCurlResourceCookie() {
+	    $this->_CURLOPT_COOKIE = "";
+	    curl_setopt($this->_CURL_RESOURCE, CURLOPT_COOKIE, $this->_CURLOPT_COOKIE);
 	}
 	
 	# func to get session id
 	function getSessionId($page){
+	    $result = [];
 		if (preg_match('/PHPSESSID=(.*?);/', $page, $result)) {
 			return $result[1];
 		} else {
@@ -451,7 +723,7 @@ class Spider{
 		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
 				
-		curl_setopt($ch, CURLOPT_URL, "http://www.google.com/search?q=twitter");
+		curl_setopt($ch, CURLOPT_URL, "https://www.google.com/search?q=twitter");
 		$ret['page'] = curl_exec( $ch );
 		$ret['error'] = curl_errno( $ch );
 		$ret['errmsg'] = curl_error( $ch );
@@ -483,44 +755,224 @@ class Spider{
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
-		curl_setopt($ch, CURLOPT_USERAGENT, SP_USER_AGENT);
+
+		// Use defined SP_USER_AGENT or fallback to default
+		$defaultUserAgent = "Mozilla/5.0 (compatible; SEOPanel/5.0; +https://www.seopanel.org)";
+		$userAgent = defined('SP_USER_AGENT') ? SP_USER_AGENT : $defaultUserAgent;
+
+		// Skip user agent for seopanel.org to avoid WAF blocks
+		if (!stristr($url, 'seopanel.org')) {
+			curl_setopt($ch, CURLOPT_USERAGENT, $userAgent);
+		}
+
 		if($followRedirects){
 			curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 		}
 		curl_setopt($ch, CURLOPT_MAXREDIRS, 4);
-		
+
 		// Only calling the head
 		curl_setopt($ch, CURLOPT_HEADER, true); // header will be at output
 		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'HEAD'); // HTTP request is 'HEAD'
-		
+
 		// to fix the ssl related issues
 		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-		
+
 		$content = curl_exec ($ch);
 		curl_close ($ch);
 		return $content;
 	}
 	
-	// function to check whether link is brocke
-	public static function isLInkBrocken($url) {
-	    $header = Spider::getHeader($url);
-	    if (stristr($header, '404 Not Found')) {
-	        return true;
+	function getSpiderProxy() {
+	    if (!empty($this->proxyInfo)) {
+	        return $this->proxyInfo;
 	    } else {
-	        return 0; 
+	        $proxyCtrler = New ProxyController();
+	        return $proxyCtrler->getRandomProxy();
 	    }
+	}
+	
+	// function to check whether link is broken
+	public static function isLinkBroken($url) {
+	    $header = Spider::getHeader($url);
+
+	    // Check for complete request failure
+	    if (empty($header)) {
+	        return 1; // Request failed completely
+	    }
+
+	    // Check for any 4xx or 5xx error codes (client errors and server errors)
+	    if (preg_match('/HTTP\/[\d\.]+\s+([45]\d{2})\s/', $header, $matches)) {
+	        return 1; // Broken (4xx or 5xx error)
+	    }
+
+	    return 0; // Not broken (2xx or 3xx response)
+	}
+
+	// Backward compatibility alias (deprecated)
+	public static function isLInkBrocken($url) {
+	    return self::isLinkBroken($url);
 	}
 	
 	// function to check whether link is a redirect
 	public static function isLinkRedirect($url) {
-			$followRedirects = false; //don't follow with cURL as we need that info.
-			$header = $this->getHeader($url, $followRedirects);
-			if (stristr($header, '301 Moved Permanently') || stristr($header, '308 Permanent Redirect')) {
-					return true;
-			} else {
-					return 0;
+		$followRedirects = false; // Don't follow redirects so we can detect them
+		$header = Spider::getHeader($url, $followRedirects);
+
+		// Check for complete request failure
+		if (empty($header)) {
+			return 0; // Request failed, not a redirect
+		}
+
+		// Check for any 3xx redirect status code
+		if (preg_match('/HTTP\/[\d\.]+\s+(3\d{2})\s/', $header, $matches)) {
+			$statusCode = intval($matches[1]);
+
+			// 304 Not Modified is not really a redirect, it's a cache validation response
+			if ($statusCode == 304) {
+				return 0;
 			}
+
+			return 1; // Any other 3xx is a redirect (300, 301, 302, 303, 307, 308, etc.)
+		}
+
+		return 0; // Not a redirect
+	}
+	
+	public static function getCrawlEngineInfo($engineName, $engineCategory) {
+	    $ctrler = new SearchEngineController();
+	    $whereCond = "engine_name='" . addslashes($engineName) ."' and engine_category='" . addslashes($engineCategory) . "'";
+	    $engineInfo = $ctrler->dbHelper->getRow('crawl_engines', $whereCond);
+	    return $engineInfo;
+	}
+	
+	public static function getCrawlEngineCategoryList($engineCategory) {
+	    $ctrler = new SearchEngineController();
+	    $whereCond = "engine_category='" . addslashes($engineCategory) . "'";
+	    $list = $ctrler->dbHelper->getAllRows('crawl_engines', $whereCond);
+	    
+	    $engineList = [];
+	    foreach ($list as $listInfo) {
+	        $engineList[$listInfo['engine_name']] = $listInfo;
+	    }
+	    
+	    return $engineList;
+	}
+	
+	/**
+	 * Check if a URL is blocked by robots.txt
+	 * 
+	 * @param string $pageUrl The full page URL to check
+	 * @param string $domainUrl The domain base URL
+	 * @return int 1 if blocked, 0 if allowed
+	 */
+	public static function isBlockedByRobotsTxt($pageUrl, $domainUrl) {
+		// Parse the domain URL to get the base
+		$parsedDomain = parse_url($domainUrl);
+		if (!isset($parsedDomain['scheme']) || !isset($parsedDomain['host'])) {
+			return 0; // Can't check, assume allowed
+		}
+		
+		$robotsTxtUrl = $parsedDomain['scheme'] . '://' . $parsedDomain['host'] . '/robots.txt';
+		
+		// Try to fetch robots.txt
+		$spider = new Spider();
+		$result = $spider->getContent($robotsTxtUrl, false, false);
+		
+		if (empty($result['page'])) {
+			return 0; // No robots.txt found, assume allowed
+		}
+		
+		$robotsTxt = $result['page'];
+		
+		// Parse the page URL to get the path
+		$parsedUrl = parse_url($pageUrl);
+		$urlPath = isset($parsedUrl['path']) ? $parsedUrl['path'] : '/';
+		if (isset($parsedUrl['query'])) {
+			$urlPath .= '?' . $parsedUrl['query'];
+		}
+		
+		// Parse robots.txt
+		$lines = explode("\n", $robotsTxt);
+		$currentUserAgent = '';
+		$disallowRules = array();
+		$allowRules = array();
+
+		foreach ($lines as $line) {
+			// Remove comments and trim
+			$line = trim(preg_replace('/#.*$/', '', $line));
+			if (empty($line)) continue;
+
+			// Check for User-agent directive
+			if (preg_match('/^User-agent:\s*(.+)$/i', $line, $matches)) {
+				$userAgent = trim($matches[1]);
+
+				// Check if this applies to our bot (treat as generic crawler)
+				if ($userAgent === '*' ||
+					stripos($userAgent, 'Googlebot') !== false ||
+					stripos($userAgent, 'bot') !== false ||
+					stripos($userAgent, 'crawler') !== false) {
+					$currentUserAgent = $userAgent;
+				} else {
+					$currentUserAgent = '';
+				}
+				continue;
+			}
+			
+			// Only process rules if we're in a relevant User-agent block
+			if (empty($currentUserAgent)) continue;
+			
+			// Check for Disallow directive
+			if (preg_match('/^Disallow:\s*(.*)$/i', $line, $matches)) {
+				$disallowPath = trim($matches[1]);
+				if ($disallowPath !== '') {
+					$disallowRules[] = $disallowPath;
+				}
+			}
+			
+			// Check for Allow directive (takes precedence over Disallow)
+			if (preg_match('/^Allow:\s*(.*)$/i', $line, $matches)) {
+				$allowPath = trim($matches[1]);
+				if ($allowPath !== '') {
+					$allowRules[] = $allowPath;
+				}
+			}
+		}
+		
+		// Check if URL matches any Allow rules first (these take precedence)
+		foreach ($allowRules as $allowPath) {
+			if (Spider::matchesRobotsPattern($urlPath, $allowPath)) {
+				return 0; // Explicitly allowed
+			}
+		}
+		
+		// Check if URL matches any Disallow rules
+		foreach ($disallowRules as $disallowPath) {
+			if (Spider::matchesRobotsPattern($urlPath, $disallowPath)) {
+				return 1; // Blocked
+			}
+		}
+		
+		return 0; // Not blocked
+	}
+	
+	/**
+	 * Check if a URL path matches a robots.txt pattern
+	 * 
+	 * @param string $urlPath The URL path to check
+	 * @param string $pattern The robots.txt pattern
+	 * @return bool True if matches
+	 */
+	private static function matchesRobotsPattern($urlPath, $pattern) {
+		// Handle wildcard * (matches any sequence of characters)
+		$pattern = preg_quote($pattern, '/');
+		$pattern = str_replace('\*', '.*', $pattern);
+		
+		// Handle $ (end of path marker)
+		$pattern = str_replace('\$', '$', $pattern);
+		
+		// Check if pattern matches the beginning of URL path
+		return preg_match('/^' . $pattern . '/i', $urlPath);
 	}
 }
 ?>

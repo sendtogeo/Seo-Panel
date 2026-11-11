@@ -1,7 +1,7 @@
 <?php
 
 /***************************************************************************
- *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	   *
+ *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.org)  	   *
  *   sendtogeo@gmail.com   												   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -40,6 +40,8 @@ $controller->spTextPanel = $controller->getLanguageTexts('panel', $_SESSION['lan
 $controller->set('spTextPanel', $controller->spTextPanel);
 $controller->spTextReport = $controller->getLanguageTexts('report', $_SESSION['lang_code']);
 $controller->set('spTextReport', $controller->spTextReport);
+$controller->spTextBack = $controller->getLanguageTexts('backlink', $_SESSION['lang_code']);
+$controller->set('spTextBack', $controller->spTextBack);
 
 $controller->layout = 'ajax';
 
@@ -55,6 +57,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			}
 			break;
 		
+		case "serparchive":
+			$controller->showSerpResultsArchive($_POST);
+			break;
+
 		case "reportsum":
 			$controller->showKeywordReportSummary($_POST);
 			break;
@@ -76,6 +82,22 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 }else{
 	switch($_GET['sec']){
 		
+		case "serpresults":
+			$controller->showSerpResults($_GET);
+			break;
+
+		case "aiosources":
+			$controller->showAIOverviewSources($_GET);
+			break;
+
+		case "aiocompetitorkeywords":
+			$controller->showAIOverviewCompetitorKeywords($_GET);
+			break;
+
+		case "serparchive":
+			$controller->showSerpResultsArchive($_GET);
+			break;
+
 		case "show-info":
 			$controller->showTimeReport($_GET);
 			break;

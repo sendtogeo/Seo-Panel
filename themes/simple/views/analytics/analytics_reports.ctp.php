@@ -1,37 +1,63 @@
-<?php echo showSectionHead($spTextTools['Detailed Reports']); ?>
+<?php include(SP_VIEWPATH.'/aivisibility/_styles.ctp.php'); ?>
+<div class="aiv-page-head">
+	<?php echo showSectionHead($spTextTools['Detailed Reports']); ?>
+	<a href="javascript:void(0);" data-toggle="modal" data-target="#anDetailHelpModal" class="aiv-help-btn"><i class="fas fa-question-circle"></i> What does this do?</a>
+</div>
+
+<!-- static help modal, not routed through #ajaxModalSP since there's no AJAX fetch involved -->
+<div class="modal fade aiv-help-modal" id="anDetailHelpModal" tabindex="-1" role="dialog" aria-labelledby="anDetailHelpModalLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="aiv-help-modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<div class="aiv-help-modal-icon"><i class="fas fa-table"></i></div>
+				<h5 class="modal-title" id="anDetailHelpModalLabel">About Detailed Reports</h5>
+			</div>
+			<div class="modal-body aiv-help-modal-body">
+				<p>A day-by-day table of one website's Google Analytics metrics for one traffic source over a date range, with day-over-day change highlighted.</p>
+				<div class="aiv-note">
+					<i class="fas fa-info-circle"></i>
+					<span>Reads already-saved GA4 data from the daily sync - it doesn't call the Google API live.</span>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" data-dismiss="modal">Got it</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 <form id='search_form'>
 <table class="search">
 	<tr>
 		<th><?php echo $spText['common']['Website']?>: </th>
 		<td>
-			<select name="website_id" id="website_id" onchange="doLoad('website_id', 'analytics.php', 'source_area', 'sec=source_box')">
+			<select name="website_id" id="website_id" onchange="doLoad('website_id', 'analytics.php', 'source_area', 'sec=source_box')" class="custom-select">
 				<?php foreach($websiteList as $websiteInfo){?>
 					<?php if($websiteInfo['id'] == $websiteId){?>
-						<option value="<?php echo $websiteInfo['id']?>" selected><?php echo $websiteInfo['name']?></option>
+						<option value="<?php echo $websiteInfo['id']?>" selected><?php echo htmlspecialchars($websiteInfo['name'])?></option>
 					<?php }else{?>
-						<option value="<?php echo $websiteInfo['id']?>"><?php echo $websiteInfo['name']?></option>
+						<option value="<?php echo $websiteInfo['id']?>"><?php echo htmlspecialchars($websiteInfo['name'])?></option>
 					<?php }?>
 				<?php }?>
 			</select>
 		</td>
-		<th><?php echo $spText['common']['Period']?>:</th>
+		<th class="pl-4"><?php echo $spText['common']['Period']?>:</th>
 		<td>
-			<input type="text" value="<?php echo $fromTime?>" name="from_time"/> 
-			<input type="text" value="<?php echo $toTime?>" name="to_time"/>
+			<input type="text" value="<?php echo $fromTime?>" name="from_time" class="form-control" style="display: inline-block; width: 45%;"/>
+			<input type="text" value="<?php echo $toTime?>" name="to_time" class="form-control" style="display: inline-block; width: 45%;"/>
 			<script type="text/javascript">
 			$(function() {
 				$( "input[name='from_time'], input[name='to_time']").datepicker({dateFormat: "yy-mm-dd"});
 			});
 		  	</script>
 		</td>
-	</tr>
-	<tr>
 		<th><?php echo $spText['common']['Source']?>: </th>
 		<td id="source_area">
 			<?php echo $this->render('analytics/source_select_box', 'ajax'); ?>
 		</td>
-		<td colspan="2">
-			<a href="javascript:void(0);" onclick="scriptDoLoadPost('analytics.php', 'search_form', 'content', '&sec=viewAnalyticsReports')" class="actionbut"><?php echo $spText['button']['Show Records']?></a>
+		<td style="text-align: center;">
+			<a href="javascript:void(0);" onclick="scriptDoLoadPost('analytics.php', 'search_form', 'content', '&sec=viewAnalyticsReports')" class="btn btn-secondary"><?php echo $spText['button']['Show Records']?></a>
 		</td>
 	</tr>
 </table>
@@ -40,7 +66,9 @@
 <?php
 if(empty($sourceId)){
 	?>
-	<p class='note error'><?php echo $spText['common']['No Records Found']?>!</p>
+	<div class="alert alert-danger">
+		<i class="fas fa-exclamation-circle me-2"></i><?php echo $spText['common']['No Records Found']?>!
+	</div>
 	<?php
 	exit;
 }

@@ -1,7 +1,7 @@
 <?php
 
 /***************************************************************************
- *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)			   *
+ *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.org)			   *
  *   sendtogeo@gmail.com   												   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -24,7 +24,7 @@
 class ProxyController extends Controller{
 
 	# func to show proxy list
-	function listProxy($info=''){
+	function listProxy($info=[]){
 		
 		$userId = isLoggedIn();
 		$sql = "select * from proxylist where 1=1";		
@@ -67,7 +67,7 @@ class ProxyController extends Controller{
 	}
 	
 	# func to show import proxy form
-	function showImportProxy($info = ''){
+	function showImportProxy($info=[]){
 		$this->render('proxy/importproxy');
 	}
 	
@@ -118,12 +118,12 @@ class ProxyController extends Controller{
 	}
 	
 	# func to check status of all proxy list
-	function showcheckAllStatus($info=''){
+	function showcheckAllStatus($info=[]){
 		$this->render('proxy/showcheckallstatus');
 	}
 	
 	# function to check all proxy status
-	function checkAllProxyStatus($info = '') {
+	function checkAllProxyStatus($info=[]) {
 		$isStatusCheck = false;
 		$this->updateProxyCheckedStatus(0, "");
 		if ($info['status'] != "") {
@@ -141,7 +141,7 @@ class ProxyController extends Controller{
 	}
 	
 	# func to check status of all proxy list
-	function runCheckStatus($info = '') {
+	function runCheckStatus($info=[]) {
 		$proxyId = intval($info['id']);
 		$this->checkStatus($proxyId);
 		$this->updateProxyCheckedStatus(1, " where id=$proxyId");
@@ -252,9 +252,10 @@ class ProxyController extends Controller{
 	function __getProxyInfo($proxyId){
 		$sql = "select * from proxylist where id=".intval($proxyId);
 		$listInfo = $this->db->select($sql, true);
+		if (empty($listInfo['id'])) return false;
 		$listInfo['proxy_username'] = stripslashes($listInfo['proxy_username']);
 		$listInfo['proxy_password'] = stripslashes($listInfo['proxy_password']);
-		return empty($listInfo['id']) ? false :  $listInfo;
+		return $listInfo;
 	}
 
 	function editProxy($proxyId, $listInfo=''){
@@ -326,9 +327,10 @@ class ProxyController extends Controller{
 	function getRandomProxy() {
 		$sql = "SELECT * FROM proxylist where status=1 ORDER BY RAND() LIMIT 1";
 		$listInfo = $this->db->select($sql, true);
+		if (empty($listInfo['id'])) return false;
 		$listInfo['proxy_username'] = stripslashes($listInfo['proxy_username']);
 		$listInfo['proxy_password'] = stripslashes($listInfo['proxy_password']);
-		return empty($listInfo['id']) ? false :  $listInfo;
+		return $listInfo;
 	}
 
 	// function to show cron command
@@ -340,7 +342,7 @@ class ProxyController extends Controller{
 	 * function to show perfomance of a proxy
 	 * @param Array $info	Contains all search info details
 	 */
-	function showProxyPerfomance($info = '') {
+	function showProxyPerfomance($info=[]) {
 		
 		$sql = "select p.id as proxy_id, p.proxy, p.port, count(*) count, sum(crawl_status) success, avg(crawl_status) avg_score,
 		count(*) - sum(crawl_status) fail from crawl_log t join proxylist p on p.id=t.proxy_id where 1=1";

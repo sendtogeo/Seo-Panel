@@ -1,7 +1,7 @@
 <?php
 
 /***************************************************************************
- *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	   *
+ *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.org)  	   *
  *   sendtogeo@gmail.com   												   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -32,33 +32,35 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	
 	switch($_POST['sec']){
 
+		// state-changing single-item actions - moved off GET, see
+		// js/common.js's doAction() / websites.php's own comment on this
+		case "upgrade":
+			$controller->upgradeTheme(intval($_POST['pid']));
+			break;
+
+		case "reinstall":
+			$controller->reInstallTheme(intval($_POST['pid']));
+			break;
+
 		default:
 			$controller->listThemes();
-			break;	    
+			break;
 	}
-	
+
 }else{
-	
+
 	$_GET['pid'] = intval($_GET['pid']);
-	
+
 	switch($_GET['sec']){
-		
+
 		case "activate":
 			$controller->activateTheme($_GET['theme_id']);
 			$redirectUrl = SP_WEBPATH."/admin-panel.php?menu_selected=themes-manager&start_script=themes-manager&pageno=".$_GET['pageno'];
 			redirectUrlByScript($redirectUrl);
 			break;
-			
+
 		case "listinfo":
 			$controller->listThemeInfo($_GET['pid']);
-			break;
-			
-		case "upgrade":
-			$controller->upgradeTheme($_GET['pid']);
-			break;
-			
-		case "reinstall":
-			$controller->reInstallTheme($_GET['pid']);
 			break;
 
 		default:

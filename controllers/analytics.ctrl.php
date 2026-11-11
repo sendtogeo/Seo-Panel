@@ -1,7 +1,7 @@
 <?php
 
 /***************************************************************************
- *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	   *
+ *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.org)  	   *
  *   sendtogeo@gmail.com   												   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -20,161 +20,217 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-// include google api module
-include_once(SP_CTRLPATH . "/googleapi.ctrl.php");
+include_once(SP_LIBPATH . "/analyticsdata/vendor/autoload.php");
+include_once(SP_CTRLPATH . "/user-token.ctrl.php");
+
+use Google\Auth\Credentials\UserRefreshCredentials;
+use Google\Analytics\Data\V1beta\BetaAnalyticsDataClient;
+use Google\Analytics\Data\V1beta\DateRange;
+use Google\Analytics\Data\V1beta\Metric;
+use Google\Analytics\Data\V1beta\Dimension;
 
 // class defines all google analytics api controller functions
-class AnalyticsController extends GoogleAPIController {
+class AnalyticsController extends Controller {
 	
     var $spTextGA;
     var $metrics;
 	var $metricList;
 	var $defaultMetricName = "users";
-	var $dimensionName = "source";
+	var $dimensionName = "sourceMedium";
+	var $sourceTypeList = ['referral', 'direct', 'organic', 'cpc', 'social'];
+	var $socialNetworkList;
+	var $totalLabel = "total";
+	var $tokenCtrler;
+	var $sourceName = 'google';
 	
 	function __construct() {
-		parent::__construct();
-		$this->spTextGA = $this->getLanguageTexts('analytics', $_SESSION['lang_code']);
-		$this->set('spTextGA', $this->spTextGA);
-		$this->metrics = array(
-		    'users' => $this->spTextGA['Users'],
-		    'newUsers' => $this->spTextGA['New Users'],
-		    'sessions' => $this->spTextGA['Sessions'],
-		    'bounceRate' => $this->spTextGA['Bounce Rate'],
-		    'avgSessionDuration' => $this->spTextGA['Avg. Session Duration'],
-		    'goalCompletionsAll' => $this->spTextGA['Goal Completions'],
-		);
-		
-		
-		$this->set('metricColList', $this->metrics);
-		$this->metricList = array_keys($this->metrics);
+	    parent::__construct();
+	    $this->spTextGA = $this->getLanguageTexts('analytics', $_SESSION['lang_code']);
+	    $this->set('spTextGA', $this->spTextGA);
+	    $this->metrics = array(
+	        'users' => $this->spTextGA['Users'],
+	        'newUsers' => $this->spTextGA['New Users'],
+	        'sessions' => $this->spTextGA['Sessions'],
+	        'bounceRate' => $this->spTextGA['Bounce Rate'],
+	        'avgSessionDuration' => $this->spTextGA['Avg. Session Duration'],
+	        'goalCompletionsAll' => $this->spTextGA['Goal Completions'],
+	    );
+	    
+	    $this->dimensions = array(
+	        'sourceMedium' => "Source",
+	        'pagePath' => "Page",
+	        'country' => "Country",
+	        /*'socialNetwork' => "Social Network",*/
+	        'deviceCategory' => "Device",
+	        'language' => "Language",
+	        'browser' => "Browser",
+	        'operatingSystem' => "Operating System",
+	    );
+	    
+	    $this->set('dimensions', $this->dimensions);
+	    $this->set('metricColList', $this->metrics);
+	    $this->metricList = array_keys($this->metrics);
+	}
+	
+	/**
+	 * function to get google analytics GA4 auth client
+	 */
+	function getGoogleAnalyticsGA4AuthClient($userId) {
+	    // get user token info
+	    $tokenCtrler = new UserTokenController();
+	    $tokenInfo = $tokenCtrler->getUserToken($userId, $this->sourceName);
+	    
+	    // if token not set for the user
+	    if (empty($tokenInfo['refresh_token'])) {
+	        $spTextWebmaster = $this->getLanguageTexts('webmaster', $_SESSION['lang_code']);
+	        $errorText = $spTextWebmaster["Error: Google api connection failed"] . ". ";
+	        $errorText .= "<a href='".SP_WEBPATH ."/admin-panel.php?sec=connections' target='_blank'>{$spTextWebmaster['Click here to connect to your google account']}.</a>";
+	        $alertCtler = new AlertController();
+	        $alertInfo = array(
+	            'alert_subject' => $spTextWebmaster['Click here to connect to your google account'],
+	            'alert_message' => $spTextWebmaster["Error: Google api connection failed"],
+	            'alert_url' => SP_WEBPATH ."/admin-panel.php?sec=connections",
+	            'alert_type' => "danger",
+	            'alert_category' => "reports",
+	        );
+	        $alertCtler->createAlert($alertInfo, $userId);
+	        return $errorText;
+	    }
+	    
+	    try {
+	        $credentials = new UserRefreshCredentials(['https://www.googleapis.com/auth/analytics.readonly'], [
+	            'client_id' => SP_GOOGLE_API_CLIENT_ID,
+	            'client_secret' => SP_GOOGLE_API_CLIENT_SECRET,
+	            'refresh_token' => $tokenInfo['refresh_token'],
+	        ]);
+	        
+	        // Initialize the client
+	        $ga4Client = new BetaAnalyticsDataClient(['credentials' => $credentials]);
+	        return $ga4Client;
+	    } catch (Exception $e) {
+	        $err = $e->getMessage();
+	        return "Error: Google analytics GA4 client creation - $err";
+	    }
 	}
 	
 	/*
 	 * function to get analytics query result
 	 */
-	function getAnalyticsResults($userId, $VIEW_ID, $startDate, $endDate) {
-		$result = array('status' => false);
-		
-		if (empty($VIEW_ID)) {
-		    $result['msg'] = $this->spTextGA['view_id_not_found_error'];
-		    $alertCtler = new AlertController();
-		    $alertInfo = array(
-	    		'alert_subject' => $this->spTextGA['view_id_not_found_error'],
-	    		'alert_message' => "",
-	    		'alert_url' => SP_WEBPATH ."/admin-panel.php",
-	    		'alert_type' => "danger",
-	    		'alert_category' => "reports",
-		    );
-		    $alertCtler->createAlert($alertInfo, $userId);
-		    return $result;
-		}
-		
-		try {
-			
-    		$client = $this->getAuthClient($userId);
-    		
-    		// check whether client created successfully
-    		if (!is_object($client)) {
-    		    $result['msg'] = $client;
-    		    return $result;
-    		}
-    		
-    		$analytics = new Google_Service_AnalyticsReporting($client);
-    		
-    		// Create the DateRange object.
-    		$dateRange = new Google_Service_AnalyticsReporting_DateRange();
-    		$dateRange->setStartDate($startDate);
-    		$dateRange->setEndDate($endDate);
-    		
-    		// Create the Metrics object list
-    		$metricObjList = [];
-    		foreach ($this->metricList as $metricName) {
-	    		$sessions = new Google_Service_AnalyticsReporting_Metric();
-	    		$sessions->setExpression("ga:$metricName");
-	    		$sessions->setAlias($metricName);
-	    		$metricObjList[] = $sessions;
-    		}
-    		
-    		// Create the dimension.
-    		$dimension = new Google_Service_AnalyticsReporting_Dimension();
-    		$dimension->setName("ga:$this->dimensionName");
-    		
-    		// Create the Ordering.    		
-    		$ordering = new Google_Service_AnalyticsReporting_OrderBy();
-    		$ordering->setFieldName("ga:$this->defaultMetricName");
-    		$ordering->setOrderType("VALUE");
-    		$ordering->setSortOrder("DESCENDING");
-    		
-    		// Create the ReportRequest object.
-    		$request = new Google_Service_AnalyticsReporting_ReportRequest();
-    		$request->setViewId($VIEW_ID);
-    		$request->setDateRanges($dateRange);
-    		$request->setMetrics($metricObjList);
-    		$request->setDimensions(array($dimension));
-    		$request->setOrderBys($ordering);
-    		
-    		$body = new Google_Service_AnalyticsReporting_GetReportsRequest();
-    		$body->setReportRequests( array( $request) );
-    		$res = $analytics->reports->batchGet( $body );    		
-    		$resultList = $this->formatResult($res);
-    		
-    		$result['status'] = true;
-    		$result['resultList'] = $resultList;    		
-		} catch (Exception $e) {
-		    $err = $e->getMessage();
-		    $result['msg'] = "Error: search query analytics - $err";
-		}
-		
-		return $result;
-		
+	function getAnalyticsResults($userId, $propertyId, $startDate, $endDate, $dimensionName="sourceMedium") {
+	    $result = array('status' => false);
+	    if (empty($propertyId)) {
+	        $result['msg'] = $this->spTextGA['view_id_not_found_error'];
+	        $alertCtler = new AlertController();
+	        $alertInfo = array(
+	            'alert_subject' => $this->spTextGA['view_id_not_found_error'],
+	            'alert_message' => "",
+	            'alert_url' => SP_WEBPATH ."/admin-panel.php",
+	            'alert_type' => "danger",
+	            'alert_category' => "reports",
+	        );
+	        $alertCtler->createAlert($alertInfo, $userId);
+	        return $result;
+	    }
+	    
+	    try {
+	        // create GA4 client
+	        $client = $this->getGoogleAnalyticsGA4AuthClient($userId);
+	        if (!is_object($client)) {
+	            $result['msg'] = $client;
+	            return $result;
+	        }
+	        
+	        // Define the date range for your query
+	        $dateRange = new DateRange();
+	        $dateRange->setStartDate($startDate);
+	        $dateRange->setEndDate($endDate);
+	        
+	        // create the dimension.
+	        $dimensionName = !empty($dimensionName) ? $dimensionName : $this->dimensionName;
+	        $dimension = [
+	            new Dimension(['name' => self::getActualQueryDimensionName($dimensionName)]),
+	        ];
+	        
+	        $metricObjList = [];
+	        foreach ($this->metricList as $metricName) {
+	            $metricObjList[] = new Metric(['name' => self::getActualQueryMetricName($metricName)]);
+	        }
+	        
+	        // Make the request
+	        $resultList = [];
+	        $response = $client->runReport([
+	            'property' => 'properties/' . $propertyId,
+	            'dateRanges' => [$dateRange],
+	            'dimensions' => $dimension,
+	            'metrics' => $metricObjList,
+	        ]);
+	        
+	        // Extract and print the results
+	        $rows = $response->getRows();
+	        foreach ($rows as $row) {
+	            $dimensionValues = $row->getDimensionValues();
+	            $metricValues = $row->getMetricValues();
+	            
+	            $dimensionVal = $dimensionValues[0]->getValue();
+	            if (!empty($dimensionVal)) {
+	                $metricData = [];
+	                $i = 0;
+	                foreach ($this->metricList as $metricName) {
+	                    $metricDataVal = $metricValues[$i]->getValue();
+	                    $metricData[$metricName] = self::formatMetricValue($metricDataVal, $metricName);
+	                    $i++;
+	                }
+	                
+	                $resultList[$dimensionVal] = $metricData;
+	            }
+	        }
+	        
+	        $result['status'] = true;
+	        $result['resultList'] = $resultList;
+	    } catch (Exception $e) {
+	        $err = $e->getMessage();
+	        $result['msg'] = "Error: search query analytics - $err";
+	    }
+	    
+	    return $result;
 	}
 	
-	function formatMetricValue($value, $metricName) {
-		
-		if ($metricName == "bounceRate") {
-			$value = round($value, 2);
-		}
-			
-		if ($metricName == "avgSessionDuration") {
-			$value = round(($value/60), 2);
-		}
-		
-		return $value;
+	public static function getActualQueryMetricName($metricName) {
+	    $queryMetricName = $metricName;
+	    if ($metricName == "users") {
+	        $queryMetricName = "activeUsers";
+	    }
+	    
+	    if ($metricName == "avgSessionDuration") {
+	        $queryMetricName = "averageSessionDuration";
+	    }
+	    
+	    if ($metricName == "goalCompletionsAll") {
+	        $queryMetricName = "conversions";
+	    }
+	    
+	    return $queryMetricName;
 	}
 	
-	function formatResult($reports) {
-		$resultList = array();
-		
-		// loop through the reports
-		for ( $reportIndex = 0; $reportIndex < count( $reports ); $reportIndex++ ) {
-			$report = $reports[ $reportIndex ];
-			
-			// get total value
-			$totals = $report->getData()->getTotals();
-			$values = $totals[0]->getValues();
-			$resultList['total'] = [];
-			foreach ($this->metricList as $i => $metricName) {
-				$resultList['total'][$metricName] = $this->formatMetricValue($values[$i], $metricName);
-			}
-			
-			// get dimension type value
-			$rows = $report->getData()->getRows();
-			for ( $rowIndex = 0; $rowIndex < count($rows); $rowIndex++) {
-				$row = $rows[$rowIndex];
-				$dimensions = $row->getDimensions();
-				$metrics = $row->getMetrics();
-				$values = $metrics[0]->getValues();
-				
-				// find metric values
-				$resultList[$dimensions[0]] = [];
-				foreach ($this->metricList as $i => $metricName) {
-					$resultList[$dimensions[0]][$metricName] = $this->formatMetricValue($values[$i], $metricName);
-				}
-			}
-		}
-		
-		return $resultList;
+	public static function getActualQueryDimensionName($dimensionName) {
+	    $queryDimensionName = $dimensionName;
+	    if ($dimensionName == "sourceMedium") {
+	        $queryDimensionName = "sessionSourceMedium";
+	    }
+	    
+	    return $queryDimensionName;
+	}
+	
+	public static function formatMetricValue($value, $metricName) {
+	    if (in_array($metricName, ["bounceRate", "goalCompletionsAll"])) {
+	        $value = round($value, 2);
+	    }
+	    
+	    if ($metricName == "avgSessionDuration") {
+	        $value = round(($value/60), 2);
+	    }
+	    
+	    return $value;
 	}
 	
 	function getAnalyticsSourceList() {
@@ -227,6 +283,15 @@ class AnalyticsController extends GoogleAPIController {
 			}
 		}
 	
+
+		// bug fix: none of this method's cron.ctrl.php callers check its
+		// return value at all - a failure here (bad/expired credentials,
+		// a Google API error, a missing analytics source) previously
+		// left zero trace anywhere. $result['msg'] already carries the
+		// real error from getAnalyticsResults()/getGoogleAnalyticsGA4AuthClient().
+		if (empty($result['status']) && !empty($result['msg'])) {
+			error_log("SEO Panel: storeWebsiteAnalytics() failed for website $websiteId: " . $result['msg']);
+		}
 		return $result;
 	
 	}
@@ -264,21 +329,35 @@ class AnalyticsController extends GoogleAPIController {
 	}
 
 	// func to do quick report
-	function doQuickChecker($searchInfo = '') {
-	
+	function doQuickChecker($searchInfo=[]) {
+	    
 		if (!empty($searchInfo['website_id'])) {
 			$websiteId = intval($searchInfo['website_id']);
 			$websiteController = New WebsiteController();
+			// this fetches GA4 data using the WEBSITE OWNER's own
+			// connected Google account ($websiteInfo['user_id'] below,
+			// not the requesting user) - so a caller-supplied website_id
+			// was previously never verified to belong to the logged-in
+			// user before being used, letting any non-admin read another
+			// user's real Analytics data for an arbitrary website_id.
+			// Same fix already applied to the sibling
+			// WebMasterController::doQuickChecker().
+			$userId = isLoggedIn();
+			$websiteList = $websiteController->__getAllWebsites($userId, true);
+			if (!isAdmin() && !in_array($websiteId, array_column($websiteList, 'id'))) {
+				showErrorMsg($_SESSION['text']['label']['Access denied']);
+				return;
+			}
 			$websiteInfo = $websiteController->__getWebsiteInfo($websiteId);
-			$this->set('websiteInfo', $websiteInfo);			
-			
+			$this->set('websiteInfo', $websiteInfo);
+
 			if (!empty($websiteInfo['url'])) {
 				$reportStartDate = !empty($searchInfo['from_time']) ? $searchInfo['from_time'] : date('Y-m-d', strtotime('-1 days'));
 				$reportEndDate = !empty($searchInfo['to_time']) ? $searchInfo['to_time'] : date('Y-m-d');
 								
 				// query results from api and verify no error occured
 				$result = $this->getAnalyticsResults($websiteInfo['user_id'], $websiteInfo['analytics_view_id'], $reportStartDate, $reportEndDate);
-					
+				
 				// if status is success
 				if ($result['status']) {
 					$websiteReport = array_shift($result['resultList']);
@@ -289,7 +368,6 @@ class AnalyticsController extends GoogleAPIController {
 					$this->set('searchInfo', $searchInfo);
 					$this->render('analytics/quick_checker_results');
 					return true;
-					
 				}
 			}
 		} 
@@ -307,6 +385,20 @@ class AnalyticsController extends GoogleAPIController {
 		return !empty($info['website_id']) ? true : false;
 	}
 	
+	// func to get the earliest/latest website_analytics.report_date
+	// actually synced for the given scope - lets Website Analytics
+	// Summary's default/preset date ranges anchor to real Google
+	// Analytics data instead of assuming a recent calendar date has a
+	// result. $conditions is the same "and k.source_name like ...]
+	// and r.website_id=..." fragment viewAnalyticsSummary() already
+	// builds for its own query.
+	function __getWebsiteAnalyticsDateAvailability($conditions) {
+		$sql = "select min(r.report_date) as min_date, max(r.report_date) as max_date
+		        from analytic_sources k, website_analytics r
+		        where k.id = r.source_id $conditions";
+		return $this->__getMinMaxDate($sql);
+	}
+
 	# func to show analytics report summary
 	function viewAnalyticsSummary($searchInfo = '', $summaryPage = false, $cronUserId=false) {
 	    
@@ -332,49 +424,96 @@ class AnalyticsController extends GoogleAPIController {
 	            break;
 	    }
 	    
-	    $fromTime = !empty($searchInfo['from_time']) ? addslashes($searchInfo['from_time']) : date('Y-m-d', strtotime('-2 days'));
-	    $toTime = !empty($searchInfo['to_time']) ? addslashes($searchInfo['to_time']) : date('Y-m-d', strtotime('-1 days'));
-	    $this->set('fromTime', $fromTime);
-	    $this->set('toTime', $toTime);
-	    
 	    $websiteController = New WebsiteController();
 	    $wList = $websiteController->__getAllWebsites($userId, true);
 	    $websiteList = [];
 	    foreach ($wList as $wInfo) {
 	        $websiteList[$wInfo['id']] = $wInfo;
 	    }
-	    
-	    $websiteList = count($websiteList) ? $websiteList : array(0);
 	    $this->set('websiteList', $websiteList);
-	    $websiteId = intval($searchInfo['website_id']);
+	    $websiteId = isset($searchInfo['website_id']) ? intval($searchInfo['website_id']) : null;
+	    // a non-admin's website_id must be one of their own (already-scoped)
+	    // websites - previously unchecked, letting any non-admin view ANY
+	    // other user's analytics summary for an arbitrary website_id.
+	    if (!empty($websiteId) && !isAdmin() && !isset($websiteList[$websiteId])) {
+	        $websiteId = 0;
+	    }
+	    // resolve to a real website (first one, same as the select box's own
+	    // default) only when nothing was submitted at all - the search
+	    // form's own select never submits an empty value any more. An
+	    // explicit 0 is left alone: sentEmailNotificationForReportGen()'s
+	    // "Overall Report Summary" email deliberately passes website_id=0
+	    // to mean every one of this user's websites combined, which still
+	    // needs the WEBSITE column below to tell rows apart.
+	    if ($websiteId === null) {
+	        $websiteId = !empty($websiteList) ? array_key_first($websiteList) : 0;
+	    }
 	    $this->set('websiteId', $websiteId);
-	    
-	    // to find order col
-	    if (!empty($searchInfo['order_col'])) {
+
+	    // to find order col - order_col is caller-supplied and lands
+	    // directly in an ORDER BY clause with no way to parameterize an
+	    // identifier position, so it must be checked against a fixed
+	    // whitelist (not just addslashes()'d, which does nothing for an
+	    // unquoted SQL identifier) - previously unchecked, letting any
+	    // logged-in non-admin run a blind SQL injection via ORDER BY
+	    // (e.g. a CASE/SLEEP() expression), same fix shape Site Auditor
+	    // already uses for its own order_col. $this->metrics is also
+	    // exactly the column set actually SELECTed below ($analyticsCols),
+	    // so this doubles as keeping the two in sync.
+	    if (!empty($searchInfo['order_col']) && array_key_exists($searchInfo['order_col'], $this->metrics)) {
 	        $orderCol = $searchInfo['order_col'];
 	        $orderVal = getOrderByVal($searchInfo['order_val']);
 	    } else {
 	        $orderCol = "users";
 	        $orderVal = 'DESC';
 	    }
-	    
+
 	    $this->set('orderCol', $orderCol);
 	    $this->set('orderVal', $orderVal);
+
+	    $conditions = !empty($searchInfo['search_name']) ? " and k.source_name like '%".addslashes($searchInfo['search_name'])."%'" : "";
+	    $websiteIds = array_keys($websiteList);
+	    if (!empty($websiteId)) {
+	        $conditions .= " and r.website_id=" . intval($websiteId);
+	    } elseif (!empty($websiteIds)) {
+	        $conditions .= " and r.website_id in (" . implode(',', $websiteIds) . ")";
+	    } else {
+	        // no websites at all (e.g. a brand new install's admin with
+	        // none created yet) - "in ()" with no values is a SQL syntax
+	        // error, so match nothing instead
+	        $conditions .= " and 1=0";
+	    }
+
+	    // Period resolution - two cases, same pattern as Keyword
+	    // Position/Search Summary: a day/week/month/year preset
+	    // (explicitly picked, or defaulted to 'month' when nothing was
+	    // submitted at all, so the dropdown shows "Month" selected
+	    // rather than looking unset) anchors "to" to the latest
+	    // report_date actually synced from Google Analytics for this
+	    // website, and "from" to that minus the preset's offset,
+	    // clamped so it never goes earlier than the earliest synced
+	    // date - or explicit from_time/to_time, used exactly as given.
+	    $period = $this->__resolvePeriodValue($searchInfo);
+
+	    if (!empty($period)) {
+	        list($minAvailDate, $maxAvailDate) = $this->__getWebsiteAnalyticsDateAvailability($conditions);
+	        list($fromTimeStamp, $toTimeStamp) = $this->__resolvePeriodPreset($period, $minAvailDate, $maxAvailDate, '-1 days');
+	        $fromTime = date('Y-m-d', $fromTimeStamp);
+	        $toTime = date('Y-m-d', $toTimeStamp);
+	    } else {
+	        $fromTime = !empty($searchInfo['from_time']) ? addslashes($searchInfo['from_time']) : date('Y-m-d', strtotime('-2 days'));
+	        $toTime = !empty($searchInfo['to_time']) ? addslashes($searchInfo['to_time']) : date('Y-m-d', strtotime('-1 days'));
+	    }
+	    $this->set('fromTime', $fromTime);
+	    $this->set('toTime', $toTime);
+	    $this->set('period', $period);
+
 	    $scriptName = $summaryPage ? "archive.php" : "analytics.php";
 	    $scriptPath = SP_WEBPATH . "/$scriptName?sec=viewAnalyticsSummary&website_id=$websiteId";
 	    $scriptPath .= "&from_time=$fromTime&to_time=$toTime&search_name=" . $searchInfo['search_name'];
 	    $scriptPath .= "&order_col=$orderCol&order_val=$orderVal&report_type=analytics-reports";
-	    
-	    $conditions = !empty($searchInfo['search_name']) ? " and k.source_name like '%".addslashes($searchInfo['search_name'])."%'" : "";
-	    
-	    // set website id to get exact keywords of a user
-	    if (!empty($websiteId)) {
-	        $conditions .= " and r.website_id=$websiteId";
-	    } else {
-	        $conditions .= " and r.website_id in (".implode(',', array_keys($websiteList)).")";
-	    }
-	    
-	    $analyticsCols = implode(",", array_keys($this->metrics));	    
+
+	    $analyticsCols = implode(",", array_keys($this->metrics));
 	    $sql = "select k.id,k.source_name,r.website_id,$analyticsCols 
             from analytic_sources k, website_analytics r 
             where k.id=r.source_id $conditions and r.report_date='$toTime'
@@ -517,21 +656,32 @@ class AnalyticsController extends GoogleAPIController {
 	    $websiteController = New WebsiteController();
 	    $websiteList = $websiteController->__getAllWebsites($userId, true);
 	    $this->set('websiteList', $websiteList);
-	    $websiteId = empty ($searchInfo['website_id']) ? $websiteList[0]['id'] : intval($searchInfo['website_id']);
+	    $websiteId = empty ($searchInfo['website_id']) ? '' : intval($searchInfo['website_id']);
+	    // a non-admin's website_id must be one of their own (already-scoped)
+	    // websites - previously unchecked. Same fallback as the other
+	    // dashboard/tool fixes this session: their own first website.
+	    if (!empty($websiteId) && !isAdmin() && !in_array($websiteId, array_column($websiteList, 'id'))) {
+	        $websiteId = '';
+	    }
+	    if (empty($websiteId)) $websiteId = $websiteList[0]['id'] ?? '';
 	    $this->set('websiteId', $websiteId);
-	    
+
+	    // source_id is not itself sensitive - analytic_sources is a shared,
+	    // global lookup table (e.g. "google", "direct") with no per-website
+	    // ownership - and the query below is already scoped by the fixed
+	    // website_id, so an unrelated source_id just yields zero rows.
 	    $sourceList = $this->__getWebsiteSourceList($websiteId);
 	    $this->set('sourceList', $sourceList);
-	    $sourceId = empty ($searchInfo['source_id']) ? $sourceList[0]['id'] : $searchInfo['source_id'];
+	    $sourceId = empty ($searchInfo['source_id']) ? $sourceList[0]['id'] : intval($searchInfo['source_id']);
 	    $this->set('sourceId', $sourceId);
-	    
+
 	    $conditions = " and s.website_id=$websiteId";
 	    $conditions .= empty ($sourceId) ? "" : " and s.source_id=$sourceId";
 	    $sql = "select s.* from website_analytics s
 		  where report_date>='$fromTimeDate' and report_date<='$toTimeDate' $conditions
 		  order by s.report_date";
 	    $reportList = $this->db->select($sql);
-	    
+
 	    $colList = array_keys($this->metrics);
 	    $prevRank = [];
 	    $rankDiff = [];
@@ -596,21 +746,26 @@ class AnalyticsController extends GoogleAPIController {
 	    $websiteController = New WebsiteController();
 	    $websiteList = $websiteController->__getAllWebsites($userId, true);
 	    $this->set('websiteList', $websiteList);
-	    $websiteId = empty ($searchInfo['website_id']) ? $websiteList[0]['id'] : intval($searchInfo['website_id']);
+	    $websiteId = empty ($searchInfo['website_id']) ? '' : intval($searchInfo['website_id']);
+	    // same fix as viewAnalyticsReports() - see that method's comment
+	    if (!empty($websiteId) && !isAdmin() && !in_array($websiteId, array_column($websiteList, 'id'))) {
+	        $websiteId = '';
+	    }
+	    if (empty($websiteId)) $websiteId = $websiteList[0]['id'] ?? '';
 	    $this->set('websiteId', $websiteId);
-	    
+
 	    $sourceList = $this->__getWebsiteSourceList($websiteId);
 	    $this->set('sourceList', $sourceList);
-	    $sourceId = empty ($searchInfo['source_id']) ? $sourceList[0]['id'] : $searchInfo['source_id'];
+	    $sourceId = empty ($searchInfo['source_id']) ? $sourceList[0]['id'] : intval($searchInfo['source_id']);
 	    $this->set('sourceId', $sourceId);
-	    
+
 	    $conditions = " and s.website_id=$websiteId";
 	    $conditions .= empty ($sourceId) ? "" : " and s.source_id=$sourceId";
 	    $sql = "select s.* from website_analytics s
 		  where report_date>='$fromTimeDate' and report_date<='$toTimeDate' $conditions
 		  order by s.report_date";
 	    $reportList = $this->db->select($sql);
-	    
+
 	    // if reports not empty
 	    $colList = $this->metrics;
 	    $this->set('colList', $colList);

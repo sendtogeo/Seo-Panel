@@ -1,7 +1,7 @@
 <?php
 
 /***************************************************************************
- *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	           *
+ *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.org)  	           *
  *   sendtogeo@gmail.com   												   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -26,7 +26,8 @@ class SettingsController extends Controller{
 	var $layout = 'ajax';
 	
 	# function to show system settings
-	function showSystemSettings($category='system') {		
+	function showSystemSettings($category='system') {
+	    $category = htmlentities($category, ENT_QUOTES);
 	    $category = addslashes($category);
 		$this->set('list', $this->__getAllSettings(true, 1, $category));
 		
@@ -41,7 +42,9 @@ class SettingsController extends Controller{
     		
     		$currencyCtrler = new CurrencyController();
 	    	$this->set('currencyList', $currencyCtrler->__getAllCurrency(" and paypal=1 and status=1 and name!=''"));
-			
+	    	
+	    	$countryCtrl = new CountryController();
+	    	$this->set('countryList', $countryCtrl->__getAllCountryAsList());
 		}
 		
 		$this->set('category', $category);
@@ -84,11 +87,24 @@ class SettingsController extends Controller{
 					$this->set('headLabel', $spTextPanel['Google Settings']);					
 					break;
 					
+				case "dataforseo":
+				    $this->set('headLabel', $spTextPanel['DataForSEO Settings']);
+				    break;
+
+				case "local_ai":
+				    $this->set('headLabel', $spTextPanel['Local AI Settings']);
+				    break;
+
 				case "mail":
 				    $this->set('headLabel', $spTextPanel['Mail Settings']);
 				    break;
-					
-				default:					
+
+				case "seopanel_api":
+				    $this->set('headLabel', $spTextPanel['Seo Panel API Settings']);
+				    $this->set('spapiCheckResult', SettingsController::refreshSpApiCheckStatus());
+				    break;
+
+				default:
 					break;
 				
 			}
@@ -98,9 +114,45 @@ class SettingsController extends Controller{
 	}
 	
 	function updateSystemSettings($postInfo) {
-		
-		$setList = $this->__getAllSettings(true, 1, $postInfo['category']);
+
+		// was passed straight through with no sanitization at all - this
+		// value lands unquoted in __getAllSettings()'s own WHERE clause
+		// (libs/controller.class.php), unlike showSystemSettings() right
+		// above, which already htmlentities()/addslashes()'s the exact
+		// same value before the identical call. The app's global SQLi
+		// filter doesn't block a bare boolean/UNION payload either, so
+		// this was a genuine blind SQL injection via category. Sanitized
+		// into its own variable rather than overwriting $postInfo
+		// ['category'] in place - showSystemSettings() below (called
+		// with the original $postInfo['category']) already applies this
+		// exact same sanitization itself, so mutating it here too would
+		// double-encode it there.
+		$safeCategory = addslashes(htmlentities($postInfo['category'], ENT_QUOTES));
+		$setList = $this->__getAllSettings(true, 1, $safeCategory);
+		// names only, not old/new values - several settings in this list
+		// are secrets (SMTP password, API keys) that must never land in
+		// a table other admins can browse
+		$changedSettingNames = [];
+		// Was: each setting was committed to the DB one row at a time,
+		// in $setList's own id order, as the loop went - but the SMTP
+		// validation below (SP_SMTP_HOST/USERNAME/PASSWORD empty while
+		// SP_SMTP_MAIL is enabled) runs AS PART of that same per-row
+		// loop and exit()s on failure. SP_SMTP_MAIL has a lower id than
+		// the 3 fields it validates, so by the time validation caught
+		// the missing host/username/password and exited, SP_SMTP_MAIL=1
+		// had already been committed in its own earlier iteration - the
+		// admin saw "please enter your SMTP details", believed nothing
+		// saved, but SMTP was now permanently enabled with blank
+		// credentials, silently breaking every outbound mail() call
+		// from that point on. Wrapped in a transaction so a mid-loop
+		// exit rolls back everything written so far, not just this one.
+		$this->db->query("START TRANSACTION");
 		foreach($setList as $setInfo){
+		    
+		    // exclude from update
+		    if ($setInfo['set_name'] == 'SP_DFS_BALANCE') {
+		        continue;
+		    }
 
 			switch($setInfo['set_name']){
 				
@@ -122,6 +174,7 @@ class SettingsController extends Controller{
 		        case "SP_SMTP_PASSWORD":		            
 			        // if smtp mail enabled then check all smtp details entered
 			        if (empty($postInfo[$setInfo['set_name']]) && !empty($postInfo['SP_SMTP_MAIL'])) {
+			            $this->db->query("ROLLBACK");
 			            $this->set('errorMsg', $this->spTextSettings['entersmtpdetails']);
 	                    $this->showSystemSettings($postInfo['category']);
 	                    exit;
@@ -134,16 +187,79 @@ class SettingsController extends Controller{
 		            $sql = "Update reports_settings set report_interval=".$postInfo[$setInfo['set_name']]." where report_interval<".$postInfo[$setInfo['set_name']];
 		            $userList = $this->db->query($sql);
 		            break;
-			}
+			}			
 			
+			if ((string) $setInfo['set_val'] !== (string) $postInfo[$setInfo['set_name']]) {
+				$changedSettingNames[] = $setInfo['set_name'];
+			}
+
 			$sql = "update settings set set_val='".addslashes($postInfo[$setInfo['set_name']])."' where set_name='".addslashes($setInfo['set_name'])."'";
 			$this->db->query($sql);
 		}
-		
+		$this->db->query("COMMIT");
+
+		if (!empty($changedSettingNames)) {
+			$this->logAuditEvent('settings.update', 'settings', null, $postInfo['category'] ?? null, implode(', ', $changedSettingNames));
+
+			// FeatureTourController::__cachedLiveCheck() caches a
+			// DataForSEO/MOZ live-check result for the rest of the
+			// calendar day (information_list.info_type =
+			// 'dataforseo_check'/'moz_check'), to avoid re-hitting those
+			// APIs on every Setup Tour refresh. But nothing was ever
+			// invalidating that cache - so if the tour's own check had
+			// already cached an "error" earlier today (e.g. credentials
+			// were still blank/wrong at the time), saving GOOD
+			// credentials right here didn't help: the tour kept showing
+			// "NOT SET UP" for the rest of the day even after the admin
+			// just verified a working connection on this very settings
+			// page. Deleting the stale row on save forces the next tour
+			// check to do a fresh live call instead of trusting it.
+			$liveCheckCacheByField = array(
+				'SP_DFS_API_LOGIN'    => 'dataforseo_check',
+				'SP_DFS_API_PASSWORD' => 'dataforseo_check',
+				'SP_MOZ_API_SECRET'   => 'moz_check',
+			);
+			$staleInfoTypes = array_unique(array_intersect_key($liveCheckCacheByField, array_flip($changedSettingNames)));
+			if (!empty($staleInfoTypes)) {
+				$quotedTypes = implode(',', array_map(function($t) { return "'" . addslashes($t) . "'"; }, $staleInfoTypes));
+				$this->db->query("DELETE FROM information_list WHERE info_type IN ($quotedTypes)");
+			}
+		}
+
 		$this->set('saved', 1);
 		$this->showSystemSettings($postInfo['category']);
 	}
-	
+
+	// GET settings.php?sec=auditlog - admin-only (settings.php gates the
+	// entire file with checkAdminLoggedIn() except sec=aboutus, so no
+	// separate check needed here). Paginated, most recent first, with an
+	// optional action-type filter - same pagination pattern already used
+	// by every other list in the app (see UserController::listUsers()).
+	function showAuditLog($info=[]) {
+		$info['pageno'] = intval($info['pageno'] ?? 0);
+		$pageScriptPath = 'settings.php?sec=auditlog&actionfilter=' . urlencode($info['actionfilter'] ?? '');
+
+		$sql = "select * from audit_log where 1=1";
+		if (!empty($info['actionfilter'])) {
+			$sql .= " and action='" . addslashes($info['actionfilter']) . "'";
+		}
+		$sql .= " order by id desc";
+
+		$this->db->query($sql, true);
+		$this->paging->setDivClass('pagingdiv');
+		$this->paging->loadPaging($this->db->noRows, SP_PAGINGNO);
+		$pagingDiv = $this->paging->printPages($pageScriptPath, '', 'scriptDoLoad', 'content', 'layout=ajax');
+		$this->set('pagingDiv', $pagingDiv);
+		$sql .= " limit " . $this->paging->start . "," . $this->paging->per_page;
+		$this->set('auditLogList', $this->db->select($sql));
+
+		$actionList = $this->db->select("select distinct action from audit_log order by action");
+		$this->set('actionList', $actionList);
+		$this->set('actionFilter', $info['actionfilter'] ?? '');
+
+		$this->render('settings/auditlog');
+	}
+
 	# func to show about us of seo panel
 	function showAboutUs($info) {
 	    
@@ -197,10 +313,125 @@ class SettingsController extends Controller{
 	    // if message needs to be returned
 	    if ($return) {
 	        return [$oldVersion, $message];
-	    } else {
-	        echo $oldVersion ? showErrorMsg($message, false) : showSuccessMsg($message, false);
 	    }
-	    
+
+	    echo $oldVersion ? showErrorMsg($message, false) : showSuccessMsg($message, false);
+	    if ($oldVersion) {
+	        // 'Upgrade Now' (texts table, category 'settings') was only
+	        // added 2026-09-05 - on a database old enough to predate that
+	        // row, $spTextSettings['Upgrade Now'] is simply missing, so
+	        // this rendered a blank button instead of a fatal error (array
+	        // access on a missing key is just a warning, unlike the
+	        // undefined-constant class of bug fixed earlier for settings).
+	        // Same fix shape: a safe literal fallback, since the generic
+	        // $spText['label']/$spText['common'] groups loaded this early
+	        // don't reliably have an equivalent string either.
+	        $upgradeNowLabel = !empty($this->spTextSettings['Upgrade Now']) ? $this->spTextSettings['Upgrade Now'] : 'Upgrade Now';
+	        echo '<div class="text-center" style="margin-top:10px;"><a class="btn btn-primary" href="javascript:void(0);" onclick="window.onlineUpgradeStart()">'.$upgradeNowLabel.'</a></div>';
+	    }
+	}
+
+	# checks whether the server-side prerequisites for an online (in-app)
+	# upgrade are met - a newer version must exist, and the app needs write
+	# access plus the curl/ZipArchive extensions to download and apply it
+	function __onlineUpgradePreflight() {
+	    $failed = [];
+
+	    if (!class_exists('ZipArchive')) {
+	        $failed[] = 'ZipArchive extension';
+	    }
+	    if (!function_exists('curl_init')) {
+	        $failed[] = 'curl extension';
+	    }
+
+	    $writablePaths = [
+	        'application root' => SP_ABSPATH,
+	        'controllers' => SP_CTRLPATH,
+	        'libs' => SP_LIBPATH,
+	        'classic theme' => SP_THEMEPATH.'/classic',
+	        'install' => SP_ABSPATH.'/install',
+	        'tmp' => SP_TMPPATH,
+	    ];
+	    foreach ($writablePaths as $label => $path) {
+	        // bug fix: is_writable() returns false for BOTH "exists but not
+	        // writable" and "doesn't exist at all", and this loop couldn't
+	        // tell those apart - so an admin who followed the documented
+	        // "remove install/ for security" step got a generic
+	        // "missing requirements" failure that never said WHY, blocking
+	        // one-click upgrade entirely. __overlay()'s __copyRecursive()
+	        // (libs/onlineupgrade.class.php) already mkdir()s any directory
+	        // present in the release zip but missing locally - install/ IS
+	        // shipped in the release, so it will be recreated automatically.
+	        // Only a genuinely missing 'install' needs its PARENT (already
+	        // checked separately here as 'application root') writable, not
+	        // itself - skip it rather than false-failing on it.
+	        if ($label === 'install' && !file_exists($path)) {
+	            continue;
+	        }
+	        if (!is_writable($path)) {
+	            $failed[] = $label.' ('.$path.')';
+	        }
+	    }
+
+	    return [empty($failed), $failed];
+	}
+
+	# check whether an online upgrade can be offered - GET, sec=onlineupgradecheck
+	function checkOnlineUpgrade() {
+	    header('Content-Type: application/json');
+
+	    list($oldVersion, $message) = $this->checkVersion(true);
+	    if (!$oldVersion) {
+	        echo json_encode(['status' => 'success', 'data' => ['outdated' => false]]);
+	        return;
+	    }
+
+	    list($preflightOk, $failed) = $this->__onlineUpgradePreflight();
+	    if (!$preflightOk) {
+	        echo json_encode([
+	            'status' => 'error',
+	            'message' => 'Your server is missing requirements for automatic upgrade: '.implode(', ', $failed).'. Please upgrade manually instead.',
+	            'data' => ['fallback_url' => SP_DOWNLOAD_LINK],
+	        ]);
+	        return;
+	    }
+
+	    echo json_encode(['status' => 'success', 'data' => ['outdated' => true, 'preflight' => true]]);
+	}
+
+	# download and apply the latest release's files - POST, sec=onlineupgradeproceed.
+	# Never touches the database - success just hands the admin off to the
+	# existing install/upgrade.php wizard to finish the schema migration
+	# themselves with one more manual click.
+	function proceedOnlineUpgrade() {
+	    header('Content-Type: application/json');
+
+	    list($oldVersion, $message) = $this->checkVersion(true);
+	    if (!$oldVersion) {
+	        echo json_encode(['status' => 'error', 'message' => 'Your Seo Panel installation is already up to date.']);
+	        return;
+	    }
+
+	    list($preflightOk, $failed) = $this->__onlineUpgradePreflight();
+	    if (!$preflightOk) {
+	        echo json_encode([
+	            'status' => 'error',
+	            'message' => 'Your server is missing requirements for automatic upgrade: '.implode(', ', $failed).'. Please upgrade manually instead.',
+	            'data' => ['fallback_url' => SP_DOWNLOAD_LINK],
+	        ]);
+	        return;
+	    }
+
+	    include_once(SP_LIBPATH.'/onlineupgrade.class.php');
+	    $upgrader = new OnlineUpgrade();
+	    list($ok, $err) = $upgrader->run();
+
+	    if (!$ok) {
+	        echo json_encode(['status' => 'error', 'message' => $err, 'data' => ['fallback_url' => SP_DOWNLOAD_LINK]]);
+	        return;
+	    }
+
+	    echo json_encode(['status' => 'success', 'data' => ['redirect' => 'install/upgrade.php']]);
 	}
 
 	// show google api settings notification
@@ -275,7 +506,8 @@ class SettingsController extends Controller{
 			$this->set('adminName', $adminName);
 			$content = $this->getViewContent('email/test_email');
 			
-			if (!sendMail($adminInfo['email'], $adminName, $info['test_email'], "Test email from " . SP_COMPANY_NAME, $content)) {
+			$debugMail = !empty($info['debug_mail']) ? intval($info['debug_mail']) : false;
+			if (!sendMail($adminInfo['email'], $adminName, $info['test_email'], "Test email from " . SP_COMPANY_NAME, $content, '', $debugMail)) {
 				showErrorMsg('An internal error occured while sending mail!');
 			} else {
 				showSuccessMsg("Email send successfully to " . $info['test_email']);
@@ -287,5 +519,425 @@ class SettingsController extends Controller{
 		
 	}
 	
+	public static function getWebsiteOtherUrl($websiteUrl) {
+	    
+	    // fix for www. and no www. in search results
+	    if (stristr($websiteUrl, "www.")) {
+	        $websiteOtherUrl = str_ireplace("www.", "", $websiteUrl);
+	    } else {
+	        $websiteOtherUrl = "www." . $websiteUrl;
+	    }
+	    
+	    return $websiteOtherUrl;
+	}
+	
+	public static function isSpApiEnabled($feature = 'serp') {
+	    if (!defined('SP_SPAPI_REGISTERED') || !SP_SPAPI_REGISTERED) return false;
+	    if (!defined('SP_SPAPI_KEY') || empty(SP_SPAPI_KEY)) return false;
+	    switch ($feature) {
+	        case 'serp':          return defined('SP_ENABLE_SPAPI_SERP') && SP_ENABLE_SPAPI_SERP;
+	        case 'search_volume': return defined('SP_ENABLE_SPAPI_SEARCH_VOLUME') && SP_ENABLE_SPAPI_SEARCH_VOLUME;
+	        default:              return true;
+	    }
+	}
+
+	public static function isDFSEnabled($feature = 'serp') {
+	    if (!defined('SP_ENABLE_DFS') || !SP_ENABLE_DFS) return false;
+	    if ((SP_DFS_API_LOGIN == "") || (SP_DFS_API_PASSWORD == "")) return false;
+	    switch ($feature) {
+	        case 'serp':          return defined('SP_ENABLE_DFS_SERP') && SP_ENABLE_DFS_SERP;
+	        case 'backsatu':      return defined('SP_ENABLE_DFS_BACK_SATU') && SP_ENABLE_DFS_BACK_SATU;
+	        case 'backlink':      return defined('SP_ENABLE_DFS_BACKLINK') && SP_ENABLE_DFS_BACKLINK;
+	        case 'review':        return defined('SP_ENABLE_DFS_REVIEW') && SP_ENABLE_DFS_REVIEW;
+	        case 'search_volume': return defined('SP_ENABLE_DFS_SEARCH_VOLUME') && SP_ENABLE_DFS_SEARCH_VOLUME;
+	        default:              return true;
+	    }
+	}
+
+	// Returns today's cached spAPI connection status ('', 'ok',
+	// 'unconfirmed', 'expired', 'monthly_limit', or a raw connection-error
+	// string) - the same daily cache AlertController::updateSpApiAlerts()
+	// (the cron check) maintains, consumed by both
+	// showSystemSettings('seopanel_api') and the Setup Tour's Seo Panel
+	// API step. 'unconfirmed' is the one cached state genuinely likely to
+	// change within the same day - the admin verifies their email
+	// entirely outside this app, at any moment - so it gets a live
+	// re-check here instead of leaving the admin looking at a "please
+	// verify" banner/badge for up to 24h after they already did. Every
+	// other cached state is left alone, same caching rationale (avoiding
+	// a live, 30s-timeout API call on every page load) as the rest of
+	// this app's daily checks. Mirrors updateSpApiAlerts()'s own status-
+	// mapping exactly so the cache stays consistent regardless of which
+	// of the two last wrote to it.
+	public static function refreshSpApiCheckStatus() {
+	    include_once(SP_CTRLPATH . "/information.ctrl.php");
+	    $informationCtrler = new InformationController();
+	    $cacheInfo = $informationCtrler->__getTodayInformation('spapi_check');
+	    $status = !empty($cacheInfo['page']) ? $cacheInfo['page'] : '';
+
+	    if ($status !== 'unconfirmed' || !defined('SP_SPAPI_KEY') || empty(SP_SPAPI_KEY)) {
+	        return $status;
+	    }
+
+	    include_once(SP_CTRLPATH . "/spapi.ctrl.php");
+	    $spapiCtrler = new SPAPIController();
+	    list($usageData, $logInfo) = $spapiCtrler->__getSpApiUsageData();
+	    $newStatus = SettingsController::mapSpApiLogStatus($logInfo);
+
+	    if ($newStatus !== $status) {
+	        $informationCtrler->updateTodayInformation($newStatus, 'spapi_check');
+	        $status = $newStatus;
+	    }
+
+	    return $status;
+	}
+
+	// Shared with checkSpApiCon's live "Verify connection" check below
+	// (settings.php) so both ways of hitting the real spAPI usage
+	// endpoint reduce $logInfo to the exact same cache-friendly status
+	// string ('ok', 'unconfirmed', 'expired', 'monthly_limit', or a raw
+	// error message).
+	public static function mapSpApiLogStatus($logInfo) {
+	    if (!empty($logInfo['needs_upgrade'])) {
+	        return !empty($logInfo['upgrade_reason']) ? $logInfo['upgrade_reason'] : 'expired';
+	    }
+	    if (isset($logInfo['crawl_status']) && $logInfo['crawl_status'] == 0) {
+	        return $logInfo['log_message'];
+	    }
+	    return 'ok';
+	}
+
+	// func to check whether Local AI (Ollama) is enabled+configured - cheap
+	// constant check only, no live reachability probe (that only happens
+	// via the explicit "Test connection" button and inside real calls -
+	// see LocalAIController)
+	public static function isLocalAIEnabled() {
+	    if (!defined('SP_ENABLE_LOCAL_AI') || !SP_ENABLE_LOCAL_AI) return false;
+	    if (!defined('SP_LOCAL_AI_URL') || empty(SP_LOCAL_AI_URL)) return false;
+	    return true;
+	}
+
+	public static function getSearchResults($keywordInfo, $showAll = false, $seId = false, $cron = false, $includeAio = false) {
+	    $status = false;
+	    $results =  [];
+
+	    // Tier 1: DataForSEO (highest priority)
+	    if (SettingsController::isDFSEnabled('serp')) {
+	        include_once(SP_CTRLPATH."/dataforseo.ctrl.php");
+	        $dfsCtrler = new DataForSEOController();
+	        $status = true;
+	        $results = $dfsCtrler->__getSERPResults($keywordInfo, $showAll, $seId, $cron, $includeAio);
+	        return [$status, $results];
+	    }
+
+	    // Tier 2: SP API
+	    if (SettingsController::isSpApiEnabled('serp')) {
+	        include_once(SP_CTRLPATH."/spapi.ctrl.php");
+	        $spapiCtrler = new SPAPIController();
+	        $status = true;
+	        $results = $spapiCtrler->__getSERPResults($keywordInfo, $showAll, $seId, $cron, $includeAio);
+	        return [$status, $results];
+	    }
+
+	    return [$status, $results];
+	}
+	
+	public static function getSearchResultCount($keywordInfo, $cron = false) {
+	    $status = false;
+	    $results =  [];
+
+	    // check dataforseo is enabled for backlink and saturation checker
+	    if (SettingsController::isDFSEnabled('backsatu')) {
+	        include_once(SP_CTRLPATH."/dataforseo.ctrl.php");
+	        $dfsCtrler = new DataForSEOController();
+	        $status = true;
+	        $results = $dfsCtrler->__getSERPResultCount($keywordInfo, $cron);
+	    }
+
+	    return [$status, $results];
+	}
+
+	// check whether spAPI registration popup should be shown
+	function showSpApiRegistrationPopup() {
+	    $userId = isLoggedIn();
+	    if (!isAdmin() || !$userId) {
+	        return false;
+	    }
+
+	    // check if already registered
+	    if (defined('SP_SPAPI_REGISTERED') && SP_SPAPI_REGISTERED) {
+	        return false;
+	    }
+
+	    // check if user has skipped
+	    $userInfo = $this->dbHelper->getRow('users', "id=" . intval($userId));
+	    if (!empty($userInfo['spapi_skip'])) {
+	        return false;
+	    }
+
+	    return true;
+	}
+
+	// register with Seo Panel API
+	function registerSpApi($postInfo) {
+	    $name = trim($postInfo['name']);
+	    $email = trim($postInfo['email']);
+
+	    // validate inputs
+	    if (empty($name) || empty($email)) {
+	        echo json_encode(['status' => 'error', 'message' => 'Please fill in all required fields.']);
+	        return;
+	    }
+
+	    $errMsg = $this->validate->checkEmail($email);
+	    if ($this->validate->flagErr) {
+	        echo json_encode(['status' => 'error', 'message' => 'Please enter a valid email address.']);
+	        return;
+	    }
+
+	    // call spAPI register endpoint
+	    $apiUrl = defined('SP_SPAPI_URL') ? SP_SPAPI_URL : 'https://api.seopanel.org/api/v1';
+	    $postData = json_encode([
+	        'customer_name' => $name,
+	        'email' => $email,
+	        'installation_url' => SP_WEBPATH,
+	        'version' => SP_VERSION_NUMBER,
+	    ]);
+
+	    $ch = curl_init($apiUrl . '/register');
+	    curl_setopt($ch, CURLOPT_POST, true);
+	    curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+	    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json', 'Accept: application/json']);
+	    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+	    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+	    curl_setopt($ch, CURLOPT_POSTREDIR, CURL_REDIR_POST_ALL);
+	    // was explicitly disabling TLS cert/host verification here
+	    // (CURLOPT_SSL_VERIFYHOST/VERIFYPEER = 0) - curl's own defaults
+	    // (verify both) are already correct, so just not overriding them
+	    $rawResponse = curl_exec($ch);
+	    curl_close($ch);
+
+	    header('Content-Type: application/json');
+
+	    if (!empty($rawResponse)) {
+	        $response = json_decode($rawResponse, true);
+
+	        if (json_last_error() !== JSON_ERROR_NONE) {
+	            echo json_encode(['status' => 'error', 'message' => 'Invalid response from API server. Please try again later.']);
+	            return;
+	        }
+
+	        if (!empty($response['status']) && $response['status'] == 'success') {
+	            $data = $response['data'] ?? [];
+	            $apiKey = addslashes($data['api_key'] ?? '');
+	            $this->db->query("UPDATE settings SET set_val='1' WHERE set_name='SP_SPAPI_REGISTERED'");
+	            $this->db->query("UPDATE settings SET set_val='" . addslashes($email) . "' WHERE set_name='SP_SPAPI_EMAIL'");
+	            $this->db->query("UPDATE settings SET set_val='" . addslashes($name) . "' WHERE set_name='SP_SPAPI_NAME'");
+	            $this->db->query("UPDATE settings SET set_val='" . $apiKey . "' WHERE set_name='SP_SPAPI_KEY'");
+	            echo json_encode(['status' => 'success', 'message' => 'Registration successful! Please check your email inbox to verify your email address.']);
+	        } else {
+	            $errMsg = !empty($response['message']) ? $response['message'] : 'Registration failed. Please try again later.';
+	            echo json_encode(['status' => 'error', 'message' => $errMsg]);
+	        }
+	    } else {
+	        echo json_encode(['status' => 'error', 'message' => 'Could not connect to the API server. Please try again later.']);
+	    }
+	}
+
+	// reset SP API token
+	function resetSpApiToken() {
+	    checkAdminLoggedIn();
+	    include_once(SP_CTRLPATH . "/spapi.ctrl.php");
+	    $spapiCtrler = new SPAPIController();
+	    list($newApiKey, $logInfo) = $spapiCtrler->__resetApiToken();
+
+	    header('Content-Type: application/json');
+
+	    if (isset($logInfo['crawl_status']) && $logInfo['crawl_status'] == 0) {
+	        echo json_encode(['status' => 'error', 'message' => $logInfo['log_message']]);
+	        return;
+	    }
+
+	    $this->db->query("UPDATE settings SET set_val='" . addslashes($newApiKey) . "' WHERE set_name='SP_SPAPI_KEY'");
+	    echo json_encode(['status' => 'success', 'message' => 'API token reset successfully.', 'data' => ['api_key' => $newApiKey]]);
+	}
+
+	// proxy plans from Seo Panel API (avoids browser CORS)
+	function getSpApiPlans() {
+	    $apiUrl = defined('SP_SPAPI_URL') ? SP_SPAPI_URL : 'https://api.seopanel.org/api/v1';
+
+	    $ch = curl_init($apiUrl . '/plans');
+	    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+	    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Accept: application/json']);
+	    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+	    $rawResponse = curl_exec($ch);
+	    curl_close($ch);
+
+	    header('Content-Type: application/json');
+
+	    if (!empty($rawResponse)) {
+	        $response = json_decode($rawResponse, true);
+	        if (json_last_error() === JSON_ERROR_NONE) {
+	            echo $rawResponse;
+	            return;
+	        }
+	    }
+
+	    echo json_encode(['status' => 'error', 'message' => 'Could not fetch plans.']);
+	}
+
+	// skip spAPI registration for current user
+	function skipSpApiRegistration() {
+	    $userId = isLoggedIn();
+	    if ($userId) {
+	        $this->db->query("UPDATE users SET spapi_skip=1 WHERE id=" . intval($userId));
+	        echo json_encode(['status' => 'success']);
+	    } else {
+	        echo json_encode(['status' => 'error', 'message' => 'User not logged in.']);
+	    }
+	}
+
+	// check if the upgrade popup should be shown
+	function showSpApiUpgradePopup() {
+	    $userId = isLoggedIn();
+	    if (!isAdmin() || !$userId) {
+	        return false;
+	    }
+
+	    // only show if registered
+	    if (!defined('SP_SPAPI_REGISTERED') || !SP_SPAPI_REGISTERED) {
+	        return false;
+	    }
+
+	    // check if user has skipped today
+	    $userInfo = $this->dbHelper->getRow('users', "id=" . intval($userId), "spapi_upgrade_skip_date");
+	    if (!empty($userInfo['spapi_upgrade_skip_date']) && $userInfo['spapi_upgrade_skip_date'] === date('Y-m-d')) {
+	        return false;
+	    }
+
+	    // get today's cached check result; if missing (e.g. cleared on login), run a fresh check now
+	    include_once(SP_CTRLPATH . "/information.ctrl.php");
+	    $informationCtrler = new InformationController();
+	    $spapiCheckInfo = $informationCtrler->__getTodayInformation('spapi_check');
+	    if (empty($spapiCheckInfo)) {
+	        include_once(SP_CTRLPATH . "/alerts.ctrl.php");
+	        $alertCtrler = new AlertController();
+	        $alertCtrler->updateSpApiAlerts();
+	        $spapiCheckInfo = $informationCtrler->__getTodayInformation('spapi_check');
+	    }
+	    $checkResult = !empty($spapiCheckInfo['page']) ? $spapiCheckInfo['page'] : '';
+	    if (!in_array($checkResult, ['expired', 'monthly_limit'])) {
+	        return false;
+	    }
+
+	    return $checkResult;
+	}
+
+	// skip upgrade popup for today
+	function skipSpApiUpgrade() {
+	    $userId = isLoggedIn();
+	    if ($userId) {
+	        $this->db->query("UPDATE users SET spapi_upgrade_skip_date='" . date('Y-m-d') . "' WHERE id=" . intval($userId));
+	        echo json_encode(['status' => 'success']);
+	    } else {
+	        echo json_encode(['status' => 'error', 'message' => 'User not logged in.']);
+	    }
+	}
+
+	// check whether the daily login "new version available" notice popup
+	// should be shown - notice-only, the popup's own CTA just navigates to
+	// Settings > Version, it never triggers an upgrade itself
+	function showVersionUpgradePopup() {
+	    $userId = isLoggedIn();
+	    if (!isAdmin() || !$userId) {
+	        return false;
+	    }
+
+	    // check if user has skipped today
+	    $userInfo = $this->dbHelper->getRow('users', "id=" . intval($userId), "version_upgrade_skip_date");
+	    if (!empty($userInfo['version_upgrade_skip_date']) && $userInfo['version_upgrade_skip_date'] === date('Y-m-d')) {
+	        return false;
+	    }
+
+	    // get today's cached check result; if missing (e.g. cleared on login), run a fresh check now.
+	    // Deliberately a separate cache key from alerts.ctrl.php's 'install_check': that one only
+	    // refreshes on cron days (1st/7th/14th of the month) and stores raw message HTML, not a
+	    // clean status a popup can branch on, so it doesn't fit a "once per day on login" check.
+	    include_once(SP_CTRLPATH . "/information.ctrl.php");
+	    $informationCtrler = new InformationController();
+	    $versionCheckInfo = $informationCtrler->__getTodayInformation('version_check_popup');
+	    if (empty($versionCheckInfo)) {
+	        list($oldVersion) = $this->checkVersion(true);
+	        $informationCtrler->updateTodayInformation($oldVersion ? 'outdated' : 'uptodate', 'version_check_popup');
+	        $versionCheckInfo = ['page' => $oldVersion ? 'outdated' : 'uptodate'];
+	    }
+
+	    return !empty($versionCheckInfo['page']) && $versionCheckInfo['page'] === 'outdated';
+	}
+
+	// AJAX: runs the SP API upgrade check and the version-update check and
+	// returns JSON. Both are still cached once-per-day exactly as before
+	// (__getTodayInformation()) - this just moves WHEN they run: out of
+	// the main page render (default.ctp.php used to call
+	// showSpApiUpgradePopup()/showVersionUpgradePopup() directly, inline,
+	// before the page could finish sending) and into a background request
+	// fired after the page has already loaded. On a cache miss (the first
+	// page view of the day) each of those calls a live network check with
+	// its own timeout (30s for the SP API account check, 15s for the
+	// version check) - previously that cost was paid synchronously by
+	// whatever page the user happened to load first that day; now the
+	// page itself is never blocked on it, any popup just appears a moment
+	// later once this call returns.
+	function checkDailyNotices() {
+	    $result = [
+	        'spapi_upgrade' => false,
+	        'spapi_upgrade_title' => '',
+	        'spapi_upgrade_icon' => '',
+	        'spapi_upgrade_alert_msg' => '',
+	        'spapi_upgrade_sub_msg' => '',
+	        'version_outdated' => false,
+	    ];
+
+	    if (isLoggedIn() && isAdmin()) {
+	        $upgradeReason = $this->showSpApiUpgradePopup();
+	        if ($upgradeReason) {
+	            $result['spapi_upgrade'] = true;
+	            if ($upgradeReason === 'expired') {
+	                $result['spapi_upgrade_title'] = 'API Subscription Expired';
+	                $result['spapi_upgrade_icon'] = 'fa-calendar-times';
+	                $result['spapi_upgrade_alert_msg'] = 'Your Seo Panel API subscription has <strong>expired</strong>.';
+	                $result['spapi_upgrade_sub_msg'] = 'Upgrade your plan to restore access to the Seo Panel API.';
+	            } elseif ($upgradeReason === 'monthly_limit') {
+	                $result['spapi_upgrade_title'] = 'API Monthly Limit Reached';
+	                $result['spapi_upgrade_icon'] = 'fa-tachometer-alt';
+	                $result['spapi_upgrade_alert_msg'] = 'You have reached your <strong>monthly API request limit</strong>.';
+	                $result['spapi_upgrade_sub_msg'] = 'Upgrade your plan to continue using the Seo Panel API without interruption.';
+	            } else {
+	                $result['spapi_upgrade_title'] = 'Upgrade Seo Panel API Plan';
+	                $result['spapi_upgrade_icon'] = 'fa-rocket';
+	                $result['spapi_upgrade_alert_msg'] = 'Upgrade your Seo Panel API plan to unlock more features and higher limits.';
+	                $result['spapi_upgrade_sub_msg'] = 'Choose a plan that fits your needs and get the most out of the Seo Panel API.';
+	            }
+	        }
+
+	        $result['version_outdated'] = $this->showVersionUpgradePopup();
+	    }
+
+	    header('Content-Type: application/json');
+	    echo json_encode($result);
+	}
+
+	// skip the version-upgrade notice popup for today
+	function skipVersionUpgradePopup() {
+	    $userId = isLoggedIn();
+	    if ($userId) {
+	        $this->db->query("UPDATE users SET version_upgrade_skip_date='" . date('Y-m-d') . "' WHERE id=" . intval($userId));
+	        echo json_encode(['status' => 'success']);
+	    } else {
+	        echo json_encode(['status' => 'error', 'message' => 'User not logged in.']);
+	    }
+	}
 }
 ?>

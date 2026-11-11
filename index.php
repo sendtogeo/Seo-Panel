@@ -1,7 +1,7 @@
 <?php
 
 /***************************************************************************
- *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	   *
+ *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.org)  	   *
  *   sendtogeo@gmail.com   												   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -32,10 +32,8 @@ if (!empty($custSiteInfo['site_title'])) $controller->set('spTitle', $custSiteIn
 if (!empty($custSiteInfo['site_description'])) $controller->set('spDescription', $custSiteInfo['site_description']);
 if (!empty($custSiteInfo['site_keywords'])) $controller->set('spKeywords', $custSiteInfo['site_keywords']);
 
-if($_SERVER['REQUEST_METHOD'] == 'GET'){
-
-	switch($_GET['sec']){
-		
+if($_SERVER['REQUEST_METHOD'] == 'GET') {
+	switch($_GET['sec']) {		
 		case "news":
 			include_once(SP_CTRLPATH."/information.ctrl.php");
 			$infoCtrler = new InformationController();
@@ -50,19 +48,22 @@ if($_SERVER['REQUEST_METHOD'] == 'GET'){
 			</script>
 			<?php
 			break;
+			
+        case "sync_all_se":
+            include_once(SP_CTRLPATH."/searchengine.ctrl.php");
+            $seCtrler = new SearchEngineController();
+            $seCtrler->doSyncSearchEngines(true, true);
+            break;
 
 		default:
 			$controller->index($_GET);
 			break;
 	}
-}elseif($_SERVER['REQUEST_METHOD'] == 'POST'){
-
-	switch($_POST['sec']){
-	    
+} elseif($_SERVER['REQUEST_METHOD'] == 'POST') {
+	switch($_POST['sec']) {	    
 	    default:
 			$controller->index($_POST);
 			break;
 	}
 }
-
 ?>

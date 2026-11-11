@@ -1,7 +1,7 @@
 <?php
 
 /***************************************************************************
- *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	   *
+ *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.org)  	   *
  *   sendtogeo@gmail.com   												   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -24,7 +24,7 @@ include_once("includes/sp-load.php");
 checkLoggedIn();
 
 // check for access to seo tool
-// isUserHaveAccessToSeoTool("webmaster-tools");
+isUserHaveAccessToSeoTool("web-analytics");
 
 include_once(SP_CTRLPATH."/analytics.ctrl.php");
 $controller = New AnalyticsController();

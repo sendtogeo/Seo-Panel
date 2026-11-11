@@ -1,7 +1,7 @@
 <?php
 
 /***************************************************************************
- *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	   *
+ *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.org)  	   *
  *   sendtogeo@gmail.com   												   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -22,7 +22,6 @@
 
 include_once("includes/sp-load.php");
 checkLoggedIn();
-isHavingWebsite();
 include_once(SP_CTRLPATH."/keyword.ctrl.php");
 include_once(SP_CTRLPATH."/overview.ctrl.php");
 $controller = New OverviewController();
@@ -65,14 +64,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 			
 	}
 } elseif ($_SERVER['REQUEST_METHOD'] == 'POST') {
-
-	switch($_POST['sec']){
+	switch($_POST['sec']) {	    
+	    case "reports_dashboard":
+	        $controller->layout = 'default';
+	        $controller->showOverView($_POST);
+	        break;
 	    
 	    default:
 	        $controller->layout = 'default';
 	        $controller->showOverView($_POST);
-			break;
-			
+			break;			
 	}
 }
 ?>

@@ -1,7 +1,7 @@
 <?php
 
 /***************************************************************************
- *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	   *
+ *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.org)  	   *
  *   sendtogeo@gmail.com   												   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -46,7 +46,7 @@ class MysqliHelper extends Database{
     			$this->showError();			
     			showErrorMsg("<p style='color:red'>Database connection failed!<br>Please check your database settings!</p>");
     		} else {	
-    		    $this->query( "SET NAMES utf8");
+    		    $this->query( "SET NAMES utf8mb4");
     		    $SP_DB_CONN_OBJ = $this->connectionId;
     		}
     		
@@ -71,7 +71,7 @@ class MysqliHelper extends Database{
 		mysqli_free_result($res);
 		
 		if ($fetchFirst){
-			return $returnArr[0];
+		    return !empty($returnArr) ? $returnArr[0] : $returnArr;
 		}
 		
 		return $returnArr;
@@ -86,7 +86,6 @@ class MysqliHelper extends Database{
 			$this->lastInsertId = @mysqli_insert_id($this->connectionId);
 		} else {
 			$this->showError();
-			@mysqli_free_result($res);
 		}
 		
 		if($noRows) $this->noRows = mysqli_num_rows($res);
@@ -108,10 +107,29 @@ class MysqliHelper extends Database{
 
 	# func to Display the Mysql error
 	function showError(){
-		
+
+		// bug fix: this whole method was a no-op unless debugMode is on,
+		// and SP_DEBUG=0 (the shipped default) ALSO sets error_reporting(0)
+		// in sp-load.php, which suppresses PHP's own log_errors just as
+		// completely as it suppresses display - so a failed query (a
+		// deadlock, disk full, a corrupt table, a bad migration) previously
+		// left zero record anywhere in production: no echo, no app log, no
+		// PHP error log, no exception. error_log() writes to the server's
+		// configured PHP/web-server error log independent of the
+		// error_reporting/log_errors ini state and debugMode - the
+		// standard place an admin already knows to check, with no new
+		// web-accessible file to create or protect. This always runs, in
+		// every mode; only the pre-existing debug-mode echo+exit below is
+		// gated on debugMode, unchanged.
+		if (!$this->connectionId) {
+			error_log('SEO Panel DB error: connection failed - errno=' . mysqli_connect_errno() . ' error=' . mysqli_connect_error());
+		} else if (@mysqli_errno($this->connectionId) != 0) {
+			error_log('SEO Panel DB error: errno=' . @mysqli_errno($this->connectionId) . ' error=' . @mysqli_error($this->connectionId));
+		}
+
 		// if debugmode enabled
 		if ($this->debugMode) {
-			
+
 			// if connection is failed
 			if (!$this->connectionId) {
 				echo "Error: Unable to connect to Database." . PHP_EOL;
@@ -122,11 +140,11 @@ class MysqliHelper extends Database{
 				echo "Script Halted. \n Mysql Error Number: " . @mysqli_errno($this->connectionId) . "\n" . @mysqli_error($this->connectionId);
 				$this->close();
 				exit;
-				
+
 			}
-			
+
 		}
-		
+
 	}
 
 	# func to escape mysql string
@@ -162,7 +180,11 @@ class MysqliHelper extends Database{
 			if (substr(trim($line), -1, 1) == ';'){
 				
 				if(!empty($tmpline)){
-					$this->query($tmpline);
+					try {
+						$this->query($tmpline);
+					} catch (Exception $e) {
+						// skip failed statements and continue with the rest
+					}
 				}
 				$tmpline = '';
 			}

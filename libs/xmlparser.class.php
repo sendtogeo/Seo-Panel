@@ -26,7 +26,7 @@
  */
 
 
-class XMLParser{
+class XML_Parser{
 
    /**
     * holds the expat object

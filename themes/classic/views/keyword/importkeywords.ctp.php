@@ -1,15 +1,35 @@
-<?php echo showSectionHead($spTextKeyword['Import Keywords']); ?>
-<?php if(!empty($validationMsg)){
-		?>
-		<p class="dirmsg">
-			<font class="error"><?php echo $validationMsg?></font>
-		</p>
-		<?php 
-		}
-?>
+<?php include(SP_VIEWPATH.'/aivisibility/_styles.ctp.php'); ?>
+<div class="aiv-page-head">
+	<?php echo showSectionHead($spTextKeyword['Import Keywords']); ?>
+	<a href="javascript:void(0);" data-toggle="modal" data-target="#kwImportHelpModal" class="aiv-help-btn"><i class="fas fa-question-circle"></i> What does this do?</a>
+</div>
+
+<!-- static help modal, not routed through #ajaxModalSP since there's no AJAX fetch involved -->
+<div class="modal fade aiv-help-modal" id="kwImportHelpModal" tabindex="-1" role="dialog" aria-labelledby="kwImportHelpModalLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="aiv-help-modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<div class="aiv-help-modal-icon"><i class="fas fa-file-upload"></i></div>
+				<h5 class="modal-title" id="kwImportHelpModalLabel">About Import Keywords</h5>
+			</div>
+			<div class="modal-body aiv-help-modal-body">
+				<p>A bulk version of New Keyword - paste a comma-separated list of keyword phrases and they're all added at once, sharing one website, language, country and set of search engines.</p>
+				<div class="aiv-note">
+					<i class="fas fa-info-circle"></i>
+					<span>If any keyword in the list already exists for that website, the whole import is rejected - nothing is partially imported. Still subject to your plan's keyword count limit.</span>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" data-dismiss="modal">Got it</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 <form id="newKeyword">
 <input type="hidden" name="sec" value="import"/>
-<table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
+<table class="list">
 	<tr class="listHead">
 		<td class="left" width='30%'><?php echo $spTextKeyword['Import Keywords']?></td>
 		<td class="right">&nbsp;</td>
@@ -17,9 +37,9 @@
 	<tr class="blue_row">
 		<td class="td_left_col"><?php echo $spText['common']['Website']?>:</td>
 		<td class="td_right_col">
-			<select name="website_id" id="website_id" onchange="doLoad('website_id', 'websites.php', 'weburlarea', 'sec=updateurl')">
+			<select name="website_id" id="website_id" onchange="doLoad('website_id', 'websites.php', 'weburlarea', 'sec=updateurl')" class="custom-select">
 				<?php foreach($websiteList as $websiteInfo){?>
-					<?php if($websiteInfo['id'] == $post['website_id']){
+					<?php if($websiteInfo['id'] == ($post['website_id'] ?? null)){
 					    $websiteUrl = $websiteInfo['url'];
 					    ?>
 						<option value="<?php echo $websiteInfo['id']?>" selected><?php echo $websiteInfo['name']?></option>
@@ -28,16 +48,18 @@
 					<?php }?>
 				<?php }?>
 			</select>
-			<span id="weburlarea"><input type="hidden" name="weburl" id="weburl" value="<?php echo $websiteUrl?>"></span>
-			<a style="text-decoration: none;" href="javascript:void(0);" onclick="crawlMetaData('websites.php?sec=crawlmeta&keyinput=keywords', 'crawlstats')">&#171&#171 <?php echo $spText['common']['Crawl Meta Data']?></a>
-			<div id="crawlstats" style="float: right;padding-right:100px;"></div>
-			<?php echo $errMsg['website_id']?>
+			<span id="weburlarea"><input type="hidden" name="weburl" id="weburl" value="<?php echo $websiteUrl ?? ''?>"></span>
+			<?php echo $errMsg['website_id'] ?? ''?>
+			<div class="float-right mt-2">
+				<a href="javascript:void(0);" onclick="crawlMetaData('websites.php?sec=crawlmeta&keyinput=keywords', 'crawlstats')" class="btn btn-info btn-sm">&#171&#171 <?php echo $spText['common']['Crawl Meta Data']?></a>
+				<span id="crawlstats" class="ml-2"></span>
+			</div>
 		</td>
-	</tr>		
+	</tr>
 	<tr class="white_row">
 		<td class="td_left_col"><?php echo $spText['common']['lang']?>:</td>
 		<td class="td_right_col">
-			<?php echo $this->render('language/languageselectbox', 'ajax'); ?>			
+			<?php echo $this->render('language/languageselectbox', 'ajax'); ?>
 		</td>
 	</tr>
 	<tr class="blue_row">
@@ -46,49 +68,41 @@
 			<?php echo $this->render('country/countryselectbox', 'ajax'); ?>
 		</td>
 	</tr>
-	<?php $post['searchengines'] = is_array($post['searchengines']) ? $post['searchengines'] : array(); ?>
+	<?php $post['searchengines'] = is_array($post['searchengines'] ?? null) ? $post['searchengines'] : array(); ?>
 	<tr class="white_row">
 		<td class="td_left_col"><?php echo $spText['common']['Search Engine']?>:</td>
 		<td class="td_right_col">
-			<select name="searchengines[]" class="multi" multiple="multiple" id="searchengines">				
+			<select name="searchengines[]" class="multi" multiple="multiple" id="searchengines">
 				<?php foreach($seList as $seInfo){?>
 					<?php $selected = in_array($seInfo['id'], $post['searchengines']) ? "selected" : ""?>
 					<option value="<?php echo $seInfo['id']?>" <?php echo $selected?>><?php echo $seInfo['domain']?></option>
 				<?php }?>
 			</select>
-			<?php echo $errMsg['searchengines']?>
+			<?php echo $errMsg['searchengines'] ?? ''?>
 			<br>
 			<input type="checkbox" id="select_all" onclick="selectAllOptions('searchengines', true); $('clear_all').checked=false;"> <?php echo $spText['label']['Select All']?>
 			&nbsp;&nbsp;
 			<input type="checkbox" id="clear_all" onclick="selectAllOptions('searchengines', false); $('select_all').checked=false;"> <?php echo $spText['label']['Clear All']?>
 		</td>
-	</tr>	
-	<tr class="white_row">
+	</tr>
+	<tr class="blue_row">
 		<td class="td_left_col"><?php echo $spText['common']['Keywords']?>:</td>
 		<td class="td_right_col">
-			<textarea name="keywords" rows="10" id="webkeywords"><?php echo $post['keywords']?></textarea>
-			<p><?php echo $errMsg['keywords']?></p>
+			<textarea name="keywords" rows="10" id="webkeywords" class="form-control"><?php echo $post['keywords'] ?? ''?></textarea>
+			<p><?php echo $errMsg['keywords'] ?? ''?></p>
 			<p style="font-size: 12px;"><?php echo $spTextKeyword['Insert keywords separated with comma']?></p>
 			<P><b>Eg:</b> google seo tools,seo tools,seo</P>
 		</td>
-	</tr>		
-	<tr class="blue_row">
-		<td class="tab_left_bot_noborder"></td>
-		<td class="tab_right_bot"></td>
-	</tr>
-	<tr class="listBot">
-		<td class="left" colspan="1"></td>
-		<td class="right"></td>
 	</tr>
 </table>
-<table width="100%" cellspacing="0" cellpadding="0" border="0" class="actionSec">
+<table class="actionSec float-right mt-2">
 	<tr>
-    	<td style="padding-top: 6px;text-align:right;">
-    		<a onclick="scriptDoLoad('keywords.php', 'content')" href="javascript:void(0);" class="actionbut">
+    	<td>
+    		<a onclick="scriptDoLoad('keywords.php', 'content')" href="javascript:void(0);" class="btn btn-warning">
          		<?php echo $spText['button']['Cancel']?>
          	</a>&nbsp;
          	<?php $actFun = SP_DEMO ? "alertDemoMsg()" : "scriptDoLoadPost('keywords.php', 'newKeyword', 'content')"; ?>
-         	<a onclick="<?php echo $actFun?>" href="javascript:void(0);" class="actionbut">
+         	<a onclick="<?php echo $actFun?>" href="javascript:void(0);" class="btn btn-primary">
          		<?php echo $spText['button']['Proceed']?>
          	</a>
     	</td>

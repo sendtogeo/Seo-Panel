@@ -1,7 +1,7 @@
 <?php
 
 /***************************************************************************
- *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	   		   *
+ *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.org)  	   		   *
  *   sendtogeo@gmail.com   												   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -33,13 +33,21 @@ $controller->spTextAPI = $controller->getLanguageTexts('api', $_SESSION['lang_co
 $controller->set('spTextAPI', $controller->spTextAPI);
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-	
+
 	switch ($_POST['sec']) {
-		
+
+		case "regenerate_api_key":
+			$controller->regenerateAPIKey();
+			break;
+
+		case "regenerate_api_secret":
+			$controller->regenerateAPISecret();
+			break;
+
 		default:
 			$controller->showAPIConnectionManager($_POST);
-			break;	
-		    
+			break;
+
 	}
 
 } else {

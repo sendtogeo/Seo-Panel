@@ -1,7 +1,7 @@
 <?php
 
 /***************************************************************************
- *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	   *
+ *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.org)  	   *
  *   sendtogeo@gmail.com   												   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -33,7 +33,7 @@ class ConnectionController extends Controller {
 	/**
 	 * Function to display connections
 	 */
-	function listConnections($info = ''){
+	function listConnections($info=[]){
 		
 		$userId = isLoggedIn();
 		$sourceList = array();
@@ -70,13 +70,23 @@ class ConnectionController extends Controller {
 	 * process connection return action
 	 */
 	function processConnectionReturn($info) {
-		
+
 		$userId = isLoggedIn();
 		$className = $this->sourceList[$info['category']];
-		
+
 		// if class existing for process
 		if (!empty($className)) {
 			$sourceCtrler = new $className();
+
+			// CSRF: reject unless this callback's state matches the one
+			// THIS session's own getAPIAuthUrl() call generated - see
+			// GoogleAPIController::verifyOAuthState() for the full threat
+			if (!$sourceCtrler->verifyOAuthState($info['state'] ?? '')) {
+				$this->set('errorMsg', "Invalid or expired connection request. Please try connecting again.");
+				$this->listConnections();
+				return;
+			}
+
 			$ret = $sourceCtrler->createUserAuthToken($userId, $info['code']);
 			
 			// if token created successfull

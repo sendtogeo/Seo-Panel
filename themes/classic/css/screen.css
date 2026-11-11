@@ -28,7 +28,23 @@ select{padding: 4px 4px 5px;}
 .squareSubHead td.left {border-left:1px solid #B0C2CC;}
 .squareSubHead td.right {border-right:1px solid #B0C2CC;}
 
-.SectionHeader {margin: 20px 0px 32px; text-align: left;}
+.SectionHeader {
+    margin: 16px 0px 20px;
+    text-align: left;
+}
+
+.SectionHeader h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+    color: #2d3748;
+}
+
+.SectionHeader h3 i {
+    font-size: 16px;
+    color: #4a8fc7;
+    margin-right: 8px;
+}
 
 .actionSec {margin: 10px 0px;}
 
@@ -37,54 +53,247 @@ select{padding: 4px 4px 5px;}
 #seresult P{	margin:4px 0px 4px 0px;	}
 #seresult label{	color: #239123;	margin:0px;	}
 
-.error {color: #da3838;}
-.success{color: green;}
+/* Error and Success Messages */
+.error {
+	color: #da3838;
+	font-weight: 500;
+}
+
+.success {
+	color: green;
+	font-weight: 500;
+}
+
+.alert {
+	border-radius: 8px;
+	border: none;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+	margin-bottom: 20px;
+	margin-top: 10px;
+	font-size: 15px;
+}
+
+.alert-danger {
+	background: linear-gradient(135deg, #fff5f5 0%, #ffe5e5 100%);
+	border-left: 4px solid #dc3545;
+}
+
+.alert-success {
+	background: linear-gradient(135deg, #f0fff4 0%, #e6f9ec 100%);
+	border-left: 4px solid #28a745;
+}
+
+.alert-warning {
+	background: linear-gradient(135deg, #fffaf0 0%, #fff3e0 100%);
+	border-left: 4px solid #ffc107;
+}
+
+.alert-info {
+	background: linear-gradient(135deg, #f0f9ff 0%, #e6f4ff 100%);
+	border-left: 4px solid #17a2b8;
+}
+
+.alert-icon {
+	margin-right: 15px;
+	padding-top: 2px;
+}
+
+.alert-danger .alert-icon i {
+	color: #dc3545;
+}
+
+.alert-success .alert-icon i {
+	color: #28a745;
+}
+
+.alert-warning .alert-icon i {
+	color: #ffc107;
+}
+
+.alert-info .alert-icon i {
+	color: #17a2b8;
+}
+
+.alert-content {
+	flex: 1;
+	color: #2d3748;
+}
+
+.alert-heading {
+	font-size: 16px;
+	font-weight: 600;
+	margin: 0;
+	color: #1a202c;
+}
+
+.alert-danger .alert-heading {
+	color: #c53030;
+}
+
+.alert-success .alert-heading {
+	color: #22543d;
+}
+
+.alert-warning .alert-heading {
+	color: #975a16;
+}
+
+.alert-info .alert-heading {
+	color: #1a5490;
+}
+
+.alert .close {
+	font-size: 24px;
+	font-weight: 300;
+	line-height: 1;
+	color: #718096;
+	opacity: 0.6;
+	transition: opacity 0.2s ease;
+	padding: 0 8px;
+	margin: -4px 0 0 0;
+}
+
+.alert .close:hover {
+	opacity: 1;
+	color: #2d3748;
+}
 
 #left_menu_sec{padding: 0px 2px 0px 0px;}
-#left_menu_sec .navbar{padding: 0px;}
-#left_menu_sec .navbar-toggler{margin: 4px;}
+#left_menu_sec .navbar{
+	padding: 0px;
+	background: linear-gradient(180deg, #5a7a9e 0%, #4a6b8a 100%) !important;
+	border-radius: 0px;
+	box-shadow: 0 2px 8px rgba(74, 107, 138, 0.3);
+}
+#left_menu_sec .navbar-toggler{
+	margin: 4px;
+	background-color: rgba(255, 255, 255, 0.15);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+}
 #left_menu_sec .navbar-nav{width: 100%;}
-#menu {width: 100%; margin-left: 1px;border-top: 1px solid #CFCFCF;}
+#menu {
+	width: 100%;
+	margin-left: 0px;
+	border-top: none;
+	border-radius: 0px;
+	overflow: hidden;
+}
 #menu li {
 	padding-left: 2px;
-	background-color:#DAE5EE;
+	background-color: transparent;
 	cursor: pointer;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+#menu li:last-child {
+	border-bottom: none;
 }
 #menu a {
 	text-decoration: none;
 }
 #menu a:focus {	outline: none;}
 .tab {
-	border-left: 1px solid #CFCFCF;
-	border-right: 1px solid #CFCFCF;
-	border-bottom: 1px solid #CFCFCF;
-	color: #808080;
-	padding: 8px 4px;
+	border-left: none;
+	border-right: none;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+	color: #ffffff;
+	padding: 12px 8px;
+	background: linear-gradient(90deg, rgba(90, 122, 158, 0.4) 0%, rgba(74, 107, 138, 0.2) 100%);
+	transition: all 0.3s ease;
+	font-weight: 500;
+	margin-left: 2px;
+}
+
+.tab:hover {
+	background: linear-gradient(90deg, rgba(66, 153, 225, 0.5) 0%, rgba(49, 130, 206, 0.3) 100%);
+	border-left: 3px solid #4299e1;
+	padding-left: 10px;
 }
 
 .tab a {
-	color: #555753;
-}
-#subui li {
-	background-color:#F4F7FA;	
-	border-left: 1px solid #B0C2CC;
-	border-right: 1px solid #B0C2CC;
-	border-bottom: 1px solid #B0C2CC;
-	padding: 6px 4px;
-}
-#subui a {
-	font-size: 14px;
-	font-weight: normal;
-	color: #2e3436;
-}
-#subui a:hover { color: #000000;}
-#subui a:before{
-  font-weight: 900;
-  content: "\f0da";
-  margin-right: 4px;
+	color: #ffffff;
+	font-size: 16px;
 }
 
-#subui a.menu_active{font-weight: bold;color: black;}
+.tab i {
+	margin-right: 8px;
+	color: #b3d4ff;
+	transition: transform 0.3s ease;
+}
+
+#subui {
+	background:
+		linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 100%),
+		linear-gradient(180deg, #2c3e50 0%, #1a252f 100%);
+	position: relative;
+	overflow: hidden;
+}
+
+#subui::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 1px;
+	background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+}
+
+#subui::after {
+	content: '';
+	position: absolute;
+	top: 0;
+	right: -100px;
+	width: 300px;
+	height: 300px;
+	background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 0%, transparent 70%);
+	pointer-events: none;
+}
+
+#subui li {
+	background-color: transparent;
+	border-left: none;
+	border-right: none;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+	padding: 0;
+	transition: all 0.2s ease;
+	cursor: pointer;
+}
+
+#subui li:hover {
+	background: linear-gradient(90deg, rgba(66, 153, 225, 0.3) 0%, transparent 100%);
+	border-left: 3px solid #63b3ed;
+}
+
+#subui a {
+	font-size: 15px;
+	font-weight: 400;
+	color: #d6e4f5;
+	transition: color 0.2s ease;
+	display: block;
+	padding: 8px 12px 8px 12px;
+}
+
+#subui a:hover {
+	color: #ffffff;
+}
+
+#subui a:before{
+  font-weight: 900;
+  content: "\f039";
+  margin-right: 8px;
+  color: #63b3ed;
+  font-size: 11px;
+}
+
+#subui a.menu_active, #subui li.menu_active {
+	background: linear-gradient(90deg, rgba(16, 185, 129, 0.5) 0%, rgba(5, 150, 105, 0.2) 100%);
+	box-shadow: inset 0 0 20px rgba(16, 185, 129, 0.15);
+}
+
+#subui a.menu_active{
+	font-weight: 600;
+	color: #ffffff;
+}
 
 .search {margin: 20px 0px;}
 .search th{text-align: right;}
@@ -158,49 +367,114 @@ select{padding: 4px 4px 5px;}
 .red {color: #990000;}
 
 .note{
-	margin-top: 15px;
-	text-align:center;
-	background-color: #F4F7FA;
+	margin: 15px 0;
+	text-align: center;
+	background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
 	vertical-align: middle;
-	border: 1px solid #B0C2CC;
+	border: 1px solid #cbd5e0;
+	border-radius: 6px;
 	min-height: 20px;
 	height: auto !important;
-	padding: 6px 4px 4px 4px;
+	padding: 12px 16px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+	font-size: 15px;
+	line-height: 1.5;
 }
 
-.note A:HOVER{	
+.note A:HOVER{
 	color:#000000;
 }
 
 .notesuccess{
 	text-align: left;
-	color: green;
+	color: #155724;
+	font-weight: 500;
 }
 
 .noteleft{
 	text-align: left;
-	color: black;
+	color: #2d3748;
+	background: linear-gradient(135deg, #e8f4f8 0%, #dbeef5 100%);
+	border-left: 4px solid #4299e1;
+	padding: 14px 18px;
+	border-radius: 6px;
+	box-shadow: 0 2px 6px rgba(66, 153, 225, 0.15);
+	font-size: 15px;
+	line-height: 1.6;
 }
 
 .notefailed{
 	text-align: left;
-	color: #da3838;
+	color: #c53030;
+	font-weight: 500;
 }
 
-.dirmsg{
-	margin-top: 15px;
-	background-color: #F4F7FA;
-	vertical-align: middle;
-	border: 1px solid #B0C2CC;
-	padding: 2px 2px 2px 4px;
+.dirmsg {
+	margin: 15px 0;
+	padding: 12px 16px;
+	border-radius: 6px;
+	border-left: 4px solid #e2e8f0;
+	background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+	font-size: 15px;
+	line-height: 1.5;
 }
 
-.dirmsg .error{	
-	color: #da3838;
+.dirmsg .error {
+	color: #c53030;
+	font-weight: 500;
+	display: flex;
+	align-items: center;
 }
 
-.dirmsg .success{
-	color: green;
+.dirmsg .error::before {
+	content: "\f071";
+	font-family: "Font Awesome 5 Free";
+	font-weight: 900;
+	margin-right: 8px;
+	font-size: 16px;
+}
+
+.dirmsg .success {
+	color: #155724;
+	font-weight: 600;
+	display: flex;
+	align-items: center;
+	text-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+}
+
+.dirmsg .success::before {
+	content: "\f058";
+	font-family: "Font Awesome 5 Free";
+	font-weight: 900;
+	margin-right: 10px;
+	font-size: 18px;
+	color: #28a745;
+	filter: drop-shadow(0 1px 2px rgba(40, 167, 69, 0.3));
+}
+
+.dirmsg:has(.error) {
+	background: linear-gradient(135deg, #fff5f5 0%, #ffe5e5 100%);
+	border-left-color: #dc3545;
+}
+
+.dirmsg:has(.success) {
+	background: linear-gradient(135deg, #f0fff4 0%, #e6f9ec 100%);
+	border-left-color: #28a745;
+}
+
+.dirmsg a {
+	color: #2c5282;
+	font-weight: 500;
+	text-decoration: none;
+	transition: color 0.2s ease;
+	vertical-align: baseline;
+	display: inline;
+}
+
+.dirmsg a:hover {
+	color: #1a365d;
+	text-decoration: underline;
 }
 
 .summary{	border: 1px solid #B0C2CC;}
@@ -330,48 +604,76 @@ A.graphicon{
 }
 
 .summary_tab {
-	margin-top: 5px;
-	border: 1px solid #B0C2CC;
+	border-collapse: separate;
+	border-spacing: 0;
+	width: 100%;
+	margin-top: 8px;
+	border: 1px solid #e2e8f0;
+	border-radius: 6px;
+	overflow: hidden;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .summary_tab .topheader {
-	background-color:#DAE5EE;
-	color:#000000;
-	font-size:13px;
-	font-weight:bold;
-	margin:0;
-	padding:1px;
-	text-align:center;
-	height:30px;
+	background: linear-gradient(90deg, #4a8fc7 0%, #5a9dd1 100%);
+	color: #282222;
+	font-size: 14px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	margin: 0;
+	padding: 10px;
+	text-align: center;
+	border-bottom: 1px solid #5a9dd1;
 	border: none 0px;
 }
 
 .summary_tab th {
-	background-color:#ECF3FA;
-	border-left:1px solid #B0C2CC;
-	border-top:1px solid #B0C2CC;
-	color:#000000;
-	font-size:11px;
-	font-weight:bold;
-	margin:0;
-	padding:1px 1px 1px 5px;
-	text-align:right;
-	height:30px;
+	background: linear-gradient(90deg, #6faee0 0%, #75b3e3 100%);
+	border-right: 1px solid rgba(255, 255, 255, 0.15);
+	border-bottom: 1px solid #f0f4f8;
+	color: #282222;
+	font-size: 14px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	margin: 0;
+	padding: 10px;
+	text-align: center;
 }
 
 .summary_tab td {
-	border-left:1px solid #B0C2CC;
-	border-top:1px solid #B0C2CC;
-	color:#000000;
-	font-size:11px;
-	margin:0;
-	padding:1px 1px 1px 5px;
-	text-align:center;
-	height:30px;
+	border-right: 1px solid #f0f4f8;
+	border-bottom: 1px solid #f0f4f8;
+	color: #2d3748;
+	font-size: 16px;
+	margin: 0;
+	padding: 8px 10px;
+	text-align: center;
+	transition: all 0.2s ease;
+}
+
+.summary_tab th:last-child,
+.summary_tab td:last-child {
+	border-right: none;
 }
 
 .summary_tab th.leftcell {
 	border-left: none;
+}
+
+.summary_tab tr:nth-child(odd) {
+	background-color: #ffffff;
+}
+
+.summary_tab tr:nth-child(even) {
+	background-color: #fafbfc;
+}
+
+.summary_tab tr:hover {
+	background: linear-gradient(90deg, #f5f8fa 0%, #f6f9fb 100%) !important;
+	transform: scale(1.001);
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
 }
 
 .summary A { text-decoration: none;}
@@ -400,7 +702,7 @@ A.graphicon{
 }
 
 #sortLink { text-decoration: none;color: black;}
-#sortLink:HOVER { text-decoration: underline;background-color: #bfd5e7;}
+#sortLink:HOVER { text-decoration: none;background-color: transparent;}
 .sort_asc{background:transparent url(../../../images/sort_asc.gif) no-repeat scroll right center;padding-right: 18px;}
 .sort_desc{background:transparent url(../../../images/sort_desc.gif) no-repeat scroll right center;padding-right: 18px;}
 
@@ -414,12 +716,12 @@ A.graphicon{
 .back {text-decoration: none;font-size: 15px;}
 
 input.long{width: 280px;}
-input[name='from_time'], input[name='to_time'], input[name='expiry_date'], input.date_fld{width: 104px}
+input[name='from_time'], input[name='to_time'], input[name='expiry_date'], input.date_fld{width: 130px}
 
 a.bold_link{
 	text-decoration: none;
 	font-weight: bold;
-	font-size: 13px;
+	font-size: 14px;
 }
 
 .speed_details {text-align: left;}
@@ -457,25 +759,63 @@ div.tab button.active {	background-color: #ccc;}
 }
 
 #cust_tab, .list {
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
     width: 100%;
-    margin-top: 2px;
+    margin-top: 8px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 #cust_tab td, #cust_tab th, .list td, .list th  {
-    border: 1px solid #b0c2cc;
-    padding: 8px;
+    border-right: 1px solid #f0f4f8;
+    border-bottom: 1px solid #f0f4f8;
+    padding: 8px 10px;
+    transition: all 0.2s ease;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
-#cust_tab tr:nth-child(odd), .list tr:nth-child(odd){background-color: #f4f7fa;}
-#cust_tab tr:hover, .list tr:hover {background-color: #f2f2f2;}
+#cust_tab td:last-child, #cust_tab th:last-child, .list td:last-child, .list th:last-child {
+    border-right: none;
+}
+
+#cust_tab tr:nth-child(odd), .list tr:nth-child(odd) {
+    background-color: #ffffff;
+}
+
+#cust_tab tr:nth-child(even), .list tr:nth-child(even) {
+    background-color: #fafbfc;
+}
+
+#cust_tab tr:hover, .list tr:hover {
+    background: linear-gradient(90deg, #f5f8fa 0%, #f6f9fb 100%) !important;
+    transform: scale(1.001);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.list tr.listHead:hover {
+    background: linear-gradient(90deg, #6faee0 0%, #75b3e3 100%) !important;
+    transform: none;
+}
+
 #cust_tab th, .list .listHead td, .list .listHead th {
-    text-align: left;
-    background-color: #DAE5EE;
+    text-align: center;
+    background: linear-gradient(90deg, #6faee0 0%, #75b3e3 100%);
+    color: #282222;
+    font-weight: 600;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 10px 10px;
+    border-bottom: 1px solid #5a9dd1;
+    border-right: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .list .listHead td {
-	font-weight: bold;
+	font-weight: 600;
 }
 
 .list .listBot td, .list .tab_left_bot_noborder, .list .tab_left_bot_noborder + td {
@@ -486,8 +826,9 @@ div.tab button.active {	background-color: #ccc;}
 }
 
 #cust_tab th#head, .list th#head {
-    text-align: left;
-    background-color: #bfd5e7;
+    text-align: center;
+    background: linear-gradient(90deg, #4a8fc7 0%, #5a9dd1 100%);
+    color: #282222;
     font-weight: bold;
 }
 
@@ -497,10 +838,139 @@ div.tab button.active {	background-color: #ccc;}
 
 #cust_tab td p, .list td p {
     font-size: 12px;
-    color: #676B50;
+    color: #4a5568;
     margin: 0px;
     padding-left: 5px;
     padding-bottom: 4px;
+}
+
+#cust_tab td {
+    font-size: 16px;
+    text-align: center;
+}
+
+.list td {
+    color: #2d3748;
+    font-size: 16px;
+    text-align: center;
+}
+
+/* For 2-column tables: first column right-aligned, second left-aligned */
+#cust_tab tr td:first-child:nth-last-child(2),
+#cust_tab tr td:first-child:nth-last-child(2) ~ td,
+.list tr td:first-child:nth-last-child(2),
+.list tr td:first-child:nth-last-child(2) ~ td {
+    border-left: none;
+}
+
+#cust_tab tr td:first-child:nth-last-child(2),
+.list tr td:first-child:nth-last-child(2) {
+    text-align: right;
+    font-weight: 500;
+}
+
+#cust_tab tr td:nth-child(2):last-child,
+.list tr td:nth-child(2):last-child {
+    text-align: left;
+}
+
+/* For tables with more than 2 columns: only first column left-aligned, rest center-aligned */
+#cust_tab td:first-child:not(:nth-last-child(2)),
+.list tr td:first-child:not(:nth-last-child(2)) {
+    border-left: none;
+    text-align: left;
+    font-weight: 500;
+}
+
+.list td input[type="checkbox"] {
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+}
+
+.list td a {
+    color: #2c5282;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.list td a:hover {
+    color: #1a365d;
+    text-decoration: underline;
+}
+
+/* === Crawl Log Manager (log/crawlloglist.ctp.php) ===
+   Reference/Subject/Details routinely hold a full crawled URL or a raw
+   log message - unconstrained, .list's default center-align turned those
+   into walls of wrapped text spanning 5+ lines per row, with the ID/
+   Report Type header labels squeezed into column-width-starved vertical
+   wrapping to compensate. Fixed column widths (set inline on this page's
+   own header cells) now need table-layout:fixed to actually hold, and
+   this single-line + ellipsis + title-attribute-on-hover treatment turns
+   each long value into a scannable one-line row - nothing is lost, the
+   full text is still there on hover/selection. */
+.crawl-log-table {
+    table-layout: fixed;
+}
+.crawl-log-table .crawl-log-truncate {
+    max-width: 0; /* required for text-overflow:ellipsis to respect a
+                     table-layout:fixed column's actual width */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: left;
+}
+
+/* Mobile responsive fix: .list and #cust_tab are the app's shared
+   list/report table hooks, used by over 100 views throughout the app
+   between them (grep confirmed) - 87% had no responsive wrapper at
+   all, so on a phone they either overflowed the whole page layout or
+   got clipped depending on the ancestor's own overflow handling, with
+   no way to see the rest of the row. Rather than adding a wrapper div
+   to every one of those view files individually (the HTML-side fix,
+   .table-responsive), the same effect is achieved here in one place:
+   `display: block` turns the table itself into the horizontally-
+   scrolling container - the exact mechanism Bootstrap's own
+   .table-responsive class uses internally (.table-responsive {
+   display: block; overflow-x: auto; }), just applied directly to the
+   existing table elements via a media query instead of requiring a
+   wrapper in the markup. Gated to a mobile-only media query on
+   purpose: `display: block` on the <table> itself breaks the normal
+   table layout algorithm (the inner row/cell structure gets boxed
+   into an anonymous table that shrink-fits to its content instead of
+   stretching to the explicit width:100% on the now-block outer
+   element), so a table narrower than its container collapses to
+   content width instead of filling it - fine/invisible on a phone
+   where content is already close to full width, but a visible
+   regression on desktop (confirmed on Keyword Position Summary's
+   table after a brief attempt at removing this gate). The real fix
+   for a too-wide column (e.g. a long URL) is the overflow-wrap/
+   word-break rule on .list td/#cust_tab td above, which doesn't
+   touch table layout at all - this block is only the fallback for
+   whatever that doesn't fully catch on narrow screens. #cust_tab is
+   an id reused as a shared styling hook across many separate view
+   templates (same convention as .list, just historically built as an
+   id instead of a class), not a single unique element - same fix
+   applies to it for the same reason. */
+@media screen and (max-width: 768px) {
+    .list, #cust_tab {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+#cust_tab th a {
+    color: #282222;
+    text-decoration: none;
+}
+
+#cust_tab th a:hover {
+    color: #282222;
+    text-decoration: none;
+    background-color: transparent;
 }
 
 .tablesorter th {
@@ -508,6 +978,32 @@ div.tab button.active {	background-color: #ccc;}
 	background-image: url(../../../images/bg.gif);
     background-position: right center;
     background-repeat: no-repeat;
+	padding-right: 24px !important;
+	position: relative;
+}
+
+.tablesorter th::after {
+	content: "\f0dc";
+	font-family: "Font Awesome 5 Free";
+	font-weight: 900;
+	position: absolute;
+	right: 8px;
+	top: 50%;
+	transform: translateY(-50%);
+	opacity: 0.4;
+	font-size: 12px;
+}
+
+.tablesorter th.headerSortUp::after {
+	content: "\f0de";
+	opacity: 1;
+	color: #28a745;
+}
+
+.tablesorter th.headerSortDown::after {
+	content: "\f0dd";
+	opacity: 1;
+	color: #dc3545;
 }
 
 .blog_section{margin: 26px 20px; padding: 10px 6px;}
@@ -521,38 +1017,414 @@ div.tab button.active {	background-color: #ccc;}
 .blog_paginate_div{margin: 10px 20px;}
 .blog_paginate_div A{text-decoration: none; color: #666666}
 
+/* === MAIN TOP NAVBAR === */
+.navbar.navbar-expand-md {
+    padding: 10px 16px;
+    min-height: 54px;
+}
+
+.navbar-brand {
+    padding-top: 6px;
+    padding-bottom: 6px;
+}
+
+/* === NAVBAR CONTENT === */
 #navbarSupportedContent{text-align: left;}
 #navbarSupportedContent A {text-decoration: none; font-size: 16px;}
 #navbarSupportedContent li {line-height: 6px; margin: 1px 4px;}
-#navbarSupportedContent .form-inline A {color: white; margin: 4px; font-size: 12px;}
+
+/* Main navigation links - reduced height */
+#navbarSupportedContent .navbar-nav .nav-link {
+    padding: 6px 12px;
+    font-size: 16px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+#navbarSupportedContent .navbar-nav .nav-link:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+}
+
+#navbarSupportedContent .navbar-nav .nav-item.active .nav-link {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+#navbarSupportedContent .navbar-nav .nav-link i {
+    font-size: 14px;
+    margin-right: 6px;
+}
+
+#navbarSupportedContent .form-inline A {color: white; margin: 4px; font-size: 15px;}
 #navbarSupportedContent .form-inline select {width: 100px; height: 28px; margin-left: 5px;}
 #navbarSupportedContent .form-inline span {color: white;}
 #newsalert{font-size: 15px;}
 
-.footer-sp {padding: 6px 0px 4px; margin-top:20px; font-size: 12px;}
-.footer-sp A {color: white;}
+/* "Take a tour" link (topmenu.ctp.php) - a small standout pill rather
+   than a plain text link like Contact/Help/Support next to it, so a
+   new user actually notices it is there to click, not just something
+   that happened to auto-show once. A slow, subtle pulse draws the eye
+   without being distracting - stops on hover/focus so it never fights
+   with an active interaction. */
+.sp-tour-menu-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: linear-gradient(135deg, #1a73e8 0%, #0d5db5 100%);
+    color: #ffffff !important;
+    font-size: 13px !important;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-left: 4px;
+    box-shadow: 0 0 0 rgba(26,115,232,0.5);
+    animation: sp-tour-menu-pulse 2.5s ease-in-out infinite;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.sp-tour-menu-link:hover,
+.sp-tour-menu-link:focus {
+    color: #ffffff !important;
+    text-decoration: none;
+    transform: translateY(-1px);
+    animation: none;
+    box-shadow: 0 3px 10px rgba(26,115,232,0.5);
+}
+.sp-tour-menu-link i {
+    font-size: 12px;
+}
+@keyframes sp-tour-menu-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(26,115,232,0.5); }
+    50% { box-shadow: 0 0 0 5px rgba(26,115,232,0); }
+}
 
-#alert_noti_sec{margin-left: 4px;}
-#alert_noti_sec A.dropdown-toggle::before, #alert_noti_sec A.dropdown-toggle::after {
+/* === FOOTER STYLES === */
+.footer-sp {
+    padding: 8px 20px;
+    margin-top: 20px;
+    font-size: 13px;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    gap: 10px;
+    overflow-x: auto;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer-sp > div {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.footer-sep {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.footer-sp A {
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.footer-sp A:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+}
+
+#powered {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    opacity: 0.95;
+}
+
+/* Footer responsive */
+@media screen and (max-width: 768px) {
+    .footer-sp {
+        flex-direction: column;
+        text-align: center;
+        padding: 10px 15px;
+        gap: 8px;
+        white-space: normal;
+        overflow-x: visible;
+    }
+
+    .footer-sp > div {
+        justify-content: center;
+        white-space: normal;
+    }
+
+    .footer-sep {
+        display: none;
+    }
+}
+
+/* === GDPR / RGPD COOKIE CONSENT BANNER === */
+#sp-gdpr-banner {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1040;
+    background: #1a1e24;
+    color: #e9ecef;
+    border-top: 3px solid #4a8fc7;
+    box-shadow: 0 -3px 16px rgba(0, 0, 0, 0.45);
+    padding: 14px 20px;
+    padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+}
+
+.sp-gdpr-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.sp-gdpr-text {
+    flex: 1;
+    min-width: 200px;
+}
+
+.sp-gdpr-text strong {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 4px;
+    color: #ffffff;
+}
+
+.sp-gdpr-text p {
+    margin: 0;
+    font-size: 13px;
+    color: #ced4da;
+    line-height: 1.5;
+}
+
+.sp-gdpr-buttons {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+@media screen and (max-width: 576px) {
+    .sp-gdpr-content {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .sp-gdpr-buttons {
+        width: 100%;
+    }
+
+    .sp-gdpr-buttons .btn {
+        flex: 1;
+        text-align: center;
+    }
+}
+
+/* === ALERT NOTIFICATION SECTION === */
+#alert_noti_sec {
+    margin-left: 8px;
+    position: relative;
+}
+
+#alert_noti_sec A.dropdown-toggle {
+    position: relative;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#alert_noti_sec A.dropdown-toggle::before,
+#alert_noti_sec A.dropdown-toggle::after {
     border: none;
     content: none;
 }
-#alert_noti_sec A{color: white;}
-#alert_noti_sec .dropdown-menu{min-width: 22rem; max-height: 500px; overflow: auto;margin-top: 8px;padding: 0px; font-size: 12px;}
-#alert_noti_sec .dropdown-menu-right { right: -16px;}
-#alert_noti_sec .dropdown-menu A{color: inherit; font-weight: bolder; font-size: 12px;}
-#alert_noti_sec .dropdown-menu li{
-	padding: 10px; line-height: 14px; margin: 0px; border-top: none; border-left: none; border-right: none;
+
+#alert_noti_sec A.dropdown-toggle:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: scale(1.05);
 }
+
+#alert_noti_sec A.dropdown-toggle i {
+    font-size: 20px;
+    transition: transform 0.3s ease;
+}
+
+#alert_noti_sec A.dropdown-toggle:hover i {
+    transform: rotate(15deg);
+}
+
+#alert_noti_sec A {
+    color: white;
+    text-decoration: none;
+}
+
+/* Dropdown Menu */
+#alert_noti_sec .dropdown-menu {
+    min-width: 32rem;
+    max-width: 36rem;
+    max-height: 560px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    margin-top: 12px;
+    padding: 0;
+    font-size: 13px;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+    background: #ffffff;
+}
+
+#alert_noti_sec .dropdown-menu-right {
+    right: -16px;
+}
+
+/* Dropdown Header */
+#alert_noti_sec .dropdown-menu::before {
+    content: "Notifications";
+    display: block;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, #4a8fc7 0%, #6faee0 100%);
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 12px 12px 0 0;
+    border-bottom: 2px solid #5a9dd1;
+}
+
+#alert_noti_sec .dropdown-menu li {
+    padding: 18px 24px;
+    margin: 0;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-bottom: 1px solid #f0f4f8;
+    background: #ffffff;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    position: relative;
+}
+
+#alert_noti_sec .dropdown-menu li:hover {
+    background: linear-gradient(90deg, #f5f8fa 0%, #f6f9fb 100%);
+    transform: translateX(4px);
+    border-left: 3px solid #4a8fc7;
+}
+
+#alert_noti_sec .dropdown-menu li:last-child {
+    border-bottom: none;
+    border-radius: 0 0 12px 12px;
+}
+
+#alert_noti_sec .dropdown-menu li:first-of-type {
+    margin-top: 0;
+}
+
+#alert_noti_sec .dropdown-menu A {
+    color: #2d3748;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    display: block;
+    line-height: 1.6;
+    transition: color 0.2s ease;
+}
+
+#alert_noti_sec .dropdown-menu A:hover {
+    color: #4a8fc7;
+}
+
+/* Alert with icon styling */
+#alert_noti_sec .dropdown-menu li > i {
+    color: #4a8fc7;
+    margin-right: 12px;
+    font-size: 18px;
+    float: left;
+}
+
+/* Empty state */
+#alert_noti_sec .dropdown-menu .no-alerts {
+    padding: 40px 20px;
+    text-align: center;
+    color: #718096;
+    font-style: italic;
+}
+
+#alert_noti_sec .dropdown-menu .no-alerts i {
+    font-size: 48px;
+    color: #e2e8f0;
+    margin-bottom: 12px;
+    display: block;
+}
+
+/* Badge Count */
 #alert_noti_sec .count {
-  font-size: 10px;
-  border-radius: 10px;
-  background-color: #d9534f;
-  padding: 4px;
-  top: -4px;
-  left: auto;
-  right: -6px;
-  position: absolute;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: #ffffff;
+    padding: 4px 8px;
+    min-width: 20px;
+    height: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    top: -6px;
+    left: auto;
+    right: -8px;
+    position: absolute;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* Pulse animation for badge */
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+    }
+    50% {
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.6);
+    }
+}
+
+/* Scrollbar styling for dropdown */
+#alert_noti_sec .dropdown-menu::-webkit-scrollbar {
+    width: 8px;
+}
+
+#alert_noti_sec .dropdown-menu::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 0 12px 12px 0;
+}
+
+#alert_noti_sec .dropdown-menu::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #4a8fc7 0%, #6faee0 100%);
+    border-radius: 4px;
+}
+
+#alert_noti_sec .dropdown-menu::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #3d7fb5 0%, #5a9dd1 100%);
 }
 
 @media screen and ( max-width: 769px ) {
@@ -576,13 +1448,438 @@ div.tab button.active {	background-color: #ccc;}
 .export_div a{font-size: 18px;margin-right: 8px;}
 
 .dashboard {margin-top: 20px;}
-.dashboard .SectionHeader{margin: 20px 0px 0px;}
+.dashboard .SectionHeader{margin: 16px 0px 0px;}
 
-.ui-dialog .ui-button{outline: none;}
-.ui-dialog-titlebar{background-color: #343a40 !important;}
-.ui-dialog-title{color: white;}
+/* Dialog Styling */
+.ui-dialog {
+	border-radius: 12px !important;
+	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3) !important;
+	border: none !important;
+	overflow: hidden !important;
+}
+
+.ui-dialog .ui-button {
+	outline: none;
+}
+
+.ui-dialog-titlebar {
+	background: linear-gradient(135deg, #2c5282 0%, #1e3a5f 100%) !important;
+	border: none !important;
+	padding: 16px 20px !important;
+	border-radius: 0 !important;
+}
+
+.ui-dialog-title {
+	color: white;
+	font-size: 18px;
+	font-weight: 600;
+	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.ui-dialog-titlebar-close {
+	background: rgba(255, 255, 255, 0.2) !important;
+	border: 1px solid rgba(255, 255, 255, 0.3) !important;
+	border-radius: 6px !important;
+	transition: all 0.2s ease !important;
+	width: 32px !important;
+	height: 32px !important;
+}
+
+.ui-dialog-titlebar-close:hover {
+	background: rgba(255, 255, 255, 0.3) !important;
+	transform: rotate(90deg);
+}
+
+.ui-dialog-titlebar-close .ui-icon {
+	background-image: none !important;
+	text-indent: 0 !important;
+}
+
+.ui-dialog-titlebar-close .ui-icon:before {
+	content: "✕";
+	font-size: 18px;
+	color: white;
+	display: block;
+	text-align: center;
+	line-height: 30px;
+}
+
+.ui-dialog-content {
+	padding: 20px !important;
+	background: #ffffff !important;
+}
+
+#dialogContent {
+	font-size: 15px;
+}
 
 #content{padding-top: 6px;}
+
+/* Custom Confirm Dialog */
+.sp-confirm-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    animation: fadeIn 0.2s ease;
+}
+
+.sp-confirm-box {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    min-width: 400px;
+    max-width: 500px;
+    z-index: 10000;
+    animation: slideDown 0.3s ease;
+}
+
+.sp-confirm-header {
+    background: linear-gradient(135deg, #6faee0 0%, #75b3e3 100%);
+    color: #ffffff;
+    padding: 16px 20px;
+    border-radius: 8px 8px 0 0;
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+}
+
+.sp-confirm-header i {
+    margin-right: 10px;
+    font-size: 18px;
+}
+
+.sp-confirm-body {
+    padding: 24px 20px;
+    font-size: 14px;
+    color: #2d3748;
+    line-height: 1.6;
+}
+
+.sp-confirm-footer {
+    padding: 16px 20px;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    border-radius: 0 0 8px 8px;
+}
+
+.sp-confirm-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 80px;
+}
+
+.sp-confirm-btn-cancel {
+    background: #e2e8f0;
+    color: #4a5568;
+}
+
+.sp-confirm-btn-cancel:hover {
+    background: #cbd5e0;
+}
+
+.sp-confirm-btn-skip {
+    background: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fcd34d;
+}
+
+.sp-confirm-btn-skip:hover {
+    background: #fde68a;
+    border-color: #f59e0b;
+}
+
+.sp-confirm-btn-confirm {
+    background: linear-gradient(180deg, #0a66d1, #0056b3);
+    color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 86, 179, 0.3);
+}
+
+.sp-confirm-btn-confirm:hover {
+    background: linear-gradient(180deg, #0056b3, #00408f);
+    box-shadow: 0 4px 8px rgba(0, 64, 143, 0.35);
+}
+
+.spapi-plans-container {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.spapi-plan-card {
+    position: relative;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 20px 14px 16px;
+    text-align: center;
+    background: #ffffff;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    overflow: hidden;
+}
+
+.spapi-plan-card::before {
+    content: '';
+    display: block;
+    height: 4px;
+    background: #cbd5e0;
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    border-radius: 10px 10px 0 0;
+    transition: background 0.2s;
+}
+
+.spapi-plan-card.active {
+    border-color: #0a66d1;
+    box-shadow: 0 6px 20px rgba(10, 102, 209, 0.18);
+    transform: translateY(-3px);
+}
+
+.spapi-plan-card.active::before {
+    background: #0a66d1;
+}
+
+.spapi-plan-card:hover {
+    border-color: #0a66d1;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(10, 102, 209, 0.15);
+}
+
+.spapi-plan-card:hover::before {
+    background: #0a66d1;
+}
+
+.spapi-plan-icon-name {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    margin-bottom: 5px;
+    margin-top: 2px;
+}
+
+.spapi-plan-icon {
+    font-size: 22px;
+    color: #0a66d1;
+    flex-shrink: 0;
+}
+
+.spapi-plan-name {
+    font-weight: 700;
+    font-size: 15px;
+    color: #1a202c;
+    letter-spacing: 0.01em;
+}
+
+.spapi-plan-price {
+    font-size: 24px;
+    font-weight: 800;
+    color: #0a66d1;
+    margin-bottom: 2px;
+    line-height: 1.1;
+}
+
+.spapi-plan-price span {
+    font-size: 13px;
+    font-weight: 400;
+    color: #718096;
+}
+
+.spapi-plan-annual {
+    font-size: 14px;
+    color: #2e7d32;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.spapi-plan-divider {
+    border: none;
+    border-top: 1px solid #edf2f7;
+    margin: 8px 0;
+}
+
+.spapi-plan-detail {
+    font-size: 12px;
+    color: #4a5568;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: left;
+    gap: 5px;
+}
+
+.spapi-plan-detail i {
+    font-size: 10px;
+    color: #0a66d1;
+    width: 12px;
+    flex-shrink: 0;
+}
+
+.spapi-plan-cta {
+    margin-top: auto;
+    padding-top: 8px;
+}
+
+.spapi-plan-cta-btn {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 6px;
+    width: 100%;
+    font-size: 11px;
+    font-weight: 700;
+    color: #0a66d1;
+    background: #ebf4ff;
+    border-radius: 6px;
+    padding: 6px 8px;
+    border: 1px solid #bee3f8;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    box-sizing: border-box;
+}
+
+.spapi-plan-cta-btn.cta-free {
+    background: #e8f5e9;
+    color: #2e7d32;
+    border-color: #a5d6a7;
+}
+
+.spapi-plan-card:hover .spapi-plan-cta-btn,
+.spapi-plan-card.active .spapi-plan-cta-btn {
+    background: #0a66d1;
+    color: #ffffff;
+    border-color: #0a66d1;
+}
+
+.spapi-plan-card:hover .spapi-plan-cta-btn.cta-free,
+.spapi-plan-card.active .spapi-plan-cta-btn.cta-free {
+    background: #2e7d32;
+    color: #ffffff;
+    border-color: #2e7d32;
+}
+
+.spapi-plan-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #ff7043;
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 20px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.spapi-plans-header {
+    font-size: 15px;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 12px;
+}
+
+.spapi-plans-header i {
+    color: #0a66d1;
+    margin-right: 5px;
+}
+
+.spapi-upgrade-alert-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    background: #fff8e1;
+    border: 1px solid #f6cc4f;
+    border-left: 4px solid #f6cc4f;
+    border-radius: 6px;
+    padding: 14px 16px;
+    margin-bottom: 4px;
+}
+
+.spapi-upgrade-alert-icon {
+    font-size: 22px;
+    color: #d69e2e;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.spapi-upgrade-alert-text {
+    font-size: 14px;
+    color: #2d3748;
+    line-height: 1.5;
+}
+
+.spapi-upgrade-alert-sub {
+    font-size: 13px;
+    color: #718096;
+    margin-top: 4px;
+}
+
+.spapi-free-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    padding: 5px 12px;
+    background: #d4edda;
+    color: #1e7e34;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.spapi-free-badge-sep {
+    opacity: 0.55;
+    margin: 0 2px;
+}
+
+.spapi-upgrade-contact {
+    margin-top: 12px;
+    font-size: 13px;
+    color: #718096;
+}
+
+.spapi-upgrade-contact i {
+    color: #0a66d1;
+    margin-right: 3px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -55%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
 
 .sub_menu_link{
     background-color: #c7cbce;
@@ -590,3 +1887,2326 @@ div.tab button.active {	background-color: #ccc;}
     margin-left: 2px;
 }
 .sub_menu_link:hover{color: black;}
+
+/* === LOGIN PAGE STYLES === */
+.login-card {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    margin-top: 60px;
+    margin-bottom: 60px;
+    border: 1px solid #e2e8f0;
+}
+
+.login-header {
+    background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 50%, #4a8fc7 100%);
+    padding: 40px 30px 30px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.login-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+    opacity: 0.3;
+}
+
+.login-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.15) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    position: relative;
+    z-index: 1;
+}
+
+.login-icon i {
+    font-size: 36px;
+    color: #ffffff;
+}
+
+.login-title {
+    color: #ffffff;
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    position: relative;
+    z-index: 1;
+}
+
+.login-subtitle {
+    color: #d6e4f5;
+    font-size: 15px;
+    margin: 0;
+    position: relative;
+    z-index: 1;
+}
+
+.login-tools-hint {
+    color: #a8c4e6;
+    font-size: 12.5px;
+    margin: 10px 0 0;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    position: relative;
+    z-index: 1;
+    line-height: 1.5;
+}
+
+.login-body {
+    padding: 40px 30px 30px;
+}
+
+.login-label {
+    color: #2d3748;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.login-label i {
+    color: #4a8fc7;
+    margin-right: 6px;
+    width: 16px;
+    text-align: center;
+}
+
+.login-input {
+    height: 48px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    background: #f8fafc;
+}
+
+.login-input:focus {
+    border-color: #4a8fc7;
+    background: #ffffff;
+    box-shadow: 0 0 0 4px rgba(74, 143, 199, 0.1);
+    outline: none;
+}
+
+.forgot-link {
+    color: #4a8fc7;
+    font-size: 14px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.forgot-link:hover {
+    color: #2c5282;
+    text-decoration: none;
+}
+
+.forgot-link i {
+    font-size: 12px;
+}
+
+.btn-login {
+    width: 100%;
+    height: 50px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 8px;
+    margin-top: 10px;
+    box-shadow: 0 4px 12px rgba(10, 102, 209, 0.3);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-login:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(10, 102, 209, 0.4);
+}
+
+.btn-login i {
+    font-size: 18px;
+}
+
+.register-section {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid #e2e8f0;
+    text-align: center;
+}
+
+.register-text {
+    color: #4a5568;
+    font-size: 14px;
+    margin-right: 8px;
+}
+
+.register-link {
+    color: #4a8fc7;
+    font-weight: 600;
+    font-size: 15px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.register-link:hover {
+    color: #2c5282;
+    text-decoration: none;
+}
+
+.register-link i {
+    font-size: 14px;
+}
+
+.login-footer {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    padding: 20px 30px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.footer-text {
+    color: #4a5568;
+    font-size: 13px;
+    margin: 0;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.footer-text i {
+    color: #10b981;
+    font-size: 14px;
+}
+
+/* Login page responsive */
+@media screen and (max-width: 576px) {
+    .login-card {
+        margin-top: 20px;
+        margin-bottom: 20px;
+        border-radius: 12px;
+    }
+
+    .login-header {
+        padding: 30px 20px 20px;
+    }
+
+    .login-icon {
+        width: 70px;
+        height: 70px;
+    }
+
+    .login-icon i {
+        font-size: 30px;
+    }
+
+    .login-title {
+        font-size: 24px;
+    }
+
+    .login-subtitle {
+        font-size: 14px;
+    }
+
+    .login-body {
+        padding: 30px 20px 20px;
+    }
+
+    .login-footer {
+        padding: 15px 20px;
+    }
+}
+
+/* === REGISTER PAGE STYLES === */
+.register-card {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    margin-top: 40px;
+    margin-bottom: 40px;
+    border: 1px solid #e2e8f0;
+}
+
+.register-header {
+    background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
+    padding: 40px 30px 30px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.register-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+    opacity: 0.3;
+}
+
+.register-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.15) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    position: relative;
+    z-index: 1;
+}
+
+.register-icon i {
+    font-size: 36px;
+    color: #ffffff;
+}
+
+.register-title {
+    color: #ffffff;
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    position: relative;
+    z-index: 1;
+}
+
+.register-subtitle {
+    color: #d1fae5;
+    font-size: 15px;
+    margin: 0;
+    position: relative;
+    z-index: 1;
+}
+
+.register-body {
+    padding: 40px 30px 30px;
+}
+
+.register-section-title {
+    color: #1a202c;
+    font-size: 18px;
+    font-weight: 600;
+    margin: 30px 0 20px 0;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.register-section-title:first-child {
+    margin-top: 0;
+}
+
+.register-section-title i {
+    color: #10b981;
+    font-size: 20px;
+}
+
+.register-label {
+    color: #2d3748;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.register-label i {
+    color: #10b981;
+    margin-right: 6px;
+    width: 16px;
+    text-align: center;
+}
+
+.register-input {
+    height: 48px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    background: #f8fafc;
+}
+
+.register-input:focus {
+    border-color: #10b981;
+    background: #ffffff;
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+    outline: none;
+}
+
+.pricing-link {
+    color: #10b981;
+    font-size: 14px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.pricing-link:hover {
+    color: #059669;
+    text-decoration: none;
+}
+
+.pricing-link i {
+    font-size: 12px;
+}
+
+.captcha-wrapper {
+    margin: 12px 0;
+    display: flex;
+    justify-content: flex-start;
+}
+
+.captcha-image {
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 8px;
+    background: #f8fafc;
+}
+
+.register-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.btn-register-cancel {
+    flex: 1;
+    height: 50px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-register-submit {
+    flex: 2;
+    height: 50px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: linear-gradient(180deg, #10b981, #059669);
+    border-color: #047857 !important;
+}
+
+.btn-register-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    background: linear-gradient(180deg, #059669, #047857);
+}
+
+.register-footer {
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    padding: 20px 30px;
+    border-top: 1px solid #e2e8f0;
+    text-align: center;
+}
+
+.register-footer .footer-text {
+    color: #4a5568;
+    font-size: 14px;
+    margin: 0;
+}
+
+.register-footer .login-link {
+    color: #10b981;
+    font-weight: 600;
+    font-size: 15px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: 6px;
+}
+
+.register-footer .login-link:hover {
+    color: #059669;
+    text-decoration: none;
+}
+
+.register-footer .login-link i {
+    font-size: 14px;
+}
+
+/* Register page responsive */
+@media screen and (max-width: 768px) {
+    .register-card {
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+
+    .register-header {
+        padding: 30px 20px 20px;
+    }
+
+    .register-icon {
+        width: 70px;
+        height: 70px;
+    }
+
+    .register-icon i {
+        font-size: 30px;
+    }
+
+    .register-title {
+        font-size: 24px;
+    }
+
+    .register-subtitle {
+        font-size: 14px;
+    }
+
+    .register-body {
+        padding: 30px 20px 20px;
+    }
+
+    .register-section-title {
+        font-size: 16px;
+    }
+
+    .register-actions {
+        flex-direction: column;
+    }
+
+    .btn-register-cancel,
+    .btn-register-submit {
+        flex: 1;
+        width: 100%;
+    }
+
+    .register-footer {
+        padding: 15px 20px;
+    }
+}
+
+/* === FORGOT PASSWORD PAGE STYLES === */
+.forgot-card {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    margin-top: 60px;
+    margin-bottom: 60px;
+    border: 1px solid #e2e8f0;
+}
+
+.forgot-header {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%);
+    padding: 40px 30px 30px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.forgot-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+    opacity: 0.3;
+}
+
+.forgot-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.15) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    position: relative;
+    z-index: 1;
+}
+
+.forgot-icon i {
+    font-size: 36px;
+    color: #ffffff;
+}
+
+.forgot-title {
+    color: #ffffff;
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    position: relative;
+    z-index: 1;
+}
+
+.forgot-subtitle {
+    color: #fef3c7;
+    font-size: 15px;
+    margin: 0;
+    line-height: 1.5;
+    position: relative;
+    z-index: 1;
+}
+
+.forgot-body {
+    padding: 40px 30px 30px;
+}
+
+.forgot-label {
+    color: #2d3748;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.forgot-label i {
+    color: #f59e0b;
+    margin-right: 6px;
+    width: 16px;
+    text-align: center;
+}
+
+.forgot-input {
+    height: 48px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    background: #f8fafc;
+}
+
+.forgot-input:focus {
+    border-color: #f59e0b;
+    background: #ffffff;
+    box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.1);
+    outline: none;
+}
+
+.forgot-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.btn-forgot-cancel {
+    flex: 1;
+    height: 50px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-forgot-submit {
+    flex: 2;
+    height: 50px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-forgot-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+}
+
+.forgot-footer {
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    padding: 20px 30px;
+    border-top: 1px solid #e2e8f0;
+    text-align: center;
+}
+
+.forgot-footer .footer-text {
+    color: #4a5568;
+    font-size: 14px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.forgot-footer .footer-text i {
+    color: #f59e0b;
+    font-size: 14px;
+}
+
+.forgot-footer .signin-link {
+    color: #f59e0b;
+    font-weight: 600;
+    font-size: 15px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.forgot-footer .signin-link:hover {
+    color: #d97706;
+    text-decoration: none;
+}
+
+/* Forgot password page responsive */
+@media screen and (max-width: 576px) {
+    .forgot-card {
+        margin-top: 20px;
+        margin-bottom: 20px;
+        border-radius: 12px;
+    }
+
+    .forgot-header {
+        padding: 30px 20px 20px;
+    }
+
+    .forgot-icon {
+        width: 70px;
+        height: 70px;
+    }
+
+    .forgot-icon i {
+        font-size: 30px;
+    }
+
+    .forgot-title {
+        font-size: 24px;
+    }
+
+    .forgot-subtitle {
+        font-size: 14px;
+    }
+
+    .forgot-body {
+        padding: 30px 20px 20px;
+    }
+
+    .forgot-actions {
+        flex-direction: column;
+    }
+
+    .btn-forgot-cancel,
+    .btn-forgot-submit {
+        flex: 1;
+        width: 100%;
+    }
+
+    .forgot-footer {
+        padding: 15px 20px;
+    }
+
+    .forgot-footer .footer-text {
+        font-size: 13px;
+    }
+}
+
+/* === BUTTON LINKS === */
+a.btn, a.btn:hover {
+  text-decoration: none !important;
+}
+
+/* === PRIMARY === */
+.btn-primary {
+  background: linear-gradient(180deg, #0a66d1, #0056b3);
+  border-color: #004a99 !important;
+  color: #fff !important;
+  box-shadow: 0 4px 8px rgba(0, 86, 179, 0.3);
+  transition: all 0.2s ease-in-out;
+}
+.btn-primary:hover {
+  background: linear-gradient(180deg, #0056b3, #00408f);
+  border-color: #003873 !important;
+  box-shadow: 0 6px 12px rgba(0, 64, 143, 0.35);
+  color: #fff !important;
+}
+
+/* === SUCCESS === */
+.btn-success {
+  background: linear-gradient(180deg, #28a745, #198754);
+  border-color: #157347 !important;
+  color: #fff !important;
+  box-shadow: 0 4px 8px rgba(25, 135, 84, 0.3);
+  transition: all 0.2s ease-in-out;
+}
+.btn-success:hover {
+  background: linear-gradient(180deg, #198754, #146c43);
+  border-color: #0f5132 !important;
+  box-shadow: 0 6px 12px rgba(20, 108, 67, 0.35);
+  color: #fff !important;
+}
+
+/* === WARNING === */
+.btn-warning {
+  background: linear-gradient(180deg, #e6b200, #e0a800);
+  border-color: #d39e00 !important;
+  color: #fff !important;
+  box-shadow: 0 4px 8px rgba(224, 168, 0, 0.3);
+  transition: all 0.2s ease-in-out;
+}
+.btn-warning:hover {
+  background: linear-gradient(180deg, #e0a800, #c69500);
+  border-color: #b88600 !important;
+  box-shadow: 0 6px 12px rgba(198, 149, 0, 0.35);
+  color: #fff !important;
+}
+
+/* === DANGER === */
+.btn-danger {
+  background: linear-gradient(180deg, #a50000, #8b0000);
+  border-color: #7a0000 !important;
+  color: #fff !important;
+  box-shadow: 0 4px 8px rgba(139, 0, 0, 0.35);
+  transition: all 0.2s ease-in-out;
+}
+.btn-danger:hover {
+  background: linear-gradient(180deg, #8b0000, #660000);
+  border-color: #590000 !important;
+  box-shadow: 0 6px 12px rgba(102, 0, 0, 0.45);
+  color: #fff !important;
+}
+
+/* === SECONDARY === */
+.btn-secondary {
+  background: linear-gradient(180deg, #6c757d, #545b62);
+  border-color: #4e555b !important;
+  color: #fff !important;
+  box-shadow: 0 4px 8px rgba(108, 117, 125, 0.3);
+  transition: all 0.2s ease-in-out;
+}
+.btn-secondary:hover {
+  background: linear-gradient(180deg, #545b62, #3e444a);
+  border-color: #343a40 !important;
+  box-shadow: 0 6px 12px rgba(84, 91, 98, 0.35);
+  color: #fff !important;
+}
+
+/* === INFO === */
+.btn-info {
+  background: linear-gradient(180deg, #0dcaf0, #0aa2c0);
+  border-color: #0990ac !important;
+  color: #fff !important;
+  box-shadow: 0 4px 8px rgba(13, 202, 240, 0.3);
+  transition: all 0.2s ease-in-out;
+}
+.btn-info:hover {
+  background: linear-gradient(180deg, #0aa2c0, #087990);
+  border-color: #066b82 !important;
+  box-shadow: 0 6px 12px rgba(8, 121, 144, 0.35);
+  color: #fff !important;
+}
+
+/* === CARD HEADERS === */
+.card-header-gradient-blue {
+  background: linear-gradient(135deg, #4a8fc7 0%, #6faee0 100%);
+  color: #ffffff !important;
+  border: none;
+  box-shadow: 0 2px 6px rgba(74, 143, 199, 0.35);
+  padding: 0.5rem 1rem;
+}
+
+.card-header-gradient-blue h4 {
+  color: #ffffff !important;
+  margin: 0;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.card-header-gradient-green {
+  background: linear-gradient(135deg, #0c6b63 0%, #24a85a 100%);
+  color: #ffffff !important;
+  border: none;
+  box-shadow: 0 4px 12px rgba(12, 107, 99, 0.4);
+}
+
+.card-header-gradient-green h4 {
+  color: #ffffff !important;
+  margin: 0;
+  font-weight: 600;
+}
+
+.card-header-gradient-orange {
+  background: linear-gradient(135deg, #c25fc7 0%, #c7324a 100%);
+  color: #ffffff !important;
+  border: none;
+  box-shadow: 0 4px 12px rgba(194, 95, 199, 0.4);
+}
+
+.card-header-gradient-orange h4 {
+  color: #ffffff !important;
+  margin: 0;
+  font-weight: 600;
+}
+
+.card-header-gradient-teal {
+  background: linear-gradient(135deg, #2b7ac7 0%, #00a8b5 100%);
+  color: #ffffff !important;
+  border: none;
+  box-shadow: 0 4px 12px rgba(43, 122, 199, 0.4);
+}
+
+.card-header-gradient-teal h4 {
+  color: #ffffff !important;
+  margin: 0;
+  font-weight: 600;
+}
+
+/* === ATTRACTIVE NAV TABS === */
+.nav-tabs {
+  background: linear-gradient(180deg, #6c757d 0%, #495057 100%);
+  padding: 6px 6px 0 6px;
+  border-radius: 8px 8px 0 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Main Dashboard Nav - no full background, only menu backgrounds */
+#main_dashboard_nav {
+  background: transparent !important;
+  padding: 0 0 0 0;
+  border-radius: 0;
+  box-shadow: none;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+#main_dashboard_nav .nav-item {
+  margin-bottom: 0;
+  margin-right: 6px;
+}
+
+#main_dashboard_nav .nav-link {
+  border-radius: 6px 6px 0 0;
+  padding: 14px 20px;
+  background: linear-gradient(135deg, #c3ddf5 0%, #a8cef0 100%);
+  color: #2c5282;
+  border: 1px solid #93b8de;
+  border-bottom: none;
+  margin-bottom: -2px;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(74, 143, 199, 0.2);
+}
+
+#main_dashboard_nav .nav-link:hover {
+  background: linear-gradient(135deg, #6faee0 0%, #5a9dd1 100%);
+  color: #1a365d;
+  box-shadow: 0 3px 6px rgba(74, 143, 199, 0.3);
+  transform: translateY(-1px);
+}
+
+#main_dashboard_nav .nav-link.active {
+  background: linear-gradient(135deg, #4a8fc7 0%, #6faee0 100%);
+  color: #ffffff !important;
+  border-color: #4a8fc7;
+  font-weight: 600;
+}
+
+#main_dashboard_nav .nav-link.active:hover {
+  background: linear-gradient(135deg, #3d7fb5 0%, #5a9dd1 100%);
+}
+
+.nav-tabs .nav-item {
+  margin-bottom: -3px;
+  margin-right: 4px;
+}
+
+.nav-tabs .nav-link {
+  border-radius: 8px 8px 0 0;
+  padding: 8px 20px;
+  font-weight: 600;
+  font-size: 15px;
+  color: #e9ecef;
+  background: transparent;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.nav-tabs .nav-link:hover {
+  background: linear-gradient(180deg, #5a6268 0%, #495057 100%);
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.nav-tabs .nav-link.active {
+  background: linear-gradient(135deg, #2d3561 0%, #3d2261 100%);
+  color: #ffffff !important;
+  box-shadow: 0 4px 15px rgba(45, 53, 97, 0.6);
+  transform: translateY(-2px);
+}
+
+.nav-tabs .nav-link.active:hover {
+  background: linear-gradient(135deg, #1f2545 0%, #2d1845 100%);
+  color: #ffffff !important;
+}
+
+.nav-tabs .sub_menu_link {
+  background-color: transparent;
+}
+
+/* === SMALLER NAV TABS FOR REPORTS === */
+.nav-tabs-sm {
+  background: transparent !important;
+  padding: 0 0 0 0;
+  border-radius: 0;
+  box-shadow: none;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.nav-tabs-sm .nav-item {
+  margin-bottom: 0;
+  margin-right: 6px;
+}
+
+.nav-tabs-sm .nav-link {
+  border-radius: 6px 6px 0 0;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  background: linear-gradient(135deg, #c3ddf5 0%, #a8cef0 100%);
+  color: #2c5282;
+  border: 1px solid #93b8de;
+  border-bottom: none;
+  margin-bottom: -2px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(74, 143, 199, 0.2);
+}
+
+.nav-tabs-sm .nav-link:hover {
+  background: linear-gradient(135deg, #6faee0 0%, #5a9dd1 100%);
+  color: #1a365d;
+  box-shadow: 0 3px 6px rgba(74, 143, 199, 0.3);
+  transform: translateY(-1px);
+}
+
+.nav-tabs-sm .nav-link.active {
+  background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+  color: #ffffff !important;
+  border-color: #10b981;
+  font-weight: 600;
+}
+
+.nav-tabs-sm .nav-link.active:hover {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+}
+
+/* === HOME PAGE STYLES === */
+
+/* Hero Section */
+.home-hero {
+	background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 50%, #4a8fc7 100%);
+	padding: 72px 40px 64px;
+	border-radius: 12px;
+	margin-bottom: 0;
+	text-align: center;
+}
+.home-hero-eyebrow {
+	font-size: 13px;
+	font-weight: 700;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: #d6e4f5;
+	margin-bottom: 16px;
+}
+.hero-title {
+	color: #ffffff;
+	font-size: 44px;
+	font-weight: 800;
+	line-height: 1.15;
+	margin: 0 auto 20px;
+	max-width: 780px;
+	text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+.hero-subtitle {
+	color: #d6e4f5;
+	font-size: 17px;
+	line-height: 1.6;
+	max-width: 640px;
+	margin: 0 auto;
+}
+.hero-actions {
+	display: flex;
+	justify-content: center;
+	gap: 14px;
+	margin-top: 32px;
+}
+.hero-actions .btn {
+	padding: 13px 26px;
+	font-weight: 700;
+	border-radius: 10px;
+	font-size: 15px;
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+}
+.hero-actions .btn-primary {
+	background: #9a0000;
+	border-color: #9a0000;
+	box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+.hero-actions .btn-primary:hover {
+	background: #7a0000;
+	border-color: #7a0000;
+}
+.hero-actions .btn-outline-primary {
+	color: #ffffff;
+	border-color: rgba(255, 255, 255, 0.4);
+	background: transparent;
+}
+.hero-actions .btn-outline-primary:hover {
+	background: rgba(255, 255, 255, 0.15);
+	color: #ffffff;
+	border-color: rgba(255, 255, 255, 0.6);
+}
+
+/* Trust stats strip */
+.home-stats {
+	display: flex;
+	justify-content: center;
+	flex-wrap: wrap;
+	gap: 48px;
+	max-width: 740px;
+	margin: 48px auto 0;
+	padding-top: 32px;
+	border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+.home-stat-value {
+	display: block;
+	color: #ffffff;
+	font-size: 28px;
+	font-weight: 800;
+	font-family: inherit;
+}
+.home-stat-label {
+	display: block;
+	color: #b8d0e8;
+	font-size: 13px;
+	margin-top: 4px;
+}
+
+/* Features / Tools Grid */
+.features-section {
+	padding: 72px 20px;
+	text-align: center;
+}
+.section-eyebrow {
+	color: #9a0000;
+	font-size: 13px;
+	font-weight: 700;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	margin-bottom: 14px;
+}
+.section-title {
+	font-size: 30px;
+	font-weight: 800;
+	color: #241d1a;
+	margin: 0 0 14px;
+}
+.section-desc {
+	color: #6b5c51;
+	font-size: 15px;
+	max-width: 600px;
+	margin: 0 auto 48px;
+	line-height: 1.6;
+}
+
+.features-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+	gap: 20px;
+	max-width: 1220px;
+	margin: 0 auto;
+	text-align: left;
+}
+
+.feature-card {
+	background: #ffffff;
+	border: 1px solid #ece3db;
+	border-radius: 14px;
+	padding: 26px;
+	transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.feature-card:hover {
+	transform: translateY(-4px);
+	box-shadow: 0 12px 28px rgba(36, 29, 26, 0.08);
+	border-color: #ddd2c9;
+}
+.feature-icon {
+	width: 50px;
+	height: 50px;
+	border-radius: 12px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin: 0 0 16px;
+	background: #fdeeee;
+}
+.feature-icon i {
+	font-size: 21px;
+	color: #9a0000;
+}
+/* rotates through a 5-color tint set across the tool cards - purely
+   decorative, so a plain nth-child cycle (rather than a class per
+   tool) keeps it low-maintenance as tools are added/removed */
+.feature-card:nth-child(5n+2) .feature-icon { background: #eef4fb; }
+.feature-card:nth-child(5n+2) .feature-icon i { color: #2c5282; }
+.feature-card:nth-child(5n+3) .feature-icon { background: #eaf6f0; }
+.feature-card:nth-child(5n+3) .feature-icon i { color: #0f7a4d; }
+.feature-card:nth-child(5n+4) .feature-icon { background: #f4eefb; }
+.feature-card:nth-child(5n+4) .feature-icon i { color: #6b3fa0; }
+.feature-card:nth-child(5n+5) .feature-icon { background: #fdf3e7; }
+.feature-card:nth-child(5n+5) .feature-icon i { color: #b8720a; }
+
+.feature-card h3 {
+	font-size: 16px;
+	font-weight: 700;
+	color: #241d1a;
+	margin: 0 0 8px;
+}
+.feature-card p {
+	font-size: 14px;
+	color: #6b5c51;
+	line-height: 1.55;
+	margin: 0;
+}
+
+/* Why Choose Section */
+.why-choose-section {
+	background: #1e3a5f;
+	padding: 64px 20px;
+	border-radius: 12px;
+	margin-bottom: 40px;
+	text-align: center;
+}
+.why-choose-section .section-title {
+	color: #ffffff;
+}
+.why-choose-section .section-eyebrow {
+	color: #d6e4f5;
+}
+.why-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+	gap: 30px;
+	max-width: 1080px;
+	margin: 40px auto 0;
+}
+.why-card {
+	text-align: left;
+}
+.why-icon {
+	margin: 0 0 14px;
+}
+.why-icon i {
+	font-size: 26px;
+	color: #4a8fc7;
+}
+.why-card h3 {
+	font-size: 16px;
+	font-weight: 700;
+	color: #ffffff;
+	margin: 0 0 8px;
+}
+.why-card p {
+	font-size: 14px;
+	color: #b8d0e8;
+	line-height: 1.55;
+	margin: 0;
+}
+
+/* Resources Section */
+.resources-section {
+	padding: 0 20px 64px;
+	text-align: center;
+}
+.resources-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: 14px;
+	max-width: 1000px;
+	margin: 32px auto 0;
+}
+.resource-link {
+	background: #ffffff;
+	border: 1px solid #ece3db;
+	border-radius: 10px;
+	padding: 16px 18px;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	color: #241d1a;
+	font-weight: 600;
+	font-size: 14px;
+	transition: all 0.2s ease;
+}
+.resource-link:hover {
+	border-color: #9a0000;
+	color: #9a0000;
+	text-decoration: none;
+	transform: translateY(-2px);
+}
+.resource-link i {
+	font-size: 18px;
+	color: #9a0000;
+}
+
+/* Closing CTA band */
+.home-final-cta {
+	background: #9a0000;
+	border-radius: 12px;
+	padding: 56px 20px;
+	text-align: center;
+	margin-bottom: 20px;
+}
+.home-final-cta h2 {
+	color: #ffffff;
+	font-size: 26px;
+	font-weight: 800;
+	margin: 0 0 12px;
+}
+.home-final-cta p {
+	color: #ffd9d9;
+	font-size: 15px;
+	max-width: 460px;
+	margin: 0 auto 24px;
+}
+.home-final-cta .btn {
+	background: #ffffff;
+	color: #9a0000;
+	font-weight: 700;
+	padding: 13px 28px;
+	border-radius: 10px;
+	font-size: 15px;
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+}
+.home-final-cta .btn:hover {
+	color: #7a0000;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+	.home-hero {
+		padding: 48px 20px;
+	}
+	.hero-title {
+		font-size: 30px;
+	}
+	.hero-subtitle {
+		font-size: 15px;
+	}
+	.hero-actions {
+		flex-direction: column;
+	}
+	.hero-actions .btn {
+		width: 100%;
+		justify-content: center;
+	}
+	.home-stats {
+		gap: 28px;
+		margin-top: 36px;
+		padding-top: 24px;
+	}
+	.home-stat-value {
+		font-size: 22px;
+	}
+	.features-section,
+	.why-choose-section {
+		padding: 48px 16px;
+	}
+	.section-title {
+		font-size: 24px;
+	}
+	.home-final-cta {
+		padding: 40px 20px;
+	}
+	.home-final-cta h2 {
+		font-size: 22px;
+	}
+}
+
+@media screen and (max-width: 480px) {
+	.hero-title {
+		font-size: 25px;
+	}
+	.home-stats {
+		gap: 20px 32px;
+	}
+	.section-title {
+		font-size: 21px;
+	}
+}
+
+/* ===== Setup Wizard ===== */
+.sp-wizard-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.55);
+    z-index: 9999;
+    animation: fadeIn 0.2s ease;
+}
+.sp-wizard-box {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 12px 48px rgba(0,0,0,0.22);
+    width: 600px;
+    max-width: 96vw;
+    z-index: 10000;
+    animation: slideDown 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    max-height: 92vh;
+}
+/* Feature Tour reuses .sp-wizard-box (same popup chrome as the Setup
+   Wizard), but its steps carry a lot more content per panel - Settings
+   category rows, SEO Tools chip grid, badges - than the wizard's short
+   panels were sized for, so it gets its own wider cap here rather than
+   widening .sp-wizard-box itself (which the wizard still uses as-is). */
+#sp_tour_overlay .sp-wizard-box {
+    width: 760px;
+}
+.sp-wizard-header {
+    background: linear-gradient(135deg, #1a73e8 0%, #0d5db5 100%);
+    color: #fff;
+    padding: 18px 24px 14px;
+    border-radius: 10px 10px 0 0;
+    flex-shrink: 0;
+}
+.sp-wizard-header h4 {
+    margin: 0 0 12px;
+    font-size: 17px;
+    font-weight: 700;
+}
+.sp-wizard-steps {
+    display: flex;
+    align-items: center;
+    gap: 0;
+}
+.sp-wizard-step-item {
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+.sp-wizard-step-dot {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.25);
+    border: 2px solid rgba(255,255,255,0.5);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.7);
+    flex-shrink: 0;
+    transition: all 0.2s;
+}
+.sp-wizard-step-dot.active {
+    background: #fff;
+    border-color: #fff;
+    color: #1a73e8;
+}
+.sp-wizard-step-dot.done {
+    background: rgba(255,255,255,0.6);
+    border-color: rgba(255,255,255,0.8);
+    color: #0d5db5;
+}
+.sp-wizard-step-line {
+    flex: 1;
+    height: 2px;
+    background: rgba(255,255,255,0.25);
+    margin: 0 3px;
+}
+.sp-wizard-step-line.done {
+    background: rgba(255,255,255,0.7);
+}
+.sp-wizard-body {
+    padding: 24px 24px 16px;
+    overflow-y: auto;
+    flex: 1;
+    /* keeps the box a near-constant height across steps instead of
+       visibly resizing on every Next/Back - short steps (Welcome, Done)
+       just leave blank space below, the tallest step (Add Your First
+       Website) fits without scrolling on a normal screen, and anything
+       that still overflows on a short viewport scrolls via overflow-y
+       above rather than being clipped. */
+    min-height: 420px;
+}
+.sp-wizard-panel { display: none; }
+.sp-wizard-panel.active { display: block; }
+.sp-wizard-panel h5 {
+    font-size: 15px; font-weight: 700; margin-bottom: 8px; color: #1a73e8;
+}
+.sp-wizard-panel p { color: #555; font-size: 14px; line-height: 1.6; margin-bottom: 10px; }
+.sp-wizard-info-box {
+    background: #f0f7ff;
+    border-left: 4px solid #1a73e8;
+    padding: 12px 14px;
+    border-radius: 4px;
+    margin-bottom: 14px;
+    font-size: 13px;
+    color: #333;
+}
+.sp-wizard-footer {
+    padding: 14px 24px;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 0 0 10px 10px;
+    flex-shrink: 0;
+}
+.sp-wizard-footer-left { display: flex; gap: 8px; }
+.sp-wizard-footer-right { display: flex; gap: 8px; }
+.sp-wizard-success-icon {
+    text-align: center;
+    font-size: 52px;
+    color: #34a853;
+    margin-bottom: 10px;
+}
+
+/* ===== Feature Tour (educational tour, separate from the Setup
+   Wizard above - shown once to brand-new users; reuses the wizard's
+   overlay/box/header/footer/info-box classes as-is, with its own
+   richer, clickable content styling below) ===== */
+/* SEO Tools step: a card grid instead of a flat pill list - the icon
+   badge (matching .sp-tour-link-icon's style elsewhere in the tour),
+   a corner "opens externally" glyph, and a hover lift all read as
+   "this card navigates somewhere" more clearly than a plain tag. */
+.sp-tour-tool-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 10px;
+    margin-bottom: 14px;
+}
+.sp-tour-tool-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 8px;
+    padding: 18px 10px 14px;
+    border-radius: 10px;
+    border: 1px solid #e8edf5;
+    background: #fafbfd;
+    text-decoration: none;
+    transition: all 0.15s ease;
+}
+.sp-tour-tool-card:hover {
+    background: #f0f7ff;
+    border-color: #1a73e8;
+    text-decoration: none;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(26,115,232,0.18);
+}
+.sp-tour-tool-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1a73e8 0%, #0d5db5 100%);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    box-shadow: 0 3px 8px rgba(26,115,232,0.25);
+}
+.sp-tour-tool-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #1a1a2e;
+    line-height: 1.3;
+}
+.sp-tour-tool-open {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    font-size: 10px;
+    color: #c3cad9;
+    transition: color 0.15s ease;
+}
+.sp-tour-tool-card:hover .sp-tour-tool-open {
+    color: #1a73e8;
+}
+
+/* clickable "go there" rows - used by the Settings and Plugins steps */
+.sp-tour-link-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 14px;
+}
+.sp-tour-link-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #e8edf5;
+    background: #fafbfd;
+    text-decoration: none;
+    transition: all 0.15s ease;
+}
+.sp-tour-link-row:hover {
+    background: #f0f7ff;
+    border-color: #bcd8f9;
+    text-decoration: none;
+    transform: translateX(2px);
+}
+.sp-tour-link-icon {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #1a73e8 0%, #0d5db5 100%);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+}
+.sp-tour-link-text {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+.sp-tour-link-text strong {
+    font-size: 13.5px;
+    color: #1a1a2e;
+}
+.sp-tour-link-title-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.sp-tour-link-text small {
+    font-size: 11.5px;
+    color: #7a7f8c;
+    line-height: 1.3;
+}
+.sp-tour-link-arrow {
+    flex-shrink: 0;
+    font-size: 12px;
+    color: #b0b8c9;
+    transition: transform 0.15s ease, color 0.15s ease;
+}
+.sp-tour-link-row:hover .sp-tour-link-arrow {
+    color: #1a73e8;
+    transform: translateX(3px);
+}
+.sp-tour-badge {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    padding: 3px 8px;
+    border-radius: 20px;
+    white-space: nowrap;
+}
+.sp-tour-badge-connected {
+    background: #e7f8ee;
+    color: #1f9d55;
+}
+.sp-tour-badge-pending {
+    background: #f2f3f8;
+    color: #8a8ea3;
+}
+.sp-tour-badge-important {
+    background: #fdeeee;
+    color: #c0392b;
+}
+.sp-tour-badge-optional {
+    background: #f2f3f8;
+    color: #8a8ea3;
+}
+.sp-tour-badges {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.sp-tour-connection-badge {
+    display: inline-flex;
+}
+
+/* Step 2's inline Add Website form - creates a website, keyword, and
+   optional social/review links without leaving the tour. */
+.sp-tour-form-row {
+    margin-bottom: 12px;
+}
+.sp-tour-form-row label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 4px;
+}
+.sp-tour-required {
+    color: #b91c1c;
+}
+.sp-tour-form-row-pair {
+    display: flex;
+    gap: 12px;
+}
+.sp-tour-form-row-pair .sp-tour-form-row {
+    flex: 1 1 0;
+    min-width: 0;
+}
+.sp-tour-field-err {
+    font-size: 12px;
+    margin-top: 3px;
+}
+.sp-tour-field-err:empty {
+    display: none;
+}
+.sp-tour-form-divider {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #94a3b8;
+    border-top: 1px solid #e2e8f0;
+    margin: 16px 0 12px;
+    padding-top: 12px;
+}
+.sp-tour-form-hint {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: -6px;
+    margin-bottom: 10px;
+}
+/* Step 2's "+N more websites" line under the first-website row - bigger
+   and more breathing room than the base form hint above (which mostly
+   sits flush under a form field), since this one stands on its own. */
+.sp-tour-more-websites-hint {
+    font-size: 13px;
+    padding: 8px 2px 0 2px;
+    margin-top: 0;
+}
+#tour_web_submit_btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Refresh button (tour header) - re-checks live connection status in
+   case the user just saved credentials in another tab, without needing
+   to close/reopen the tour or wait for next login. Given its own
+   visible pill (border + background), not a bare icon easily mistaken
+   for decoration next to the title - that was the original design and
+   it went unnoticed in practice. */
+.sp-tour-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+.sp-tour-refresh-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.35);
+    color: #ffffff;
+    cursor: pointer;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 20px;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+.sp-tour-refresh-btn:hover {
+    background: rgba(255,255,255,0.25);
+    border-color: rgba(255,255,255,0.6);
+}
+.sp-tour-refresh-btn.sp-tour-refreshing i {
+    animation: sp-tour-spin 0.7s linear infinite;
+}
+@keyframes sp-tour-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+/* Inline variant - same button, same featureTourRefreshConnections()
+   trigger and the same .sp-tour-refreshing spin above, just recolored
+   for sitting inside a light sp-tour-link-row instead of the blue
+   header (the white-on-translucent default would be invisible there). */
+.sp-tour-refresh-btn-inline {
+    background: #eef2fb;
+    border: 1px solid #d3def5;
+    color: #1a73e8;
+}
+.sp-tour-refresh-btn-inline:hover {
+    background: #dde8fb;
+    border-color: #b7cbf2;
+}
+/* A new line right below the row the clicked refresh button belongs to
+   (inserted as that row's next sibling in the DOM - same plain-text
+   pattern as the Cron step's "Test cron now" result, not a floating
+   tooltip). Right-aligned, under the refresh button/badges side of the
+   row rather than the title. Faded in on arrival, faded out and
+   removed by its own setTimeout in featureTourRefreshConnections(). */
+.sp-tour-refresh-result-row {
+    font-size: 12.5px;
+    font-weight: 600;
+    text-align: right;
+    padding: 6px 0 0 0;
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: opacity 0.25s ease;
+}
+.sp-tour-refresh-result-row.sp-tour-refresh-result-show {
+    opacity: 1;
+    max-height: 42px;
+}
+/* Fixed "Checked latest status" part - neutral but dark enough to read
+   as a real label, not a faint hint; the colored detail next to it
+   still carries the actual result. */
+.sp-tour-refresh-result-label {
+    color: #4b5165;
+}
+/* The real check result (e.g. "Success" or "Invalid or revoked API
+   key") - colored by whether that service is actually connected,
+   matching .sp-tour-badge-connected/.sp-tour-badge-important above. */
+.sp-tour-refresh-result-detail.sp-tour-refresh-result-ok {
+    color: #1f9d55;
+}
+.sp-tour-refresh-result-detail.sp-tour-refresh-result-fail {
+    color: #c0392b;
+}
+
+/* Cron step's "Test cron now" box and the ping-trigger hint below it -
+   both given their own dedicated spacing (no shared negative margin-top
+   from .sp-tour-form-hint, which is meant to hug a form field, not a
+   sibling hint) so a wrapped result line can't ride up and crowd the
+   hint underneath it. */
+.sp-tour-cron-test-box {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin: 10px 0;
+}
+.sp-tour-cron-test-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #475569;
+}
+.sp-tour-cron-test-result {
+    font-size: 12.5px;
+    font-weight: 600;
+}
+.sp-tour-cron-test-result:not(:empty) {
+    margin-top: 6px;
+}
+.sp-tour-cron-test-result.sp-tour-cron-test-busy {
+    color: #c98a13;
+}
+.sp-tour-cron-ping-hint {
+    font-size: 13px;
+    color: #64748b;
+    padding: 0 2px;
+}
+
+/* === Safe-area insets (notch / Dynamic Island / status bar / home
+   indicator) - sitewide, unscoped ===
+   The viewport meta tag now includes viewport-fit=cover, so the page
+   extends edge-to-edge under the notch/status bar and home indicator
+   on notched phones (iOS Safari and standalone) instead of Safari's
+   default auto-inset layout. env(safe-area-inset-*) only resolves to
+   a non-zero value on a device that actually reports one - on every
+   other browser (desktop, non-notched phones) this is a harmless
+   no-op, so it needs no media-query scoping. The top navbar is in
+   normal document flow (not fixed), so it's the first thing that
+   would render under the notch/status bar without this - pushing the
+   whole page down by the inset clears it. */
+body {
+    padding-top: env(safe-area-inset-top, 0px);
+    /* Sticky footer: on a page shorter than the viewport, plain document
+       flow (see footer-sp's own comment on why this isn't position:fixed
+       anymore) left the footer sitting right after the short content,
+       with a large, visually dead gap of plain body background between
+       it and the actual bottom of the viewport - looked like the page
+       just stopped partway down. flex-column + min-height:100vh here,
+       paired with footer-sp's margin-top:auto below, pushes the footer
+       (and anything after it in the DOM) down to the true bottom of the
+       viewport when content is short, while changing nothing for a page
+       taller than the viewport - footer-sp's margin-top:auto has no free
+       space left to absorb in that case, so it just follows the content
+       exactly as before. */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Sticky footer, part 2: the content wrapper grows to absorb any extra
+   space in the flex column above (see body's own comment), so footer-sp
+   lands at the true bottom of a short page instead of right after the
+   content with dead space below it. flex-shrink:0 matters here - without
+   it, a page TALLER than the viewport could have this shrink below its
+   own content height instead of just scrolling normally like before. */
+.sp-main-content {
+    flex: 1 0 auto;
+}
+
+/* === PWA mobile bottom tab bar (see menu/pwa_bottom_nav.ctp.php) ===
+   Native-app-style navigation for small viewports / installed PWA use -
+   hidden at md and up via the .d-md-none utility class on the <nav>
+   itself, where the existing top navbar already covers navigation. */
+.sp-pwa-bottomnav {
+    display: flex;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1030;
+    background: #ffffff;
+    border-top: 1px solid #e2e8f0;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.06);
+    padding-bottom: env(safe-area-inset-bottom, 0);
+}
+.sp-pwa-bottomnav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 8px 2px 6px;
+    color: #8a8ea3;
+    text-decoration: none;
+    font-size: 10.5px;
+    font-weight: 600;
+    line-height: 1.2;
+    text-align: center;
+}
+.sp-pwa-bottomnav-item i {
+    font-size: 18px;
+}
+.sp-pwa-bottomnav-item span {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.sp-pwa-bottomnav-item:hover,
+.sp-pwa-bottomnav-item:focus {
+    color: #9a0000;
+    text-decoration: none;
+}
+.sp-pwa-bottomnav-item.active {
+    color: #9a0000;
+}
+
+@media screen and (max-width: 767px) {
+    body {
+        padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+    }
+}
+
+/* === Mobile filter bars (table.search) - sitewide ===
+   table.search is the standard filter-row pattern used across the app
+   (website/keyword/rank lists, reports, AI Visibility, etc. - ~80+
+   views) - a plain <table> squeezes each <select>/<input> into a
+   narrow table cell on a phone. Stacks it into a clean vertical form
+   instead, the same fix already applied dashboard-locally before this
+   generalized it. Unscoped (not per-page) since the markup shape
+   (<tr><th>label</th><td>field</td>...</tr>) is consistent everywhere
+   it is used.
+   width: 100% is !important because ~20 views (quick checkers, "generate
+   report" forms, etc.) set an inline style="width: 60%" or "80%" on this
+   same table to keep a short desktop form from stretching full-width -
+   an inline style always beats an external stylesheet rule regardless of
+   selector specificity, so without !important those forms stayed pinned
+   to 60/80% width on a phone too, cramping every stacked field inside. */
+@media screen and (max-width: 767px) {
+    table.search,
+    table.search tbody,
+    table.search tr {
+        display: block;
+        width: 100% !important;
+    }
+    table.search th,
+    table.search td {
+        display: block;
+        width: 100%;
+        text-align: left;
+        padding: 4px 0;
+    }
+    table.search th.pl-4 {
+        padding-left: 0;
+        margin-top: 6px;
+    }
+    table.search select,
+    table.search input[type="text"],
+    table.search .btn {
+        width: 100%;
+    }
+}
+
+/* === PWA install prompt banner (see layout/default.ctp.php) ===
+   Chrome/Edge/Android only - the beforeinstallprompt event this relies
+   on has no Safari/iOS equivalent, so the banner simply never appears
+   there (no separate iOS instructional variant is built here). Sits
+   below the top navbar, not the bottom PWA tab bar, so it never
+   competes for space with sp-pwa-bottomnav on a phone. */
+#sp-pwa-install-banner {
+    display: none;
+    background: linear-gradient(135deg, #9a0000 0%, #5c0000 100%);
+    color: #ffffff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    padding: 12px 20px;
+}
+.sp-pwa-install-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+.sp-pwa-install-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.15);
+}
+.sp-pwa-install-text {
+    flex: 1;
+    min-width: 0;
+}
+.sp-pwa-install-text strong {
+    display: block;
+    font-size: 14.5px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+}
+.sp-pwa-install-text p {
+    margin: 2px 0 0;
+    font-size: 12.5px;
+    color: rgba(255, 255, 255, 0.78);
+}
+.sp-pwa-install-buttons {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+#sp-pwa-install-btn {
+    background: #ffffff;
+    color: #6b0000;
+    border: none;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    padding: 6px 18px;
+    border-radius: 20px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+#sp-pwa-install-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    color: #6b0000;
+}
+.sp-pwa-install-dismiss {
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    opacity: 0.75;
+    font-size: 18px;
+    line-height: 1;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s ease, opacity 0.15s ease;
+}
+.sp-pwa-install-dismiss:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.15);
+}
+@media screen and (max-width: 576px) {
+    .sp-pwa-install-text p {
+        display: none;
+    }
+}
+
+/* === #main_dashboard_nav mobile: compact 3-column grid, not scroll ===
+   The 11-item dashboard section switcher (Overview/Reports/Website/
+   Keywords/Analytics/Search Console/Site Auditor/Social Media/Reviews/
+   Directory Submission/AI Insights, see user/userhome.ctp.php) is the
+   first thing a logged-in user sees. A horizontal-scroll row was tried
+   first (like the dashboard's own keyword-distribution tabs) but the
+   user found it looked bad in practice - swiping to discover items
+   isn't obvious, and it hides most of the tab bar behind the fold.
+   Replaced with a fixed 4-column grid instead: every item visible at
+   once as a small icon-over-label chip, 3 short rows total, no
+   scrolling or swiping needed. Each .nav-link's markup is
+   `<i class="fas ..."></i> <span class="nav-label">Label</span>` -
+   the label is wrapped in its own element (added in userhome.ctp.php)
+   so flex-direction:column can reliably stack icon above label;
+   relying on flex to lay out a bare icon element plus a raw sibling
+   text node is not consistent across browsers. */
+@media screen and (max-width: 767px) {
+    #main_dashboard_nav {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+        border-bottom: none;
+    }
+    #main_dashboard_nav .nav-item {
+        margin: 0;
+    }
+    #main_dashboard_nav .nav-link {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        height: 100%;
+        padding: 8px 2px;
+        border: 1px solid rgba(0,0,0,0.08);
+        border-radius: 8px;
+        background: rgba(0,0,0,0.02);
+        text-align: center;
+    }
+    #main_dashboard_nav .nav-link i {
+        font-size: 15px;
+        margin-right: 0;
+    }
+    #main_dashboard_nav .nav-link .nav-label {
+        font-size: 10px;
+        line-height: 1.2;
+        white-space: normal;
+        word-break: break-word;
+    }
+    #main_dashboard_nav .nav-link.active {
+        background: #4a8fc7;
+        border-color: #4a8fc7;
+        color: #fff;
+    }
+}
+
+/* === Top navbar hamburger menu: floating dropdown on mobile, not an
+   expanding panel that pushes content down ===
+   Bootstrap's default .navbar-collapse expands in normal document flow
+   (block-level, pushes everything below it further down the page) -
+   on a phone that meant tapping the hamburger shoved the #main_dashboard_nav
+   tabs and all page content down by the height of the whole menu. Anchors
+   it instead as a small floating card in the top-right corner (under the
+   hamburger button itself), overlaying the page instead of displacing it -
+   the standard mobile "kebab menu" pattern. Targets both .collapsing (the
+   mid-animation state) and .show (fully open) so the whole open/close
+   transition happens in the floating position, not a page-push that then
+   snaps into a corner once the animation finishes.
+
+   Scoped to #navbarSupportedContent specifically (not the generic
+   .navbar.navbar-expand-md .navbar-collapse selector this started as) -
+   seotools/index.ctp.php, seoplugins/showseoplugins.ctp.php and
+   adminpanel/adminpanel.ctp.php each have their own separate
+   .navbar.navbar-expand-md wrapping a left-menu toggle (#navbarLeftMenu),
+   positioned mid-page rather than fixed at the top. The generic selector
+   floated THAT collapse panel the same way, anchored to its own narrow
+   nav rather than the actual hamburger buttons on a phone. */
+@media screen and (max-width: 767px) {
+    .navbar.navbar-expand-md {
+        position: relative;
+    }
+    #navbarSupportedContent.show,
+    #navbarSupportedContent.collapsing {
+        position: absolute;
+        top: 100%;
+        right: 12px;
+        left: auto;
+        width: 250px;
+        max-width: calc(100vw - 24px);
+        max-height: 80vh;
+        overflow-y: auto;
+        background: #1a1e24;
+        border-radius: 10px;
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+        padding: 10px 14px 14px;
+        z-index: 1050;
+        flex-basis: auto;
+        flex-grow: 0;
+        align-items: stretch;
+    }
+    /* display:block (not flex-direction:column) - the utility row's
+       <a>Help</a><span class="pipe"> | </span> pairs are separate flex
+       item SIBLINGS, not nested together, so a column flex container
+       stacked each link and its pipe onto its own line ("Help" / "|" /
+       "Support" / "|"). Block flow lets them wrap inline as plain text
+       instead, same as their pipe separators were designed for. The
+       language <select> still lands on its own row below regardless,
+       since Bootstrap's .form-control is already display:block;
+       width:100% on its own. */
+    #navbarSupportedContent.show form.form-inline,
+    #navbarSupportedContent.collapsing form.form-inline {
+        display: block;
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    #navbarSupportedContent.show form.form-inline a,
+    #navbarSupportedContent.collapsing form.form-inline a {
+        display: inline;
+        color: #d7dbe0;
+    }
+    #navbarSupportedContent.show form.form-inline select,
+    #navbarSupportedContent.collapsing form.form-inline select {
+        margin-top: 8px;
+    }
+    /* .sp-tour-menu-link is normally display:inline-flex (its pill
+       shape) - the generic "a" rule above forces plain-text links to
+       display:inline so Help/Support wrap inline with their pipes, but
+       that same reset also hit this pill, breaking it into two
+       fragments across the line wrap (a stray rounded sliver after
+       "Support", the rest of the pill orphaned below). Restoring
+       inline-flex here makes it wrap as one atomic unit instead. */
+    #navbarSupportedContent.show form.form-inline a.sp-tour-menu-link,
+    #navbarSupportedContent.collapsing form.form-inline a.sp-tour-menu-link {
+        display: inline-flex;
+        margin-top: 8px;
+    }
+}
+
+/* === Notification bell dropdown: fixed viewport-relative panel on
+   mobile, not a nested Bootstrap dropdown ===
+   #alert_noti_sec (the bell icon) sits inside the floating hamburger
+   menu above - only 250px wide on a phone - but its own .dropdown-menu
+   has a desktop-only min-width: 32rem (512px), wider than any phone
+   screen and far wider than the 250px-wide parent it's nested inside.
+   Opening it on mobile would force either a badly overflowing panel or
+   a cramped horizontal scroll within an already-scrolling vertical
+   menu. Detaches it from that narrow nested context entirely via
+   position:fixed, sized and positioned relative to the viewport
+   instead, so it renders as a normal full-width panel regardless of
+   how deep it's nested. 62px clears the 54px-tall navbar (see
+   .navbar.navbar-expand-md min-height above) plus a small gap. */
+@media screen and (max-width: 767px) {
+    #alert_noti_sec .dropdown-menu {
+        position: fixed;
+        top: calc(62px + env(safe-area-inset-top, 0px));
+        left: 12px;
+        right: 12px;
+        width: auto;
+        min-width: 0;
+        max-width: none;
+        max-height: calc(100vh - 80px);
+        margin-top: 0;
+    }
+}
+
+/* === .stat-row: 2-column stat grid on mobile (sitewide) ===
+   The "Overview Stats" card on 6 dashboard tabs (Analytics, Social
+   Media, Search Console, Reviews, Directory Submission, Website
+   Analytics) all share the same pattern: a .row of col-md-X cells,
+   each an <h6> label + a big colored badge number - identical problem
+   to the main dashboard's stat-tile-row (fixed earlier), just a
+   different visual style (badge numbers instead of stat-tile
+   typography) and not scoped to .sp-dashboard since these 6 pages
+   don't use that class. Same fix: 2 tiles per row instead of one
+   full-width tile per row, with a lone odd tile spanning full width. */
+@media screen and (max-width: 767px) {
+    .stat-row { display: flex; flex-wrap: wrap; }
+    .stat-row > div[class*="col-md-"] {
+        width: 50%;
+        flex: 0 0 50%;
+        max-width: 50%;
+        padding-left: 8px;
+        padding-right: 8px;
+        margin-bottom: 1.1rem;
+    }
+    .stat-row > div[class*="col-md-"]:last-child:nth-child(odd) {
+        width: 100%;
+        flex-basis: 100%;
+        max-width: 100%;
+    }
+    /* the badge numbers use an inline style="font-size: 1.5rem" (or
+       1.4rem), which otherwise always wins over an external stylesheet
+       regardless of selector specificity - !important is the only way
+       to shrink them to fit a 50%-width tile on a phone */
+    .stat-row h3 .badge {
+        font-size: 1.15rem !important;
+        padding: 0.35rem 0.7rem !important;
+    }
+    .stat-row h6 {
+        font-size: 0.8rem;
+    }
+}

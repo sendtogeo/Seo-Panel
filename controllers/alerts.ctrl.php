@@ -1,7 +1,7 @@
 <?php
 
 /***************************************************************************
- *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	           *
+ *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.org)  	           *
  *   sendtogeo@gmail.com   												   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -66,8 +66,10 @@ class AlertController extends Controller {
 	 * Function to display alert details
 	 * @param Array $info	Contains all search details
 	 */
-	function listAlerts($info = '') {
+	function listAlerts($info=[]) {
 	    $userId = isLoggedIn();
+	    $info['from_time'] = htmlentities($info['from_time'], ENT_QUOTES);
+	    $info['to_time'] = htmlentities($info['to_time'], ENT_QUOTES);
 	    $fromTime = !empty($info['from_time']) ? $info['from_time'] : date('Y-m-d', strtotime('-30 days'));
 	    $toTime = !empty($info['to_time']) ? $info['to_time'] : date('Y-m-d');
 	    $this->set('fromTime', $fromTime);
@@ -76,6 +78,7 @@ class AlertController extends Controller {
 	    $sql = "select * from $this->tableName t where t.user_id=$userId and t.alert_time>='".addslashes("$fromTime 00:00:00")."'
 		        and t.alert_time<='" . addslashes("$toTime 23:59:59") . "'";
 	    $sql .= !empty($info['keyword']) ? " and (alert_subject like '%".addslashes($info['keyword'])."%' or alert_message like '%".addslashes($info['keyword'])."%')" : "";
+	    $sql .= !empty($info['alert_category']) ? " and alert_category='" . addslashes($info['alert_category']) ."'" : "";	    
 	    $sql .= " order by alert_time DESC";
 	    
 	    // pagination setup
@@ -95,15 +98,37 @@ class AlertController extends Controller {
 	    $this->render('alerts/alert_list');
 	}
 	
+	// IDOR guard - alerts are scoped per user_id everywhere they're listed
+	// (see listAlerts()), but deleteAlert()/showAlertInfo() previously had
+	// no ownership check at all, so any logged-in user could delete or
+	// view any other user's alert just by guessing/iterating its id
+	function __verifyAlertOwnership($alertId) {
+		if (isAdmin()) return true;
+		$userId = isLoggedIn();
+		$alertInfo = $this->__getAlertInfo($alertId);
+		return !empty($alertInfo) && intval($alertInfo['user_id']) === intval($userId);
+	}
+
 	/**
 	 * function to delete alert
 	 */
 	function deleteAlert($alertId) {
+	    // reachable from both the single delete_alert action and the
+	    // delete_all_alerts bulk loop - stays silent on rejection either
+	    // way, matching every other bulk-loop-safe ownership check this
+	    // session added (e.g. WebsiteController::__changeStatus())
+	    if (!$this->__verifyAlertOwnership($alertId)) {
+	        return;
+	    }
 	    $sql = "delete from $this->tableName where id=".intval($alertId);
 	    $this->db->query($sql);
 	}
-	
+
 	function showAlertInfo($alertId) {
+	    if (!$this->__verifyAlertOwnership($alertId)) {
+	        showErrorMsg($_SESSION['text']['label']['Access denied']);
+	        return;
+	    }
 	    $alertInfo = $this->__getAlertInfo($alertId);
 	    $this->set('listInfo', $alertInfo);
 	    $this->set('alertCategory', $this->alertCategory);
@@ -175,6 +200,113 @@ class AlertController extends Controller {
 		}
 	}	
 	
+	/**
+	 * Check SP API connection and create an alert if there is an error (once per day)
+	 */
+	function updateSpApiAlerts() {
+
+	    // Only run if SP API key is set
+	    if (!defined('SP_SPAPI_KEY') || empty(SP_SPAPI_KEY)) {
+	        return ['status' => false, 'result' => 'SP API not configured.'];
+	    }
+
+	    $informationCtrler = new InformationController();
+	    $todayInfo = $informationCtrler->__getTodayInformation('spapi_check');
+
+	    // If API was already checked today, recreate alert from stored result (handles deleted alerts)
+	    if (!empty($todayInfo)) {
+	        $storedResult = $todayInfo['page'];
+	        if ($storedResult === 'ok') {
+	            return ['status' => false, 'result' => 'SP API connection is working.'];
+	        }
+	        if ($storedResult === 'unconfirmed') {
+	            $alertInfo = [
+	                'alert_subject' => 'Seo Panel API Email Verification Required',
+	                'alert_message' => 'Please verify your email address to activate your Seo Panel API account.',
+	                'alert_url'     => SP_WEBPATH . '/admin-panel.php?menu_selected=settings&start_script=settings&category=seopanel_api',
+	                'alert_type'    => 'info',
+	                'alert_category' => 'general',
+	            ];
+	        } elseif ($storedResult === 'expired') {
+	            $alertInfo = [
+	                'alert_subject' => 'Seo Panel API Subscription Expired',
+	                'alert_message' => 'Your Seo Panel API subscription has expired. Upgrade your plan to continue.',
+	                'alert_url'     => SP_WEBPATH . '/admin-panel.php?menu_selected=settings&start_script=settings&category=seopanel_api',
+	                'alert_type'    => 'warning',
+	                'alert_category' => 'general',
+	            ];
+	        } elseif ($storedResult === 'monthly_limit') {
+	            $alertInfo = [
+	                'alert_subject' => 'Seo Panel API Usage Limit Reached',
+	                'alert_message' => 'Monthly API request limit reached. Upgrade your plan to continue.',
+	                'alert_url'     => SP_WEBPATH . '/admin-panel.php?menu_selected=settings&start_script=settings&category=seopanel_api',
+	                'alert_type'    => 'warning',
+	                'alert_category' => 'general',
+	            ];
+	        } else {
+	            $alertInfo = [
+	                'alert_subject' => 'Seo Panel API Connection Error',
+	                'alert_message' => $storedResult,
+	                'alert_url'     => SP_WEBPATH . '/admin-panel.php?menu_selected=settings&start_script=settings&category=seopanel_api',
+	                'alert_type'    => 'danger',
+	                'alert_category' => 'general',
+	            ];
+	        }
+	        $this->createAlert($alertInfo, false, true);
+	        return ['status' => true, 'result' => 'SP API alert recreated: ' . $storedResult];
+	    }
+
+	    include_once(SP_CTRLPATH . "/spapi.ctrl.php");
+	    $spapiCtrler = new SPAPIController();
+	    list($usageData, $logInfo) = $spapiCtrler->__getSpApiUsageData();
+
+	    $needsUpgrade = !empty($logInfo['needs_upgrade']);
+	    $upgradeReason = $logInfo['upgrade_reason'] ?? '';
+
+	    if ($needsUpgrade) {
+	        if ($upgradeReason === 'unconfirmed') {
+	            $subject = 'Seo Panel API Email Verification Required';
+	            $message = 'Please verify your email address to activate your Seo Panel API account.';
+	            $alertType = 'info';
+	        } elseif ($upgradeReason === 'expired') {
+	            $subject = 'Seo Panel API Subscription Expired';
+	            $message = 'Your Seo Panel API subscription has expired. Upgrade your plan to continue.';
+	            $alertType = 'warning';
+	        } else {
+	            $subject = 'Seo Panel API Usage Limit Reached';
+	            $message = 'You have reached your Seo Panel API usage limit (monthly or SERP). Upgrade your plan for more requests.';
+	            $alertType = 'warning';
+	        }
+	        $alertInfo = [
+	            'alert_subject' => $subject,
+	            'alert_message' => $message,
+	            'alert_url'     => SP_WEBPATH . '/admin-panel.php?menu_selected=settings&start_script=settings&category=seopanel_api',
+	            'alert_type'    => $alertType,
+	            'alert_category' => 'general',
+	        ];
+	        $this->createAlert($alertInfo, false, true);
+	        $informationCtrler->updateTodayInformation($upgradeReason, 'spapi_check');
+	        return ['status' => true, 'result' => 'SP API upgrade required: ' . $upgradeReason];
+	    }
+
+	    if (isset($logInfo['crawl_status']) && $logInfo['crawl_status'] == 0) {
+	        $errMessage = $logInfo['log_message'];
+	        $alertInfo = [
+	            'alert_subject' => 'Seo Panel API Connection Error',
+	            'alert_message' => $errMessage,
+	            'alert_url'     => SP_WEBPATH . '/admin-panel.php?menu_selected=settings&start_script=settings&category=seopanel_api',
+	            'alert_type'    => 'danger',
+	            'alert_category' => 'general',
+	        ];
+	        $this->createAlert($alertInfo, false, true);
+	        $informationCtrler->updateTodayInformation($errMessage, 'spapi_check');
+	        return ['status' => true, 'result' => 'SP API connection error: ' . $errMessage];
+	    }
+
+	    $informationCtrler->updateTodayInformation('ok', 'spapi_check');
+	    return ['status' => false, 'result' => 'SP API connection is working.'];
+	}
+
 	/**
 	 * function to update system alerts, eg: installation uptodate etc
 	 */

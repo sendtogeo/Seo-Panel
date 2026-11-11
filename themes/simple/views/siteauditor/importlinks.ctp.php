@@ -1,51 +1,71 @@
-<?php echo showSectionHead($spTextSA['Import Project Links']); ?>
+<?php include(SP_VIEWPATH.'/aivisibility/_styles.ctp.php'); ?>
+<div class="aiv-page-head">
+	<?php echo showSectionHead($spTextSA['Import Project Links']); ?>
+	<a href="javascript:void(0);" data-toggle="modal" data-target="#saImportHelpModal" class="aiv-help-btn"><i class="fas fa-question-circle"></i> What does this do?</a>
+</div>
+
+<!-- static help modal, not routed through #ajaxModalSP since there's no AJAX fetch involved -->
+<div class="modal fade aiv-help-modal" id="saImportHelpModal" tabindex="-1" role="dialog" aria-labelledby="saImportHelpModalLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="aiv-help-modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<div class="aiv-help-modal-icon"><i class="fas fa-file-upload"></i></div>
+				<h5 class="modal-title" id="saImportHelpModalLabel">About Import Project Links</h5>
+			</div>
+			<div class="modal-body aiv-help-modal-body">
+				<p>Paste a comma-separated list of page URLs to queue them into an existing project's crawl, rather than relying on the crawler to find them by following links or a sitemap.</p>
+				<div class="aiv-note">
+					<i class="fas fa-info-circle"></i>
+					<span>Each URL must belong to the project's own website domain and not already be queued or excluded. The whole batch is rejected if it would exceed the project's max-pages limit.</span>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" data-dismiss="modal">Got it</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 <form id="importlinks">
 <input type="hidden" name="sec" value="importlinks"/>
-<table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
+<table class="list">
 	<tr class="listHead">
 		<td class="left" width='30%'><?php echo $spTextSA['Import Project Links']?></td>
 		<td class="right">&nbsp;</td>
 	</tr>
-	<tr class="blue_row">				
-		<td class="td_left_col"><?php echo $spText['label']['Project']?>: </td>
-		<td class="td_right_col">
-			<select id="project_id" name="project_id" onchange="<?php echo $submitJsFunc?>" style="width: 180px;">
+	<tr>
+		<td><?php echo $spText['label']['Project']?>: </td>
+		<td>
+			<select id="project_id" name="project_id" onchange="<?php echo $submitJsFunc?>" class="custom-select" style="width: 180px;">
 				<?php foreach($projectList as $list) {?>
 					<?php if($list['id'] == $projectId) {?>
-						<option value="<?php echo $list['id']?>" selected="selected"><?php echo $list['name']?></option>
+						<option value="<?php echo $list['id']?>" selected="selected"><?php echo htmlspecialchars($list['name'])?></option>
 					<?php } else {?>
-						<option value="<?php echo $list['id']?>"><?php echo $list['name']?></option>
+						<option value="<?php echo $list['id']?>"><?php echo htmlspecialchars($list['name'])?></option>
 					<?php }?>
 				<?php }?>
 			</select>
 		</td>
-	</tr>	
-	<tr class="white_row">
-		<td class="td_left_col">Links:</td>
-		<td class="td_right_col">
-			<textarea name="links" rows="10"><?php echo $post['links']?></textarea>
+	</tr>
+	<tr>
+		<td>Links:</td>
+		<td>
+			<textarea name="links" rows="10" class="form-control"><?php echo $post['links']?></textarea>
 			<br><?php echo $errMsg['links']?>
 			<p style="font-size: 12px;"><?php echo $spTextSA['Insert links separated with comma']?>.</p>
-			<P><b>Eg:</b> http://www.seopanel.in/plugin/l/, http://www.seopanel.in/plugin/d/</P>
+			<P><b>Eg:</b> https://www.seopanel.org/plugin/l/, https://www.seopanel.org/plugin/d/</P>
 		</td>
-	</tr>		
-	<tr class="blue_row">
-		<td class="tab_left_bot_noborder"></td>
-		<td class="tab_right_bot"></td>
-	</tr>
-	<tr class="listBot">
-		<td class="left" colspan="1"></td>
-		<td class="right"></td>
 	</tr>
 </table>
-<table width="100%" cellspacing="0" cellpadding="0" border="0" class="actionSec">
+<table class="actionSec float-right mt-2">
 	<tr>
-    	<td style="padding-top: 6px;text-align:right;">
-    		<a onclick="scriptDoLoad('siteauditor.php', 'content')" href="javascript:void(0);" class="actionbut">
+    	<td>
+    		<a onclick="scriptDoLoad('siteauditor.php', 'content')" href="javascript:void(0);" class="btn btn-warning">
          		<?php echo $spText['button']['Cancel']?>
          	</a>&nbsp;
          	<?php $actFun = SP_DEMO ? "alertDemoMsg()" : "scriptDoLoadPost('siteauditor.php', 'importlinks', 'content')"; ?>
-         	<a onclick="<?php echo $actFun?>" href="javascript:void(0);" class="actionbut">
+         	<a onclick="<?php echo $actFun?>" href="javascript:void(0);" class="btn btn-primary">
          		<?php echo $spText['button']['Proceed']?>
          	</a>
     	</td>

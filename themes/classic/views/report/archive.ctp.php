@@ -19,34 +19,67 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 			<th><?php echo $spText['common']['Period']?>:</th>
     		<td>
     			<?php echo $fromTime?> - <?php echo $toTime?>
+    			<?php if (!empty($showDateRangeLagNote)) { ?>
+    				<br><small>Website/Keyword Search and Sitemap data reflects up to 2 days ago; Website Analytics up to 1 day ago (reporting lag at the data source) - other sections reflect the period above exactly.</small>
+    			<?php } ?>
 			</td>
 		</tr>
 	</table>
 <?php } else {?>
-	<?php echo showSectionHead($sectionHead); ?>
+	<?php include(SP_VIEWPATH.'/aivisibility/_styles.ctp.php'); ?>
+	<div class="aiv-page-head">
+		<?php echo showSectionHead($sectionHead); ?>
+		<a href="javascript:void(0);" data-toggle="modal" data-target="#archiveHelpModal" class="aiv-help-btn"><i class="fas fa-question-circle"></i> What does this do?</a>
+	</div>
+
+	<!-- static help modal, not routed through #ajaxModalSP since there's no AJAX fetch involved -->
+	<div class="modal fade aiv-help-modal" id="archiveHelpModal" tabindex="-1" role="dialog" aria-labelledby="archiveHelpModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="aiv-help-modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<div class="aiv-help-modal-icon"><i class="fas fa-archive"></i></div>
+					<h5 class="modal-title" id="archiveHelpModalLabel">About <?php echo htmlspecialchars($sectionHead)?></h5>
+				</div>
+				<div class="modal-body aiv-help-modal-body">
+					<p>A combined summary across every tool for a website and date range in one report - rank/authority, backlinks, directory submissions, PageSpeed, Search Console, social media and reviews - viewable here, or exported as CSV/PDF.</p>
+					<div class="aiv-note">
+						<i class="fas fa-info-circle"></i>
+						<span>This reads already-saved data from each tool - it doesn't run any new checks itself.</span>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-dismiss="modal">Got it</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
 	<form id='search_form'>
-	<table width="100%" class="search">		
+	<table class="search" style="width: 80%">
 		<tr>
 			<th><?php echo $spText['common']['Name']?>: </th>
 			<td>
-				<input type="text" name="search_name" value="<?php echo htmlentities($searchInfo['search_name'], ENT_QUOTES)?>" onblur="<?php echo $submitLink?>">
-			</td>			
-			<th><?php echo $spText['common']['Period']?>:</th>
+				<input type="text" name="search_name" value="<?php echo htmlentities($searchInfo['search_name'], ENT_QUOTES)?>" onblur="<?php echo $submitLink?>" class="form-control">
+			</td>
+			<th class="pl-4"><?php echo $spText['common']['Period']?>:</th>
     		<td colspan="2">
-    			<input type="text" value="<?php echo $fromTime?>" name="from_time" id="from_time_summary"/>
-    			<input type="text" value="<?php echo $toTime?>" name="to_time" id="to_time_summary"/>
+    			<input type="text" value="<?php echo $fromTime?>" name="from_time" id="from_time_summary" class="form-control" style="display: inline-block; width: 45%;"/>
+    			<input type="text" value="<?php echo $toTime?>" name="to_time" id="to_time_summary" class="form-control" style="display: inline-block; width: 45%;"/>
 				<script>
 				  $( function() {
 				    $( "#from_time_summary, #to_time_summary").datepicker({dateFormat: "yy-mm-dd"});
 				  } );
 			  	</script>
+    			<?php if (!empty($showDateRangeLagNote)) { ?>
+    				<br><small class="text-muted">Website/Keyword Search and Sitemap data reflects up to 2 days ago; Website Analytics up to 1 day ago (reporting lag at the data source) - other sections reflect the period above exactly.</small>
+    			<?php } ?>
     		</td>
     	<tr>
     	<tr>
-		    <th><?php echo $spText['common']['Website']?>: </th>
+		    <th class="pl-4"><?php echo $spText['common']['Website']?>: </th>
 			<td>
-    			<select name="website_id" id="website_id"  onchange="scriptDoLoadPost('archive.php', 'search_form', 'content')" style="width: 180px;">
-    				<option value="">-- <?php echo $spText['common']['Select']?> --</option>
+    			<select name="website_id" id="website_id" onchange="scriptDoLoadPost('archive.php', 'search_form', 'content')" class="custom-select">
     				<?php foreach($siteList as $websiteInfo){?>
     					<?php if($websiteInfo['id'] == $websiteId){?>
     						<option value="<?php echo $websiteInfo['id']?>" selected><?php echo $websiteInfo['name']?></option>
@@ -54,11 +87,11 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
     						<option value="<?php echo $websiteInfo['id']?>"><?php echo $websiteInfo['name']?></option>
     					<?php }?>
     				<?php }?>
-    			</select>				
+    			</select>
 			</td>
-			<th><?php echo $spText['label']['Report Type']?>: </th>
+			<th class="pl-4"><?php echo $spText['label']['Report Type']?>: </th>
 			<td>
-				<select name="report_type" id="report_type" onchange="scriptDoLoadPost('archive.php', 'search_form', 'content')" style="width: 210px;">
+				<select name="report_type" id="report_type" onchange="scriptDoLoadPost('archive.php', 'search_form', 'content')" class="custom-select">
 					<option value="">-- <?php echo $spText['common']['Select']?> --</option>
     				<?php foreach($reportTypes as $type => $info){?>
 						<?php if($type == $searchInfo['report_type']){?>
@@ -68,7 +101,11 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 						<?php }?>
 					<?php }?>
 				</select>
-				<a href="javascript:void(0);" onclick="scriptDoLoadPost('archive.php', 'search_form', 'content')" class="actionbut"><?php echo $spText['button']['Search']?></a>
+			</td>
+			<td>
+				<a href="javascript:void(0);" onclick="scriptDoLoadPost('archive.php', 'search_form', 'content')" class="btn btn-secondary">
+					<?php echo $spText['button']['Search']?>
+				</a>
 			</td>
 		</tr>
 	</table>
@@ -89,9 +126,18 @@ if(!empty($printVersion) || !empty($pdfVersion)) {
 
 <div id='subcontent' class="dashboard">
 <?php
+if (!empty($aiVisibilityReport)) {
+    ?>
+    <div class="table-responsive"><?php echo $aiVisibilityReport;?></div>
+    <br>
+    <?php
+}
+?>
+<?php
 $seCount = count($seList);
 if (!empty($keywordPos) && !empty($seCount)) {
-	$colCount = empty($websiteId) ? ($seCount * 3) + 2 : ($seCount * 3) + 1;
+	$svExtra = !empty($showSearchVolume) ? 1 : 0;
+	$colCount = empty($websiteId) ? ($seCount * 3) + 2 + $svExtra : ($seCount * 3) + 1 + $svExtra;
 	?>
 	<br>
 	<div class="table-responsive">
@@ -115,8 +161,8 @@ if (!empty($keywordPos) && !empty($seCount)) {
 			$linkName = "<a id='sortLink' class='$linkClass' $hrefAttr onclick=\"scriptDoLoad('$mainLink&order_col=keyword&order_val=$oVal', 'content')\">{$spText['common']['Keyword']}</a>"; 
 			?>		
 			<?php if (empty($websiteId)) {?>
-				<th id="head" rowspan="2"><?php echo $spText['common']['Website']?></th>
 				<th rowspan="2" id="head"><?php echo $linkName?></th>
+				<th id="head" rowspan="2"><?php echo $spText['common']['Website']?></th>
 			<?php } else { ?>
 				<th id="head" rowspan="2" style="border-right:1px solid #B0C2CC;"><?php echo $linkName?></th>
 			<?php }?>
@@ -135,8 +181,10 @@ if (!empty($keywordPos) && !empty($seCount)) {
 				<th id="head" colspan="3"><?php echo $linkName; ?></th>
 				<?php
 			}
-			?>
-		</tr>	
+			if (!empty($showSearchVolume)): ?>
+			<th id="head" rowspan="2" class="text-center"><?php echo $spText['keyword']['Search Volume']?><br><small style="font-weight:normal;font-size:0.75em;">Google</small></th>
+			<?php endif; ?>
+		</tr>
 		<tr>
 			<?php
 			$pTxt = str_replace("-", "/", substr($fromTime, -5));
@@ -151,7 +199,7 @@ if (!empty($keywordPos) && !empty($seCount)) {
 			?>
 		</tr>
 		<?php		 
-		if (count($list) > 0) {
+		if (!empty($list) && count($list) > 0) {
 			foreach($indexList as $keywordId => $rankValue){
 			    $listInfo = $list[$keywordId];
 				$positionInfo = $listInfo['position_info'];
@@ -160,8 +208,8 @@ if (!empty($keywordPos) && !empty($seCount)) {
 				?>
 				<tr>				
 					<?php if (empty($websiteId)) {?>
-						<td><a href="javascript:void(0)"><?php echo $listInfo['weburl']; ?></a></td>
 						<td><?php echo $listInfo['name'] ?></td>
+						<td><a href="javascript:void(0)"><?php echo $listInfo['website']; ?></a></td>
 					<?php } else { ?>
 						<td><?php echo $listInfo['name']; ?></td>
 					<?php }?>				
@@ -201,20 +249,31 @@ if (!empty($keywordPos) && !empty($seCount)) {
 						<td><?php echo $prevRankLink; ?></td>
 						<td><?php echo $currRankLink; ?></td>
 						<td><?php echo $diffOut; ?></td>
-						<?php					
+						<?php
 					}
-					?>				
+					?>
+					<?php if (!empty($showSearchVolume)): ?>
+					<td class="text-center">
+						<?php if (!is_null($listInfo['search_volume'])): ?>
+							<strong><?php echo number_format($listInfo['search_volume'])?></strong>
+						<?php elseif (!empty($listInfo['sv_status'])): ?>
+							<span class="badge badge-secondary"><?php echo htmlspecialchars($listInfo['sv_status'])?></span>
+						<?php else: ?>
+							&mdash;
+						<?php endif; ?>
+					</td>
+					<?php endif; ?>
 				</tr>
 				<?php
 			}
-		} else {	 
-			echo showNoRecordsList($colCount - 2, '', true);		
+		} else {
+			echo showNoRecordsList($colCount - 2, '', true);
 		}
 		?>
 	</table>
 	</div>
 	<?php
-}	 
+}
 ?>
 
 <br>
@@ -222,26 +281,24 @@ if (!empty($keywordPos) && !empty($seCount)) {
 	<?php
 	if (!empty($websiteStats)) {
     	echo showSectionHead($spTextHome['Website Statistics']);
-    	$colSpan = 14; 
+    	$colSpan = 13; 
     	if (empty($pdfVersion)) echo $websitePagingDiv;
     	?>
     	<table id="cust_tab">
     		<tr>
     			<th id="head" rowspan="2"><?php echo $spText['common']['Website']?></th>
-    			<th id="head" colspan="4"><?php echo $spTextHome['Ranks']?></th>
-    			<th id="head" colspan="3"><?php echo $spTextHome['Backlinks']?></th>
+    			<th id="head" colspan="3"><?php echo $spTextHome['Ranks']?></th>
+    			<th id="head" colspan="2"><?php echo $spTextHome['Backlinks']?></th>
     			<th id="head" colspan="2"><?php echo $spTextHome['Pages Indexed']?></th>
     			<th id="head" colspan="2"><?php echo $spTextPS['Page Speed']?></th>
     			<th id="head" colspan="2"><?php echo $spTextHome['Directory Submission']?></th>
     		</tr>		
     		<tr>
-    			<th>Moz</th>
+    			<th><?php echo $spText['common']['Spam Score']?></th>
     			<th><?php echo $spText['common']['Domain Authority']?></th>
     			<th><?php echo $spText['common']['Page Authority']?></th>
-    			<th>Alexa</th>
-    			<th>Google</th>
-    			<th>Alexa</th>
-    			<th>Bing</th>			
+    			<th><?php echo $spTextBack['Backlink Count']?></th>
+    			<th><?php echo $spTextBack['Domain Backlink Count']?></th>
     			<th>Google</th>
     			<th>Bing</th>
     			<th><?php echo $spTextPS['Desktop Speed']?></th>
@@ -255,13 +312,11 @@ if (!empty($keywordPos) && !empty($seCount)) {
 				foreach($websiteRankList as $websiteInfo){
 					$rangeFromTime = date('Y-m-d', strtotime('-14 days', strtotime($fromTime)));
     				$timeArg = "&from_time=$rangeFromTime&to_time=$toTime";
-    				$googleRankLink = scriptAJAXLinkHrefDialog('rank.php', 'content', "sec=reports&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['mozrank']);
-    				$alexaRankLink = scriptAJAXLinkHrefDialog('rank.php', 'content', "sec=reports&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['alexarank']);
+    				$spamScoreLink = scriptAJAXLinkHrefDialog('rank.php', 'content', "sec=reports&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['spam_score']);
     				$daLink = scriptAJAXLinkHrefDialog('rank.php', 'content', "sec=reports&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['domain_authority']);
     				$paLink = scriptAJAXLinkHrefDialog('rank.php', 'content', "sec=reports&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['page_authority']);
-    				$googleBackLInk = scriptAJAXLinkHrefDialog('backlinks.php', 'content', "sec=reports&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['google']['backlinks']);
-    				$alexaBackLInk = scriptAJAXLinkHrefDialog('backlinks.php', 'content', "sec=reports&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['alexa']['backlinks']);
-    				$bingBackLInk = scriptAJAXLinkHrefDialog('backlinks.php', 'content', "sec=reports&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['msn']['backlinks']);
+    				$externalPagesToPageLink = scriptAJAXLinkHrefDialog('backlinks.php', 'content', "sec=reports&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['external_pages_to_page']['backlinks']);
+    				$externalPagesToRootDomainLink = scriptAJAXLinkHrefDialog('backlinks.php', 'content', "sec=reports&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['external_pages_to_root_domain']['backlinks']);
     				$googleIndexLInk = scriptAJAXLinkHrefDialog('saturationchecker.php', 'content', "sec=reports&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['google']['indexed']);
     				$bingIndexLInk = scriptAJAXLinkHrefDialog('saturationchecker.php', 'content', "sec=reports&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['msn']['indexed']);
     				$totaldirLink = scriptAJAXLinkHrefDialog('directories.php', 'content', "sec=reports&website_id=".$websiteInfo['id'] . $timeArg, $websiteInfo['dirsub']['total']);
@@ -271,15 +326,13 @@ if (!empty($keywordPos) && !empty($seCount)) {
     				?>
     				<tr>
     					<td>
-    						<a href="javascript:void(0)"><?php echo $websiteInfo['url'];?></a>
+    						<a href="javascript:void(0)"><?php echo $websiteInfo['name'];?></a>
     					</td>
-    					<td><?php echo $googleRankLink;?></td>
+    					<td><?php echo $spamScoreLink;?></td>
 						<td><?php echo $daLink; ?></td>
 						<td><?php echo $paLink; ?></td>
-						<td><?php echo $alexaRankLink; ?></td>
-						<td><?php echo $googleBackLInk; ?></td>
-						<td><?php echo $alexaBackLInk; ?></td>
-						<td><?php echo $bingBackLInk; ?></td>
+						<td><?php echo $externalPagesToPageLink; ?></td>
+						<td><?php echo $externalPagesToRootDomainLink; ?></td>
 						<td><?php echo $googleIndexLInk; ?></td>
 						<td><?php echo $bingIndexLInk; ?></td>
 						<td><?php echo $desktopPageSpeedLink; ?></td>

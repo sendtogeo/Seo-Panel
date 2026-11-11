@@ -1,7 +1,7 @@
 <?php
 
 /***************************************************************************
- *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	   *
+ *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.org)  	   *
  *   sendtogeo@gmail.com   												   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -93,7 +93,6 @@ class Mysql extends Database{
 			$this->lastInsertId = @mysql_insert_id($this->connectionId);
 		}else{
 			$this->showError();
-			@mysql_free_result($res);
 		}
 		if($noRows) $this->noRows = mysql_num_rows($res);
 		return $res;

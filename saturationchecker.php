@@ -1,7 +1,7 @@
 <?php
 
 /***************************************************************************
- *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	   *
+ *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.org)  	   *
  *   sendtogeo@gmail.com   												   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -85,7 +85,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		case "graphical-reports":
 			$controller->showGraphicalReports($_GET);
 			break;
-		
+
+		case "summarizetrend":
+			$controller->summarizeTrend($_GET);
+			break;
+
 		default:
 			$controller->showSaturationChecker();
 			break;

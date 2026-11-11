@@ -1,23 +1,44 @@
-<?php 
-echo showSectionHead($spTextPanel["Mail Log Manager"]);
-$searchFun = "scriptDoLoadPost('log.php', 'listform', 'content', '&sec=mail')";
-?>
+<?php include(SP_VIEWPATH.'/aivisibility/_styles.ctp.php'); ?>
+<div class="aiv-page-head">
+	<?php echo showSectionHead($spTextPanel["Mail Log Manager"]); ?>
+	<a href="javascript:void(0);" data-toggle="modal" data-target="#mailLogMgrHelpModal" class="aiv-help-btn"><i class="fas fa-question-circle"></i> What does this do?</a>
+</div>
+
+<!-- static help modal, not routed through #ajaxModalSP since there's no AJAX fetch involved -->
+<div class="modal fade aiv-help-modal" id="mailLogMgrHelpModal" tabindex="-1" role="dialog" aria-labelledby="mailLogMgrHelpModalLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="aiv-help-modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<div class="aiv-help-modal-icon"><i class="fas fa-mail-bulk"></i></div>
+				<h5 class="modal-title" id="mailLogMgrHelpModalLabel">About Mail Log Manager</h5>
+			</div>
+			<div class="modal-body aiv-help-modal-body">
+				<p>This logs every email SEO Panel has sent, including notification alerts and scheduled report deliveries, along with its recipients, category, and Success or Fail status. Filter by category, keyword, or date range, and drill into any row for the full send details.</p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" data-dismiss="modal">Got it</button>
+			</div>
+		</div>
+	</div>
+</div>
+<?php $searchFun = "scriptDoLoadPost('log.php', 'listform', 'content', '&sec=mail')"; ?>
 <form name="listform" id="listform" onsubmit="<?php echo $searchFun?>;return false;">
 <table class="search">
 	<tr>
 		<th><?php echo $spText['button']['Search']?>: </th>
-		<td><input type="text" name="keyword" value="<?php echo htmlentities($post['keyword'], ENT_QUOTES)?>" onblur="<?php echo $searchFun?>"></td>
-		<th><?php echo $spText['common']['Category']?>: </th>
+		<td><input type="text" name="keyword" value="<?php echo htmlentities($post['keyword'], ENT_QUOTES)?>" onblur="<?php echo $searchFun?>" class="form-control"></td>
+		<th class="pl-4"><?php echo $spText['common']['Category']?>: </th>
 		<td>
-			<select name="cat_type" onchange="<?php echo $searchFun?>">
+			<select name="cat_type" onchange="<?php echo $searchFun?>" class="custom-select">
 				<option value="">-- <?php echo $spText['common']['Select']?> --</option>
-				<?php				
+				<?php
 				foreach ($catTypeList as $cInfo) {
 					$selectType = ($cInfo['mail_category'] == $post['cat_type']) ? "selected" : "";
 					?>
 					<option value="<?php echo $cInfo['mail_category']; ?>" <?php echo $selectType; ?> ><?php echo $cInfo['mail_category']; ?></option>
 					<?php
-				}	
+				}
 				?>
 			</select>
 		</td>
@@ -25,19 +46,19 @@ $searchFun = "scriptDoLoadPost('log.php', 'listform', 'content', '&sec=mail')";
 	<tr>
 		<th><?php echo $spText['common']['Period']?>:</th>
     	<td>
-    		<input type="text" value="<?php echo $fromTime?>" name="from_time"/> 
-    		<input type="text" value="<?php echo $toTime?>" name="to_time"/>		
+    		<input type="text" value="<?php echo $fromTime?>" name="from_time" class="form-control" style="display: inline-block; width: 45%;"/>
+    		<input type="text" value="<?php echo $toTime?>" name="to_time" class="form-control" style="display: inline-block; width: 45%;"/>
 			<script>
 			$(function() {
 				$( "input[name='from_time'], input[name='to_time']").datepicker({dateFormat: "yy-mm-dd"});
 			});
 		  	</script>
     	</td>
-		<th><?php echo $spText['common']['Status']?>: </th>
+		<th class="pl-4"><?php echo $spText['common']['Status']?>: </th>
 		<td>
-			<select name="status" onchange="<?php echo $searchFun?>">
+			<select name="status" onchange="<?php echo $searchFun?>" class="custom-select">
 				<option value="">-- <?php echo $spText['common']['Select']?> --</option>
-				<?php				
+				<?php
 				$inactCheck = $actCheck = "";
 				if ($post['status'] == 'success') {
 				    $actCheck = "selected";
@@ -48,13 +69,16 @@ $searchFun = "scriptDoLoadPost('log.php', 'listform', 'content', '&sec=mail')";
 				<option value="success" <?php echo $actCheck?> ><?php echo $spText['label']["Success"]?></option>
 				<option value="fail" <?php echo $inactCheck?> ><?php echo $spText['label']["Fail"]?></option>
 			</select>
-			<a href="javascript:void(0);" onclick="<?php echo $searchFun?>" class="actionbut"><?php echo $spText['button']['Show Records']?></a>
+		</td>
+		<td style="text-align: center;">
+			<a href="javascript:void(0);" onclick="<?php echo $searchFun?>" class="btn btn-secondary"><?php echo $spText['button']['Show Records']?></a>
 		</td>
 	</tr>
 </table>
 
-<br><br>
-<b><?php echo $spTextPanel["Current Time"]?>:</b> <?php echo date("Y-m-d H:i:s <b>T(P)</b>"); ?>
+<div class="mt-3 mb-2">
+	<strong><?php echo $spTextPanel["Current Time"]?>:</strong> <?php echo date("Y-m-d H:i:s <b>T(P)</b>"); ?>
+</div>
 <?php echo $pagingDiv?>
 <table class="list">
 	<tr class="listHead">
@@ -77,20 +101,14 @@ $searchFun = "scriptDoLoadPost('log.php', 'listform', 'content', '&sec=mail')";
 			<tr>
 				<td><input type="checkbox" name="ids[]" value="<?php echo $listInfo['id']?>"></td>
 				<td><?php echo $logLink?></td>
-				<td><?php echo stripslashes($listInfo['subject'])?></td>
-				<td><?php echo $listInfo['to_address']?></td>
-				<td><?php echo $listInfo['cc_address']?></td>
-				<td><?php echo $listInfo['from_address']?></td>
-				<td>
-					<?php 
-					if ($listInfo['status']) {
-						echo "<b class='success'>{$spText['label']['Success']}</b>";
-					} else {
-						echo "<b class='error'>{$spText['label']['Fail']}</b>";
-					}
-					?>
+				<td><?php echo htmlspecialchars(stripslashes($listInfo['subject']))?></td>
+				<td><?php echo htmlspecialchars($listInfo['to_address'])?></td>
+				<td><?php echo htmlspecialchars($listInfo['cc_address'])?></td>
+				<td><?php echo htmlspecialchars($listInfo['from_address'])?></td>
+				<td class="text-center">
+					<?php echo showStatusBadge($listInfo['status'], "successfail");?>
 				</td>
-				<td><?php echo $listInfo['mail_category']?></td>
+				<td><?php echo htmlspecialchars($listInfo['mail_category'])?></td>
 				<td><?php echo $listInfo['log_time']?></td>
 			</tr>
 			<?php
@@ -108,14 +126,14 @@ if (SP_DEMO) {
     $clearAllFun = "confirmLoad('log.php', 'content', '&sec=clear_all_mail_log')";
 }   
 ?>
-<table class="actionSec">
+<table class="actionSec mt-2">
 	<tr>
-    	<td style="padding-top: 6px;" class="left">
-         	<a onclick="<?php echo $delFun?>" href="javascript:void(0);" class="actionbut">
+    	<td>
+         	<a onclick="<?php echo $delFun?>" href="javascript:void(0);" class="btn btn-danger">
          		<?php echo $spText['common']['Delete']?>
          	</a>&nbsp;&nbsp;
          	<?php if (empty($fromPopUp)) {?>
-	         	<a onclick="<?php echo $clearAllFun?>" href="javascript:void(0);" class="actionbut">
+	         	<a onclick="<?php echo $clearAllFun?>" href="javascript:void(0);" class="btn btn-warning">
 	         		<?php echo $spTextLog['Clear All Logs']?>
 	         	</a>
 	         <?php }?>

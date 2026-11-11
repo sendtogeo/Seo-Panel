@@ -1,7 +1,7 @@
 <?php
 
 /***************************************************************************
- *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	   *
+ *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.org)  	   *
  *   sendtogeo@gmail.com   												   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -27,6 +27,7 @@ checkLoggedIn();
 isUserHaveAccessToSeoTool("rank-checker");
 
 include_once(SP_CTRLPATH."/rank.ctrl.php");
+include_once(SP_CTRLPATH."/backlink.ctrl.php");
 include_once(SP_CTRLPATH."/moz.ctrl.php");
 $controller = New RankController();
 $controller->view->menu = 'seotools';
@@ -60,18 +61,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$controller->showReports($_POST);
 			break;
 			
-		case "showpr":
-			$controller->printGooglePageRank(urldecode($_POST['url']));
-			break;
-		
-		case "showalexa":
-			$controller->printAlexaRank(urldecode($_POST['url']));
-			break;
-			
-		case "showmozrank":
-			$controller->printMOZRank(urldecode($_POST['url']));
-			break;
-			
 		case "graphical-reports":
 			$controller->showGraphicalReports($_POST);
 			break;
@@ -87,23 +76,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		case "quickrank":
 			$controller->showQuickRankChecker();
 			break;
-			
-		case "showpr":
-			$controller->printGooglePageRank(urldecode($_GET['url']));
-			break;
-			
-		case "showmozrank":
-			$controller->printMOZRank(urldecode($_GET['url']));
-			break;
-		
-		case "showalexa":
-			$controller->printAlexaRank(urldecode($_GET['url']));
-			break;
-			
-		case "alexaimg":
-			$controller->printAlexaRankImg($_GET['rank']);
-			break;
-			
+
 		case "generate":
 			$controller->showGenerateReports($_GET);
 			break;
@@ -114,6 +87,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			
 		case "graphical-reports":
 			$controller->showGraphicalReports($_GET);
+			break;
+
+		case "summarizetrend":
+			$controller->summarizeTrend($_GET);
 			break;
 
 		default:

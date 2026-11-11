@@ -1,7 +1,7 @@
 <?php
 
 /***************************************************************************
- *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	           *
+ *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.org)  	           *
  *   sendtogeo@gmail.com   												   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -35,9 +35,11 @@ class SeoPluginsController extends Controller{
 	var $pluginCssPath;
 	var $pluginJsPath;
 	var $pluginScriptUrl;
+	var $pluginDirName;
 	
 	# function to manage seo plugins
 	function manageSeoPlugins($info, $method='get', $cronJob = false) {
+	    $info['pid'] = intval($info['pid']);
 		
 		// check for plugin access level for user, if not admin
 		if (!isAdmin() && !$cronJob) {
@@ -61,7 +63,7 @@ class SeoPluginsController extends Controller{
 		$pluginControler = New $pluginDirName();
 		
 		// set plugin specific variabled
-		$pluginControlerpluginDirName = $pluginDirName;
+		$pluginControler->pluginDirName = $pluginDirName;
 		$pluginControler->pluginPath = $pluginPath;
 		$pluginControler->pluginId = $info['pid'];
 		$pluginControler->pluginViewPath = $this->getPluginViewPath($pluginControler->pluginPath);
@@ -84,13 +86,34 @@ class SeoPluginsController extends Controller{
 		}
 		
 		// if no action specified just initialize plugin
+		$data = $_REQUEST;
 		if ($info['action'] == 'get_plugin_object') {
 			$pluginControler->initPlugin($data);
 			return $pluginControler;
 		} else {
 			$this->pluginCtrler = $pluginControler;
 			$action = empty($info['action']) ? "index" : $info['action'];
-			$data = $_REQUEST;
+
+			// CSRF: this dispatcher calls $pluginControler->$action($data)
+			// for ANY $action name with no whitelist, and (unlike every
+			// core-app entry point fixed earlier this session) never
+			// actually used $method to restrict which actions a plain GET
+			// may reach - so a bare <img src="...seo-plugins.php?pid=..&
+			// action=deleteProject&project_id=5"> on any page a logged-in
+			// victim had open could silently trigger it, for ANY plugin
+			// (built-in or third-party). Convention-based rather than a
+			// fixed per-plugin whitelist, so it protects every plugin that
+			// follows this codebase's own established naming convention
+			// for state-changing actions (see js/common.js's
+			// SP_STATE_CHANGING_ACTIONS and SeoDiary's own
+			// SD_STATE_CHANGING_ACTIONS) without needing per-plugin
+			// cooperation. Not applied to a cron invocation - $cronJob is
+			// only ever true for a trusted CLI call (see diarycron.php),
+			// never attacker-reachable over HTTP.
+			if (!$cronJob && $method === 'get' && preg_match('/^(delete|Activate|Inactivate)/', $action)) {
+				showErrorMsg($_SESSION['text']['label']['Access denied']);
+			}
+
 			$pluginControler->initPlugin($data);
 			$pluginControler->$action($data);
 		}
@@ -169,7 +192,7 @@ class SeoPluginsController extends Controller{
 	}
 	
 	// index function
-	function showSeoPlugins($info=''){
+	function showSeoPlugins($info=[]){
 		$this->layout = "default";
 		
 		$menuList = array();
@@ -270,8 +293,6 @@ class SeoPluginsController extends Controller{
 		$this->set('msg', $msg);
 		$this->set('error', $error);
 		
-		$pageScriptPath = 'seo-plugins-manager.php?stscheck=';
-		$pageScriptPath .= isset($info['stscheck']) ? $info['stscheck'] : "select";
 		$sql = "select * from seoplugins where 1=1";
 		
 		// if status set
@@ -279,6 +300,9 @@ class SeoPluginsController extends Controller{
 		    $info['stscheck'] = intval($info['stscheck']);
 		    $sql .= " and status='{$info['stscheck']}'";
 		}
+		
+		$pageScriptPath = 'seo-plugins-manager.php?stscheck=';
+		$pageScriptPath .= isset($info['stscheck']) ? $info['stscheck'] : "select";
 		
 		// search for keyword
 		if (!empty($info['keyword'])) {
@@ -352,7 +376,7 @@ class SeoPluginsController extends Controller{
 	function listPluginInfo($pluginId){
 	    $pluginId = intval($pluginId);		
 		$this->set('pluginInfo', $this->__getSeoPluginInfo($pluginId));	
-		$this->set('pageNo', $_GET['pageno']);	
+		$this->set('pageNo', intval($_GET['pageno']));	
 		$this->render('seoplugins/listplugininfo');
 	}
 	
@@ -485,7 +509,7 @@ class SeoPluginsController extends Controller{
 		$pluginInfo = array();
 		$pluginInfoFile = SP_PLUGINPATH."/".$file."/".SP_PLUGININFOFILE;
 		if(file_exists($pluginInfoFile)){
-			$xml = new XMLParser;
+		    $xml = new XML_Parser;
     		$pInfo = $xml->parse($pluginInfoFile);
     		if(!empty($pInfo[0]['child'])){
     			foreach($pInfo[0]['child'] as $info){
@@ -503,21 +527,26 @@ class SeoPluginsController extends Controller{
 	}
 	
 	# function to create helpers for main controlller
-	function createHelper($helperName) {
-		$pluginPath = !empty($this->pluginPath)	? $this->pluginPath : PLUGIN_PATH;
-		include_once($pluginPath . "/".strtolower($helperName).".ctrl.php");
-		$helperObj = New $helperName();
-		$helperObj->pluginPath = $this->pluginPath;
-		$helperObj->pluginId = $this->pluginId;
-		$helperObj->pluginViewPath = $this->pluginViewPath;
-		$helperObj->pluginWebPath = $this->pluginWebPath;
-		$helperObj->pluginImagePath = $this->pluginImagePath;
-		$helperObj->pluginCssPath = $this->pluginCssPath;
-		$helperObj->pluginJsPath = $this->pluginJsPath;
-		$helperObj->pluginScriptUrl = $this->pluginScriptUrl;
-		$helperObj->data = $this->data;
-		$helperObj->pluginText = $this->pluginText;		
-		return $helperObj;
+	function createHelper($helperName, $pluginDirName='') {
+	    $pluginPath = !empty($this->pluginPath)	? $this->pluginPath : SP_PLUGINPATH."/$pluginDirName";
+	    $pluginHelperFile = $pluginPath . "/".strtolower($helperName).".ctrl.php";
+	    if (!file_exists($pluginHelperFile)) {
+	        return false;
+	    }
+	    
+	    include_once($pluginHelperFile);
+	    $helperObj = New $helperName();
+	    $helperObj->pluginPath = $this->pluginPath;
+	    $helperObj->pluginId = $this->pluginId;
+	    $helperObj->pluginViewPath = $this->pluginViewPath;
+	    $helperObj->pluginWebPath = $this->pluginWebPath;
+	    $helperObj->pluginImagePath = $this->pluginImagePath;
+	    $helperObj->pluginCssPath = $this->pluginCssPath;
+	    $helperObj->pluginJsPath = $this->pluginJsPath;
+	    $helperObj->pluginScriptUrl = $this->pluginScriptUrl;
+	    $helperObj->data = $this->data;
+	    $helperObj->pluginText = $this->pluginText;
+	    return $helperObj;
 	}
 	
 	# func to get plugin language texts

@@ -1,7 +1,7 @@
 <?php
 
 /***************************************************************************
- *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	   *
+ *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.org)  	   *
  *   sendtogeo@gmail.com   												   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -26,8 +26,8 @@ class CountryController extends Controller{
 	# func to get all countries
 	function __getAllCountries(){
 		$sql = "select * from country order by country_name";
-		$langList = $this->db->select($sql);
-		return $langList;
+		$countryList = $this->db->select($sql);
+		return $countryList;
 	}
 	
 	# func to get country info
@@ -35,6 +35,14 @@ class CountryController extends Controller{
 		$sql = "select * from country where country_code='$countryCode'";
 		$countryInfo = $this->db->select($sql, true);
 		return $countryInfo;
+	}
+	
+	# func to get all countries as list
+	function __getAllCountryAsList(){
+	    $sql = "select * from country order by country_name";
+	    $list = $this->db->select($sql);
+	    $countryList = createSelectList($list, 'country_name', 'country_code' );
+	    return $countryList;
 	}
 }
 ?>

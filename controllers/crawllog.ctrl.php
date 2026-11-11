@@ -1,7 +1,7 @@
 <?php
 
 /***************************************************************************
- *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	   *
+ *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.org)  	   *
  *   sendtogeo@gmail.com   												   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -69,7 +69,7 @@ class CrawlLogController extends Controller {
 	 * Function to display crawl log details 
 	 * @param Array $info	Contains all search details
 	 */
-	function listCrawlLog($info = '') {
+	function listCrawlLog($info=[]) {
 	    
 		$sql = "select t.*, k.name keyword from $this->tablName t left join keywords k on t.ref_id=k.id where 1=1";
 		$conditions = "";
@@ -270,7 +270,7 @@ class CrawlLogController extends Controller {
 	    $this->set('toTime', $toTime);
 	    
 	    // sql created using param
-	    $sql .= " $conditions and log_time >='$fromTime 00:00:00' and log_time<='$toTime 23:59:59' order by id DESC";
+	    $sql .= " $conditions and log_time >='".addslashes($fromTime)." 00:00:00' and log_time<='".addslashes($toTime)." 23:59:59' order by id DESC";
 	    
 	    // pagination setup
 	    $this->db->query($sql, true);
@@ -348,7 +348,12 @@ class CrawlLogController extends Controller {
 	    $sql = "INSERT INTO mail_logs(".implode(",", array_keys($mailInfo)).")";
 	    $sql .= " values ('".implode("','", array_values($mailInfo))."')";
 	    $this->db->query($sql);
-	    $logId = $this->db->getMaxId($this->tablName);
+	    // was reading getMaxId($this->tablName), which is "crawl_log" (this
+	    // class's other log table) - not "mail_logs", the table just
+	    // inserted into, so the returned id never actually identified the
+	    // new row. Harmless today (createMailLog()'s one caller discards
+	    // the return value), but worth fixing since it's a real bug.
+	    $logId = $this->db->getMaxId('mail_logs');
 	    return $logId;
 	}
 }

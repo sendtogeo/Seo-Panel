@@ -1,7 +1,7 @@
 <?php
 
 /***************************************************************************
- *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	   *
+ *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.org)  	   *
  *   sendtogeo@gmail.com   												   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -24,7 +24,7 @@
 class BlogController extends Controller{
 
 	# func to show all blogs
-	function listBlogs($info=''){
+	function listBlogs($info=[]){
 		$whereCond = "status=1 and link_page=''";
 		$whereCond .= !empty($info['tag']) ? " and tags like '%".addslashes(trim(urldecode($info['tag'])))."%'" : "";
 		$whereCond .= !empty($info['search']) ? " and blog_content like '%".addslashes($info['search'])."%'" : "";

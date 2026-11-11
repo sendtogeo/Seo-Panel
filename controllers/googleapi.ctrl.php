@@ -1,7 +1,7 @@
 <?php
 
 /***************************************************************************
- *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	   *
+ *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.org)  	   *
  *   sendtogeo@gmail.com   												   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -141,8 +141,12 @@ class GoogleAPIController extends Controller{
 	 * function to setup app scopes(read write permissions)
 	 */
 	function setAppScopes($client) {
-	    $client->addScope([Google_Service_Webmasters::WEBMASTERS, Google_Service_AnalyticsReporting::ANALYTICS_READONLY]);
-		return $client;
+	    $client->addScope([
+	        Google_Service_Webmasters::WEBMASTERS,
+	        Google_Service_AnalyticsReporting::ANALYTICS_READONLY,
+	        Google_Service_Analytics::ANALYTICS_READONLY,
+	    ]);
+	    return $client;
 	}
 	
 	/*
@@ -151,24 +155,48 @@ class GoogleAPIController extends Controller{
 	function getAPIAuthUrl($userId) {
 		$ret = array('auth_url' => false);
 		$client = $this->createAuthAPIClient();
-		
+
 		// if client created successfully
 		if (is_object($client)) {
-			
+
 			try {
+				// CSRF: without a state param tying this specific
+				// authorization request to the session that started it,
+				// an attacker could start their own OAuth flow, capture
+				// the resulting authorization code (never letting it
+				// reach their own callback), then trick a logged-in
+				// victim into visiting the callback URL with THAT code -
+				// silently linking the victim's SEO Panel account to the
+				// attacker's Google account (classic OAuth login/
+				// account-linkage CSRF, RFC 6819 §4.4.1.8). Verified and
+				// consumed by verifyOAuthState() below on the callback.
+				$state = bin2hex(random_bytes(16));
+				Session::setSession('google_oauth_state', $state);
+				$client->setState($state);
 				$authUrl = $client->createAuthUrl();
 				$ret['auth_url'] = $authUrl;
 			} catch (Exception $e) {
 				$err = $e->getMessage();
-				$ret['msg'] = "Error: Create token - $err";								
+				$ret['msg'] = "Error: Create token - $err";
 			}
-				
+
 		} else {
 			$ret['msg'] = $client;
 		}
-		
+
 		return $ret;
-		
+	}
+
+	/*
+	 * verifies the OAuth callback's state param against the one this
+	 * session's own getAPIAuthUrl() call generated, and consumes it
+	 * (single-use) regardless of outcome so a captured/replayed callback
+	 * URL can't be reused
+	 */
+	function verifyOAuthState($state) {
+		$expected = $_SESSION['google_oauth_state'] ?? '';
+		unset($_SESSION['google_oauth_state']);
+		return !empty($expected) && !empty($state) && hash_equals($expected, (string) $state);
 	}
 	
 	/*
@@ -189,7 +217,16 @@ class GoogleAPIController extends Controller{
 				$tokenInfo['access_token'] = $tkInfo['access_token'];
 				$tokenInfo['token_type'] = $tkInfo['token_type'];
 				$tokenInfo['expires_in'] = $tkInfo['expires_in'];
-				$tokenInfo['refresh_token'] = $tkInfo['refresh_token'];
+				// Google only returns refresh_token on the very first
+				// consent (or when the auth URL forces prompt=consent) -
+				// a re-auth of an already-authorized app omits it, which
+				// is expected, not an error. Just silences the warning;
+				// insertUserToken() below always inserts a fresh row
+				// (see updateUserToken() for the separate access-token
+				// refresh path), so a reconnect without one does still
+				// store a row with a blank refresh_token - a pre-existing
+				// behavior this isn't changing.
+				$tokenInfo['refresh_token'] = $tkInfo['refresh_token'] ?? '';
 				$this->tokenCtrler->insertUserToken($tokenInfo);
 				$ret['status'] = true;
 			} catch (Exception $e) {
@@ -202,7 +239,6 @@ class GoogleAPIController extends Controller{
 		}
 		
 		return $ret;
-		
 	}
 	
 	/*
@@ -227,8 +263,101 @@ class GoogleAPIController extends Controller{
 		
 		$tokenInfo = $this->tokenCtrler->deleteAllUserTokens($userId, $this->sourceName);
 		return $ret;
-		
 	}
-			
+	
+	function getanalyticWebsitesPropertyIds($userId) {
+	    $debug = [];
+	    $debug[] = "-- getanalyticWebsitesPropertyIds START (userId=$userId) --";
+
+	    $websites = array();
+	    $client = $this->getAuthClient($userId);
+
+	    // if error occured
+	    if (!is_object($client)) {
+	        $debug[] = "getAuthClient FAILED. Error: $client";
+	        return [FALSE, $websites, $client, $debug];
+	    }
+	    $debug[] = "getAuthClient OK";
+
+	    // GA4 Admin API: list accounts + properties in ONE call (UA analytics/v3 was decommissioned 2024-07)
+	    $accessToken = $this->__getAccessToken($client);
+	    $apiUrl = "https://analyticsadmin.googleapis.com/v1beta/accountSummaries?pageSize=200";
+	    $debug[] = "  Calling API: $apiUrl";
+	    $ret = $this->plainAPICall($apiUrl, $accessToken);
+
+	    if (!empty($ret['error'])) {
+	        $debug[] = "  API error: HTTP " . $ret['error'] . " - " . ($ret['errmsg'] ?? 'no message');
+	        return [FALSE, $websites, $ret['errmsg'] ?? 'API Error', $debug];
+	    }
+
+	    if (!empty($ret['page']['accountSummaries'])) {
+	        $debug[] = "Total GA accounts found: " . count($ret['page']['accountSummaries']);
+	        foreach ($ret['page']['accountSummaries'] as $acc) {
+	            $accountId = str_replace("accounts/", "", $acc['account']);
+	            $accountName = $acc['displayName'];
+	            $debug[] = "Account: $accountName (ID: $accountId)";
+
+	            if (!empty($acc['propertySummaries'])) {
+	                $debug[] = "  Properties found: " . count($acc['propertySummaries']);
+	                foreach ($acc['propertySummaries'] as $prop) {
+	                    $propertyId = str_replace("properties/", "", $prop['property']);
+	                    $propertyName = $prop['displayName'];
+	                    $debug[] = "    Property: $propertyName (ID: $propertyId)";
+	                    $websites[] = array(
+	                        'account_name' => $accountName,
+	                        'account_id' => $accountId,
+	                        'property_name' => $propertyName,
+	                        'property_id' => $propertyId,
+	                    );
+	                }
+	            } else {
+	                $debug[] = "  No properties found for account $accountId";
+	            }
+	        }
+	    } else {
+	        $debug[] = "No GA accounts found";
+	    }
+
+	    $debug[] = "-- getanalyticWebsitesPropertyIds END, total websites: " . count($websites) . " --";
+	    return [TRUE, $websites, "success", $debug];
+	}
+	
+	// Function to get GA4 properties
+	function getGA4Properties($client, $accountId) {
+	    $accessToken = $this->__getAccessToken($client);
+	    $apiUrl = "https://analyticsadmin.googleapis.com/v1alpha/properties?filter=parent%3Daccounts%2F$accountId";
+	    $ret = $this->plainAPICall($apiUrl, $accessToken);
+	    if (!empty($ret['error'])) {
+	        return [false, $ret['errmsg'], []];
+	    }
+	}
+	
+	function __getAccessToken($client) {
+	    $tokenInfo = $client->getAccessToken();
+	    $accessToken = !empty($tokenInfo['access_token']) ? $tokenInfo['access_token'] : FALSE;
+	    return $accessToken;
+	}
+	
+	function plainAPICall($apiUrl, $accessToken, $postArgs=[]) {
+	    $spider = new Spider();
+	    array_push($spider ->_CURL_HTTPHEADER, 'Authorization: Bearer ' . $accessToken);
+	    
+	    if (!empty($postArgs)) {
+	        $spider->_CURLOPT_POSTFIELDS = http_build_query($postArgs);
+	    }
+	    
+	    $ret = $spider->getContent($apiUrl);	    
+	    if (!empty($ret['page'])) {
+	        $apiRes = json_decode($ret['page'], TRUE);	        
+	        if ($ret['http_code'] == 200) {
+	            $ret['page'] = $apiRes;
+	        } else {
+	            $ret['error'] = $ret['http_code'];
+	            $ret['errmsg'] = !empty($apiRes['error']['message']) ? $apiRes['error']['message'] : "API Error";
+	        }
+	    }
+	    
+	    return $ret;
+	}
 }
 ?>

@@ -1,7 +1,7 @@
 <?php
 
 /***************************************************************************
- *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	           *
+ *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.org)  	           *
  *   sendtogeo@gmail.com   												   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -41,7 +41,7 @@ class ReviewManagerController extends ReviewBase{
     	$this->set( 'pageNo', $_REQUEST['pageno']);
 		
 		$this->colList = array(
-			'url' => $_SESSION['text']['common']['Url'],
+			'name' => $_SESSION['text']['common']['Name'],
 			'reviews' => $_SESSION['text']['label']['Reviews'],
 			'rating' => $_SESSION['text']['label']['Rating'],
 		);
@@ -49,24 +49,34 @@ class ReviewManagerController extends ReviewBase{
     
     function showReviewLinks($searchInfo = '') {
     	$userId = isLoggedIn();
+    	// default param is a string (''), not an array - assigning an
+    	// array key straight onto that below would fatal in PHP8
+    	// ("Cannot access offset of type string on string")
+    	if (!is_array($searchInfo)) {
+    	    $searchInfo = [];
+    	}
+
+    	$webSiteCtrler = new WebsiteController();
+    	$websiteList = $webSiteCtrler->__getAllWebsites($userId, true);
+    	if (!isset($searchInfo['website_id']) && !empty($websiteList)) {
+    	    $searchInfo['website_id'] = $websiteList[0]['id'];
+    	}
     	$this->set('searchInfo', $searchInfo);
     	$sql = "select l.*, w.name as website_name from $this->linkTable l, websites w where l.website_id=w.id";
-    	
+
     	if (!isAdmin()) {
     	    $sql .= " and w.user_id=$userId";
     	}
-    	
+
     	// search conditions
     	$sql .= !empty($searchInfo['name']) ? " and l.name like '%".addslashes($searchInfo['name'])."%'" : "";
     	$sql .= !empty($searchInfo['website_id']) ? " and l.website_id=".intval($searchInfo['website_id']) : "";
     	$sql .= !empty($searchInfo['type']) ? " and `type`='".addslashes($searchInfo['type'])."'" : "";
-    	
+
     	if (!empty($searchInfo['status'])) {
-    	    $sql .= ($searchInfo['status'] == 'active') ? " and l.status=1" : " and l.status=0"; 
+    	    $sql .= ($searchInfo['status'] == 'active') ? " and l.status=1" : " and l.status=0";
     	}
-    	
-    	$webSiteCtrler = new WebsiteController();
-    	$websiteList = $webSiteCtrler->__getAllWebsites($userId, true);
+
     	$this->set( 'websiteList', $websiteList );
     	 
     	// pagination setup
@@ -132,7 +142,7 @@ class ReviewManagerController extends ReviewBase{
             $websiteInfo = $websiteCtrl->__getWebsiteInfo($listInfo['website_id']);
             $newCount = !empty($listInfo['id']) ? 0 : 1;
             if (! $this->validateReviewLinkCount($websiteInfo['user_id'], $newCount)) {
-                $this->set('validationMsg', $this->spTextSMC['Your review link count already reached the limit']);
+                $this->set('validationMsg', 'Your review link count already reached the limit');
                 $this->validate->flagErr = true;
             }
         }
@@ -173,7 +183,7 @@ class ReviewManagerController extends ReviewBase{
         
     }
     
-    function newReviewLink($info = '') {
+    function newReviewLink($info=[]) {
         $userId = isLoggedIn();
         $this->set('post', $info);
         $webSiteCtrler = new WebsiteController();
@@ -183,10 +193,25 @@ class ReviewManagerController extends ReviewBase{
         $this->render( 'review/edit_review_link');   
     }
     
-    function createReviewLink($listInfo = '') {
-        
+    function createReviewLink($listInfo = '', $apiCall=false) {
+        $listInfo['name'] = trim($listInfo['name']);
+        $listInfo['url'] = trim($listInfo['url']);
+
+        // a non-admin's website_id must be one of their own - previously
+        // unchecked, letting any logged-in non-admin attach a bogus link
+        // to another user's website (consuming THEIR link-count quota
+        // and getting crawled on their behalf by cron). $apiCall=true
+        // (e.g. FeatureTourController::createWebsiteSetup()) is trusted
+        // to have already verified ownership of the website_id it passes
+        // in, same convention WebsiteController::createWebsite()/
+        // KeywordController::createKeyword() already use.
+        if (!$apiCall && !isAdmin() && !empty($listInfo['website_id']) && !(new WebsiteController())->__verifyWebsiteOwnership($listInfo['website_id'])) {
+            showErrorMsg($_SESSION['text']['label']['Access denied']);
+            return;
+        }
+
         $errMsg = $this->validateReviewLink($listInfo);
-        
+
         // if no error occured
         if (!$this->validate->flagErr) {
             $dataList = [
@@ -196,13 +221,18 @@ class ReviewManagerController extends ReviewBase{
                 'website_id|int' => $listInfo['website_id'],
             ];
             $this->dbHelper->insertRow($this->linkTable, $dataList);
+            if ($apiCall) {
+                return array('success', 'Successfully created review link');
+            }
             $this->showReviewLinks(['name' => $listInfo['name']]);
             exit;
         }
-        
+
+        if ($apiCall) {
+            return array('error', $errMsg);
+        }
         $this->set('errMsg', $errMsg);
         $this->newReviewLink($listInfo);
-        
     }
     
     function editReviewLink($linkId, $listInfo = '') {
@@ -225,6 +255,18 @@ class ReviewManagerController extends ReviewBase{
     }
     
     function updateReviewLink($listInfo) {
+        $listInfo['name'] = trim($listInfo['name']);
+        $listInfo['url'] = trim($listInfo['url']);
+
+        // the entry point's own verifyActionAllowed($listInfo['id']) only
+        // checks the link's CURRENT website_id, not the NEW one being
+        // written here - without this, a non-admin could re-point their
+        // own existing link onto another user's website_id.
+        if (!isAdmin() && !empty($listInfo['website_id']) && !(new WebsiteController())->__verifyWebsiteOwnership($listInfo['website_id'])) {
+            showErrorMsg($_SESSION['text']['label']['Access denied']);
+            return;
+        }
+
         $this->set('post', $listInfo);
         $errMsg = $this->validateReviewLink($listInfo);
         
@@ -278,53 +320,139 @@ class ReviewManagerController extends ReviewBase{
                 
     }
 
-	function viewQuickChecker($info='') {
+	function viewQuickChecker($info=[]) {
 		$this->render('review/quick_checker');
 	}
 
 	function doQuickChecker($listInfo = '') {
-		
+
 		if (!stristr($listInfo['url'], $listInfo['type'])) {
 			$errorMsg = formatErrorMsg($_SESSION['text']['common']["Invalid value"]);
 			$this->validate->flagErr = true;
 		}
-		
+
 		// if no error occured find review details
 		if (!$this->validate->flagErr) {
 			$smLink = addHttpToUrl($listInfo['url']);
-			$result = $this->getReviewDetails($listInfo['type'], $smLink);
-			
-			// if call is success
+			$smType = $listInfo['type'];
+
+			// Check if DFS should be used (not for Yelp)
+			if ($this->__shouldUseDFS($smType)) {
+				// Use DFS async flow
+				include_once(SP_CTRLPATH."/dataforseo.ctrl.php");
+				$dfsCtrler = new DataForSEOController();
+
+				// Use ref_id = 0 for quick checker (not linked to a review_link)
+				$taskResult = $dfsCtrler->postReviewTask($smType, 0, $smLink);
+
+				if ($taskResult['status']) {
+					// Task posted successfully, show pending view
+					$this->set('smType', $smType);
+					$this->set('smLink', $smLink);
+					$this->set('taskId', $taskResult['task_id']);
+					$this->set('taskPending', true);
+					$this->render('review/quick_checker_pending');
+					exit;
+				} else {
+					$errorMsg = $taskResult['message'];
+				}
+			} else {
+				// Use old scraping method for Yelp or when DFS is disabled
+				$result = $this->getReviewDetails($smType, $smLink);
+
+				// if call is success
+				if ($result['status']) {
+					$this->set('smType', $smType);
+					$this->set('smLink', $smLink);
+					$this->set('statInfo', $result);
+					$this->render('review/quick_checker_results');
+					exit;
+				} else {
+					$errorMsg = $result['msg'];
+				}
+			}
+
+		}
+
+		$errorMsg = !empty($errorMsg) ? $errorMsg : $_SESSION['text']['common']['Internal error occured'];
+		showErrorMsg($errorMsg);
+
+	}
+
+	/**
+	 * Check status of a quick checker DFS task and fetch results if ready
+	 *
+	 * @param array $listInfo Contains task_id, type, url
+	 */
+	function checkQuickCheckerStatus($listInfo = '') {
+		$taskId = !empty($listInfo['task_id']) ? $listInfo['task_id'] : '';
+		$smType = !empty($listInfo['type']) ? $listInfo['type'] : '';
+		$smLink = !empty($listInfo['url']) ? $listInfo['url'] : '';
+
+		if (empty($taskId) || empty($smType)) {
+			showErrorMsg($_SESSION['text']['common']['Internal error occured']);
+			return;
+		}
+
+		include_once(SP_CTRLPATH."/dataforseo.ctrl.php");
+		$dfsCtrler = new DataForSEOController();
+
+		// Get task from database
+		$taskInfo = $dfsCtrler->getDFSTaskByTaskId($taskId);
+
+		if (empty($taskInfo)) {
+			showErrorMsg("Task not found");
+			return;
+		}
+
+		if ($taskInfo['status'] == 'failed') {
+			$errorMsg = !empty($taskInfo['error_message']) ? $taskInfo['error_message'] : "Task failed";
+			showErrorMsg($errorMsg);
+			return;
+		}
+
+		// Fetch results from DFS API (works for both pending and completed tasks)
+		$result = $dfsCtrler->fetchReviewTaskResult($taskInfo);
+
+		if ($result['completed']) {
 			if ($result['status']) {
-				$this->set('smType', $listInfo['type']);
+				// Results ready, show them
+				$this->set('smType', $smType);
 				$this->set('smLink', $smLink);
 				$this->set('statInfo', $result);
 				$this->render('review/quick_checker_results');
 				exit;
 			} else {
-				$errorMsg = $result['msg'];
+				showErrorMsg($result['msg']);
+				return;
 			}
-			
+		} else {
+			// Task still pending, show pending view again
+			$this->set('smType', $smType);
+			$this->set('smLink', $smLink);
+			$this->set('taskId', $taskId);
+			$this->set('taskPending', true);
+			$this->set('statusMessage', $result['msg']);
+			$this->render('review/quick_checker_pending');
+			exit;
 		}
-		
-		$errorMsg = !empty($errorMsg) ? $errorMsg : $_SESSION['text']['common']['Internal error occured'];
-		showErrorMsg($errorMsg);
-		
 	}	
 	
 	function getReviewDetails($smType, $smLink) {
 		$result = ['status' => 0, 'reviews' => 0, 'rating' => 0, 'msg' => $_SESSION['text']['common']['Internal error occured']];
 		$smInfo = $this->serviceList[$smType];
-		
+
 		if (!empty($smInfo) && !empty($smLink)) {
-			
+
+			// Web scraping method - used for quick checker and when DFS is disabled
+			// For async DFS processing, use postReviewTaskToDFS() and fetchPendingDFSReviewResults() via cron
 			// if params needs to be added with url
 			if (!empty($smInfo['url_part'])) {
 				$smLink .= stristr($smLink, '?') ? str_replace("?", "&", $smInfo['url_part']) : $smInfo['url_part'];
 			}
-			
+
 			$smContentInfo = $this->spider->getContent($smLink);
-			
+
 			// testing val
 			/*$myfile = fopen(SP_TMPPATH . "/gbusiness.html", "w") or die("Unable to open file!");
 			fwrite($myfile, $smContentInfo['page']);
@@ -335,38 +463,148 @@ class ReviewManagerController extends ReviewBase{
 			$myfile = fopen(SP_TMPPATH . "/gbusiness.html", "r") or die("Unable to open file!");
 			$smContentInfo['page'] = fread($myfile,filesize(SP_TMPPATH . "/gbusiness.html"));
 			fclose($myfile);*/
-			
+
 			if (!empty($smContentInfo['page'])) {
 			    $matches = [];
 
 				// find reviews
 				if (!empty($smInfo['regex']['reviews'])) {
 				    preg_match($smInfo['regex']['reviews'], $smContentInfo['page'], $matches);
-					
+
 					if (!empty($matches[1])) {
 						$result['status'] = 1;
 						$result['reviews'] = formatNumber($matches[1]);
 					}
 				}
-				
+
 				// find rating
 				if (!empty($smInfo['regex']['rating'])) {
 					preg_match($smInfo['regex']['rating'], $smContentInfo['page'], $matches);
-						
+
 					if (!empty($matches[1])) {
 						$result['status'] = 1;
-						$result['rating'] = formatNumber($matches[1]);
-					}	
+						$result['rating'] = round(formatNumber($matches[1]), 2);
+					}
 				}
-				
+
+				// if not found any details
+				if (!$result['status']) {
+				    $result['msg'] = "Review page details not found.";
+				} else {
+				    $result['msg'] = "Review page details fetched successfully.";
+				}
 			} else {
 				$result['msg'] = $smContentInfo['errmsg'];
 			}
-			
 		}
-		
+
 		return $result;
-		
+
+	}
+
+	/**
+	 * Check if DataForSEO should be used for review fetching
+	 * Yelp is not supported by DataForSEO API
+	 *
+	 * @param string $smType Review platform type
+	 * @return bool True if DFS should be used
+	 */
+	function __shouldUseDFS($smType) {
+		// Yelp is not available in DataForSEO API
+		if ($smType === 'yelp') {
+			return false;
+		}
+
+		return SettingsController::isDFSEnabled('review');
+	}
+
+	/**
+	 * Post a review task to DataForSEO (async - doesn't wait for results)
+	 *
+	 * @param int $linkId Review link ID
+	 * @param string $smType Review platform type (google, trustpilot, tripadvisor)
+	 * @param string $smLink Review page URL
+	 * @param string $reportDate Report date (default: today)
+	 * @return array ['status' => bool, 'message' => string, 'pending' => bool]
+	 */
+	function postReviewTaskToDFS($linkId, $smType, $smLink, $reportDate = '') {
+		include_once(SP_CTRLPATH."/dataforseo.ctrl.php");
+		$dfsCtrler = new DataForSEOController();
+		return $dfsCtrler->postReviewTask($smType, $linkId, $smLink, $reportDate);
+	}
+
+	/**
+	 * Fetch results for pending DFS review tasks
+	 *
+	 * @param string $reportDate Report date
+	 * @return array List of completed results with link info
+	 */
+	function fetchPendingDFSReviewResults($reportDate = '') {
+		include_once(SP_CTRLPATH."/dataforseo.ctrl.php");
+		$dfsCtrler = new DataForSEOController();
+
+		$reportDate = !empty($reportDate) ? $reportDate : date('Y-m-d');
+		$pendingTasks = $dfsCtrler->getPendingDFSTasks('review', $reportDate);
+		$completedResults = [];
+
+		foreach ($pendingTasks as $taskInfo) {
+			$result = $dfsCtrler->fetchReviewTaskResult($taskInfo);
+
+			if ($result['completed']) {
+				$completedResults[] = [
+					'link_id' => $taskInfo['ref_id'],
+					'platform' => $taskInfo['platform'],
+					'result' => $result,
+				];
+			}
+		}
+
+		return $completedResults;
+	}
+
+	/**
+	 * Get all review links that need DFS task posting (no pending task for today)
+	 *
+	 * @param int $websiteId Website ID
+	 * @param string $reportDate Report date
+	 * @return array List of links needing task posting
+	 */
+	function getLinksNeedingDFSTaskPost($websiteId, $reportDate = '') {
+		$websiteId = intval($websiteId);
+		$reportDate = !empty($reportDate) ? addslashes($reportDate) : date('Y-m-d');
+
+		// Get links that:
+		// 1. Are active
+		// 2. Don't have a report for today
+		// 3. Don't have a pending DFS task for today
+		// 4. Are DFS-supported platforms (not yelp)
+		$sql = "SELECT link.* FROM review_links link
+			LEFT JOIN review_link_results lr ON (link.id=lr.review_link_id AND lr.report_date='$reportDate')
+			LEFT JOIN dfs_tasks dt ON (link.id=dt.ref_id AND dt.category='review' AND dt.report_date='$reportDate' AND dt.status='pending')
+			WHERE link.status=1 AND link.website_id=$websiteId
+			AND lr.id IS NULL AND dt.id IS NULL
+			AND link.type IN ('google', 'trustpilot', 'tripadvisor')";
+
+		return $this->db->select($sql);
+	}
+
+	/**
+	 * Get all Yelp links without reports for today (use old scraping method)
+	 *
+	 * @param int $websiteId Website ID
+	 * @param string $reportDate Report date
+	 * @return array List of Yelp links
+	 */
+	function getYelpLinksWithOutReports($websiteId, $reportDate = '') {
+		$websiteId = intval($websiteId);
+		$reportDate = !empty($reportDate) ? addslashes($reportDate) : date('Y-m-d');
+
+		$sql = "SELECT link.*, lr.id result_id FROM review_links link
+			LEFT JOIN review_link_results lr ON (link.id=lr.review_link_id AND lr.report_date='$reportDate')
+			WHERE link.status=1 AND link.website_id=$websiteId AND lr.id IS NULL
+			AND link.type='yelp'";
+
+		return $this->db->select($sql);
 	}
 	
 	/*
@@ -398,53 +636,107 @@ class ReviewManagerController extends ReviewBase{
 	/*
 	 * func to show report summary
 	 */ 
+	function __getReviewDateAvailability($conditions) {
+		$sql = "select min(r.report_date) as min_date, max(r.report_date) as max_date
+				from $this->linkTable sml, $this->linkReportTable r
+				where sml.id=r.review_link_id and sml.status=1 $conditions";
+		return $this->__getMinMaxDate($sql);
+	}
+
 	function viewReportSummary($searchInfo = '', $summaryPage = false, $cronUserId=false) {
-	
+
 		$userId = !empty($cronUserId) ? $cronUserId : isLoggedIn();
 		$this->set('summaryPage', $summaryPage);
 		$this->set('searchInfo', $searchInfo);
 		$this->set('cronUserId', $cronUserId);
-	
+
 		$exportVersion = false;
 		switch($searchInfo['doc_type']){
-	
+
 			case "export":
 				$exportVersion = true;
 				$exportContent = "";
 				break;
-					
+
 			case "pdf":
 				$this->set('pdfVersion', true);
 				break;
-					
+
 			case "print":
 				$this->set('printVersion', true);
 				break;
 		}
-	
-		$fromTime = !empty($searchInfo['from_time']) ? addslashes($searchInfo['from_time']) : date('Y-m-d', strtotime('-1 days'));
-		$toTime = !empty($searchInfo['to_time']) ? addslashes($searchInfo['to_time']) : date('Y-m-d');
-		$this->set('fromTime', $fromTime);
-		$this->set('toTime', $toTime);
-	
+
 		$websiteController = New WebsiteController();
 		$wList = $websiteController->__getAllWebsites($userId, true);
 		$websiteList = [];
 		foreach ($wList as $wInfo) $websiteList[$wInfo['id']] = $wInfo;
 		$websiteList = count($websiteList) ? $websiteList : array(0);
 		$this->set('websiteList', $websiteList);
-		$websiteId = intval($searchInfo['website_id']);
+		$websiteId = isset($searchInfo['website_id']) ? intval($searchInfo['website_id']) : null;
+		// a non-admin's website_id must be one of their own (already-scoped)
+		// websites - previously unchecked, letting any non-admin view ANY
+		// other user's review report summary for an arbitrary website_id.
+		if (!empty($websiteId) && !isAdmin() && !isset($websiteList[$websiteId])) {
+			$websiteId = 0;
+		}
+		// resolve to a real website (first one, same default the select
+		// box itself now always pre-selects) only when nothing was
+		// submitted at all - the search form's own select never submits
+		// an empty value any more. An explicit 0 is left alone:
+		// ReportController::sentEmailNotificationForReportGen()'s "Overall
+		// Report Summary" email deliberately passes website_id=0 to mean
+		// every one of this user's websites combined, which still needs
+		// the WEBSITE column below to tell rows apart.
+		if ($websiteId === null) {
+			$websiteId = !empty($websiteList) ? array_key_first($websiteList) : 0;
+		}
 		$this->set('websiteId', $websiteId);
-	
-		// to find order col
-		if (!empty($searchInfo['order_col'])) {
+
+		$websiteIds = array_keys($websiteList);
+		if (!empty($websiteId)) {
+			$conditions = " and sml.website_id=" . intval($websiteId);
+		} elseif (!empty($websiteIds)) {
+			$conditions = " and sml.website_id in (" . implode(',', $websiteIds) . ")";
+		} else {
+			// no websites at all - "in ()" with no values is a SQL syntax
+			// error, so match nothing instead
+			$conditions = " and 1=0";
+		}
+		$conditions .= !empty($searchInfo['search_name']) ? " and sml.name like '%".addslashes($searchInfo['search_name'])."%'" : "";
+		$conditions .= !empty($searchInfo['type']) ? " and sml.type='".addslashes($searchInfo['type'])."'" : "";
+
+		$period = $this->__resolvePeriodValue($searchInfo);
+
+		if (!empty($period)) {
+			list($minAvailDate, $maxAvailDate) = $this->__getReviewDateAvailability($conditions);
+			list($fromTimeStamp, $toTimeStamp) = $this->__resolvePeriodPreset($period, $minAvailDate, $maxAvailDate, 'today');
+			$fromTime = date('Y-m-d', $fromTimeStamp);
+			$toTime = date('Y-m-d', $toTimeStamp);
+		} else {
+			$fromTime = !empty($searchInfo['from_time']) ? addslashes($searchInfo['from_time']) : date('Y-m-d', strtotime('-1 days'));
+			$toTime = !empty($searchInfo['to_time']) ? addslashes($searchInfo['to_time']) : date('Y-m-d');
+		}
+		$this->set('fromTime', $fromTime);
+		$this->set('toTime', $toTime);
+		$this->set('period', $period);
+
+		// to find order col - order_col is caller-supplied and lands
+		// directly in an ORDER BY clause with no way to parameterize an
+		// identifier position, so it must be checked against a fixed
+		// whitelist (not just addslashes()'d, which does nothing for an
+		// unquoted SQL identifier) - previously unchecked, letting any
+		// logged-in non-admin run a blind SQL injection via ORDER BY
+		// (e.g. a CASE/SLEEP() expression), same fix shape Site Auditor
+		// already uses for its own order_col.
+		if (!empty($searchInfo['order_col']) && array_key_exists($searchInfo['order_col'], $this->colList)) {
 			$orderCol = $searchInfo['order_col'];
 			$orderVal = getOrderByVal($searchInfo['order_val']);
 		} else {
 			$orderCol = "rating";
 			$orderVal = 'DESC';
 		}
-	
+
 		$this->set('orderCol', $orderCol);
 		$this->set('orderVal', $orderVal);
 		$scriptName = $summaryPage ? "archive.php" : $this->pageScriptPath;
@@ -452,27 +744,17 @@ class ReviewManagerController extends ReviewBase{
 		$scriptPath .= "&from_time=$fromTime&to_time=$toTime&search_name=" . $searchInfo['search_name'] . "&type=" . $searchInfo['type'];
 		$scriptPath .= "&order_col=$orderCol&order_val=$orderVal&report_type=social-media-reports";
 	
-		// set website id to get exact keywords of a user
-		if (!empty($websiteId)) {
-			$conditions = " and sml.website_id=$websiteId";
-		} else {
-			$conditions = " and sml.website_id in (".implode(',', array_keys($websiteList)).")";
-		}
-	
-		$conditions .= !empty($searchInfo['search_name']) ? " and sml.url like '%".addslashes($searchInfo['search_name'])."%'" : "";
-		$conditions .= !empty($searchInfo['type']) ? " and sml.type='".addslashes($searchInfo['type'])."'" : "";
-	
 		$subSql = "select [cols] from $this->linkTable sml, $this->linkReportTable r where sml.id=r.review_link_id
 		and sml.status=1 $conditions and r.report_date='$toTime'";
 	
 		$sql = "
-		(" . str_replace("[cols]", "sml.id,sml.url,sml.website_id,sml.type,r.reviews,r.rating", $subSql) . ")
+		(" . str_replace("[cols]", "sml.id,sml.url,sml.name,sml.website_id,sml.type,r.reviews,r.rating", $subSql) . ")
 			UNION
-			(select sml.id,sml.url,sml.website_id,sml.type,0,0 from $this->linkTable sml where sml.status=1 $conditions
+			(select sml.id,sml.url,sml.name,sml.website_id,sml.type,0,0 from $this->linkTable sml where sml.status=1 $conditions
 			and sml.id not in (". str_replace("[cols]", "distinct(sml.id)", $subSql) ."))
 		order by " . addslashes($orderCol) . " " . addslashes($orderVal);
 	
-		if ($orderCol != 'url') $sql .= ", url";
+		if ($orderCol != 'name') $sql .= ", name";
 	
 		// pagination setup, if not from cron job email send function, pdf and export action
 		if (!in_array($searchInfo['doc_type'], array("pdf", "export"))) {
@@ -518,12 +800,12 @@ class ReviewManagerController extends ReviewBase{
 			$reportHeading =  $this->spTextTools['Review Report Summary']."($fromTime - $toTime)";
 			$exportContent .= createExportContent( array('', $reportHeading, ''));
 			$exportContent .= createExportContent( array());
-			$headList = array($spText['common']['Website'], $spText['common']['Url']);
+			$headList = empty($websiteId) ? array($spText['common']['Website'], $spText['common']['Url'], $spText['label']['Type']) : array($spText['common']['Url'], $spText['label']['Type']);
 	
 			$pTxt = str_replace("-", "/", substr($fromTime, -5));
 			$cTxt = str_replace("-", "/", substr($toTime, -5));
 			foreach ($this->colList as $colKey => $colLabel) {
-				if ($colKey == 'url') continue;
+				if ($colKey == 'name') continue;
 				$headList[] = $colLabel . "($pTxt)";
 				$headList[] = $colLabel . "($cTxt)";
 				$headList[] = $colLabel . "(+/-)";
@@ -532,9 +814,9 @@ class ReviewManagerController extends ReviewBase{
 			$exportContent .= createExportContent($headList);
 			foreach($baseReportList as $listInfo){
 	
-				$valueList = array($websiteList[$listInfo['website_id']]['url'], $listInfo['url']);
+			    $valueList = empty($websiteId) ? array($websiteList[$listInfo['website_id']]['url'] ?? '', $listInfo['url'], $this->serviceList[$listInfo['type']]['label']) : array($listInfo['url'], $this->serviceList[$listInfo['type']]['label']);
 				foreach ($this->colList as $colName => $colVal) {
-					if ($colName == 'url') continue;
+					if ($colName == 'name') continue;
 						
 					$currRank = isset($listInfo[$colName]) ? $listInfo[$colName] : 0;
 					$prevRank = isset($compareReportList[$listInfo['id']][$colName]) ? $compareReportList[$listInfo['id']][$colName] : 0;
@@ -611,14 +893,29 @@ class ReviewManagerController extends ReviewBase{
 		$websiteController = New WebsiteController();
 		$websiteList = $websiteController->__getAllWebsites($userId, true);
 		$this->set('websiteList', $websiteList);
-		$websiteId = empty ($searchInfo['website_id']) ? $websiteList[0]['id'] : intval($searchInfo['website_id']);
+		$websiteId = empty ($searchInfo['website_id']) ? '' : intval($searchInfo['website_id']);
+		// a non-admin's website_id must be one of their own (already-scoped)
+		// websites - previously unchecked. Same fallback as the other
+		// dashboard/tool fixes this session: their own first website.
+		if (!empty($websiteId) && !isAdmin() && !in_array($websiteId, array_column($websiteList, 'id'))) {
+			$websiteId = '';
+		}
+		if (empty($websiteId)) $websiteId = $websiteList[0]['id'] ?? '';
 		$this->set('websiteId', $websiteId);
-	
+
 		$linkList = $this->__getReviewLinks("website_id=$websiteId and status=1 order by name");
 		$this->set('linkList', $linkList);
 		$linkId = empty($searchInfo['link_id']) ? $linkList[0]['id'] : intval($searchInfo['link_id']);
+		// same check one level down: a non-admin's link_id must belong to
+		// the just-resolved (already-scoped) linkList - previously
+		// unchecked, so a foreign link_id bypassed the website_id scoping
+		// entirely (this table has no direct website ownership column of
+		// its own to filter on in the query below).
+		if (!empty($linkId) && !isAdmin() && !in_array($linkId, array_column($linkList, 'id'))) {
+			$linkId = $linkList[0]['id'] ?? '';
+		}
 		$this->set('linkId', $linkId);
-	
+
 		$list = [];
 		if (!empty($linkId)) {
 		
@@ -659,14 +956,40 @@ class ReviewManagerController extends ReviewBase{
     		$list = array_reverse($reportList, true);
 		}
 		
-		$this->set('list', $list);				
+		$this->set('list', $list);
+		$this->set('localAiAvailable', SettingsController::isLocalAIEnabled());
 		$this->render('review/review_reports');
-		
+
 	}
-	
+
+	/*
+	 * AJAX action: plain-language AI summary of this review link's
+	 * review-count/rating trend over the selected date range - see
+	 * LocalAIController::summarizeReviewTrend(). Never auto-fired;
+	 * returns JSON for the "Summarize with AI" button in
+	 * review_reports.ctp.php. Ownership is enforced by
+	 * summarizeReviewTrend() itself, not re-checked here.
+	 */
+	function summarizeTrend($info) {
+		$userId = isLoggedIn();
+		$fromTime = !empty($info['from_time']) ? $info['from_time'] : date('Y-m-d', strtotime('-30 days'));
+		$toTime = !empty($info['to_time']) ? $info['to_time'] : date('Y-m-d');
+		include_once(SP_CTRLPATH . '/localai.ctrl.php');
+		$result = (new LocalAIController())->summarizeReviewTrend($info['link_id'], $userId, $fromTime, $toTime);
+		header('Content-Type: application/json');
+		print json_encode($result);
+	}
+
 	// func to show review link select box
 	function showReviewLinkSelectBox($websiteId, $linkId = ""){
 	    $websiteId = intval($websiteId);
+	    // previously unchecked - any logged-in non-admin could enumerate
+	    // another user's review link names/ids via an arbitrary
+	    // website_id, unlike every other single-target action in
+	    // review.php
+	    if (!isAdmin() && !(new WebsiteController())->__verifyWebsiteOwnership($websiteId)) {
+	        return;
+	    }
 	    $this->set('linkList', $this->__getReviewLinks("website_id=$websiteId and status=1 order by name"));
 	    $this->set('linkId', $linkId);
 	    $this->render('review/review_link_select_box');
@@ -701,12 +1024,20 @@ class ReviewManagerController extends ReviewBase{
 	    $websiteController = New WebsiteController();
 	    $websiteList = $websiteController->__getAllWebsites($userId, true);
 	    $this->set('websiteList', $websiteList);
-	    $websiteId = empty ($searchInfo['website_id']) ? $websiteList[0]['id'] : intval($searchInfo['website_id']);
+	    $websiteId = empty ($searchInfo['website_id']) ? '' : intval($searchInfo['website_id']);
+	    // same fix as viewDetailedReports() - see that method's comment
+	    if (!empty($websiteId) && !isAdmin() && !in_array($websiteId, array_column($websiteList, 'id'))) {
+	        $websiteId = '';
+	    }
+	    if (empty($websiteId)) $websiteId = $websiteList[0]['id'] ?? '';
 	    $this->set('websiteId', $websiteId);
-	    
+
 	    $linkList = $this->__getReviewLinks("website_id=$websiteId and status=1 order by name");
 	    $this->set('linkList', $linkList);
 	    $linkId = empty($searchInfo['link_id']) ? $linkList[0]['id'] : intval($searchInfo['link_id']);
+	    if (!empty($linkId) && !isAdmin() && !in_array($linkId, array_column($linkList, 'id'))) {
+	        $linkId = $linkList[0]['id'] ?? '';
+	    }
 	    $this->set('linkId', $linkId);
 	    
 	    // if reports not empty

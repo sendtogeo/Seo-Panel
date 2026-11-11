@@ -22,24 +22,51 @@ if(!$summaryPage && (!empty($printVersion) || !empty($pdfVersion))) {
 	</table>
     <?php
 } else {
-    echo showSectionHead($spTextTools['Social Media Report Summary']);
-    
+    include(SP_VIEWPATH.'/aivisibility/_styles.ctp.php');
+    ?>
+    <div class="aiv-page-head">
+        <?php echo showSectionHead($spTextTools['Social Media Report Summary']); ?>
+        <a href="javascript:void(0);" data-toggle="modal" data-target="#smSummaryHelpModal" class="aiv-help-btn"><i class="fas fa-question-circle"></i> What does this do?</a>
+    </div>
+
+    <!-- static help modal, not routed through #ajaxModalSP since there's no AJAX fetch involved -->
+    <div class="modal fade aiv-help-modal" id="smSummaryHelpModal" tabindex="-1" role="dialog" aria-labelledby="smSummaryHelpModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="aiv-help-modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <div class="aiv-help-modal-icon"><i class="fas fa-share-alt"></i></div>
+                    <h5 class="modal-title" id="smSummaryHelpModalLabel">About Social Media Report Summary</h5>
+                </div>
+                <div class="modal-body aiv-help-modal-body">
+                    <p>For one chosen website, compares each social media link's followers/likes between two dates, with the change highlighted. Pick Day, Week, Month or Year for a quick comparison, or set your own two dates.</p>
+                    <div class="aiv-note">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Data comes from the daily scheduled scrape of your registered links - it needs links added under Social Media Links first, and a day or more of history. Day/Week/Month/Year is anchored to the latest date that actually has scraped data, not today's date.</span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Got it</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php
     // if not summary page show the filters
     if(!$summaryPage) {
     	$scriptName = $pageScriptPath;
 	    ?>
 		<form id='search_form'>
 		<?php $submitLink = "scriptDoLoadPost('$scriptName', 'search_form', 'content', '&sec=reportSummary')";?>
-		<table width="100%" class="search">
+		<table class="search">
 			<tr>
-				<th><?php echo $spText['common']['Url']?>: </th>
+				<th><?php echo $spText['common']['Name']?>: </th>
 				<td>
-					<input type="text" name="search_name" value="<?php echo htmlentities($searchInfo['search_name'], ENT_QUOTES)?>" onblur="<?php echo $submitLink?>">
+					<input type="text" name="search_name" value="<?php echo htmlentities($searchInfo['search_name'], ENT_QUOTES)?>" onblur="<?php echo $submitLink?>" class="form-control">
 				</td>
-				<th width="100px"><?php echo $spText['common']['Website']?>: </th>
-				<td width="160px">
-					<select name="website_id" id="website_id" style='width:100px;' onchange="<?php echo $submitLink?>">
-						<option value="">-- <?php echo $spText['common']['Select']?> --</option>
+				<th class="pl-4"><?php echo $spText['common']['Website']?>: </th>
+				<td>
+					<select name="website_id" id="website_id" onchange="<?php echo $submitLink?>" class="custom-select">
 						<?php foreach($websiteList as $websiteInfo){?>
 							<?php if($websiteInfo['id'] == $websiteId){?>
 								<option value="<?php echo $websiteInfo['id']?>" selected><?php echo $websiteInfo['name']?></option>
@@ -49,9 +76,9 @@ if(!$summaryPage && (!empty($printVersion) || !empty($pdfVersion))) {
 						<?php }?>
 					</select>
 				</td>
-				<th><?php echo $spText['label']['Type']?>:</th>
+				<th class="pl-4"><?php echo $spText['label']['Type']?>:</th>
 				<td>
-					<select name="type" onchange="<?php echo $submitLink?>">
+					<select name="type" onchange="<?php echo $submitLink?>" class="custom-select">
 						<option value="">-- <?php echo $spText['common']['Select']?> --</option>
 						<?php foreach($serviceList as $serviceName => $serviceInfo){?>
 							<?php if($serviceName == $searchInfo['type']){?>
@@ -63,17 +90,32 @@ if(!$summaryPage && (!empty($printVersion) || !empty($pdfVersion))) {
 					</select>
 					<?php echo $errMsg['service_name']?>
 				</td>
-				<th width="100px;"><?php echo $spText['common']['Period']?>:</th>
-	    		<td width="236px">
-	    			<input type="text" value="<?php echo $fromTime?>" name="from_time"/>
-	    			<input type="text" value="<?php echo $toTime?>" name="to_time"/>
-        			<script>
-        			$(function() {
-        				$( "input[name='from_time'], input[name='to_time']").datepicker({dateFormat: "yy-mm-dd"});
-        			});
-        		  	</script>
-	    		</td>
-				<td><a href="javascript:void(0);" onclick="<?php echo $submitLink?>" class="actionbut"><?php echo $spText['button']['Search']?></a></td>
+				<th class="pl-4"><?php echo $spText['common']['Period']?>:</th>
+				<td>
+					<select name="period" id="period_preset" class="custom-select" style="display:inline-block; width:120px;" onchange="<?php echo $submitLink?>">
+						<option value="" <?php echo empty($period) ? 'selected' : ''?>>-- <?php echo $spText['label']['Custom'] ?? 'Custom'?> --</option>
+						<option value="day" <?php echo $period == 'day' ? 'selected' : ''?>><?php echo $spText['label']['Day']?></option>
+						<option value="week" <?php echo $period == 'week' ? 'selected' : ''?>><?php echo $spText['label']['Week']?></option>
+						<option value="month" <?php echo $period == 'month' ? 'selected' : ''?>><?php echo $spText['label']['Month']?></option>
+						<option value="year" <?php echo $period == 'year' ? 'selected' : ''?>><?php echo $spText['label']['Year']?></option>
+					</select>
+					<span id="custom_date_range" style="display: <?php echo empty($period) ? 'inline-block' : 'none'?>; margin-left:6px;">
+						<input type="text" value="<?php echo $fromTime?>" name="from_time" id="from_time" class="form-control" style="display: inline-block; width: 130px;"/>
+						<input type="text" value="<?php echo $toTime?>" name="to_time" id="to_time" class="form-control" style="display: inline-block; width: 130px;"/>
+					</span>
+					<script type="text/javascript">
+					$(function() {
+						$( "input[name='from_time'], input[name='to_time']").datepicker({dateFormat: "yy-mm-dd"});
+						$( "#from_time, #to_time").on("change", function() {
+							$("#period_preset").val("");
+						});
+						$( "#period_preset" ).on("change", function() {
+							$("#custom_date_range").css("display", $(this).val() === "" ? "inline-block" : "none");
+						});
+					});
+					</script>
+				</td>
+				<td style="text-align: center;"><a href="javascript:void(0);" onclick="<?php echo $submitLink?>" class="btn btn-secondary"><?php echo $spText['button']['Search']?></a></td>
 			</tr>
 		</table>
 		</form>
@@ -88,28 +130,23 @@ if(!$summaryPage && (!empty($printVersion) || !empty($pdfVersion))) {
 	
 	// if not summary page show the filters
 	if(!$summaryPage) {
-		$directLink = $mainLink . "&order_col=$orderCol&order_val=$orderVal&pageno=$pageNo";
-		?>
-		<br><br>
-		<div style="float:left;margin-right: 10px;">
-			<a href="<?php echo $directLink?>&doc_type=pdf" target="_blank"><img src="<?php echo SP_IMGPATH?>/icon_pdf.png"></a> &nbsp;
-			<a href="<?php echo $directLink?>&doc_type=export"><img src="<?php echo SP_IMGPATH?>/icoExport.gif"></a> &nbsp;
-			<a target="_blank" href="<?php echo $directLink?>&doc_type=print"><img src="<?php echo SP_IMGPATH?>/print_button.gif?1"></a>
-		</div>
-		<?php
+	    $directLink = $mainLink . "&order_col=$orderCol&order_val=$orderVal&pageno=$pageNo";
+	    $pdfLink = "$directLink&doc_type=pdf";
+	    $csvLink = "$directLink&doc_type=export";
+	    $printLink = "$directLink&doc_type=print";
+	    showExportDiv($pdfLink, $csvLink, $printLink);
 	}
 	
 	if (empty($pdfVersion) && empty($cronUserId)) echo $pagingDiv;
 }
 
 $baseColCount = count($colList);
-$colCount = ($baseColCount * 3) + 2;
+$colCount = ($baseColCount * 3) - (empty($websiteId) ? 1 : 2);
 ?>
 <div id='subcontent' style="margin-top: 0px;">
 
 <table id="cust_tab">
 	<tr>
-		<th id="head" rowspan="2"><?php echo $spText['common']['Website']?></th>
 		<?php
 		$hrefAttr = $pdfVersion ? "" : "href='javascript:void(0)'";
 		foreach (array_keys($colList) as $i => $colName){
@@ -123,20 +160,25 @@ $colCount = ($baseColCount * 3) + 2;
             }
             
             $linkName = "<a id='sortLink' class='$linkClass' $hrefAttr onclick=\"scriptDoLoad('$mainLink&order_col=$colName&order_val=$oVal', 'content')\">$colList[$colName]</a>";
-		    $rowSpan = ($colName == "url") ? 2 : 1;
+            $rowSpan = ($colName == "name") ? 2 : 1;
+            $colspan = ($colName == "name") ? 1 : 3;
 			?>
-			<th rowspan="<?php echo $rowSpan?>" colspan="3" id="head"><?php echo $linkName; ?></th>
+			<th rowspan="<?php echo $rowSpan?>" colspan="<?php echo $colspan?>" id="head"><?php echo $linkName; ?></th>
 			<?php
-			
+			if ($colName == "name" && empty($websiteId)) {
+                ?>
+				<th id="head" rowspan="2"><?php echo $spText['common']['Website']?></th>
+				<?php
+			}
 		}
 		?>
-	</tr>	
+	</tr>
 	<tr>
 		<?php
 		$pTxt = str_replace("-", "/", substr($fromTime, -5));
 		$cTxt = str_replace("-", "/", substr($toTime, -5));
 		foreach ($colList as $colName => $colVal) {
-			if ($colName == 'url') continue;
+			if ($colName == 'name') continue;
 			?>
 			<th><?php echo $pTxt; ?></th>
 			<th><?php echo $cTxt; ?></th>
@@ -150,19 +192,22 @@ $colCount = ($baseColCount * 3) + 2;
 			foreach($baseReportList as $listInfo){
 				$keywordId = $listInfo['id'];
 				$rangeFromTime = date('Y-m-d', strtotime('-14 days', strtotime($fromTime)));
-				$scriptLink = "website_id=$websiteId&link_id={$listInfo['id']}&rep=1&from_time=$rangeFromTime&to_time=$toTime";
+				$rowWebsiteId = empty($websiteId) ? $listInfo['website_id'] : $websiteId;
+				$scriptLink = "website_id=$rowWebsiteId&link_id={$listInfo['id']}&rep=1&from_time=$rangeFromTime&to_time=$toTime";
 				?>
 				<tr>
 					<td>
-						<a href="javascript:void(0)"><?php echo $websiteList[$listInfo['website_id']]['url']; ?></a>
-					</td>
-					<td colspan="3">
 						<i class="fab fa-<?php echo strtolower($listInfo['type'])?>"></i>
-						<?php echo ($listInfo['type'] == 'linkedin') ? $listInfo['name'] : $listInfo['url']; ?>
+						<?php echo htmlspecialchars($listInfo['name'])?>
 					</td>
+					<?php if (empty($websiteId)) {?>
+						<td>
+							<a href="javascript:void(0)"><?php echo htmlspecialchars($websiteList[$listInfo['website_id']]['name'] ?? '')?></a>
+						</td>
+					<?php }?>
 					<?php
 					foreach ($colList as $colName => $colVal){
-						if ($colName == 'url') continue;
+						if ($colName == 'name') continue;
 						
 						// if not facebook likes value will be null
 						if ($colName == 'likes' && $listInfo['type'] != 'facebook') {

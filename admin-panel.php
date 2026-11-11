@@ -1,7 +1,7 @@
 <?php
 
 /***************************************************************************
- *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	   *
+ *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.org)  	   *
  *   sendtogeo@gmail.com   												   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -61,6 +61,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$controller->index($info);
 			break;
 		
+		case "spapi-register":
+			$info['menu_selected'] = 'settings';
+			$info['start_script'] = 'settings.php?category=seopanel_api';
+			$controller->index($info);
+			break;
+
 		case "settings":
 			$info['menu_selected'] = 'settings';
 			$info['start_script'] = 'settings.php';

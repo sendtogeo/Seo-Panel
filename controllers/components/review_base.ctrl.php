@@ -1,7 +1,7 @@
 <?php
 
 /***************************************************************************
- *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	           *
+ *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.org)  	           *
  *   sendtogeo@gmail.com   												   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -26,29 +26,56 @@ class ReviewBase extends Controller {
     var $serviceList;
     
     function __construct() {
-    	 
+        $engineList = Spider::getCrawlEngineCategoryList("review");
     	$this->serviceList = [
     		"google" => [
     			"label" => "Google My Business",
     			"regex" => [
-    				"reviews" => '/<span>([0-9.,]+) Google reviews<\/span>/is',
-    				"rating" => '/<\/g-popup>.*?aria-label="Rated (\d+\.\d+) out/is',
+    			    "reviews" => $engineList['google']['regex1'],
+    			    "rating" => $engineList['google']['regex2'],
     			],
     		    "url_part" => '?hl=en',
-    		    'example' => ['https://www.google.com/search?q=kfc+Damrak']
+    		    'example' => ['https://www.google.com/search?q=kfc+Damrak'],
+    		    'icon' => 'fab fa-google',
     		],
-    	    "glassdoor" => [
+    	    /*"glassdoor" => [
     	        "label" => "Glassdoor",
     	        "regex" => [
-    				"reviews" => '/"reviewCount":([0-9.,]+)/is',
-    				"rating" => '/"overallRating":(\d+\.\d+)/is',
+    	            "reviews" => $engineList['glassdoor']['regex1'],
+    	            "rating" => $engineList['glassdoor']['regex2'],
     	        ],
     		    'example' => ['https://www.glassdoor.com/Overview/Working-at-Google-EI_IE9079.11,17.htm']
+    	    ],*/
+    	    "yelp" => [
+    	        "label" => "Yelp",
+    	        "regex" => [
+    	            "reviews" => $engineList['yelp']['regex1'],
+    	            "rating" => $engineList['yelp']['regex2'],
+    	        ],
+    	        'example' => ['https://www.yelp.com/biz/intercontinental-singapore-singapore-2'],
+    	        'icon' => 'fab fa-yelp',
+    	    ],
+    	    "trustpilot" => [
+    	        "label" => "Trustpilot",
+    	        "regex" => [
+    	            "reviews" => $engineList['trustpilot']['regex1'],
+    	            "rating" => $engineList['trustpilot']['regex2'],
+    	        ],
+    	        'example' => ['https://www.trustpilot.com/review/xohotels.com'],
+    	        'icon' => 'fab fa-buffer',
+    	    ],
+    	    "tripadvisor" => [
+    	        "label" => "Tripadvisor",
+    	        "regex" => [
+    	            "reviews" => $engineList['tripadvisor']['regex1'],
+    	            "rating" => $engineList['tripadvisor']['regex2'],
+    	        ],
+    	        'example' => ['https://www.tripadvisor.com/Hotel_Review-g188098-d236186-Reviews-Hotel_Julen-Zermatt_Canton_of_Valais_Swiss_Alps.html'],
+    	        'icon' => 'fab fa-tripadvisor',
     	    ],
     	];
     	
     	parent::__construct();
-    }
-    
+    }    
 }
 ?>

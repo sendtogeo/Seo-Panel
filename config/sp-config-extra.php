@@ -1,7 +1,7 @@
 <?php
 
 /***************************************************************************
- *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)			   *
+ *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.org)			   *
  *   sendtogeo@gmail.com   						   						   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -72,6 +72,11 @@ define('SP_API_FILE', 'api/api.php');
 # The crawl log clear interval in days
 define('SP_CRAWL_LOG_CLEAR_TIME', 90);
 
+# Directory submission debug snapshot (tmp/subres_web{id}_dir{id}.html)
+# clear interval in days - these are write-only debugging artifacts,
+# never read back anywhere in the app, so a short retention is fine
+define('SP_SUBMISSION_LOG_CLEAR_TIME', 7);
+
 # The api language code
 define('SP_API_LANG_CODE', 'en');
 
@@ -79,10 +84,10 @@ define('SP_API_LANG_CODE', 'en');
 define('SP_HELP_LINK', 'https://www.seopanel.org/docs/');
 
 # The seo panel forum page
-define('SP_FORUM_LINK', 'http://forum.seopanel.in/');
+define('SP_FORUM_LINK', '');
 
 # The seo panel support page
-define('SP_SUPPORT_LINK', 'http://support.seofreetools.net/');
+define('SP_SUPPORT_LINK', 'https://www.seopanel.org/support/');
 
 # The seo panel contact page
 define('SP_CONTACT_LINK', SP_MAIN_SITE . '/contact/');
@@ -105,6 +110,14 @@ define('SP_SPONSOR_PAGE', SP_MAIN_SITE . '/sponsors.php');
 # The seo panel version page
 define('SP_VERSION_PAGE', SP_MAIN_SITE . '/getversion.php');
 
+# NOTE: SP_ONLINE_UPGRADE_URL (the release zip used by Settings > Version's
+# "Upgrade Now") is intentionally NOT define()'d here. It's referenced
+# inline as defined('SP_ONLINE_UPGRADE_URL') ? SP_ONLINE_UPGRADE_URL :
+# 'https://www.seopanel.org/spdownload/' in SettingsController, the same
+# pattern SP_SPAPI_URL uses, so it can be overridden via a `settings` table
+# row (e.g. to point at a local fixture server for testing) without editing
+# this file.
+
 # seo panel theme site url
 define('SP_THEMESITE', SP_MAIN_SITE . '/themes/');
 
@@ -116,5 +129,5 @@ define('SP_PAYMENT_CANCEL_LINK', SP_WEBPATH."/payment_cancel.php");
 define('SP_PAYMENT_RETURN_LINK', SP_WEBPATH."/payment_return.php");
 
 # define search engine sync interval in days
-define('SP_SYNC_SE_INTERVAL', 10);
+define('SP_SYNC_SE_INTERVAL', 5);
 ?>

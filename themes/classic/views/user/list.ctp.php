@@ -1,15 +1,41 @@
-<?php $submitLink = "scriptDoLoadPost('users.php', 'listform', 'content')";?>
+<?php
+include(SP_VIEWPATH.'/aivisibility/_styles.ctp.php');
+$submitLink = "scriptDoLoadPost('users.php', 'listform', 'content')";
+?>
+<div class="aiv-page-head">
+	<?php echo showSectionHead($spTextPanel['User Manager']); ?>
+	<a href="javascript:void(0);" data-toggle="modal" data-target="#userManagerHelpModal" class="aiv-help-btn"><i class="fas fa-question-circle"></i> What does this do?</a>
+</div>
+
+<!-- static help modal, not routed through #ajaxModalSP since there's no AJAX fetch involved -->
+<div class="modal fade aiv-help-modal" id="userManagerHelpModal" tabindex="-1" role="dialog" aria-labelledby="userManagerHelpModalLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="aiv-help-modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<div class="aiv-help-modal-icon"><i class="fas fa-users"></i></div>
+				<h5 class="modal-title" id="userManagerHelpModalLabel">About User Manager</h5>
+			</div>
+			<div class="modal-body aiv-help-modal-body">
+				<p>The list of every user account on this install. Edit, activate/deactivate or delete an account, and see which user type (permission level) each one has.</p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" data-dismiss="modal">Got it</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 <form name="listform" id="listform" onsubmit="<?php echo $submitLink?>;return false;">
-<?php echo showSectionHead($spTextPanel['User Manager']); ?>
 <table class="search">
 	<tr>
 		<th><?php echo $spText['common']['Keyword']?>: </th>
 		<td>
-			<input type="text" name="user_name" value="<?php echo htmlentities($info['user_name'], ENT_QUOTES)?>" onblur="<?php echo $submitLink?>">
+			<input type="text" name="user_name" value="<?php echo htmlentities($info['user_name'], ENT_QUOTES)?>" onblur="<?php echo $submitLink?>" class="form-control">
 		</td>
-		<th><?php echo $spText['common']['Status']?>: </th>
+		<th class="pl-4"><?php echo $spText['common']['Status']?>: </th>
 		<td>
-			<select name="stscheck" onchange="<?php echo $submitLink?>">
+			<select name="stscheck" onchange="<?php echo $submitLink?>" class="custom-select">
 				<option value="select">-- <?php echo $spText['common']['Select']?> --</option>
 				<?php foreach($statusList as $key => $val){?>
 					<?php if(isset($info['stscheck']) && $info['stscheck'] === $val){?>
@@ -20,9 +46,9 @@
 				<?php }?>
 			</select>
 		</td>
-		<th><?php echo $spText['login']['User Type']?>: </th>
+		<th class="pl-4"><?php echo $spText['login']['User Type']?>: </th>
 		<td>
-			<select name="user_type_id" onchange="<?php echo $submitLink?>">
+			<select name="user_type_id" onchange="<?php echo $submitLink?>" class="custom-select">
 				<option value="">-- <?php echo $spText['common']['Select']?> --</option>
 				<?php foreach($userTypeList as $key => $val){?>
 					<?php if(isset($info["user_type_id"]) && ($info["user_type_id"] == $key)){?>
@@ -34,7 +60,7 @@
 			</select>
 		</td>
 		<td style="text-align: center;">
-			<a href="javascript:void(0);" onclick="<?php echo $submitLink; ?>" class="actionbut">
+			<a href="javascript:void(0);" onclick="<?php echo $submitLink; ?>" class="btn btn-secondary">
 				<?php echo $spText['button']['Search']?>
 			</a>
 		</td>
@@ -44,14 +70,13 @@
 <table class="list">
 	<tr class="listHead">
 		<td><input type="checkbox" id="checkall" onclick="checkList('checkall')"></td>
-		<td><?php echo $spText['common']['Id']?></td>
 		<td><?php echo $spText['login']['Username']?></td>
 		<td><?php echo $spText['login']['User Type']?></td>
 		<td><?php echo $spText['common']['Name']?></td>
 		<td><?php echo $spText['login']['Email']?></td>
 		<td><?php echo $spTextUser['Expiry Date']?></td>
 		<td><?php echo $spText['common']['Status']?></td>
-		<td><?php echo $spText['common']['Action']?></td>
+		<td style="width: 10%"><?php echo $spText['common']['Action']?></td>
 	</tr>
 	<?php
 	$colCount = 9; 
@@ -61,13 +86,14 @@
 			?>
 			<tr>				
 				<td><input type="checkbox" name="ids[]" value="<?php echo $userInfo['id']?>"></td>
-				<td><?php echo $userInfo['id']?></td>
 				<td><?php echo $usernameLink?></td>
 				<td><?php echo $userTypeList[$userInfo['utype_id']]['user_type']?></td>
-				<td><?php echo $userInfo['first_name']." ".$userInfo['last_name']?></td>
-				<td><?php echo $userInfo['email']?></td>
+				<td><?php echo htmlspecialchars($userInfo['first_name']." ".$userInfo['last_name'], ENT_QUOTES)?></td>
+				<td><?php echo htmlspecialchars($userInfo['email'], ENT_QUOTES)?></td>
 				<td><?php echo formatDate($userInfo['expiry_date']); ?></td>
-				<td><?php echo $userInfo['status'] ? $spText['common']["Active"] : $spText['common']["Inactive"];	?></td>
+				<td class="text-center">					
+					<?php echo showStatusBadge($userInfo['status']);?>
+				</td>
 				<td>
 					<?php
 						if($userInfo['status']){
@@ -78,7 +104,8 @@
 							$statLabel = $spText['common']["Activate"];
 						} 
 					?>
-					<select name="action" id="action<?php echo $userInfo['id']?>" onchange="doAction('users.php', 'content', 'userId=<?php echo $userInfo['id']?>&pageno=<?php echo $pageNo?>', 'action<?php echo $userInfo['id']?>')" style="width: 180px;">
+					<select name="action" id="action<?php echo $userInfo['id']?>" class="custom-select" 
+						onchange="doAction('users.php', 'content', 'userId=<?php echo $userInfo['id']?>&pageno=<?php echo $pageNo?>', 'action<?php echo $userInfo['id']?>')" style="width: 180px;">
 						<option value="select">-- <?php echo $spText['common']['Select']?> --</option>
 						<option value="<?php echo $statVal?>"><?php echo $statLabel?></option>
 						<option value="edit"><?php echo $spText['common']['Edit']?></option>
@@ -105,19 +132,19 @@ if (SP_DEMO) {
     $delFun = "confirmSubmit('users.php', 'listform', 'content', '&sec=deleteall&pageno=$pageNo')";
 }   
 ?>
-<table class="actionSec">
+<table class="actionSec mt-2">
 	<tr>
-    	<td style="padding-top: 6px;">
-         	<a onclick="scriptDoLoad('users.php', 'content', 'sec=new')" href="javascript:void(0);" class="actionbut">
+    	<td>
+         	<a onclick="scriptDoLoad('users.php', 'content', 'sec=new')" href="javascript:void(0);" class="btn btn-primary">
          		<?php echo $spTextPanel['New User']?>
          	</a>&nbsp;&nbsp;
-         	<a onclick="<?php echo $actFun?>" href="javascript:void(0);" class="actionbut">
+         	<a onclick="<?php echo $actFun?>" href="javascript:void(0);" class="btn btn-success">
          		<?php echo $spText['common']["Activate"]?>
          	</a>&nbsp;&nbsp;
-         	<a onclick="<?php echo $inactFun?>" href="javascript:void(0);" class="actionbut">
+         	<a onclick="<?php echo $inactFun?>" href="javascript:void(0);" class="btn btn-warning">
          		<?php echo $spText['common']["Inactivate"]?>
          	</a>&nbsp;&nbsp;
-         	<a onclick="<?php echo $delFun?>" href="javascript:void(0);" class="actionbut">
+         	<a onclick="<?php echo $delFun?>" href="javascript:void(0);" class="btn btn-danger">
          		<?php echo $spText['common']['Delete']?>
          	</a>
     	</td>

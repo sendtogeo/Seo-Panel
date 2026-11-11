@@ -4,12 +4,12 @@ $borderCollapseVal = $pdfVersion ? "border-collapse: collapse;" : "";
 if(!$summaryPage && (!empty($printVersion) || !empty($pdfVersion))) {
     $pdfVersion ? showPdfHeader($spTextTools['Website Analytics Summary']) : showPrintHeader($spTextTools['Website Analytics Summary']);
     ?>
-    <table width="80%" class="search">
+    <table class="search">
     	<?php if (!empty($websiteId)) {?>
     		<tr>
     			<th><?php echo $spText['common']['Website']?>:</th>
         		<td>
-        			<?php echo $websiteList[$websiteId]['url']; ?>
+        			<?php echo htmlspecialchars($websiteList[$websiteId]['url'] ?? ''); ?>
     			</td>
     		</tr>
 		<?php }?>
@@ -22,8 +22,36 @@ if(!$summaryPage && (!empty($printVersion) || !empty($pdfVersion))) {
 	</table>
     <?php
 } else {
-    echo showSectionHead($spTextTools['Website Analytics Summary']);
-    
+    include(SP_VIEWPATH.'/aivisibility/_styles.ctp.php');
+    ?>
+    <div class="aiv-page-head">
+        <?php echo showSectionHead($spTextTools['Website Analytics Summary']); ?>
+        <a href="javascript:void(0);" data-toggle="modal" data-target="#anSummaryHelpModal" class="aiv-help-btn"><i class="fas fa-question-circle"></i> What does this do?</a>
+    </div>
+
+    <!-- static help modal, not routed through #ajaxModalSP since there's no AJAX fetch involved -->
+    <div class="modal fade aiv-help-modal" id="anSummaryHelpModal" tabindex="-1" role="dialog" aria-labelledby="anSummaryHelpModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="aiv-help-modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <div class="aiv-help-modal-icon"><i class="fas fa-chart-pie"></i></div>
+                    <h5 class="modal-title" id="anSummaryHelpModalLabel">About Website Analytics Summary</h5>
+                </div>
+                <div class="modal-body aiv-help-modal-body">
+                    <p>For one chosen website, compares each traffic source's Google Analytics metrics (users, sessions, bounce rate, and more) between two dates, with the change highlighted. Pick Day, Week, Month or Year for a quick comparison, or set your own two dates.</p>
+                    <div class="aiv-note">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Reads already-saved GA4 data from the daily sync, so it needs Google Analytics connected under Settings &gt; Connections before this shows anything. Day/Week/Month/Year is anchored to the latest date that actually has synced data, not today's date.</span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Got it</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php
     // if not summary page show the filters
     if(!$summaryPage) {
     	$scriptName = "analytics.php";
@@ -34,32 +62,46 @@ if(!$summaryPage && (!empty($printVersion) || !empty($pdfVersion))) {
 			<tr>
 				<th><?php echo $spText['common']['Name']?>: </th>
 				<td>
-					<input type="text" name="search_name" value="<?php echo htmlentities($searchInfo['search_name'], ENT_QUOTES)?>" onblur="<?php echo $submitLink?>">
+					<input type="text" name="search_name" value="<?php echo htmlentities($searchInfo['search_name'], ENT_QUOTES)?>" onblur="<?php echo $submitLink?>" class="form-control">
 				</td>
-				<th width="100px"><?php echo $spText['common']['Website']?>: </th>
-				<td width="160px">
-					<select name="website_id" id="website_id" style='width:100px;' onchange="<?php echo $submitLink?>">
-						<option value="">-- <?php echo $spText['common']['Select']?> --</option>
+				<th class="pl-4"><?php echo $spText['common']['Website']?>: </th>
+				<td>
+					<select name="website_id" id="website_id" onchange="<?php echo $submitLink?>" class="custom-select">
 						<?php foreach($websiteList as $websiteInfo){?>
 							<?php if($websiteInfo['id'] == $websiteId){?>
-								<option value="<?php echo $websiteInfo['id']?>" selected><?php echo $websiteInfo['name']?></option>
+								<option value="<?php echo $websiteInfo['id']?>" selected><?php echo htmlspecialchars($websiteInfo['name'])?></option>
 							<?php }else{?>
-								<option value="<?php echo $websiteInfo['id']?>"><?php echo $websiteInfo['name']?></option>
+								<option value="<?php echo $websiteInfo['id']?>"><?php echo htmlspecialchars($websiteInfo['name'])?></option>
 							<?php }?>
 						<?php }?>
 					</select>
 				</td>
-				<th width="100px;"><?php echo $spText['common']['Period']?>:</th>
-	    		<td width="236px">
-	    			<input type="text" value="<?php echo $fromTime?>" name="from_time"/> 
-	    			<input type="text" value="<?php echo $toTime?>" name="to_time"/>
+				<th class="pl-4"><?php echo $spText['common']['Period']?>:</th>
+	    		<td>
+					<select name="period" id="period_preset" class="custom-select" style="display:inline-block; width:120px;" onchange="<?php echo $submitLink?>">
+						<option value="" <?php echo empty($period) ? 'selected' : ''?>>-- <?php echo $spText['label']['Custom'] ?? 'Custom'?> --</option>
+						<option value="day" <?php echo $period == 'day' ? 'selected' : ''?>><?php echo $spText['label']['Day']?></option>
+						<option value="week" <?php echo $period == 'week' ? 'selected' : ''?>><?php echo $spText['label']['Week']?></option>
+						<option value="month" <?php echo $period == 'month' ? 'selected' : ''?>><?php echo $spText['label']['Month']?></option>
+						<option value="year" <?php echo $period == 'year' ? 'selected' : ''?>><?php echo $spText['label']['Year']?></option>
+					</select>
+					<span id="custom_date_range" style="display: <?php echo empty($period) ? 'inline-block' : 'none'?>; margin-left:6px;">
+	    				<input type="text" value="<?php echo $fromTime?>" name="from_time" id="from_time" class="form-control" style="display: inline-block; width: 130px;"/>
+	    				<input type="text" value="<?php echo $toTime?>" name="to_time" id="to_time" class="form-control" style="display: inline-block; width: 130px;"/>
+					</span>
         			<script type="text/javascript">
         			$(function() {
         				$( "input[name='from_time'], input[name='to_time']").datepicker({dateFormat: "yy-mm-dd"});
+        				$( "#from_time, #to_time").on("change", function() {
+        					$("#period_preset").val("");
+        				});
+        				$( "#period_preset" ).on("change", function() {
+        					$("#custom_date_range").css("display", $(this).val() === "" ? "inline-block" : "none");
+        				});
         			});
         		  	</script>
 	    		</td>
-				<td><a href="javascript:void(0);" onclick="<?php echo $submitLink?>" class="actionbut"><?php echo $spText['button']['Search']?></a></td>
+				<td style="text-align: center;"><a href="javascript:void(0);" onclick="<?php echo $submitLink?>" class="btn btn-secondary"><?php echo $spText['button']['Search']?></a></td>
 			</tr>
 		</table>
 		</form>
@@ -85,13 +127,15 @@ if(!$summaryPage && (!empty($printVersion) || !empty($pdfVersion))) {
 }
 
 $baseColCount = count($metricColList);
-$colCount = ($baseColCount * 3) + 2;
+$colCount = ($baseColCount * 3) + (empty($websiteId) ? 2 : 1);
 ?>
 <div id='subcontent' style="margin-top: 0px;">
 
 <table id="cust_tab">
 	<tr>
-		<th id="head" rowspan="2"><?php echo $spText['common']['Website']?></th>
+		<?php if (empty($websiteId)) {?>
+			<th id="head" rowspan="2"><?php echo $spText['common']['Website']?></th>
+		<?php }?>
 		<th id="head" rowspan="2"><?php echo $spText['common']['Source']?></th>
 		<?php
 		$hrefAttr = $pdfVersion ? "" : "href='javascript:void(0)'";
@@ -133,12 +177,12 @@ $colCount = ($baseColCount * 3) + 2;
 			$rangeFromTime = date('Y-m-d', strtotime('-14 days', strtotime($fromTime)));
 			$scriptLink = "website_id={$listInfo['website_id']}&source_id={$listInfo['id']}&rep=1&from_time=$rangeFromTime&to_time=$toTime";
 			$trClass = ($listInfo['source_name'] == 'total') ? "table-secondary" : "";
-			$sourceName = ($listInfo['source_name'] == 'total') ? "<b>".$spText['common']['Total']."</b>" : $listInfo['source_name'];
+			$sourceName = ($listInfo['source_name'] == 'total') ? "<b>".$spText['common']['Total']."</b>" : htmlspecialchars($listInfo['source_name']);
 			?>
 			<tr class="<?php echo $trClass?>">
-				<td>
-					<a href="javascript:void(0)"><?php echo $websiteList[$listInfo['website_id']]['url']; ?></a>
-				</td>
+				<?php if (empty($websiteId)) {?>
+					<td><a href="javascript:void(0)"><?php echo htmlspecialchars($websiteList[$listInfo['website_id']]['name'] ?? '')?></a></td>
+				<?php }?>
 				<td><?php echo $sourceName; ?></td>
 				<?php
 				foreach ($metricColList as $colName => $colVal) {
@@ -172,7 +216,7 @@ $colCount = ($baseColCount * 3) + 2;
 				    ?>
 					<td><?php echo $prevRankLink; ?></td>
 					<td><?php echo $currRankLink; ?></td>
-					<td><?php echo $graphLink . " " . $rankDiffTxt; ?></td>
+					<td class="text-nowrap"><?php echo $graphLink . " " . $rankDiffTxt; ?></td>
 					<?php					
 				}
 				?>				

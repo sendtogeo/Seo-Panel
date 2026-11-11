@@ -1,6 +1,6 @@
 <?php
 /***************************************************************************
- *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	   *
+ *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.org)  	   *
  *   sendtogeo@gmail.com   						   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -41,6 +41,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$controller->login();
 			break;
 
+		case "verify_2fa":
+			$controller->verifyTwoFactorLogin($_POST);
+			break;
+
 		case "requestpass":			
 			$controller->set('spTitle', "$siteName forgot password");
 			$controller->requestPassword($_POST['email']);
@@ -58,9 +62,18 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$controller->logout();
 			break;
 		
-		case "forgot":	
+		case "forgot":
 			$controller->set('spTitle', "$siteName forgot password");
 			$controller->forgotPasswordForm();
+			break;
+
+		case "twofactor":
+			$controller->set('spTitle', "$siteName Two-Factor Authentication");
+			$controller->showTwoFactorLoginForm();
+			break;
+
+		case "cancel_2fa":
+			$controller->cancelTwoFactorLogin();
 			break;
 
 		default:

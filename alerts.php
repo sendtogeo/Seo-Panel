@@ -1,7 +1,7 @@
 <?php
 
 /***************************************************************************
- *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.in)  	   *
+ *   Copyright (C) 2009-2011 by Geo Varghese(www.seopanel.org)  	   *
  *   sendtogeo@gmail.com   												   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -46,32 +46,32 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
                     $controller->deleteAlert($id);
                 }
             }
-            
+
             $controller->listAlerts($_POST);
             break;
-		
+
+        case "delete_alert":
+            $controller->deleteAlert($_POST['id']);
+            $controller->listAlerts($_POST);
+            break;
+
 		default:
 		    $controller->listAlerts($_POST);
 			break;
-			
+
 	}
-	
+
 } else {
-	
+
     switch($_GET['sec']) {
-        
+
         case "alert_info":
             $controller->showAlertInfo($_GET['id']);
             break;
-        
-        case "delete_alert":
-            $controller->deleteAlert($_GET['id']);
-            $controller->listAlerts($_GET);
-            break;
-            
-		default:			
+
+		default:
 			$controller->listAlerts($_GET);
 			break;
-	}	
+	}
 }
 ?>
