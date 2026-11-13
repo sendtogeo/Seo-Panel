@@ -7,6 +7,7 @@
 // Load SEO Panel environment
 include_once("includes/sp-load.php");
 include_once(SP_CTRLPATH."/review_manager.ctrl.php");
+checkAdminLoggedIn();
 
 // Create controller instance
 $rmController = new ReviewManagerController();

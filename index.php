@@ -41,7 +41,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET') {
 			break;
 		
 		case "showdiv":
-			$areaId = $_GET['div_id'];
+			$areaId = preg_replace('/[^A-Za-z0-9_-]/', '', (string)($_GET['div_id'] ?? ''));
 			?>
 			<script type="text/javascript">
 			$('#dialogContent').html($("#<?php echo $areaId;?>").html());
