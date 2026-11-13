@@ -884,6 +884,8 @@ function getCustomizerMenu($menuName) {
 function convertMarkdownToHtml($pageCont) {
     include_once(SP_LIBPATH."/Parsedown.php");
     $Parsedown = new Parsedown();
+    // Safe mode escapes raw HTML in user markdown (blog/customizer content is rendered unescaped).
+    $Parsedown->setSafeMode(true);
     $pageCont = $Parsedown->text($pageCont);
     return $pageCont;
 }

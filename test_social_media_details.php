@@ -7,6 +7,7 @@
 // Load SEO Panel environment
 include_once("includes/sp-load.php");
 include_once(SP_CTRLPATH."/social_media.ctrl.php");
+checkAdminLoggedIn();
 
 // Create controller instance
 $smController = new SocialMediaController();
